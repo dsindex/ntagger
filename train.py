@@ -113,6 +113,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             scheduler.step()
         # back-propagation - end
         train_loss += loss.item()
+        n_batches += 1
         if local_rank == 0 and writer:
             writer.add_scalar('Loss/train', loss.item(), global_step)
     train_loss = train_loss / n_batches
