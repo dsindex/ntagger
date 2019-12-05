@@ -16,11 +16,11 @@ class CoNLLGloveDataset(Dataset):
                 items = line.split('\t')
                 yi = [int(d) for d in items[0].split()]
                 xi = [int(d) for d in items[1].split()]
-                y.append(yi)
                 x.append(xi)
+                y.append(yi)
         
-        self.y = torch.tensor(y).long()
         self.x = torch.tensor(x).long()
+        self.y = torch.tensor(y).long()
  
     def __len__(self):
         return self.x.size(0)

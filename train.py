@@ -100,7 +100,9 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         x = to_device(x, device)
         y = to_device(y, device)
         logits = model(x)
-        loss = criterion(logits.view(-1, model.label_size), y.view(-1))
+        logits_view = logits.view(-1, model.label_size)
+        y_view = y.view(-1)
+        loss = criterion(logits_view, y_view)
         # back-propagation - begin
         optimizer.zero_grad()
         if use_amp:
@@ -164,9 +166,8 @@ def evaluate(model, config, val_loader, device):
     preds_lbs = [[] for _ in range(ys.shape[0])]
     for i in range(ys.shape[0]):
         for j in range(ys.shape[1]):
-            if ys[i, j] != 0: # pad label id == 0
-                ys_lbs[i].append(labels[ys[i][j]])
-                preds_lbs[i].append(labels[preds[i][j]])
+            ys_lbs[i].append(labels[ys[i][j]])
+            preds_lbs[i].append(labels[preds[i][j]])
     ret = {
         "loss": eval_loss,
         "precision": precision_score(ys_lbs, preds_lbs),

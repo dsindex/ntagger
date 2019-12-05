@@ -12,6 +12,7 @@ import torch
 from model import GloveLSTM
 from dataset import CoNLLGloveDataset, CoNLLBertDataset
 from torch.utils.data import DataLoader
+import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score
 
 logging.basicConfig(level=logging.INFO)
@@ -103,11 +104,9 @@ def evaluate(opt):
     preds_lbs = [[] for _ in range(ys.shape[0])]
     for i in range(ys.shape[0]):
         for j in range(ys.shape[1]):
-            if ys[i, j] != 0: # pad label id == 0
-                ys_lbs[i].append(labels[ys[i][j]])
-                preds_lbs[i].append(labels[preds[i][j]])
+            ys_lbs[i].append(labels[ys[i][j]])
+            preds_lbs[i].append(labels[preds[i][j]])
     ret = {
-        "loss": eval_loss,
         "precision": precision_score(ys_lbs, preds_lbs),
         "recall": recall_score(ys_lbs, preds_lbs),
         "f1": f1_score(ys_lbs, preds_lbs)
@@ -122,9 +121,9 @@ def evaluate(opt):
 def main():
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--data_path', type=str, default='data/snips/test.txt.ids')
-    parser.add_argument('--embedding_path', type=str, default='data/snips/embedding.npy')
-    parser.add_argument('--label_path', type=str, default='data/snips/label.txt')
+    parser.add_argument('--data_path', type=str, default='data/conll2003/test.txt.ids')
+    parser.add_argument('--embedding_path', type=str, default='data/conll2003/embedding.npy')
+    parser.add_argument('--label_path', type=str, default='data/conll2003/label.txt')
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--model_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--device', type=str, default='cuda')

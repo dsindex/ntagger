@@ -34,7 +34,7 @@ class GloveLSTM(nn.Module):
         # output layer
         self.labels = self.__load_label(label_path)
         self.label_size = len(self.labels)
-        self.output = nn.Linear(lstm_hidden_dim*2, self.label_size)
+        self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
 
     def __load_embedding(self, input_path):
         weights_matrix = np.load(input_path)
@@ -69,8 +69,7 @@ class GloveLSTM(nn.Module):
 
         lstm_out = self.dropout(lstm_out)
 
-        output = self.output(lstm_out)
-        logits = torch.softmax(output, dim=2)
+        logits = self.linear(lstm_out)
         # [batch_size, seq_size, label_size]
         return logits
 
