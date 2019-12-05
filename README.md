@@ -99,9 +99,6 @@ $ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --bert_d
 
 - best : **** (test set)
 
-
-- best : **93.85%** (test set)
-
 ## experiments for Korean
 
 - [KOR_EXPERIMENTS.md](/KOR_EXPERIMENTS.md)
