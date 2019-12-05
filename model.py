@@ -16,6 +16,7 @@ class GloveLSTM(nn.Module):
         token_emb_dim = config['token_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
         lstm_num_layers = config['lstm_num_layers']
+        lstm_dropout = config['lstm_dropout']
 
         # glove embedding layer
         weights_matrix = self.__load_embedding(embedding_path)
@@ -27,7 +28,7 @@ class GloveLSTM(nn.Module):
         self.lstm = nn.LSTM(input_size=token_emb_dim,
                             hidden_size=lstm_hidden_dim,
                             num_layers=lstm_num_layers,
-                            dropout=config['dropout'],
+                            dropout=lstm_dropout,
                             bidirectional=True,
                             batch_first=True)
 

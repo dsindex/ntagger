@@ -129,13 +129,13 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     st_time = curr_time
     curr_lr = scheduler.get_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
     if local_rank == 0:
-        logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:6.3f}, valid loss {:6.3f}, valid f1 {:.4f}| lr :{:7.6f} | {:5.2f} min elapsed'.\
+        logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f}, valid loss {:10.6f}, valid f1 {:.4f}| lr :{:7.6f} | {:5.2f} min elapsed'.\
                 format(epoch_i, local_step+1, len(train_loader), train_loss, eval_loss, eval_f1, curr_lr, elapsed_time)) 
         if writer:
             writer.add_scalar('Loss/valid', eval_loss, global_step)
             writer.add_scalar('F1/valid', eval_f1, global_step)
             writer.add_scalar('LearningRate/train', curr_lr, global_step)
-    return eval_loss
+    return eval_loss, eval_f1
  
 def evaluate(model, config, val_loader, device):
     model.eval()
@@ -198,8 +198,8 @@ def main():
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--use_amp', type=bool, default=False)
-    parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--epoch', type=int, default=10)
+    parser.add_argument('--batch_size', type=int, default=20)
+    parser.add_argument('--epoch', type=int, default=70)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--l2norm', type=float, default=1e-6)
@@ -244,7 +244,7 @@ def main():
         # set embedding as trainable
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = GloveLSTM(config, embedding_path, label_path, emb_non_trainable=False)
+        model = GloveLSTM(config, embedding_path, label_path, emb_non_trainable=True)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
@@ -281,12 +281,14 @@ def main():
     config['writer'] = writer
     config['opt'] = opt
     best_val_loss = float('inf')
+    best_val_f1 = -float('inf')
     for epoch_i in range(opt.epoch):
         epoch_st_time = time.time()
-        eval_loss = train_epoch(model, config, train_loader, valid_loader, epoch_i+1)
-        if opt.local_rank == 0 and eval_loss < best_val_loss:
-            best_val_loss = eval_loss
+        eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i+1)
+        if opt.local_rank == 0 and eval_f1 > best_val_f1:
+            best_val_f1 = eval_f1
             if opt.save_path:
+                logger.info("[Save best model: {:10.6f}".format(best_val_f1))
                 save_model(model, opt, config)
                 if opt.emb_class == 'bert':
                     if not os.path.exists(opt.bert_output_dir):

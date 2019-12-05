@@ -49,9 +49,11 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 - evaluation
 ```
 $ python evaluate.py
+INFO:__main__:[F1] : 0.8346470640333008, 3684
+INFO:__main__:[Elapsed Time] : 59151ms, 16.056188925081432ms on average
 ```
 
-- best : **%** (test set)
+- best : **83.46%** (test set)
 
 ### emb_class=bert
 
