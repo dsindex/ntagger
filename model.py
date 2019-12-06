@@ -84,7 +84,7 @@ class GloveLSTMCRF(nn.Module):
         if not self.use_crf: return logits
 
         if tags is not None: # given golden ys(answer)
-            log_likelihood = self.crf(logits, tags)
+            log_likelihood = self.crf(logits, tags, mask=None, reduction='mean')
             prediction = self.crf.decode(logits)
             # prediction : [batch_size, seq_size]
             return logits, log_likelihood, prediction
