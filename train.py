@@ -31,7 +31,7 @@ import random
 import json
 from seqeval.metrics import precision_score, recall_score, f1_score
 
-from model import GloveLSTM
+from model import GloveLSTMCRF
 from dataset import CoNLLGloveDataset, CoNLLBertDataset
 from progbar import Progbar # instead of tqdm
 
@@ -81,6 +81,14 @@ def to_device(x, device):
             x[i] = x[i].to(device)
     return x
 
+def to_numpy(x):
+    if type(x) != list: # torch.tensor
+        x = x.detach().cpu().numpy()
+    else:               # list of torch.tensor
+        for i in range(len(x)):
+            x[i] = x[i].detach().cpu().numpy()
+    return x
+
 def train_epoch(model, config, train_loader, val_loader, epoch_i):
     device = config['device']
     optimizer = config['optimizer']
@@ -90,7 +98,8 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
 
     local_rank = opt.local_rank
     use_amp = opt.use_amp
-    criterion = torch.nn.CrossEntropyLoss().to(device)
+    pad_label_id = config['pad_label_id']
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
     n_batches = len(train_loader)
     prog = Progbar(target=n_batches)
     # train one epoch
@@ -101,10 +110,15 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         global_step = (len(train_loader) * (epoch_i-1)) + local_step
         x = to_device(x, device)
         y = to_device(y, device)
-        logits = model(x)
-        logits_view = logits.view(-1, model.label_size)
-        y_view = y.view(-1)
-        loss = criterion(logits_view, y_view)
+        if opt.use_crf:
+            logits, log_likelihood, prediction = model(x, y)
+            loss = -1 * log_likelihood
+        else:
+            logits = model(x)
+            # reshape for computing loss
+            logits_view = logits.view(-1, model.label_size)
+            y_view = y.view(-1)
+            loss = criterion(logits_view, y_view)
         # back-propagation - begin
         optimizer.zero_grad()
         if use_amp:
@@ -145,8 +159,11 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
  
 def evaluate(model, config, val_loader, device):
     model.eval()
+    opt = config['opt']
     eval_loss = 0.
-    criterion = torch.nn.CrossEntropyLoss().to(device)
+
+    pad_label_id = config['pad_label_id']
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
     n_batches = len(val_loader)
     prog = Progbar(target=n_batches)
     preds = None
@@ -155,27 +172,40 @@ def evaluate(model, config, val_loader, device):
         for i, (x,y) in enumerate(val_loader):
             x = to_device(x, device)
             y = to_device(y, device)
-            logits = model(x)
-            loss = criterion(logits.view(-1, model.label_size), y.view(-1))
-            if preds is None:
-                preds = logits.detach().cpu().numpy()
-                ys = y.detach().cpu().numpy()
+            if opt.use_crf:
+                logits, log_likelihood, prediction = model(x, y)
+                loss = -1 * log_likelihood
             else:
-                preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
-                ys = np.append(ys, y.detach().cpu().numpy(), axis=0)
+                logits = model(x)
+                loss = criterion(logits.view(-1, model.label_size), y.view(-1))
+            if preds is None:
+                if opt.use_crf:
+                    #preds = to_numpy(prediction)
+                    preds = prediction
+                else:
+                    preds = to_numpy(logits)
+                ys = to_numpy(y)
+            else:
+                if opt.use_crf:
+                    #preds = np.append(preds, to_numpy(prediction), axis=0)
+                    preds = np.append(preds, prediction, axis=0)
+                else:
+                    preds = np.append(preds, to_numpy(logits), axis=0)
+                ys = np.append(ys, to_numpy(y), axis=0)
             eval_loss += loss.item()
             prog.update(i+1,
                         [('eval curr loss', loss.item())])
     eval_loss = eval_loss / n_batches
-    preds = np.argmax(preds, axis=2)
+    if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = model.labels
     ys_lbs = [[] for _ in range(ys.shape[0])]
     preds_lbs = [[] for _ in range(ys.shape[0])]
     for i in range(ys.shape[0]):     # foreach sentence 
         for j in range(ys.shape[1]): # foreach token
-            ys_lbs[i].append(labels[ys[i][j]])
-            preds_lbs[i].append(labels[preds[i][j]])
+            if ys[i][j] != pad_label_id:
+                ys_lbs[i].append(labels[ys[i][j]])
+                preds_lbs[i].append(labels[preds[i][j]])
     ret = {
         "loss": eval_loss,
         "precision": precision_score(ys_lbs, preds_lbs),
@@ -205,7 +235,7 @@ def main():
     parser.add_argument('--label_filename', type=str, default='label.txt')
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--use_amp', type=bool, default=False)
+    parser.add_argument('--use_amp', action="store_true")
     parser.add_argument('--batch_size', type=int, default=20)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
@@ -218,6 +248,7 @@ def main():
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument("--seed", default=5, type=int)
     parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert')
+    parser.add_argument('--use_crf', action="store_true")
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -249,10 +280,9 @@ def main():
 
     # prepare model
     if opt.emb_class == 'glove':
-        # set embedding as trainable
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = GloveLSTM(config, embedding_path, label_path, emb_non_trainable=True)
+        model = GloveLSTMCRF(config, embedding_path, label_path, emb_non_trainable=True, use_crf=opt.use_crf)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,

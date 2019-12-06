@@ -11,6 +11,8 @@ from collections import Counter
 import pdb
 import logging
 
+from torch.nn import CrossEntropyLoss
+
 from tqdm import tqdm
 
 logging.basicConfig(level=logging.INFO)
@@ -33,10 +35,12 @@ def load_config(opt):
         config = dict()
     return config
 
-def build_label(input_path):
+def build_label(input_path, config):
     logger.info("\n[building labels]")
     labels = {}
-    label_id = 0
+    # add pad label
+    labels[config['pad_label']] = config['pad_label_id']
+    label_id = 1
     tot_num_line = sum(1 for _ in open(input_path, 'r')) 
     with open(input_path, 'r', encoding='utf-8') as f:
         for idx, line in enumerate(tqdm(f, total=tot_num_line)):
@@ -182,7 +186,7 @@ def write_data(data, output_path, tokenizer, labels):
             label_id = labels[label]
             label_ids.append(label_id)
         for _ in range(config['n_ctx'] - len(label_ids)):
-            label_ids.append(pad_id)
+            label_ids.append(config['pad_label_id'])
         label_ids_str = ' '.join([str(d) for d in label_ids])
         # token ids
         token_ids = tokenizer.convert_tokens_to_ids(tokens)
@@ -232,7 +236,7 @@ def preprocess_glove(config, opt):
 
     # build labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    labels = build_label(path)
+    labels = build_label(path, config)
 
     # write data, vocab, embedding, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _SUFFIX)
@@ -285,7 +289,7 @@ def preprocess_bert(config, opt):
                                               do_lower_case=opt.bert_do_lower_case)
     # build labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    labels = build_label(path)
+    labels = build_label(path, config)
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)

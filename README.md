@@ -40,20 +40,33 @@ $ pip install git+https://github.com/huggingface/transformers.git
 * token_emb_dim in config.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py
 $ python train.py
+* --use_crf
+$ python train.py --use_crf
 
 * tensorboardX
 $ rm -rf runs
-$ tensorboard --logdir runs/ --port port-number --bind_all
+$ tensorboard --logdir runs/ --port ${port} --bind_all
 ```
 
 - evaluation
 ```
 $ python evaluate.py
-INFO:__main__:[F1] : 0.8346470640333008, 3684
-INFO:__main__:[Elapsed Time] : 59151ms, 16.056188925081432ms on average
+INFO:__main__:[F1] : 0.8508414526129319, 3684
+INFO:__main__:[Elapsed Time] : 51865ms, 14.078447339847992ms on average
+
+* seqeval.metrics supports IOB2 format, so FB1 from conlleval.pl should be same.
+$ paste -d ' ' data/conll2003/test.txt data/conll2003/pred.txt > pred.txt ; perl etc/conlleval.pl < pred.txt
+accuracy:  96.81%; precision:  85.13%; recall:  85.04%; FB1:  85.08
+              LOC: precision:  85.99%; recall:  90.89%; FB1:  88.37  1763
+             MISC: precision:  72.88%; recall:  69.66%; FB1:  71.23  671
+              ORG: precision:  84.49%; recall:  79.35%; FB1:  81.84  1560
+              PER: precision:  89.81%; recall:  91.53%; FB1:  90.66  1648
+
+* --use_crf
+$ python evaluate.py --use_crf
 ```
 
-- best : **83.46%** (test set)
+- best : **85.08%** (test set)
 
 ### emb_class=bert
 

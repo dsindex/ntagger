@@ -8,9 +8,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-class GloveLSTM(nn.Module):
-    def __init__(self, config, embedding_path, label_path, emb_non_trainable=False):
-        super(GloveLSTM, self).__init__()
+from torchcrf import CRF
+
+class GloveLSTMCRF(nn.Module):
+    def __init__(self, config, embedding_path, label_path, emb_non_trainable=False, use_crf=True):
+        super(GloveLSTMCRF, self).__init__()
 
         seq_size = config['n_ctx']
         token_emb_dim = config['token_emb_dim']
@@ -32,10 +34,15 @@ class GloveLSTM(nn.Module):
                             bidirectional=True,
                             batch_first=True)
 
-        # output layer
+        # projection layer
         self.labels = self.__load_label(label_path)
         self.label_size = len(self.labels)
         self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
+
+        # CRF layer
+        self.use_crf = use_crf
+        if self.use_crf:
+            self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def __load_embedding(self, input_path):
         weights_matrix = np.load(input_path)
@@ -60,17 +67,28 @@ class GloveLSTM(nn.Module):
                 labels[label_id] = label
         return labels
 
-    def forward(self, x):
-        # [batch_size, seq_size]
+    def forward(self, x, tags=None):
+        # x : [batch_size, seq_size]
+        # tags : [batch_size, seq_size]
         embed_out = self.embed(x)
-        # [batch_size, seq_size, token_emb_dim]
+        # embed_out : [batch_size, seq_size, token_emb_dim]
 
         lstm_out, (h_n, c_n) = self.lstm(embed_out)
-        # [batch_size, seq_size, lstm_hidden_dim*2]
+        # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
 
         lstm_out = self.dropout(lstm_out)
 
         logits = self.linear(lstm_out)
-        # [batch_size, seq_size, label_size]
-        return logits
+        # logits : [batch_size, seq_size, label_size]
+     
+        if not self.use_crf: return logits
+
+        if tags is not None: # given golden ys(answer)
+            log_likelihood = self.crf(logits, tags)
+            prediction = self.crf.decode(logits)
+            # prediction : [batch_size, seq_size]
+            return logits, log_likelihood, prediction
+        else:
+            prediction = self.crf.decode(logits)
+            return logits, prediction
 

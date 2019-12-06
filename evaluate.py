@@ -9,7 +9,8 @@ import pdb
 import logging
 
 import torch
-from model import GloveLSTM
+import torch.nn as nn
+from model import GloveLSTMCRF
 from dataset import CoNLLGloveDataset, CoNLLBertDataset
 from torch.utils.data import DataLoader
 import numpy as np
@@ -44,6 +45,26 @@ def to_device(x, device):
             x[i] = x[i].to(device)
     return x
 
+def to_numpy(x):
+    if type(x) != list: # torch.tensor
+        x = x.detach().cpu().numpy()
+    else:               # list of torch.tensor
+        for i in range(len(x)):
+            x[i] = x[i].detach().cpu().numpy()
+    return x
+
+def write_prediction(opt, ys, preds, labels, pad_label_id):
+    try:
+        with open(opt.pred_path, 'w', encoding='utf-8') as f:
+            for i in range(ys.shape[0]):     # foreach sentence
+                for j in range(ys.shape[1]): # foreach token
+                    if ys[i][j] != pad_label_id:
+                        pred_label = labels[preds[i][j]]
+                        f.write(pred_label + '\n')
+                f.write('\n')
+    except Exception as e:
+        logger.warn(str(e))
+
 def evaluate(opt):
     test_data_path = opt.data_path
     batch_size = opt.batch_size
@@ -67,7 +88,7 @@ def evaluate(opt):
 
     # prepare model and load parameters
     if opt.emb_class == 'glove':
-        model = GloveLSTM(config, opt.embedding_path, opt.label_path, emb_non_trainable=True)
+        model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, emb_non_trainable=True, use_crf=opt.use_crf)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_output_dir,
@@ -91,32 +112,45 @@ def evaluate(opt):
         for i, (x,y) in enumerate(tqdm(test_loader, total=n_batches)):
             x = to_device(x, device)
             y = to_device(y, device)
-            logits = model(x)
-            if preds is None:
-                preds = logits.detach().cpu().numpy()
-                ys = y.detach().cpu().numpy()
+            if opt.use_crf:
+                logits, prediction = model(x)
             else:
-                preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
-                ys = np.append(ys, y.detach().cpu().numpy(), axis=0)
+                logits = model(x)
+            if preds is None:
+                if opt.use_crf:
+                    preds = prediction
+                else:
+                    preds = to_numpy(logits)
+                ys = to_numpy(y)
+            else:
+                if opt.use_crf:
+                    preds = np.append(preds, prediction, axis=0)
+                else:
+                    preds = np.append(preds, to_numpy(logits), axis=0)
+                ys = np.append(ys, to_numpy(y), axis=0)
             cur_examples = y.size(0)
             total_examples += cur_examples
-    preds = np.argmax(preds, axis=2)
+    whole_time = int((time.time()-whole_st_time)*1000)
+    avg_time = whole_time / total_examples
+    if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = model.labels
     ys_lbs = [[] for _ in range(ys.shape[0])]
     preds_lbs = [[] for _ in range(ys.shape[0])]
+    pad_label_id = config['pad_label_id']
     for i in range(ys.shape[0]):     # foreach sentence
         for j in range(ys.shape[1]): # foreach token
-            ys_lbs[i].append(labels[ys[i][j]])
-            preds_lbs[i].append(labels[preds[i][j]])
+            if ys[i][j] != pad_label_id:
+                ys_lbs[i].append(labels[ys[i][j]])
+                preds_lbs[i].append(labels[preds[i][j]])
     ret = {
         "precision": precision_score(ys_lbs, preds_lbs),
         "recall": recall_score(ys_lbs, preds_lbs),
         "f1": f1_score(ys_lbs, preds_lbs)
     }
     f1 = ret['f1']
-    whole_time = int((time.time()-whole_st_time)*1000)
-    avg_time = whole_time / total_examples
+    # write predicted labels to file
+    write_prediction(opt, ys, preds, labels, pad_label_id)
 
     logger.info("[F1] : {}, {}".format(f1, total_examples))
     logger.info("[Elapsed Time] : {}ms, {}ms on average".format(whole_time, avg_time))
@@ -127,12 +161,14 @@ def main():
     parser.add_argument('--data_path', type=str, default='data/conll2003/test.txt.ids')
     parser.add_argument('--embedding_path', type=str, default='data/conll2003/embedding.npy')
     parser.add_argument('--label_path', type=str, default='data/conll2003/label.txt')
+    parser.add_argument('--pred_path', type=str, default='data/conll2003/pred.txt')
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--model_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_thread', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert')
+    parser.add_argument('--use_crf', action="store_true")
     # for BERT
     parser.add_argument("--bert_do_lower_case", action="store_true",
                         help="Set this flag if you are using an uncased model.")
