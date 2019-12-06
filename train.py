@@ -29,10 +29,11 @@ except ImportError:
 import numpy as np
 import random
 import json
-from tqdm import tqdm
 from seqeval.metrics import precision_score, recall_score, f1_score
+
 from model import GloveLSTM
 from dataset import CoNLLGloveDataset, CoNLLBertDataset
+from progbar import Progbar # instead of tqdm
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -90,12 +91,13 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     local_rank = opt.local_rank
     use_amp = opt.use_amp
     criterion = torch.nn.CrossEntropyLoss().to(device)
+    n_batches = len(train_loader)
+    prog = Progbar(target=n_batches)
     # train one epoch
     model.train()
     train_loss = 0.
-    n_batches = 0
     st_time = time.time()
-    for local_step, (x,y) in tqdm(enumerate(train_loader), total=len(train_loader)):
+    for local_step, (x,y) in enumerate(train_loader):
         global_step = (len(train_loader) * (epoch_i-1)) + local_step
         x = to_device(x, device)
         y = to_device(y, device)
@@ -115,9 +117,13 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             scheduler.step()
         # back-propagation - end
         train_loss += loss.item()
-        n_batches += 1
         if local_rank == 0 and writer:
             writer.add_scalar('Loss/train', loss.item(), global_step)
+        curr_lr = scheduler.get_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
+        prog.update(local_step+1,
+                    [('global step', global_step),
+                     ('train curr loss', loss.item()),
+                     ('lr', curr_lr)])
     train_loss = train_loss / n_batches
 
     # evaluate
@@ -141,9 +147,10 @@ def evaluate(model, config, val_loader, device):
     model.eval()
     eval_loss = 0.
     criterion = torch.nn.CrossEntropyLoss().to(device)
+    n_batches = len(val_loader)
+    prog = Progbar(target=n_batches)
     preds = None
     ys    = None
-    n_batches = 0
     with torch.no_grad():
         for i, (x,y) in enumerate(val_loader):
             x = to_device(x, device)
@@ -157,15 +164,16 @@ def evaluate(model, config, val_loader, device):
                 preds = np.append(preds, logits.detach().cpu().numpy(), axis=0)
                 ys = np.append(ys, y.detach().cpu().numpy(), axis=0)
             eval_loss += loss.item()
-            n_batches += 1
+            prog.update(i+1,
+                        [('eval curr loss', loss.item())])
     eval_loss = eval_loss / n_batches
     preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = model.labels
     ys_lbs = [[] for _ in range(ys.shape[0])]
     preds_lbs = [[] for _ in range(ys.shape[0])]
-    for i in range(ys.shape[0]):
-        for j in range(ys.shape[1]):
+    for i in range(ys.shape[0]):     # foreach sentence 
+        for j in range(ys.shape[1]): # foreach token
             ys_lbs[i].append(labels[ys[i][j]])
             preds_lbs[i].append(labels[preds[i][j]])
     ret = {
@@ -199,7 +207,7 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--use_amp', type=bool, default=False)
     parser.add_argument('--batch_size', type=int, default=20)
-    parser.add_argument('--epoch', type=int, default=70)
+    parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--l2norm', type=float, default=1e-6)
@@ -260,7 +268,6 @@ def main():
 
     # create optimizer, scheduler, summary writer
     logger.info("[Creating optimizer, scheduler, summary writer...]")
-    opt.one_epoch_step = (len(train_loader) // (opt.batch_size*opt.world_size))
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.l2norm)
     if opt.use_amp:
         model, optimizer = amp.initialize(model, optimizer, opt_level=opt.opt_level)
@@ -288,7 +295,7 @@ def main():
         if opt.local_rank == 0 and eval_f1 > best_val_f1:
             best_val_f1 = eval_f1
             if opt.save_path:
-                logger.info("[Save best model: {:10.6f}".format(best_val_f1))
+                logger.info("[Best model saved] : {:10.6f}".format(best_val_f1))
                 save_model(model, opt, config)
                 if opt.emb_class == 'bert':
                     if not os.path.exists(opt.bert_output_dir):

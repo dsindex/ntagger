@@ -15,6 +15,8 @@ from torch.utils.data import DataLoader
 import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score
 
+from tqdm import tqdm
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -82,10 +84,11 @@ def evaluate(opt):
     model.eval()
     preds = None
     ys    = None
+    n_batches = len(test_loader)
     total_examples = 0
     whole_st_time = time.time()
     with torch.no_grad():
-        for i, (x,y) in enumerate(test_loader):
+        for i, (x,y) in enumerate(tqdm(test_loader, total=n_batches)):
             x = to_device(x, device)
             y = to_device(y, device)
             logits = model(x)
@@ -102,8 +105,8 @@ def evaluate(opt):
     labels = model.labels
     ys_lbs = [[] for _ in range(ys.shape[0])]
     preds_lbs = [[] for _ in range(ys.shape[0])]
-    for i in range(ys.shape[0]):
-        for j in range(ys.shape[1]):
+    for i in range(ys.shape[0]):     # foreach sentence
+        for j in range(ys.shape[1]): # foreach token
             ys_lbs[i].append(labels[ys[i][j]])
             preds_lbs[i].append(labels[preds[i][j]])
     ret = {
