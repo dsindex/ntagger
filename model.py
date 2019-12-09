@@ -14,6 +14,7 @@ class GloveLSTMCRF(nn.Module):
     def __init__(self, config, embedding_path, label_path, emb_non_trainable=False, use_crf=True):
         super(GloveLSTMCRF, self).__init__()
 
+        self.config = config
         seq_size = config['n_ctx']
         token_emb_dim = config['token_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
@@ -84,8 +85,11 @@ class GloveLSTMCRF(nn.Module):
         if not self.use_crf: return logits
 
         if tags is not None: # given golden ys(answer)
-            log_likelihood = self.crf(logits, tags, mask=None, reduction='mean')
-            prediction = self.crf.decode(logits)
+            device = self.config['device']
+            mask = torch.sign(torch.abs(x)).to(torch.uint8).to(device)
+            # mask : [batch_size, seq_size]
+            log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
+            prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
             return logits, log_likelihood, prediction
         else:

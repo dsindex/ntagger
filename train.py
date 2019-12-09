@@ -95,10 +95,10 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     scheduler = config['scheduler']
     writer = config['writer']
     opt = config['opt']
+    pad_label_id = config['pad_label_id']
 
     local_rank = opt.local_rank
     use_amp = opt.use_amp
-    pad_label_id = config['pad_label_id']
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
     n_batches = len(train_loader)
     prog = Progbar(target=n_batches)
@@ -111,7 +111,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         x = to_device(x, device)
         y = to_device(y, device)
         if opt.use_crf:
-            logits, log_likelihood, prediction = model(x, y)
+            logits, log_likelihood, prediction = model(x, tags=y)
             loss = -1 * log_likelihood
         else:
             logits = model(x)
@@ -160,9 +160,9 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
 def evaluate(model, config, val_loader, device):
     model.eval()
     opt = config['opt']
-    eval_loss = 0.
-
     pad_label_id = config['pad_label_id']
+
+    eval_loss = 0.
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
     n_batches = len(val_loader)
     prog = Progbar(target=n_batches)
@@ -180,14 +180,12 @@ def evaluate(model, config, val_loader, device):
                 loss = criterion(logits.view(-1, model.label_size), y.view(-1))
             if preds is None:
                 if opt.use_crf:
-                    #preds = to_numpy(prediction)
                     preds = prediction
                 else:
                     preds = to_numpy(logits)
                 ys = to_numpy(y)
             else:
                 if opt.use_crf:
-                    #preds = np.append(preds, to_numpy(prediction), axis=0)
                     preds = np.append(preds, prediction, axis=0)
                 else:
                     preds = np.append(preds, to_numpy(logits), axis=0)
@@ -312,11 +310,14 @@ def main():
     logger.info("[Ready]")
 
     # training
+
+    # set config
     config['device'] = device
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
     config['opt'] = opt
+
     best_val_loss = float('inf')
     best_val_f1 = -float('inf')
     for epoch_i in range(opt.epoch):

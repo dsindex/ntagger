@@ -70,7 +70,11 @@ def evaluate(opt):
     batch_size = opt.batch_size
     device = opt.device
 
+    # set config
     config = load_config(opt)
+    config['device'] = device
+    config['opt'] = opt
+
     torch.set_num_threads(opt.num_thread)
 
     # prepare test dataset
