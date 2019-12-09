@@ -91,10 +91,11 @@ def to_numpy(x):
 
 def train_epoch(model, config, train_loader, val_loader, epoch_i):
     device = config['device']
+    opt = config['opt']
+
     optimizer = config['optimizer']
     scheduler = config['scheduler']
     writer = config['writer']
-    opt = config['opt']
     pad_label_id = config['pad_label_id']
 
     local_rank = opt.local_rank
@@ -263,6 +264,9 @@ def main():
     set_seed(opt)
     set_apex_and_distributed(opt)
     config = load_config(opt)
+    # set config
+    config['device'] = device
+    config['opt'] = opt
   
     # prepare train, valid dataset
     if opt.emb_class == 'glove':
@@ -311,12 +315,10 @@ def main():
 
     # training
 
-    # set config
-    config['device'] = device
+    # additional set config
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
-    config['opt'] = opt
 
     best_val_loss = float('inf')
     best_val_f1 = -float('inf')
