@@ -87,11 +87,11 @@ $ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-c
 
 * fine-tuning
 $ python train.py --emb_class=bert --bert_model_name_or_path=./bert-base-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=5
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=5
 
 * feature-based
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --bert_use_feature_based
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --bert_use_feature_based
 
 * tensorboardX
 $ rm -rf runs
@@ -104,12 +104,14 @@ $ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --bert_d
 $ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/conll2003/test.txt.fs
 
 * fine-tuning
+  * bert-large-cased
 
-  * --use_crf
+    * --use_crf
 
 * feature-based
+  * bert-large-cased
 
-  * --use_crf
+    * --use_crf
 
 ```
 
