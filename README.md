@@ -80,14 +80,18 @@ accuracy:  96.79%; precision:  86.98%; recall:  84.93%; FB1:  85.94
 ```
 * ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
-* download 'bert-large-cased-whole-word-masking' to './'
-$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased-whole-word-masking
+* download 'bert-base-uncased', 'bert-large-uncased', 'bert-large-cased' to './'
+$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-base-uncased --bert_do_lower_case
+$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case
+$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased
 
 * fine-tuning
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased-whole-word-masking --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-base-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=5e-5 --epoch=3
 
 * feature-based
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased-whole-word-masking --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --bert_use_feature_based
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --bert_use_feature_based
 
 * tensorboardX
 $ rm -rf runs
@@ -96,6 +100,7 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 
 - evaluation
 ```
+$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --bert_do_lower_case --data_path=data/conll2003/test.txt.fs
 $ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/conll2003/test.txt.fs
 
 * fine-tuning
