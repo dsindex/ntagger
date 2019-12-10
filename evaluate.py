@@ -10,7 +10,7 @@ import logging
 
 import torch
 import torch.nn as nn
-from model import GloveLSTMCRF
+from model import GloveLSTMCRF, BertLSTMCRF
 from dataset import CoNLLGloveDataset, CoNLLBertDataset
 from torch.utils.data import DataLoader
 import numpy as np
@@ -98,7 +98,7 @@ def evaluate(opt):
                                                        do_lower_case=opt.bert_do_lower_case)
         bert_model = BertModel.from_pretrained(opt.bert_output_dir)
         bert_config = bert_model.config
-        ModelClass = BertLSTM
+        ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, opt.label_path)
     model.load_state_dict(checkpoint)
     model = model.to(device)

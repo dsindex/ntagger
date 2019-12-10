@@ -215,8 +215,10 @@ def write_embedding(embedding, output_path):
     logger.info("\n[Writing embedding]")
     np.save(output_path, embedding)
 
-def preprocess_glove(config, opt):
+def preprocess_glove(config):
     from tokenizer import Tokenizer
+
+    opt = config['opt']
 
     # vocab, embedding
     init_vocab = build_init_vocab(Tokenizer)
@@ -261,7 +263,7 @@ def preprocess_glove(config, opt):
 # BERT
 # ---------------------------------------------------------------------------- #
 
-def build_features(input_path, tokenizer, labels, config, opt, mode='train'):
+def build_features(input_path, tokenizer, labels, config, mode='train'):
     from util_bert import read_examples_from_file
     from util_bert import convert_examples_to_features
 
@@ -272,6 +274,7 @@ def build_features(input_path, tokenizer, labels, config, opt, mode='train'):
                                             cls_token_segment_id=0,
                                             sep_token=tokenizer.sep_token,
                                             pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
+                                            pad_token_label_id=config['pad_label_id'],
                                             pad_token_segment_id=0,
                                             sequence_a_segment_id=0)
     return features
@@ -282,8 +285,10 @@ def write_features(features, output_path):
     logger.info("[Saving features into file] %s", output_path)
     torch.save(features, output_path)
    
-def preprocess_bert(config, opt):
+def preprocess_bert(config):
     from transformers import BertTokenizer
+
+    opt = config['opt']
 
     tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
                                               do_lower_case=opt.bert_do_lower_case)
@@ -293,13 +298,13 @@ def preprocess_bert(config, opt):
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    train_features = build_features(path, tokenizer, labels, config, opt, mode='train')
+    train_features = build_features(path, tokenizer, labels, config, mode='train')
 
     path = os.path.join(opt.data_dir, _VALID_FILE)
-    valid_features = build_features(path, tokenizer, labels, config, opt, mode='valid')
+    valid_features = build_features(path, tokenizer, labels, config, mode='valid')
 
     path = os.path.join(opt.data_dir, _TEST_FILE)
-    test_features = build_features(path, tokenizer, labels, config, opt, mode='test')
+    test_features = build_features(path, tokenizer, labels, config, mode='test')
 
     # write features
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _FSUFFIX)
@@ -329,13 +334,15 @@ def main():
                         help="Set this flag if you are using an uncased model.")
     opt = parser.parse_args()
 
+    # set config
     config = load_config(opt)
+    config['opt'] = opt
     logger.info("%s", config)
 
     if opt.emb_class == 'glove':
-        preprocess_glove(config, opt)
+        preprocess_glove(config)
     if opt.emb_class == 'bert' :
-        preprocess_bert(config, opt)
+        preprocess_bert(config)
 
 
 if __name__ == '__main__':

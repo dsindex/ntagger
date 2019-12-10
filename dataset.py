@@ -36,10 +36,10 @@ class CoNLLBertDataset(Dataset):
         all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in features], dtype=torch.long)
         all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
-        all_label_id = torch.tensor([f.label_id for f in features], dtype=torch.long)
+        all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
 
         self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids)
-        self.y = all_label_id
+        self.y = all_label_ids
  
     def __len__(self):
         return len(self.y)

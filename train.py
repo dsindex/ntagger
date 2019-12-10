@@ -31,7 +31,7 @@ import random
 import json
 from seqeval.metrics import precision_score, recall_score, f1_score
 
-from model import GloveLSTMCRF
+from model import GloveLSTMCRF, BertLSTMCRF
 from dataset import CoNLLGloveDataset, CoNLLBertDataset
 from progbar import Progbar # instead of tqdm
 
@@ -293,7 +293,7 @@ def main():
         bert_model = BertModel.from_pretrained(opt.bert_model_name_or_path,
                                                from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
         bert_config = bert_model.config
-        ModelClass = BertLSTM
+        ModelClass = BertLSTMCRF
         label_path = os.path.join(opt.data_dir, opt.label_filename)
         model = ModelClass(config, bert_config, bert_model, label_path, feature_based=opt.bert_use_feature_based)
     model.to(device)
