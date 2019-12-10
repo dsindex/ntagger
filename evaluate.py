@@ -66,15 +66,14 @@ def write_prediction(opt, ys, preds, labels, pad_label_id):
         logger.warn(str(e))
 
 def evaluate(opt):
+    # set config
+    config = load_config(opt)
+    config['device'] = opt.device
+    config['opt'] = opt
+
     test_data_path = opt.data_path
     batch_size = opt.batch_size
     device = opt.device
-
-    # set config
-    config = load_config(opt)
-    config['device'] = device
-    config['opt'] = opt
-
     torch.set_num_threads(opt.num_thread)
 
     # prepare test dataset

@@ -53,8 +53,7 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 $ python evaluate.py
 INFO:__main__:[F1] : 0.8508414526129319, 3684
 INFO:__main__:[Elapsed Time] : 51865ms, 14.078447339847992ms on average
-
-* seqeval.metrics supports IOB2 format, so FB1 from conlleval.pl should be same.
+* seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be same.
 $ paste -d ' ' data/conll2003/test.txt data/conll2003/pred.txt > pred.txt ; perl etc/conlleval.pl < pred.txt
 accuracy:  96.81%; precision:  85.13%; recall:  85.04%; FB1:  85.08
               LOC: precision:  85.99%; recall:  90.89%; FB1:  88.37  1763
@@ -64,9 +63,16 @@ accuracy:  96.81%; precision:  85.13%; recall:  85.04%; FB1:  85.08
 
 * --use_crf
 $ python evaluate.py --use_crf
+INFO:__main__:[F1] : 0.8594463853802741, 3684
+INFO:__main__:[Elapsed Time] : 154887ms, 42.04315960912052ms on average
+accuracy:  96.79%; precision:  86.98%; recall:  84.93%; FB1:  85.94
+              LOC: precision:  88.15%; recall:  91.01%; FB1:  89.56  1722
+             MISC: precision:  75.27%; recall:  70.23%; FB1:  72.66  655
+              ORG: precision:  85.25%; recall:  79.71%; FB1:  82.39  1553
+              PER: precision:  92.24%; recall:  90.41%; FB1:  91.32  1585
 ```
 
-- best : **85.08%** (test set)
+- best : **85.94%** (test set)
 
 ### emb_class=bert
 

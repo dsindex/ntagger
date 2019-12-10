@@ -235,7 +235,7 @@ def main():
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--use_amp', action="store_true")
-    parser.add_argument('--batch_size', type=int, default=20)
+    parser.add_argument('--batch_size', type=int, default=30)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
@@ -263,8 +263,9 @@ def main():
     device = torch.device(opt.device)
     set_seed(opt)
     set_apex_and_distributed(opt)
-    config = load_config(opt)
+
     # set config
+    config = load_config(opt)
     config['device'] = device
     config['opt'] = opt
   
@@ -315,7 +316,7 @@ def main():
 
     # training
 
-    # additional set config
+    # additional config setting for parameter passing
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
