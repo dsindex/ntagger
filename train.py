@@ -295,7 +295,7 @@ def main():
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = ModelClass(config, bert_config, bert_model, label_path, feature_based=opt.bert_use_feature_based)
+        model = ModelClass(config, bert_config, bert_model, label_path, use_crf=opt.use_crf, feature_based=opt.bert_use_feature_based)
     model.to(device)
     logger.info("[Model prepared]")
 

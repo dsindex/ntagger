@@ -99,7 +99,7 @@ def evaluate(opt):
         bert_model = BertModel.from_pretrained(opt.bert_output_dir)
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, opt.label_path)
+        model = ModelClass(config, bert_config, bert_model, opt.label_path, use_crf=opt.use_crf)
     model.load_state_dict(checkpoint)
     model = model.to(device)
     logger.info("[Loaded]")
