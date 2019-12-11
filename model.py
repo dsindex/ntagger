@@ -131,19 +131,6 @@ class BertLSTMCRF(nn.Module):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def __load_embedding(self, input_path):
-        weights_matrix = np.load(input_path)
-        weights_matrix = torch.tensor(weights_matrix)
-        return weights_matrix
-
-    def __create_embedding_layer(self, weights_matrix, non_trainable=False):
-        vocab_size, emb_dim = weights_matrix.size()
-        emb_layer = nn.Embedding(vocab_size, emb_dim)
-        emb_layer.load_state_dict({'weight': weights_matrix})
-        if non_trainable:
-            emb_layer.weight.requires_grad = False
-        return emb_layer
-
     def __load_label(self, input_path):
         labels = {}
         with open(input_path, 'r', encoding='utf-8') as f:
