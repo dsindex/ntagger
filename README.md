@@ -112,7 +112,7 @@ $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../..
 
 ```
 
-- best : **91.07** (test set)
+- best : **91.07%** (test set)
 
 ## references
 
