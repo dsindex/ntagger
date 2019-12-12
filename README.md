@@ -81,8 +81,8 @@ $ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-u
 $ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased
 
 * fine-tuning
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=5
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=5
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
+$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 
 * --use_crf for crf layer
 
@@ -102,17 +102,25 @@ $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../..
 
 * fine-tuning
   * bert-large-cased
-    INFO:__main__:[F1] : 0.9045701278234985, 3684
-    INFO:__main__:[Elapsed Time] : 175883ms, 47.74239956568947ms on average
-    FB1:  90.46 (by conlleval.pl)
+    INFO:__main__:[F1] : 0.9113453192808433, 3684
+    INFO:__main__:[Elapsed Time] : 170391ms, 46.251628664495115ms on average
+    FB1:  91.13 (by conlleval.pl)
     * --use_crf
-    INFO:__main__:[F1] : 0.908178536843032, 3684
-    INFO:__main__:[Elapsed Time] : 244903ms, 66.47747014115092ms on average
-    FB1:  91.07 (by conlleval.pl)
-
+      1) lstm_dropout:0.0, lr:1e-5
+        INFO:__main__:[F1] : 0.908178536843032, 3684
+        INFO:__main__:[Elapsed Time] : 244903ms, 66.47747014115092ms on average
+        FB1:  91.07
+      2) lstm_dropout:0.1, lr:1e-5
+        INFO:__main__:[F1] : 0.9071403447062961, 3684
+        INFO:__main__:[Elapsed Time] : 246333ms, 66.86563517915309ms on average
+        FB1:  90.91
+      3) lstm_dropout:0.1, lr:2e-5
+        INFO:__main__:[F1] : 0.8962568711281739, 3684
+        INFO:__main__:[Elapsed Time] : 237240ms, 64.39739413680782ms on average
+        FB1:  89.84
 ```
 
-- best : **91.07%** (test set)
+- best : **91.13%** (test set)
 
 ## references
 
