@@ -68,6 +68,8 @@ INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
 ```
 
 - best : **86.05%** (test set)
+  - this value is close to 'FB1:  86.48' of [etagger](https://github.com/dsindex/etagger)'s result.
+    - using word embedding only.
 
 ### emb_class=bert
 
