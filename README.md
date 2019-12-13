@@ -65,7 +65,6 @@ accuracy:  96.80%; precision:  86.10%; recall:  85.30%; FB1:  85.70
 $ python evaluate.py --use_crf
 INFO:__main__:[F1] : 0.8594463853802741, 3684
 INFO:__main__:[Elapsed Time] : 154887ms, 42.04315960912052ms on average
-FB1:  85.94 (by conlleval.pl)
 ```
 
 - best : **85.94%** (test set)
@@ -106,12 +105,11 @@ $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../..
   * bert-large-cased
     INFO:__main__:[F1] : 0.9113453192808433, 3684
     INFO:__main__:[Elapsed Time] : 170391ms, 46.251628664495115ms on average
-    FB1:  91.13 (by conlleval.pl)
     * --use_crf
       1) lstm_dropout:0.0, lr:1e-5
         INFO:__main__:[F1] : 0.908178536843032, 3684
         INFO:__main__:[Elapsed Time] : 244903ms, 66.47747014115092ms on average
-        FB1:  91.07
+        FB1:  91.07 (by conlleval.pl)
       2) lstm_dropout:0.1, lr:1e-5
         INFO:__main__:[F1] : 0.9071403447062961, 3684
         INFO:__main__:[Elapsed Time] : 246333ms, 66.86563517915309ms on average
@@ -121,7 +119,12 @@ $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../..
         INFO:__main__:[Elapsed Time] : 237240ms, 64.39739413680782ms on average
         FB1:  89.84
     * --bert_disable_lstm
-
+      INFO:__main__:[F1] : 0.9006085192697768, 3684
+      INFO:__main__:[Elapsed Time] : 138880ms, 37.69815418023887ms on average
+    * --use_crf --bert_disable_lstm
+      INFO:__main__:[F1] : 0.9044752682543836, 3684
+      INFO:__main__:[Elapsed Time] : 214022ms, 58.09500542888165ms on average
+      FB1:  90.65
 ```
 
 - best : **91.13%** (test set)
