@@ -20,6 +20,7 @@ class GloveLSTMCRF(nn.Module):
         lstm_hidden_dim = config['lstm_hidden_dim']
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
+        self.use_crf = use_crf
 
         # glove embedding layer
         weights_matrix = self.__load_embedding(embedding_path)
@@ -41,7 +42,6 @@ class GloveLSTMCRF(nn.Module):
         self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
 
         # CRF layer
-        self.use_crf = use_crf
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
@@ -97,7 +97,7 @@ class GloveLSTMCRF(nn.Module):
             return logits, prediction
 
 class BertLSTMCRF(nn.Module):
-    def __init__(self, config, bert_config, bert_model, label_path, use_crf=False, feature_based=False):
+    def __init__(self, config, bert_config, bert_model, label_path, use_crf=False, disable_lstm=False, feature_based=False):
         super(BertLSTMCRF, self).__init__()
 
         self.config = config
@@ -105,6 +105,8 @@ class BertLSTMCRF(nn.Module):
         lstm_hidden_dim = config['lstm_hidden_dim']
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
+        self.use_crf = use_crf
+        self.disable_lstm = disable_lstm
 
         # bert embedding
         self.bert_config = bert_config
@@ -114,20 +116,23 @@ class BertLSTMCRF(nn.Module):
         self.dropout = nn.Dropout(config['dropout'])
 
         # BiLSTM layer
-        self.lstm = nn.LSTM(input_size=bert_config.hidden_size,
-                            hidden_size=lstm_hidden_dim,
-                            num_layers=lstm_num_layers,
-                            dropout=lstm_dropout,
-                            bidirectional=True,
-                            batch_first=True)
+        if not self.disable_lstm:
+            self.lstm = nn.LSTM(input_size=bert_config.hidden_size,
+                                hidden_size=lstm_hidden_dim,
+                                num_layers=lstm_num_layers,
+                                dropout=lstm_dropout,
+                                bidirectional=True,
+                                batch_first=True)
 
         # projection layer
         self.labels = self.__load_label(label_path)
         self.label_size = len(self.labels)
-        self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
+        if not self.disable_lstm:
+            self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
+        else:
+            self.linear = nn.Linear(bert_config.hidden_size, self.label_size)
 
         # CRF layer
-        self.use_crf = use_crf
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
@@ -166,8 +171,12 @@ class BertLSTMCRF(nn.Module):
         embed_out = self.__compute_bert_embedding(x)
         # embed_out : [batch_size, seq_size, hidden_size]
 
-        lstm_out, (h_n, c_n) = self.lstm(embed_out)
-        # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
+        if not self.disable_lstm:
+            lstm_out, (h_n, c_n) = self.lstm(embed_out)
+            # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
+        else:
+            lstm_out = embed_out
+            # lstm_out : [batch_size, seq_size, bert_config.hidden_size]
 
         lstm_out = self.dropout(lstm_out)
 

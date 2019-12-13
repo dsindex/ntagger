@@ -257,6 +257,8 @@ def main():
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action="store_true",
                         help="use BERT as feature-based, default fine-tuning")
+    parser.add_argument('--bert_disable_lstm', action="store_true",
+                        help="disable lstm layer")
 
     opt = parser.parse_args()
 
@@ -285,7 +287,8 @@ def main():
     if opt.emb_class == 'glove':
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = GloveLSTMCRF(config, embedding_path, label_path, emb_non_trainable=True, use_crf=opt.use_crf)
+        model = GloveLSTMCRF(config, embedding_path, label_path,
+                             emb_non_trainable=True, use_crf=opt.use_crf)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
@@ -295,7 +298,8 @@ def main():
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = ModelClass(config, bert_config, bert_model, label_path, use_crf=opt.use_crf, feature_based=opt.bert_use_feature_based)
+        model = ModelClass(config, bert_config, bert_model, label_path,
+                           use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
     model.to(device)
     logger.info("[Model prepared]")
 

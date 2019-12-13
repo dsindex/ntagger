@@ -91,7 +91,8 @@ def evaluate(opt):
 
     # prepare model and load parameters
     if opt.emb_class == 'glove':
-        model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, emb_non_trainable=True, use_crf=opt.use_crf)
+        model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path,
+                             emb_non_trainable=True, use_crf=opt.use_crf)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_output_dir,
@@ -99,7 +100,8 @@ def evaluate(opt):
         bert_model = BertModel.from_pretrained(opt.bert_output_dir)
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, opt.label_path, use_crf=opt.use_crf)
+        model = ModelClass(config, bert_config, bert_model, opt.label_path,
+                           use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm)
     model.load_state_dict(checkpoint)
     model = model.to(device)
     logger.info("[Loaded]")
@@ -177,6 +179,8 @@ def main():
                         help="Set this flag if you are using an uncased model.")
     parser.add_argument("--bert_output_dir", type=str, default='bert-checkpoint',
                         help="The output directory where the model predictions and checkpoints will be written.")
+    parser.add_argument('--bert_disable_lstm', action="store_true",
+                        help="disable lstm layer")
     opt = parser.parse_args()
 
     evaluate(opt) 

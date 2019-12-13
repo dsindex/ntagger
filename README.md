@@ -40,7 +40,7 @@ $ pip install git+https://github.com/huggingface/transformers.git
 * token_emb_dim in config.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py
 $ python train.py
-* --use_crf for crf layer
+* --use_crf for adding crf layer
 $ python train.py --use_crf
 
 * tensorboardX
@@ -84,9 +84,11 @@ $ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-c
 $ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 $ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 
-* --use_crf for crf layer
+* --use_crf for adding crf layer
 
 * --bert_use_feature_based for feature-based
+
+* --bert_disable_lstm for removing lstm layer
 
 * tensorboardX
 $ rm -rf runs
@@ -118,6 +120,8 @@ $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../..
         INFO:__main__:[F1] : 0.8962568711281739, 3684
         INFO:__main__:[Elapsed Time] : 237240ms, 64.39739413680782ms on average
         FB1:  89.84
+    * --bert_disable_lstm
+
 ```
 
 - best : **91.13%** (test set)
