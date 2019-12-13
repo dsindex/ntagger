@@ -63,11 +63,11 @@ accuracy:  96.80%; precision:  86.10%; recall:  85.30%; FB1:  85.70
 
 * --use_crf
 $ python evaluate.py --use_crf
-INFO:__main__:[F1] : 0.8594463853802741, 3684
-INFO:__main__:[Elapsed Time] : 154887ms, 42.04315960912052ms on average
+INFO:__main__:[F1] : 0.8605357142857142, 3684
+INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
 ```
 
-- best : **85.94%** (test set)
+- best : **86.05%** (test set)
 
 ### emb_class=bert
 
