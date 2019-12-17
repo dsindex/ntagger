@@ -77,12 +77,10 @@ INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
 ```
 * ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
-* download 'bert-large-uncased', 'bert-large-cased' to './'
-$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case
+* download 'bert-large-cased' to './'
 $ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased
 
 * fine-tuning
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-uncased --bert_do_lower_case --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 $ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 
 * --use_crf for adding crf layer
@@ -98,7 +96,6 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 
 - evaluation
 ```
-$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --bert_do_lower_case --data_path=data/conll2003/test.txt.fs
 $ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/conll2003/test.txt.fs
 
 $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../../etc/conlleval.pl < test-pred.txt ; cd ../..
