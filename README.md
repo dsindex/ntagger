@@ -65,6 +65,9 @@ accuracy:  96.80%; precision:  86.10%; recall:  85.30%; FB1:  85.70
 $ python evaluate.py --use_crf
 INFO:__main__:[F1] : 0.8605357142857142, 3684
 INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
+  * token_emb_dim: 100
+  INFO:__main__:[F1] : 0.8587449933244327, 3684
+  INFO:__main__:[Elapsed Time] : 344884ms, 93.61672095548317ms on average (cpu)
 ```
 
 - best : **86.05%** (test set)
