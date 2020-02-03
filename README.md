@@ -80,7 +80,8 @@ INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
 
 - best : **86.05%** (test set)
   - [etagger](https://github.com/dsindex/etagger)'s result.
-    - FB1:  86.48% (word embedding only)
+    - FB1:  86.48% (glove word embedding only, BiLSTM-CRF)
+    - FB1:  90.85% (glove word embedding, character embedding, pos embedding, BiLSTM-CRF) 
 
 ### emb_class=bert
 
@@ -178,9 +179,9 @@ INFO:__main__:[Elapsed Time] : 317606ms, 35.28955555555556ms on average
 
 - best : **76.53%** (valid set)
   - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)'s result
-    - FB1: 76.45% (word embedding only)
+    - FB1: 76.45% (glove word embedding only, BiLSTM-CRF)
   - [etagger](https://github.com/dsindex/etagger)'s result
-    - FB1: 81.34% (word embedding, character embedding, pos embedding)
+    - FB1: 81.34% (glove word embedding, character embedding, pos embedding, BiLSTM-CRF)
 
 ### emb_class=bert
 
