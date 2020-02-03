@@ -53,14 +53,35 @@ def to_numpy(x):
             x[i] = x[i].detach().cpu().numpy()
     return x
 
-def write_prediction(opt, ys, preds, labels, pad_label_id):
+def write_prediction(opt, ys, preds, labels, pad_label_id, unk_label):
+    # load test data
+    tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
+    with open(opt.test_path, 'r', encoding='utf-8') as f:
+        data = []
+        bucket = []
+        for idx, line in enumerate(tqdm(f, total=tot_num_line)):
+            line = line.strip()
+            if line == "":
+                data.append(bucket)
+                bucket = []
+            else:
+                entry = line.split()
+                assert(len(entry) == 4)
+                bucket.append(entry)
+        if len(bucket) != 0:
+            data.append(bucket)
+    # write prediction
     try:
-        with open(opt.pred_path, 'w', encoding='utf-8') as f:
-            for i in range(ys.shape[0]):     # foreach sentence
-                for j in range(ys.shape[1]): # foreach token
-                    if ys[i][j] != pad_label_id:
-                        pred_label = labels[preds[i][j]]
-                        f.write(pred_label + '\n')
+        pred_path = opt.test_path + '.pred'
+        with open(pred_path, 'w', encoding='utf-8') as f:
+            for i, bucket in enumerate(data):      # foreach sentence
+                for j, entry in enumerate(bucket): # foreach token
+                    pred_label = unk_label
+                    if i < ys.shape[0] and j < ys.shape[1]:
+                        if ys[i][j] != pad_label_id:
+                            pred_label = labels[preds[i][j]]
+                    entry.append(pred_label)
+                    f.write(' '.join(entry) + '\n')
                 f.write('\n')
     except Exception as e:
         logger.warn(str(e))
@@ -155,7 +176,8 @@ def evaluate(opt):
     }
     f1 = ret['f1']
     # write predicted labels to file
-    write_prediction(opt, ys, preds, labels, pad_label_id)
+    unk_label = config['unk_label']
+    write_prediction(opt, ys, preds, labels, pad_label_id, unk_label)
 
     logger.info("[F1] : {}, {}".format(f1, total_examples))
     logger.info("[Elapsed Time] : {}ms, {}ms on average".format(whole_time, avg_time))
@@ -166,7 +188,7 @@ def main():
     parser.add_argument('--data_path', type=str, default='data/conll2003/test.txt.ids')
     parser.add_argument('--embedding_path', type=str, default='data/conll2003/embedding.npy')
     parser.add_argument('--label_path', type=str, default='data/conll2003/label.txt')
-    parser.add_argument('--pred_path', type=str, default='data/conll2003/pred.txt')
+    parser.add_argument('--test_path', type=str, default='data/conll2003/test.txt')
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--model_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--device', type=str, default='cuda')

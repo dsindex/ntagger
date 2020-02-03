@@ -2,6 +2,7 @@
 
 reference pytorch code for named entity tagging
 
+
 ## requirements
 
 - python >= 3.6
@@ -26,12 +27,19 @@ $ pip install git+https://github.com/huggingface/transformers.git
 ```
 
 - data
-  - CoNLL 2003 english
+  - CoNLL 2003 (english)
     - `data/conll2003`
     - from [etagger](https://github.com/dsindex/etagger)
     - [SOTA on CoNLL 2003 english](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
+  - Naver NER 2019 (Korean)
+    - `data/clova2019`
+    - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
+    - converted to CoNLL data format.
+    - there is no test set. so, set valid.txt as test.txt.
+    - Korean BERT and Glove model was described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
 
-## CoNLL 2003 english
+
+## CoNLL 2003 (english)
 
 ### emb_class=glove
 
@@ -54,7 +62,7 @@ $ python evaluate.py
 INFO:__main__:[F1] : 0.8569903948772679, 3684
 INFO:__main__:[Elapsed Time] : 57432ms, 15.589576547231271ms on average
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
-$ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../../etc/conlleval.pl < test-pred.txt ; cd ../..
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 accuracy:  96.80%; precision:  86.10%; recall:  85.30%; FB1:  85.70
               LOC: precision:  86.43%; recall:  91.61%; FB1:  88.94  1768
              MISC: precision:  76.11%; recall:  70.80%; FB1:  73.36  653
@@ -71,8 +79,8 @@ INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
 ```
 
 - best : **86.05%** (test set)
-  - this value is close to 'FB1:  86.48' of [etagger](https://github.com/dsindex/etagger)'s result.
-    - using word embedding only.
+  - [etagger](https://github.com/dsindex/etagger)'s result.
+    - FB1:  86.48% (word embedding only)
 
 ### emb_class=bert
 
@@ -101,7 +109,7 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 ```
 $ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/conll2003/test.txt.fs
 
-$ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../../etc/conlleval.pl < test-pred.txt ; cd ../..
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * fine-tuning
   * bert-large-cased
@@ -130,6 +138,74 @@ $ cd data/conll2003; paste -d ' ' test.txt pred.txt > test-pred.txt ; perl ../..
 ```
 
 - best : **91.13%** (test set)
+
+## Naver NER 2019 (Korean)
+
+### emb_class=glove
+
+- train
+```
+* token_emb_dim in config.json == 300 (ex, kor.glove.300k.300d.txt )
+$ python preprocess.py --data_dir data/clova2019 --embedding_path embeddings/kor.glove.300k.300d.txt
+$ python train.py --data_dir data/clova2019
+* --use_crf for adding crf layer
+$ python train.py --data_dir data/clova2019 --use_crf
+
+* test
+$ python train.py --data_dir data/clova2019 --use_crf --batch_size 20 --lr 0.001
+
+* tensorboardX
+$ rm -rf runs
+$ tensorboard --logdir runs/ --port ${port} --bind_all
+```
+
+- evaluation
+```
+$ python evaluate.py --data_path data/clova2019/test.txt.ids --embedding_path data/clova2019/embedding.npy --label_path data/clova2019/label.txt --test_path data/clova2019/test.txt
+INFO:__main__:[F1] : 0.7159682824060252, 9000
+INFO:__main__:[Elapsed Time] : 898312ms, 99.81244444444444ms on average
+
+* seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+accuracy:  91.50%; precision:  69.86%; recall:  73.73%; FB1:  71.74
+...
+
+* --use_crf
+$ python evaluate.py --data_path data/clova2019/test.txt.ids --embedding_path data/clova2019/embedding.npy --label_path data/clova2019/label.txt --test_path data/clova2019/test.txt  --use_crf
+INFO:__main__:[F1] : 0.7653378715211525, 9000
+INFO:__main__:[Elapsed Time] : 317606ms, 35.28955555555556ms on average
+```
+
+- best : **76.53%** (valid set)
+  - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)'s result
+    - FB1: 76.45% (word embedding only)
+  - [etagger](https://github.com/dsindex/etagger)'s result
+    - FB1: 81.34% (word embedding, character embedding, pos embedding)
+
+### emb_class=bert
+
+- train
+```
+* ignore token_emb_dim in config.json
+* n_ctx size should be less than 512
+$ python preprocess.py --emb_class=bert --data_dir data/clova2019 --bert_model_name_or_path=./pytorch.all.dha.2.5m_step
+
+$ python train.py --emb_class=bert --bert_model_name_or_path=./pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=5 --data_dir data/clova2019 --use_crf
+
+* tensorboardX
+$ rm -rf runs
+$ tensorboard --logdir runs/ --port port-number --bind_all
+```
+
+- evaluation
+```
+$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/clova2019/test.txt.fs --label_path=data/clova2019/label.txt --test_path=data/clova2019/test.txt --user_crf
+
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+```
+
+- best : **%** (valid set)
 
 ## references
 

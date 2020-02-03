@@ -125,8 +125,10 @@ def build_data(input_path, tokenizer):
                     tokens.append(token)
                     labelseq.append(label)
                 if len(tokens) > config['n_ctx']:
+                    t = ' '.join(tokens)
+                    logger.info("\n# Data over text length limit : {:,} / {:,}, {}".format(len(tokens), config['n_ctx'], t))
                     tokens = tokens[:config['n_ctx']]
-                    labelseq = lableseq[:config['n_ctx']]
+                    labelseq = labelseq[:config['n_ctx']]
                     _long_data += 1
                 for token in tokens:
                     all_tokens[token] += 1
@@ -148,7 +150,7 @@ def build_data(input_path, tokenizer):
                 labelseq.append(label)
             if len(tokens) > config['n_ctx']:
                 tokens = tokens[:config['n_ctx']]
-                labelseq = lableseq[:config['n_ctx']]
+                labelseq = labelseq[:config['n_ctx']]
                 _long_data += 1
             for token in tokens:
                 all_tokens[token] += 1
