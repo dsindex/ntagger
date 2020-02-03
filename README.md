@@ -139,6 +139,8 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 ```
 
 - best : **91.13%** (test set)
+  - [etagger](https://github.com/dsindex/etagger)'s result.
+    - FB1: 91.87 ~ 92.23% (BERT bert-large-cased, BiLSTM-CRF)
 
 ## Naver NER 2019 (Korean)
 
@@ -207,6 +209,11 @@ $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 ```
 
 - best : **%** (valid set)
+  - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)'s result
+    - FB1: 84.84% (HanBert)
+  - [etagger](https://github.com/dsindex/etagger)'s result
+    - FB1: % (BERT, BiLSTM-CRF)
+    - FB1: % (ELMo, glove word embedding, character embedding, pos embedding, BiLSTM-CRF)
 
 ## references
 
