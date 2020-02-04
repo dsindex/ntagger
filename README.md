@@ -32,9 +32,9 @@ $ pip install git+https://github.com/huggingface/transformers.git
     - from [etagger](https://github.com/dsindex/etagger)
     - [SOTA on CoNLL 2003 english](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
   - Naver NER 2019 (Korean)
-    - `data/clova2019`
-    - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
-    - converted to CoNLL data format.
+    - `data/clova2019`, 'data/clova2019_morph` from [HanBert-NER](https://github.com/monologg/HanBert-NER)
+      - converted to CoNLL data format.
+      - tokenized by morphological analyzer for `data/clova2019_morph`.
     - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove model was described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
 
@@ -149,13 +149,13 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 - train
 ```
 * token_emb_dim in config.json == 300 (ex, kor.glove.300k.300d.txt )
-$ python preprocess.py --data_dir data/clova2019 --embedding_path embeddings/kor.glove.300k.300d.txt
-$ python train.py --data_dir data/clova2019
+$ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
+$ python train.py --data_dir data/clova2019_morph
 * --use_crf for adding crf layer
-$ python train.py --data_dir data/clova2019 --use_crf
+$ python train.py --data_dir data/clova2019_morph --use_crf
 
 * test
-$ python train.py --data_dir data/clova2019 --use_crf --batch_size 20 --lr 0.001
+$ python train.py --data_dir data/clova2019_morph --use_crf --batch_size 20 --lr 0.001
 
 * tensorboardX
 $ rm -rf runs
@@ -164,17 +164,17 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 
 - evaluation
 ```
-$ python evaluate.py --data_path data/clova2019/test.txt.ids --embedding_path data/clova2019/embedding.npy --label_path data/clova2019/label.txt --test_path data/clova2019/test.txt
+$ python evaluate.py --data_path data/clova2019_morph/test.txt.ids --embedding_path data/clova2019_morph/embedding.npy --label_path data/clova2019_morph/label.txt --test_path data/clova2019_morph/test.txt
 INFO:__main__:[F1] : 0.7159682824060252, 9000
 INFO:__main__:[Elapsed Time] : 898312ms, 99.81244444444444ms on average
 
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
-$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 accuracy:  91.50%; precision:  69.86%; recall:  73.73%; FB1:  71.74
 ...
 
 * --use_crf
-$ python evaluate.py --data_path data/clova2019/test.txt.ids --embedding_path data/clova2019/embedding.npy --label_path data/clova2019/label.txt --test_path data/clova2019/test.txt  --use_crf
+$ python evaluate.py --data_path data/clova2019_morph/test.txt.ids --embedding_path data/clova2019_morph/embedding.npy --label_path data/clova2019_morph/label.txt --test_path data/clova2019_morph/test.txt  --use_crf
 INFO:__main__:[F1] : 0.7653378715211525, 9000
 INFO:__main__:[Elapsed Time] : 317606ms, 35.28955555555556ms on average
 ```
@@ -183,7 +183,7 @@ INFO:__main__:[Elapsed Time] : 317606ms, 35.28955555555556ms on average
   - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)'s result
     - FB1: 76.45% (glove word embedding only, BiLSTM-CRF)
   - [etagger](https://github.com/dsindex/etagger)'s result
-    - FB1: 81.34% (glove word embedding, character embedding, pos embedding, BiLSTM-CRF)
+    - FB1: 81.34% (morph-based, glove word embedding, character embedding, pos embedding, BiLSTM-CRF)
 
 ### emb_class=bert
 
@@ -191,9 +191,16 @@ INFO:__main__:[Elapsed Time] : 317606ms, 35.28955555555556ms on average
 ```
 * ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
-$ python preprocess.py --emb_class=bert --data_dir data/clova2019 --bert_model_name_or_path=./pytorch.all.dha.2.5m_step
 
-$ python train.py --emb_class=bert --bert_model_name_or_path=./pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=5 --data_dir data/clova2019 --use_crf
+* for clova2019_morph
+
+$ python preprocess.py --emb_class=bert --data_dir data/clova2019_morph --bert_model_name_or_path=./pytorch.all.dha.2.5m_step
+$ python train.py --emb_class=bert --bert_model_name_or_path=./pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf
+
+* for clova2019
+
+$ python preprocess.py --emb_class=bert --data_dir data/clova2019 --bert_model_name_or_path=./pytorch.all.bpe.4.8m_step
+$ python train.py --emb_class=bert --bert_model_name_or_path=./pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
 
 * tensorboardX
 $ rm -rf runs
@@ -202,18 +209,32 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 
 - evaluation
 ```
-$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/clova2019/test.txt.fs --label_path=data/clova2019/label.txt --test_path=data/clova2019/test.txt --user_crf
+* for clova2019_morph
+
+$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/clova2019_morph/test.txt.fs --label_path=data/clova2019_morph/label.txt --test_path=data/clova2019_morph/test.txt --use_crf
+INFO:__main__:[F1] : 0.7938620132057673, 9000
+INFO:__main__:[Elapsed Time] : 457444ms, 50.82711111111111ms on average
+
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+accuracy:  92.99%; precision:  78.55%; recall:  80.11%; FB1:  79.32
+
+* for clova2019
+
+$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/clova2019/test.txt.fs --label_path=data/clova2019/label.txt --test_path=data/clova2019/test.txt --use_crf
+INFO:__main__:[F1] : 0.8468742604050444, 9000
+INFO:__main__:[Elapsed Time] : 486540ms, 54.06ms on average
 
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+accuracy:  93.53%; precision:  84.27%; recall:  85.16%; FB1:  84.71
 
 ```
 
-- best : **%** (valid set)
+- best : **84.71%** (valid set)
   - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)'s result
     - FB1: 84.84% (HanBert)
   - [etagger](https://github.com/dsindex/etagger)'s result
-    - FB1: % (BERT, BiLSTM-CRF)
-    - FB1: % (ELMo, glove word embedding, character embedding, pos embedding, BiLSTM-CRF)
+    - FB1: 79.34% (morph-based, ELMo, glove word embedding, character embedding, pos embedding, BiLSTM-CRF)
+    - FB1: % (morph-based, BERT, BiLSTM-CRF)
 
 ## references
 

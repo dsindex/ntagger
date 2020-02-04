@@ -75,11 +75,21 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, unk_label):
         pred_path = opt.test_path + '.pred'
         with open(pred_path, 'w', encoding='utf-8') as f:
             for i, bucket in enumerate(data):      # foreach sentence
-                for j, entry in enumerate(bucket): # foreach token
+                # from preds
+                j_bucket = 0
+                for j in range(ys.shape[1]):       # foreach token
                     pred_label = unk_label
-                    if i < ys.shape[0] and j < ys.shape[1]:
-                        if ys[i][j] != pad_label_id:
-                            pred_label = labels[preds[i][j]]
+                    if ys[i][j] != pad_label_id:
+                        pred_label = labels[preds[i][j]]
+                        entry = bucket[j_bucket]
+                        entry.append(pred_label)
+                        f.write(' '.join(entry) + '\n')
+                        j_bucket += 1
+                # remained
+                for j, entry in enumerate(bucket): # foreach remained token
+                    if j < j_bucket: continue
+                    pred_label = unk_label
+                    entry = bucket[j]
                     entry.append(pred_label)
                     f.write(' '.join(entry) + '\n')
                 f.write('\n')
