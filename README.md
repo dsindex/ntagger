@@ -28,15 +28,15 @@ $ pip install git+https://github.com/huggingface/transformers.git
 
 - data
   - CoNLL 2003 (english)
-    - `data/conll2003`
     - from [etagger](https://github.com/dsindex/etagger)
+      - data/conll2003
     - [SOTA on CoNLL 2003 english](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
   - Naver NER 2019 (Korean)
-    - `data/clova2019`, 'data/clova2019_morph` from [HanBert-NER](https://github.com/monologg/HanBert-NER)
-      - converted to CoNLL data format.
-      - tokenized by morphological analyzer for `data/clova2019_morph`.
+    - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
+      - data/clova2019: converted to CoNLL data format.
+      - data/clova2019_morph: tokenized by morphological analyzer and converted to CoNLL data format.
     - there is no test set. so, set valid.txt as test.txt.
-    - Korean BERT and Glove model was described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+    - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
 
 
 ## CoNLL 2003 (english)
