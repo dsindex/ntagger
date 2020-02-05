@@ -43,13 +43,14 @@ $ pip install git+https://github.com/huggingface/transformers.git
 
 ### experiments summary
 
-|                   | F1 (%)      |          |
-| ----------------- | ----------- | -------- |
-| Glove, BiLSTM-CRF | 86.05       | word     |
-| BERT, BiLSTM      | **91.13**   | word     |
-| Glove, BiLSTM-CRF | 86.48       | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF | 90.85       | word, character, pos, [etagger](https://github.com/dsindex/etagger) |
-| BERT, BiLSTM-CRF  | 91.87 ~ 92.23 | [etagger](https://github.com/dsindex/etagger) |
+|                   | F1 (%)           |          |
+| ----------------- | ---------------  | -------- |
+| Glove, BiLSTM-CRF | 86.05            | word     |
+| BERT, BiLSTM      | **91.13**        | word     |
+| Glove, BiLSTM-CRF | 86.48            | word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF | 90.85            | word, character, pos, [etagger](https://github.com/dsindex/etagger) |
+| BERT, BiLSTM-CRF  | 91.87~92.23(max) | word, [etagger](https://github.com/dsindex/etagger) |
+| ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83(max)| word, character, pos, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
