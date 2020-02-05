@@ -47,8 +47,8 @@ $ pip install git+https://github.com/huggingface/transformers.git
 | ----------------- | ---------------  | -------- |
 | Glove, BiLSTM-CRF | 86.05            | word     |
 | BERT, BiLSTM      | **91.13**        | word     |
-| Glove, BiLSTM-CRF | 86.48            | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF | 90.85            | word, character, pos, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF | 86.48(max)       | word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF | 90.47~90.85(max) | word, character, pos, [etagger](https://github.com/dsindex/etagger) |
 | BERT, BiLSTM-CRF  | 91.87~92.23(max) | word, [etagger](https://github.com/dsindex/etagger) |
 | ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83(max)| word, character, pos, [etagger](https://github.com/dsindex/etagger) |
 
@@ -144,16 +144,16 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 ### experiments summary
 
-|                   | F1 (%)      |          |
-| ----------------- | ----------- | -------- |
-| Glove, BiLSTM-CRF | 76.53       | morph-based, word  |
-| dha BERT, BiLSTM-CRF | 79.32    | morph-based, word |
-| bpe BERT, BiLSTM-CRF | **84.71**| eoj-based, word |
-| Glove, BiLSTM-CRF | 76.45       | morph-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
-| Glove, BiLSTM-CRF | 81.34       | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
-| HanBert              | 84.84    | eoj-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
-| dha BERT, BiLSTM-CRF |          | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
-| ELMo, BiLSTM-CRF     | 79.34    | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
+|                   | F1 (%)        |          |
+| ----------------- | ------------- | -------- |
+| Glove, BiLSTM-CRF | 76.53         | morph-based, word  |
+| dha BERT, BiLSTM-CRF | 79.32      | morph-based, word |
+| bpe BERT, BiLSTM-CRF | **84.71**  | eoj-based, word |
+| Glove, BiLSTM-CRF | 76.45         | morph-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+| Glove, BiLSTM-CRF | 81.34(max)    | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
+| HanBert              | 84.84      | eoj-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+| dha BERT, BiLSTM-CRF |            | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
+| ELMo, BiLSTM-CRF     | 79.34(max) | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
