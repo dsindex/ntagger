@@ -146,13 +146,13 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 |                      | F1 (%)        |          |
 | -------------------- | ------------- | -------- |
-| Glove, BiLSTM-CRF    | 76.53         | morph-based, word |
+| Glove, BiLSTM-CRF    | 77.97         | morph-based, word, emb_non_trainable=False |
 | dha BERT, BiLSTM-CRF | 79.32         | morph-based, word |
 | bpe BERT, BiLSTM-CRF | **84.71**     | eoj-based, word |
-| Glove, BiLSTM-CRF    | 76.45         | morph-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
-| Glove, BiLSTM-CRF    | 81.34(max)    | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
-| dha BERT, BiLSTM-CRF |               | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF    | 81.34         | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
+| dha BERT, BiLSTM-CRF | 73.57(?)      | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
 | ELMo, BiLSTM-CRF     | 82.15         | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF    | 76.45         | morph-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | HanBert              | 84.84         | eoj-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 
 ### emb_class=glove
@@ -163,9 +163,6 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 $ python train.py --data_dir data/clova2019_morph
 * --use_crf for adding crf layer
-$ python train.py --data_dir data/clova2019_morph --use_crf
-
-* test
 $ python train.py --data_dir data/clova2019_morph --use_crf --batch_size 20 --lr 0.001
 
 * tensorboardX
@@ -184,10 +181,11 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 accuracy:  91.50%; precision:  69.86%; recall:  73.73%; FB1:  71.74
 ...
 
-* --use_crf
+* --use_crf, set emb_non_trainable=False
 $ python evaluate.py --data_path data/clova2019_morph/test.txt.ids --embedding_path data/clova2019_morph/embedding.npy --label_path data/clova2019_morph/label.txt --test_path data/clova2019_morph/test.txt  --use_crf
-INFO:__main__:[F1] : 0.7653378715211525, 9000
-INFO:__main__:[Elapsed Time] : 317606ms, 35.28955555555556ms on average
+INFO:__main__:[F1] : 0.7802072557030387, 9000
+INFO:__main__:[Elapsed Time] : 307779ms, 34.19766666666667ms on average
+accuracy:  92.15%; precision:  80.44%; recall:  75.64%; FB1:  77.97
 ```
 
 ### emb_class=bert
