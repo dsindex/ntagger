@@ -152,7 +152,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 | Glove, BiLSTM-CRF    | 81.34         | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
 | dha BERT, BiLSTM-CRF | 73.57(?)      | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
 | ELMo, BiLSTM-CRF     | 82.15         | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF    | 76.45         | morph-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+| BiLSTM-CRF           | 76.45         | eoj-based, word, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | HanBert              | 84.84         | eoj-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 
 ### emb_class=glove
