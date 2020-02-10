@@ -145,6 +145,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 ### experiments summary
 
 - clova2019(eoj-based)
+
 |                       | F1 (%)        |          |
 | --------------------- | ------------- | -------- |
 | BERT(bpe), BiLSTM-CRF | 84.71         | eoj      |
@@ -152,6 +153,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 | HanBert               | 84.84         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 
 - clova2019_morph(morph-based)
+
 |                             | m-by-m F1 (%) | e-by-e F1 (%)  |              |
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
