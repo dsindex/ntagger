@@ -43,10 +43,10 @@ $ pip install git+https://github.com/huggingface/transformers.git
 
 ### experiments summary
 
-|                          | F1 (%)                 |          |
-| ------------------------ | ---------------------  | -------- |
-| Glove, BiLSTM-CRF        | 86.05                  | word     |
-| BERT(large), BiLSTM      | **91.13**              | word     |
+|                          | F1 (%)                 |           |
+| ------------------------ | ---------------------  | --------- |
+| Glove, BiLSTM-CRF        | -                      | word, pos |
+| BERT(large), BiLSTM      | **91.13**              | word      |
 | Glove, BiLSTM-CRF        | 86.48(max)             | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF        | 90.47~90.85(max)       | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(large), BiLSTM-CRF  | 91.87~92.23(max)       | word, [etagger](https://github.com/dsindex/etagger) |
@@ -59,7 +59,7 @@ $ pip install git+https://github.com/huggingface/transformers.git
 * token_emb_dim in config.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py
 $ python train.py
-* --use_crf for adding crf layer
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
 $ python train.py --use_crf
 
 * tensorboardX
@@ -70,19 +70,13 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 - evaluation
 ```
 $ python evaluate.py
-INFO:__main__:[F1] : 0.8569903948772679, 3684
-INFO:__main__:[Elapsed Time] : 57432ms, 15.589576547231271ms on average
+
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-accuracy:  96.80%; precision:  86.10%; recall:  85.30%; FB1:  85.70
 
 * --use_crf
 $ python evaluate.py --use_crf
-INFO:__main__:[F1] : 0.8605357142857142, 3684
-INFO:__main__:[Elapsed Time] : 156063ms, 42.362377850162865ms on average
-  * token_emb_dim: 100
-  INFO:__main__:[F1] : 0.8587449933244327, 3684
-  INFO:__main__:[Elapsed Time] : 344884ms, 93.61672095548317ms on average (cpu)
+
 ```
 
 ### emb_class=bert
@@ -159,7 +153,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 | Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
 | BERT(dha), BiLSTM-CRF       | -             | -              | morph        |
 | Glove, BiLSTM-CRF           | -             | -              | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(dha), BiLSTM-CRF       | -             | -              | morph, [etagger](https://github.com/dsindex/etagger) |
+| BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos, [etagger](https://github.com/dsindex/etagger) |
 | ELMo, Glove, BiLSTM-CRF     | 83.37         | 84.87          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
