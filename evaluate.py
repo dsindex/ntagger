@@ -53,7 +53,7 @@ def to_numpy(x):
             x[i] = x[i].detach().cpu().numpy()
     return x
 
-def write_prediction(opt, ys, preds, labels, pad_label_id, unk_label):
+def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
     # load test data
     tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
     with open(opt.test_path, 'r', encoding='utf-8') as f:
@@ -78,7 +78,7 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, unk_label):
                 # from preds
                 j_bucket = 0
                 for j in range(ys.shape[1]):       # foreach token
-                    pred_label = unk_label
+                    pred_label = default_label
                     if ys[i][j] != pad_label_id:
                         pred_label = labels[preds[i][j]]
                         entry = bucket[j_bucket]
@@ -88,7 +88,7 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, unk_label):
                 # remained
                 for j, entry in enumerate(bucket): # foreach remained token
                     if j < j_bucket: continue
-                    pred_label = unk_label
+                    pred_label = default_label
                     entry = bucket[j]
                     entry.append(pred_label)
                     f.write(' '.join(entry) + '\n')
@@ -122,7 +122,7 @@ def evaluate(opt):
 
     # prepare model and load parameters
     if opt.emb_class == 'glove':
-        model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path,
+        model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                              emb_non_trainable=True, use_crf=opt.use_crf)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
@@ -186,8 +186,8 @@ def evaluate(opt):
     }
     f1 = ret['f1']
     # write predicted labels to file
-    unk_label = config['unk_label']
-    write_prediction(opt, ys, preds, labels, pad_label_id, unk_label)
+    default_label = config['default_label']
+    write_prediction(opt, ys, preds, labels, pad_label_id, default_label)
 
     logger.info("[F1] : {}, {}".format(f1, total_examples))
     logger.info("[Elapsed Time] : {}ms, {}ms on average".format(whole_time, avg_time))
@@ -195,10 +195,7 @@ def evaluate(opt):
 def main():
     parser = argparse.ArgumentParser()
     
-    parser.add_argument('--data_path', type=str, default='data/conll2003/test.txt.ids')
-    parser.add_argument('--embedding_path', type=str, default='data/conll2003/embedding.npy')
-    parser.add_argument('--label_path', type=str, default='data/conll2003/label.txt')
-    parser.add_argument('--test_path', type=str, default='data/conll2003/test.txt')
+    parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--model_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--device', type=str, default='cuda')
@@ -214,6 +211,13 @@ def main():
     parser.add_argument('--bert_disable_lstm', action="store_true",
                         help="disable lstm layer")
     opt = parser.parse_args()
+
+    # set path
+    opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
+    opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
+    opt.label_path = os.path.join(opt.data_dir, 'label.txt')
+    opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
+    opt.test_path = os.path.join(opt.data_dir, 'test.txt')
 
     evaluate(opt) 
 

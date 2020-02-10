@@ -11,12 +11,12 @@ import numpy as np
 from torchcrf import CRF
 
 class GloveLSTMCRF(nn.Module):
-    def __init__(self, config, embedding_path, label_path, emb_non_trainable=False, use_crf=False):
+    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False):
         super(GloveLSTMCRF, self).__init__()
 
         self.config = config
         seq_size = config['n_ctx']
-        token_emb_dim = config['token_emb_dim']
+        pos_emb_dim = config['pos_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
@@ -24,12 +24,19 @@ class GloveLSTMCRF(nn.Module):
 
         # glove embedding layer
         weights_matrix = self.__load_embedding(embedding_path)
-        self.embed = self.__create_embedding_layer(weights_matrix, non_trainable=emb_non_trainable)
+        vocab_dim, token_emb_dim = weights_matrix.size()
+        self.embed_token = self.__create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable)
+
+        # pos embedding layer
+        self.poss = self.__load_dict(pos_path)
+        self.pos_size = len(self.poss)
+        self.embed_pos = self.__create_embedding_layer(self.pos_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
         self.dropout = nn.Dropout(config['dropout'])
 
         # BiLSTM layer
-        self.lstm = nn.LSTM(input_size=token_emb_dim,
+        emb_dim = token_emb_dim + pos_emb_dim
+        self.lstm = nn.LSTM(input_size=emb_dim,
                             hidden_size=lstm_hidden_dim,
                             num_layers=lstm_num_layers,
                             dropout=lstm_dropout,
@@ -37,7 +44,7 @@ class GloveLSTMCRF(nn.Module):
                             batch_first=True)
 
         # projection layer
-        self.labels = self.__load_label(label_path)
+        self.labels = self.__load_dict(label_path)
         self.label_size = len(self.labels)
         self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
 
@@ -50,29 +57,34 @@ class GloveLSTMCRF(nn.Module):
         weights_matrix = torch.tensor(weights_matrix)
         return weights_matrix
 
-    def __create_embedding_layer(self, weights_matrix, non_trainable=False):
-        vocab_size, emb_dim = weights_matrix.size()
-        emb_layer = nn.Embedding(vocab_size, emb_dim)
-        emb_layer.load_state_dict({'weight': weights_matrix})
+    def __create_embedding_layer(self, vocab_dim, emb_dim, weights_matrix=None, non_trainable=True):
+        emb_layer = nn.Embedding(vocab_dim, emb_dim)
+        if torch.is_tensor(weights_matrix):
+            emb_layer.load_state_dict({'weight': weights_matrix})
         if non_trainable:
             emb_layer.weight.requires_grad = False
         return emb_layer
 
-    def __load_label(self, input_path):
-        labels = {}
+    def __load_dict(self, input_path):
+        dic = {}
         with open(input_path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 toks = line.strip().split()
-                label = toks[0]
-                label_id = int(toks[1])
-                labels[label_id] = label
-        return labels
+                _key = toks[0]
+                _id = int(toks[1])
+                dic[_id] = _key
+        return dic
 
     def forward(self, x, tags=None):
         # x : [batch_size, seq_size]
         # tags : [batch_size, seq_size]
-        embed_out = self.embed(x)
-        # embed_out : [batch_size, seq_size, token_emb_dim]
+        token_ids = x[0]
+        pos_ids = x[1]
+        token_embed_out = self.embed_token(token_ids)
+        # token_embed_out : [batch_size, seq_size, token_emb_dim]
+        pos_embed_out = self.embed_pos(pos_ids)
+        # pos_embed_out : [batch_size, seq_size, pos_emb_dim]
+        embed_out = torch.cat([token_embed_out, pos_embed_out], dim=-1)
 
         lstm_out, (h_n, c_n) = self.lstm(embed_out)
         # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
@@ -86,7 +98,7 @@ class GloveLSTMCRF(nn.Module):
 
         if tags is not None: # given golden ys(answer)
             device = self.config['device']
-            mask = torch.sign(torch.abs(x)).to(torch.uint8).to(device)
+            mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
             # mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
@@ -125,7 +137,7 @@ class BertLSTMCRF(nn.Module):
                                 batch_first=True)
 
         # projection layer
-        self.labels = self.__load_label(label_path)
+        self.labels = self.__load_dict(label_path)
         self.label_size = len(self.labels)
         if not self.disable_lstm:
             self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
@@ -136,15 +148,15 @@ class BertLSTMCRF(nn.Module):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def __load_label(self, input_path):
-        labels = {}
+    def __load_dict(self, input_path):
+        dic = {}
         with open(input_path, 'r', encoding='utf-8') as f:
             for idx, line in enumerate(f):
                 toks = line.strip().split()
-                label = toks[0]
-                label_id = int(toks[1])
-                labels[label_id] = label
-        return labels
+                _key = toks[0]
+                _id = int(toks[1])
+                dic[_id] = _key
+        return dic
 
     def __compute_bert_embedding(self, x):
         if self.feature_based:

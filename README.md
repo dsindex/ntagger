@@ -43,14 +43,14 @@ $ pip install git+https://github.com/huggingface/transformers.git
 
 ### experiments summary
 
-|                   | F1 (%)           |          |
-| ----------------- | ---------------  | -------- |
-| Glove, BiLSTM-CRF | 86.05            | word     |
-| BERT, BiLSTM      | **91.13**        | word     |
-| Glove, BiLSTM-CRF | 86.48(max)       | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF | 90.47~90.85(max) | word, character, pos, [etagger](https://github.com/dsindex/etagger) |
-| BERT, BiLSTM-CRF  | 91.87~92.23(max) | word, [etagger](https://github.com/dsindex/etagger) |
-| ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83(max)| word, character, pos, [etagger](https://github.com/dsindex/etagger) |
+|                          | F1 (%)                 |          |
+| ------------------------ | ---------------------  | -------- |
+| Glove, BiLSTM-CRF        | 86.05                  | word     |
+| BERT(large), BiLSTM      | **91.13**              | word     |
+| Glove, BiLSTM-CRF        | 86.48(max)             | word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF        | 90.47~90.85(max)       | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| BERT(large), BiLSTM-CRF  | 91.87~92.23(max)       | word, [etagger](https://github.com/dsindex/etagger) |
+| ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83(max) | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
@@ -110,7 +110,7 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 
 - evaluation
 ```
-$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/conll2003/test.txt.fs
+$ python evaluate.py --emb_class=bert --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
 
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
@@ -144,16 +144,21 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 ### experiments summary
 
-|                      | F1 (%)        |          |
-| -------------------- | ------------- | -------- |
-| Glove, BiLSTM-CRF    | 77.97         | morph-based, word, emb_non_trainable=False |
-| dha BERT, BiLSTM-CRF | 79.32         | morph-based, word |
-| bpe BERT, BiLSTM-CRF | **84.71**     | eoj-based, word |
-| Glove, BiLSTM-CRF    | 81.34         | morph-based, word, character, pos, [etagger](https://github.com/dsindex/etagger) |
-| dha BERT, BiLSTM-CRF | 73.57(?)      | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
-| ELMo, BiLSTM-CRF     | 82.15         | morph-based, word, [etagger](https://github.com/dsindex/etagger) |
-| BiLSTM-CRF           | 76.45         | eoj-based, word, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
-| HanBert              | 84.84         | eoj-based, word, [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+- clova2019(eoj-based)
+|                       | F1 (%)        |          |
+| --------------------- | ------------- | -------- |
+| BERT(bpe), BiLSTM-CRF | 84.71         | eoj      |
+| BiLSTM-CRF            | 76.45         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+| HanBert               | 84.84         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+
+- clova2019_morph(morph-based)
+|                             | m-by-m F1 (%) | e-by-e F1 (%)  |              |
+| --------------------------- | ------------- | -------------- | ------------ |
+| Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
+| BERT(dha), BiLSTM-CRF       |               |                | morph        |
+| Glove, BiLSTM-CRF           |               |                | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| BERT(dha), BiLSTM-CRF       |               |                | morph, [etagger](https://github.com/dsindex/etagger) |
+| ELMo, Glove, BiLSTM-CRF     | 83.37         | 84.87          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
@@ -162,8 +167,8 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 * token_emb_dim in config.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 $ python train.py --data_dir data/clova2019_morph
-* --use_crf for adding crf layer
-$ python train.py --data_dir data/clova2019_morph --use_crf --batch_size 20 --lr 0.001
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
+$ python train.py --data_dir data/clova2019_morph --use_crf --embedding_trainable
 
 * tensorboardX
 $ rm -rf runs
@@ -172,20 +177,22 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 
 - evaluation
 ```
-$ python evaluate.py --data_path data/clova2019_morph/test.txt.ids --embedding_path data/clova2019_morph/embedding.npy --label_path data/clova2019_morph/label.txt --test_path data/clova2019_morph/test.txt
-INFO:__main__:[F1] : 0.7159682824060252, 9000
-INFO:__main__:[Elapsed Time] : 898312ms, 99.81244444444444ms on average
-
+$ python evaluate.py --data_dir data/clova2019_morph
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-accuracy:  91.50%; precision:  69.86%; recall:  73.73%; FB1:  71.74
-...
 
-* --use_crf, set emb_non_trainable=False
-$ python evaluate.py --data_path data/clova2019_morph/test.txt.ids --embedding_path data/clova2019_morph/embedding.npy --label_path data/clova2019_morph/label.txt --test_path data/clova2019_morph/test.txt  --use_crf
-INFO:__main__:[F1] : 0.7802072557030387, 9000
-INFO:__main__:[Elapsed Time] : 307779ms, 34.19766666666667ms on average
-accuracy:  92.15%; precision:  80.44%; recall:  75.64%; FB1:  77.97
+* --use_crf --embedding_trainable
+$ python evaluate.py --data_dir data/clova2019_morph --use_crf
+INFO:__main__:[F1] : 0.8381697194210057, 9000
+INFO:__main__:[Elapsed Time] : 340432ms, 37.82577777777778ms on average
+
+accuracy:  93.60%; precision:  84.45%; recall:  83.08%; FB1:  83.76
+
+* evaluation eoj-by-eoj
+$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+
+accuracy:  93.15%; precision:  84.46%; recall:  83.08%; FB1:  83.76
+
 ```
 
 ### emb_class=bert
@@ -214,18 +221,16 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 ```
 * for clova2019_morph
 
-$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/clova2019_morph/test.txt.fs --label_path=data/clova2019_morph/label.txt --test_path=data/clova2019_morph/test.txt --use_crf
-INFO:__main__:[F1] : 0.7938620132057673, 9000
-INFO:__main__:[Elapsed Time] : 457444ms, 50.82711111111111ms on average
+$ python evaluate.py --emb_class=bert --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf
 
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-accuracy:  92.99%; precision:  78.55%; recall:  80.11%; FB1:  79.32
+
+* evaluation eoj-by-eoj
+$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 
 * for clova2019
 
-$ python evaluate.py --emb_class=bert --bert_output_dir=bert-checkpoint --data_path=data/clova2019/test.txt.fs --label_path=data/clova2019/label.txt --test_path=data/clova2019/test.txt --use_crf
-INFO:__main__:[F1] : 0.8468742604050444, 9000
-INFO:__main__:[Elapsed Time] : 486540ms, 54.06ms on average
+$ python evaluate.py --emb_class=bert --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
 
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 accuracy:  93.53%; precision:  84.27%; recall:  85.16%; FB1:  84.71

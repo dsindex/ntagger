@@ -232,6 +232,7 @@ def main():
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_filename', type=str, default='embedding.npy')
     parser.add_argument('--label_filename', type=str, default='label.txt')
+    parser.add_argument('--pos_filename', type=str, default='pos.txt')
     parser.add_argument('--config', type=str, default='config.json')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--use_amp', action="store_true")
@@ -248,6 +249,7 @@ def main():
     parser.add_argument("--seed", default=5, type=int)
     parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert')
     parser.add_argument('--use_crf', action="store_true")
+    parser.add_argument('--embedding_trainable', action="store_true")
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -287,8 +289,10 @@ def main():
     if opt.emb_class == 'glove':
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = GloveLSTMCRF(config, embedding_path, label_path,
-                             emb_non_trainable=True, use_crf=opt.use_crf)
+        pos_path = os.path.join(opt.data_dir, opt.pos_filename)
+        emb_non_trainable = not opt.embedding_trainable
+        model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
+                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     if opt.emb_class == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,

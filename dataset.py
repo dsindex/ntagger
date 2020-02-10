@@ -9,21 +9,28 @@ from torch.utils.data import TensorDataset
 
 class CoNLLGloveDataset(Dataset):
     def __init__(self, path):
-        x,y = [],[]
+        all_token_ids = []
+        all_pos_ids = []
+        all_label_ids = []
         with open(path,'r',encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 items = line.split('\t')
-                yi = [int(d) for d in items[0].split()]
-                xi = [int(d) for d in items[1].split()]
-                x.append(xi)
-                y.append(yi)
-        
-        self.x = torch.tensor(x).long()
-        self.y = torch.tensor(y).long()
+                token_ids = [int(d) for d in items[1].split()]
+                pos_ids   = [int(d) for d in items[2].split()]
+                label_ids = [int(d) for d in items[0].split()]
+                all_token_ids.append(token_ids)
+                all_pos_ids.append(pos_ids)
+                all_label_ids.append(label_ids)
+        all_token_ids = torch.tensor(all_token_ids, dtype=torch.long)
+        all_pos_ids = torch.tensor(all_pos_ids, dtype=torch.long)
+        all_label_ids = torch.tensor(all_label_ids, dtype=torch.long)
+
+        self.x = TensorDataset(all_token_ids, all_pos_ids)
+        self.y = all_label_ids
  
     def __len__(self):
-        return self.x.size(0)
+        return len(self.y)
 
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]

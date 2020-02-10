@@ -24,6 +24,7 @@ _TEST_FILE  = 'test.txt'
 _SUFFIX = '.ids'
 _VOCAB_FILE = 'vocab.txt'
 _EMBED_FILE = 'embedding.npy'
+_POS_FILE = 'pos.txt'
 _LABEL_FILE = 'label.txt'
 _FSUFFIX = '.fs'
 
@@ -35,10 +36,13 @@ def load_config(opt):
         config = dict()
     return config
 
-def build_label(input_path, config):
-    logger.info("\n[building labels]")
+def build_dict(input_path, config):
+    logger.info("\n[building dict]")
+    poss = {}
     labels = {}
-    # add pad label
+    # add pad info
+    poss[config['pad_pos']] = config['pad_pos_id']
+    pos_id = 1
     labels[config['pad_label']] = config['pad_label_id']
     label_id = 1
     tot_num_line = sum(1 for _ in open(input_path, 'r')) 
@@ -48,20 +52,24 @@ def build_label(input_path, config):
             if line == "": continue
             toks = line.split()
             assert(len(toks) == 4)
+            pos = toks[1]
             label = toks[-1]
+            if pos not in poss:
+                poss[pos] = pos_id
+                pos_id += 1
             if label not in labels:
                 labels[label] = label_id
                 label_id += 1
-    logger.info("\nUnique labels : {}".format(len(labels)))
-    return labels
+    logger.info("\nUnique poss, labels : {}, {}".format(len(poss), len(labels)))
+    return poss, labels
 
-def write_label(labels, output_path):
-    logger.info("\n[Writing label]")
+def write_dict(dic, output_path):
+    logger.info("\n[Writing dict]")
     f_write = open(output_path, 'w', encoding='utf-8')
-    for idx, item in enumerate(tqdm(labels.items())):
-        label = item[0]
-        label_id = item[1]
-        f_write.write(label + ' ' + str(label_id))
+    for idx, item in enumerate(tqdm(dic.items())):
+        _key = item[0]
+        _id = item[1]
+        f_write.write(_key + ' ' + str(_id))
         f_write.write('\n')
     f_write.close()
 
@@ -116,6 +124,7 @@ def build_data(input_path, tokenizer):
             line = line.strip()
             if line == "":
                 tokens = []
+                posseq = []
                 labelseq = []
                 for entry in bucket:
                     token = entry[0]
@@ -123,16 +132,18 @@ def build_data(input_path, tokenizer):
                     pt = entry[2]
                     label = entry[3]
                     tokens.append(token)
+                    posseq.append(pos)
                     labelseq.append(label)
                 if len(tokens) > config['n_ctx']:
                     t = ' '.join(tokens)
                     logger.info("\n# Data over text length limit : {:,} / {:,}, {}".format(len(tokens), config['n_ctx'], t))
                     tokens = tokens[:config['n_ctx']]
+                    posseq = posseq[:config['n_ctx']]
                     labelseq = labelseq[:config['n_ctx']]
                     _long_data += 1
                 for token in tokens:
                     all_tokens[token] += 1
-                data.append((tokens, labelseq))
+                data.append((tokens, posseq, labelseq))
                 bucket = []
             else:
                 entry = line.split()
@@ -140,6 +151,7 @@ def build_data(input_path, tokenizer):
                 bucket.append(entry)
         if len(bucket) != 0:
             tokens = []
+            posseq = []
             labelseq = []
             for entry in bucket:
                 token = entry[0]
@@ -147,14 +159,16 @@ def build_data(input_path, tokenizer):
                 pt = entry[2]
                 label = entry[3]
                 tokens.append(token)
+                posseq.append(pos)
                 labelseq.append(label)
             if len(tokens) > config['n_ctx']:
                 tokens = tokens[:config['n_ctx']]
+                posseq = posseq[:config['n_ctx']]
                 labelseq = labelseq[:config['n_ctx']]
                 _long_data += 1
             for token in tokens:
                 all_tokens[token] += 1
-            data.append((tokens, labelseq))
+            data.append((tokens, posseq, labelseq))
 
     logger.info("\n# Data over text length limit : {:,}".format(_long_data))
     logger.info("\nTotal unique tokens : {:,}".format(len(all_tokens)))
@@ -170,18 +184,32 @@ def build_data(input_path, tokenizer):
     logger.info("Vocab coverage : {:.2f}%\n".format(cover_token_cnt/total_token_cnt*100.0))
     return data
 
-def write_data(data, output_path, tokenizer, labels):
+def write_data(data, output_path, tokenizer, poss, labels):
     logger.info("\n[Writing data]")
     config = tokenizer.config
     pad_id = tokenizer.pad_id
     num_tok_per_sent = []
     f_write = open(output_path, 'w', encoding='utf-8')
     for idx, item in enumerate(tqdm(data)):
-        tokens, labelseq = item[0], item[1]
+        tokens, posseq, labelseq = item[0], item[1], item[2]
         if len(tokens) == 0:
             logger.info("\nData Error!! : {}", idx)
             continue
+        assert(len(tokens) == len(posseq))
         assert(len(tokens) == len(labelseq))
+        # token ids
+        token_ids = tokenizer.convert_tokens_to_ids(tokens)
+        for _ in range(config['n_ctx'] - len(token_ids)):
+            token_ids.append(pad_id)
+        token_ids_str = ' '.join([str(d) for d in token_ids])
+        # pos ids
+        pos_ids = []
+        for pos in posseq:
+            pos_id = poss[pos]
+            pos_ids.append(pos_id)
+        for _ in range(config['n_ctx'] - len(pos_ids)):
+            pos_ids.append(config['pad_pos_id'])
+        pos_ids_str = ' '.join([str(d) for d in pos_ids])
         # label ids
         label_ids = []
         for label in labelseq:
@@ -190,12 +218,8 @@ def write_data(data, output_path, tokenizer, labels):
         for _ in range(config['n_ctx'] - len(label_ids)):
             label_ids.append(config['pad_label_id'])
         label_ids_str = ' '.join([str(d) for d in label_ids])
-        # token ids
-        token_ids = tokenizer.convert_tokens_to_ids(tokens)
-        for _ in range(config['n_ctx'] - len(token_ids)):
-            token_ids.append(pad_id)
-        token_ids_str = ' '.join([str(d) for d in token_ids])
-        f_write.write(label_ids_str + '\t' + token_ids_str)
+        # format: label list \t token list \t pos list
+        f_write.write(label_ids_str + '\t' + token_ids_str + '\t' + pos_ids_str)
         num_tok_per_sent.append(len(tokens))
         f_write.write('\n')
     f_write.close()
@@ -238,19 +262,19 @@ def preprocess_glove(config):
     path = os.path.join(opt.data_dir, _TEST_FILE)
     test_data = build_data(path, tokenizer)
 
-    # build labels
+    # build poss, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    labels = build_label(path, config)
+    poss, labels = build_dict(path, config)
 
-    # write data, vocab, embedding, labels
+    # write data, vocab, embedding, poss, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _SUFFIX)
-    write_data(train_data, path, tokenizer, labels)
+    write_data(train_data, path, tokenizer, poss, labels)
 
     path = os.path.join(opt.data_dir, _VALID_FILE + _SUFFIX)
-    write_data(valid_data, path, tokenizer, labels)
+    write_data(valid_data, path, tokenizer, poss, labels)
 
     path = os.path.join(opt.data_dir, _TEST_FILE + _SUFFIX)
-    write_data(test_data, path, tokenizer, labels)
+    write_data(test_data, path, tokenizer, poss, labels)
 
     path = os.path.join(opt.data_dir, _VOCAB_FILE)
     write_vocab(vocab, path)
@@ -258,8 +282,11 @@ def preprocess_glove(config):
     path = os.path.join(opt.data_dir, _EMBED_FILE)
     write_embedding(embedding, path)
 
+    path = os.path.join(opt.data_dir, _POS_FILE)
+    write_dict(poss, path)
+
     path = os.path.join(opt.data_dir, _LABEL_FILE)
-    write_label(labels, path)
+    write_dict(labels, path)
 
 # ---------------------------------------------------------------------------- #
 # BERT
@@ -294,9 +321,9 @@ def preprocess_bert(config):
 
     tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
                                               do_lower_case=opt.bert_do_lower_case)
-    # build labels
+    # build poss, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    labels = build_label(path, config)
+    poss, labels = build_dict(path, config)
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
@@ -318,9 +345,11 @@ def preprocess_bert(config):
     path = os.path.join(opt.data_dir, _TEST_FILE + _FSUFFIX)
     write_features(test_features, path)
 
-    # write labels
+    # write poss, labels
+    path = os.path.join(opt.data_dir, _POS_FILE)
+    write_dict(poss, path)
     path = os.path.join(opt.data_dir, _LABEL_FILE)
-    write_label(labels, path)
+    write_dict(labels, path)
 
 def main():
     parser = argparse.ArgumentParser()
