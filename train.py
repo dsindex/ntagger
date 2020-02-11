@@ -285,11 +285,11 @@ def main():
         filepath = os.path.join(opt.data_dir, 'valid.txt.fs')
         valid_loader = prepare_dataset(opt, filepath, CoNLLBertDataset, shuffle=False, num_workers=2)
 
+    label_path = os.path.join(opt.data_dir, opt.label_filename)
+    pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     # prepare model
     if opt.emb_class == 'glove':
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
-        label_path = os.path.join(opt.data_dir, opt.label_filename)
-        pos_path = os.path.join(opt.data_dir, opt.pos_filename)
         emb_non_trainable = not opt.embedding_trainable
         model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
                              emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
@@ -301,8 +301,7 @@ def main():
                                                from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
-        label_path = os.path.join(opt.data_dir, opt.label_filename)
-        model = ModelClass(config, bert_config, bert_model, label_path,
+        model = ModelClass(config, bert_config, bert_model, label_path, pos_path,
                            use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
     model.to(device)
     logger.info("[Model prepared]")

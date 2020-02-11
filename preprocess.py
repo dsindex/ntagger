@@ -292,17 +292,18 @@ def preprocess_glove(config):
 # BERT
 # ---------------------------------------------------------------------------- #
 
-def build_features(input_path, tokenizer, labels, config, mode='train'):
+def build_features(input_path, tokenizer, poss, labels, config, mode='train'):
     from util_bert import read_examples_from_file
     from util_bert import convert_examples_to_features
 
     logger.info("[Creating features from file] %s", input_path)
     examples = read_examples_from_file(input_path, mode=mode)
-    features = convert_examples_to_features(examples, labels, config['n_ctx'], tokenizer,
+    features = convert_examples_to_features(examples, poss, labels, config['n_ctx'], tokenizer,
                                             cls_token=tokenizer.cls_token,
                                             cls_token_segment_id=0,
                                             sep_token=tokenizer.sep_token,
                                             pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
+                                            pad_token_pos_id=config['pad_pos_id'],
                                             pad_token_label_id=config['pad_label_id'],
                                             pad_token_segment_id=0,
                                             sequence_a_segment_id=0)
@@ -327,13 +328,13 @@ def preprocess_bert(config):
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    train_features = build_features(path, tokenizer, labels, config, mode='train')
+    train_features = build_features(path, tokenizer, poss, labels, config, mode='train')
 
     path = os.path.join(opt.data_dir, _VALID_FILE)
-    valid_features = build_features(path, tokenizer, labels, config, mode='valid')
+    valid_features = build_features(path, tokenizer, poss, labels, config, mode='valid')
 
     path = os.path.join(opt.data_dir, _TEST_FILE)
-    test_features = build_features(path, tokenizer, labels, config, mode='test')
+    test_features = build_features(path, tokenizer, poss, labels, config, mode='test')
 
     # write features
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _FSUFFIX)

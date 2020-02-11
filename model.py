@@ -85,6 +85,7 @@ class GloveLSTMCRF(nn.Module):
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out : [batch_size, seq_size, pos_emb_dim]
         embed_out = torch.cat([token_embed_out, pos_embed_out], dim=-1)
+        # embed_out : [batch_size, seq_size, emb_dim=token_emb_dim+pos_emb_dim]
 
         lstm_out, (h_n, c_n) = self.lstm(embed_out)
         # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
@@ -109,11 +110,12 @@ class GloveLSTMCRF(nn.Module):
             return logits, prediction
 
 class BertLSTMCRF(nn.Module):
-    def __init__(self, config, bert_config, bert_model, label_path, use_crf=False, disable_lstm=False, feature_based=False):
+    def __init__(self, config, bert_config, bert_model, label_path, pos_path, use_crf=False, disable_lstm=False, feature_based=False):
         super(BertLSTMCRF, self).__init__()
 
         self.config = config
         seq_size = config['n_ctx']
+        pos_emb_dim = config['pos_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
@@ -125,11 +127,17 @@ class BertLSTMCRF(nn.Module):
         self.bert_model = bert_model
         self.feature_based = feature_based
 
+        # pos embedding layer
+        self.poss = self.__load_dict(pos_path)
+        self.pos_size = len(self.poss)
+        self.embed_pos = self.__create_embedding_layer(self.pos_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
+
         self.dropout = nn.Dropout(config['dropout'])
 
         # BiLSTM layer
+        emb_dim = bert_config.hidden_size + pos_emb_dim
         if not self.disable_lstm:
-            self.lstm = nn.LSTM(input_size=bert_config.hidden_size,
+            self.lstm = nn.LSTM(input_size=emb_dim,
                                 hidden_size=lstm_hidden_dim,
                                 num_layers=lstm_num_layers,
                                 dropout=lstm_dropout,
@@ -142,11 +150,24 @@ class BertLSTMCRF(nn.Module):
         if not self.disable_lstm:
             self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
         else:
-            self.linear = nn.Linear(bert_config.hidden_size, self.label_size)
+            self.linear = nn.Linear(emb_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
+
+    def __load_embedding(self, input_path):
+        weights_matrix = np.load(input_path)
+        weights_matrix = torch.tensor(weights_matrix)
+        return weights_matrix
+
+    def __create_embedding_layer(self, vocab_dim, emb_dim, weights_matrix=None, non_trainable=True):
+        emb_layer = nn.Embedding(vocab_dim, emb_dim)
+        if torch.is_tensor(weights_matrix):
+            emb_layer.load_state_dict({'weight': weights_matrix})
+        if non_trainable:
+            emb_layer.weight.requires_grad = False
+        return emb_layer
 
     def __load_dict(self, input_path):
         dic = {}
@@ -180,8 +201,13 @@ class BertLSTMCRF(nn.Module):
     def forward(self, x, tags=None):
         # x : [batch_size, seq_size]
         # tags : [batch_size, seq_size]
-        embed_out = self.__compute_bert_embedding(x)
-        # embed_out : [batch_size, seq_size, hidden_size]
+        bert_embed_out = self.__compute_bert_embedding(x)
+        # bert_embed_out : [batch_size, seq_size, bert_config.hidden_size]
+        pos_ids = x[3]
+        pos_embed_out = self.embed_pos(pos_ids)
+        # pos_embed_out : [batch_size, seq_size, pos_emb_dim]
+        embed_out = torch.cat([bert_embed_out, pos_embed_out], dim=-1)
+        # embed_out : [batch_size, seq_size, emb_dim=bert_config.hidden_size+pos_emb_dim]
 
         if not self.disable_lstm:
             lstm_out, (h_n, c_n) = self.lstm(embed_out)
