@@ -151,8 +151,9 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 |                             | m-by-m F1 (%) | e-by-e F1 (%)  |              |
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
-| BERT(dha), BiLSTM-CRF       | -             | -              | morph        |
-| Glove, BiLSTM-CRF           | -             | -              | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| BERT(dha), BiLSTM-CRF       | 80.05         | 82.10          | morph        |
+| BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos   |
+| Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos, [etagger](https://github.com/dsindex/etagger) |
 | ELMo, Glove, BiLSTM-CRF     | 83.37         | 84.87          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
