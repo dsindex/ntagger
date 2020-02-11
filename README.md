@@ -33,10 +33,55 @@ $ pip install git+https://github.com/huggingface/transformers.git
     - [SOTA on CoNLL 2003 english](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
   - Naver NER 2019 (Korean)
     - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
-      - data/clova2019: converted to CoNLL data format.
-      - data/clova2019_morph: tokenized by morphological analyzer and converted to CoNLL data format.
-    - there is no test set. so, set valid.txt as test.txt.
+      - data/clova2019
+        - converted to CoNLL data format.
+        ```
+        이기범 eoj - B-PER
+        한두 eoj - O
+        쪽을 eoj - O
+        먹고 eoj - O
+        10분 eoj - B-TIM
+        후쯤 eoj - I-TIM
+        화제인을 eoj - B-CVL
+        먹는 eoj - O
+        것이 eoj - O
+        좋다고 eoj - O
+        한다 eoj - O
+        . eoj - O
+        ```
+      - data/clova2019_morph
+        - tokenized by morphological analyzer and converted to CoNLL data format.
+        ```
+        이기범 NNP - B-PER
+        한두 NNP - O
+        쪽 NNB - O
+        을 X-JKO - O
+        먹다 VV - O
+        고 X-EC - O
+        10 SN - B-TIM
+        분 X-NNB - I-TIM
+        후 NNG - I-TIM
+        쯤 X-XSN - I-TIM
+        화제 NNG - B-CVL
+        인 X-NNG - I-CVL
+        을 X-JKO - I-CVL
+        먹다 VV - O
+        는 X-ETM - O
+        것 NNB - O
+        이 X-JKS - O
+        좋다 VA - O
+        다고 X-EC - O
+        하다 VV - O
+        ㄴ다 X-EC - O
+        . SF - O
+        ```
+        - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
+        - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+      - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+      - kor.glove.300k.300d.txt
+      - pytorch.all.bpe.4.8m_step
+      - pytorch.all.dha.2.5m_step
 
 
 ## CoNLL 2003 (english)
