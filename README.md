@@ -197,10 +197,10 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
 | BERT(dha), BiLSTM-CRF       | 80.05         | 82.10          | morph        |
-| BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos   |
+| BERT(dha), BiLSTM-CRF       | 83.99         | 84.36          | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos, [etagger](https://github.com/dsindex/etagger) |
-| ELMo, Glove, BiLSTM-CRF     | 83.37         | 84.87          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| ELMo, Glove, BiLSTM-CRF     | -             | -              | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
@@ -264,11 +264,15 @@ $ tensorboard --logdir runs/ --port port-number --bind_all
 * for clova2019_morph
 
 $ python evaluate.py --emb_class=bert --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf
+INFO:__main__:[F1] : 0.8405158425143053, 9000
+INFO:__main__:[Elapsed Time] : 488292ms, 54.254666666666665ms on average
 
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+accuracy:  94.01%; precision:  84.33%; recall:  83.64%; FB1:  83.99
 
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+accuracy:  93.50%; precision:  84.90%; recall:  83.83%; FB1:  84.36
 
 * for clova2019
 
