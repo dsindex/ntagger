@@ -213,7 +213,10 @@ def main():
     opt = parser.parse_args()
 
     # set path
-    opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
+    if opt.emb_class == 'glove':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
+    if opt.emb_class == 'bert':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
     opt.label_path = os.path.join(opt.data_dir, 'label.txt')
     opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
