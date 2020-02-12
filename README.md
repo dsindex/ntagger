@@ -90,7 +90,7 @@ $ pip install git+https://github.com/huggingface/transformers.git
 
 |                          | F1 (%)                 | features  |
 | ------------------------ | ---------------------  | --------- |
-| Glove, BiLSTM-CRF        | -                      | word, pos |
+| Glove, BiLSTM-CRF        | 88.03                  | word, pos |
 | BERT(large), BiLSTM      | **91.13**              | word      |
 | Glove, BiLSTM-CRF        | 86.48(max)             | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF        | 90.47~90.85(max)       | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
@@ -121,6 +121,10 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
 $ python evaluate.py --use_crf
+INFO:__main__:[F1] : 0.8802560227575785, 3684
+INFO:__main__:[Elapsed Time] : 123709ms, 33.580076004343105ms on average
+
+accuracy:  97.48%; precision:  88.39%; recall:  87.66%; FB1:  88.03
 
 ```
 
