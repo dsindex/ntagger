@@ -88,7 +88,7 @@ $ pip install git+https://github.com/huggingface/transformers.git
 
 ### experiments summary
 
-|                          | F1 (%)                 |           |
+|                          | F1 (%)                 | features  |
 | ------------------------ | ---------------------  | --------- |
 | Glove, BiLSTM-CRF        | -                      | word, pos |
 | BERT(large), BiLSTM      | **91.13**              | word      |
@@ -185,15 +185,16 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 - clova2019(eoj-based)
 
-|                       | F1 (%)        |          |
+|                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
 | BERT(bpe), BiLSTM-CRF | 84.71         | eoj      |
 | BiLSTM-CRF            | 76.45         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+| KoBERT                | 84.23         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | HanBert               | 84.84         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 
 - clova2019_morph(morph-based)
 
-|                             | m-by-m F1 (%) | e-by-e F1 (%)  |              |
+|                             | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
 | BERT(dha), BiLSTM-CRF       | 80.05         | 82.10          | morph        |
