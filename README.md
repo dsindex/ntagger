@@ -92,10 +92,10 @@ $ pip install git+https://github.com/huggingface/transformers.git
 | ------------------------ | ---------------------  | --------- |
 | Glove, BiLSTM-CRF        | 88.03                  | word, pos |
 | BERT(large), BiLSTM      | **91.13**              | word      |
-| Glove, BiLSTM-CRF        | 86.48(max)             | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF        | 90.47~90.85(max)       | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(large), BiLSTM-CRF  | 91.87~92.23(max)       | word, [etagger](https://github.com/dsindex/etagger) |
-| ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83(max) | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF        | 90.47~90.85            | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| BERT(large), BiLSTM-CRF  | 91.87~92.23            | word, [etagger](https://github.com/dsindex/etagger) |
+| ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
@@ -204,7 +204,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 | BERT(dha), BiLSTM-CRF       | 80.05         | 82.10          | morph        |
 | BERT(dha), BiLSTM-CRF       | 83.99         | 84.36          | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos, [etagger](https://github.com/dsindex/etagger) |
+| BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), suspecting something goes wrong. |
 | ELMo, Glove, BiLSTM-CRF     | 86.75         | 86.75          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
