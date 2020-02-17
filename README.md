@@ -19,12 +19,11 @@ reference pytorch code for named entity tagging
   glove.6B.zip
   $ unzip glove.6B.zip 
   ```
-
-- additional requirements for BERT(huggingface's [transformers](https://github.com/huggingface/transformers.git))
-```
-$ pip install tensorflow-gpu==2.0
-$ pip install git+https://github.com/huggingface/transformers.git
-```
+  - BERT(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  ```
+  $ pip install tensorflow-gpu==2.0
+  $ pip install git+https://github.com/huggingface/transformers.git
+  ```
 
 - data
   - CoNLL 2003 (english)
