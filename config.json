@@ -11,5 +11,8 @@
     "pad_pos_id": 0,
     "pad_label": "<pad>",
     "pad_label_id": 0,
-    "default_label": "O"
+    "default_label": "O",
+    "elmo_pad_id": 0,
+    "elmo_word_length": 50,
+    "elmo_emb_dim": 1024
 }

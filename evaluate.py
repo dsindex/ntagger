@@ -10,8 +10,8 @@ import logging
 
 import torch
 import torch.nn as nn
-from model import GloveLSTMCRF, BertLSTMCRF
-from dataset import CoNLLGloveDataset, CoNLLBertDataset
+from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF
+from dataset import CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from torch.utils.data import DataLoader
 import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score
@@ -29,10 +29,10 @@ def load_config(opt):
         config = dict()
     return config
 
-def prepare_dataset(opt, filepath, DatasetClass, shuffle=False, num_workers=1):
-    dataset = DatasetClass(filepath)
+def prepare_dataset(config, filepath, DatasetClass, shuffle=False, num_workers=1):
+    dataset = DatasetClass(config, filepath)
     sampler = None
-    loader = DataLoader(dataset, batch_size=opt.batch_size, \
+    loader = DataLoader(dataset, batch_size=config['opt'].batch_size, \
             shuffle=shuffle, num_workers=num_workers, sampler=sampler)
     logger.info("[{} data loaded]".format(filepath))
     return loader
@@ -109,9 +109,11 @@ def evaluate(opt):
 
     # prepare test dataset
     if opt.emb_class == 'glove':
-        test_loader = prepare_dataset(opt, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
+        test_loader = prepare_dataset(config, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
     if opt.emb_class == 'bert':
-        test_loader = prepare_dataset(opt, test_data_path, CoNLLBertDataset, shuffle=False, num_workers=1)
+        test_loader = prepare_dataset(config, test_data_path, CoNLLBertDataset, shuffle=False, num_workers=1)
+    if opt.emb_class == 'elmo':
+        test_loader = prepare_dataset(config, test_data_path, CoNLLElmoDataset, shuffle=False, num_workers=1)
  
     # load pytorch model checkpoint
     logger.info("[Loading model...]")
@@ -133,6 +135,11 @@ def evaluate(opt):
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm)
+    if opt.emb_class == 'elmo':
+        from allennlp.modules.elmo import Elmo
+        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 1, dropout=0)
+        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
+                             emb_non_trainable=True, use_crf=opt.use_crf)
     model.load_state_dict(checkpoint)
     model = model.to(device)
     logger.info("[Loaded]")
@@ -201,7 +208,7 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_thread', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert')
+    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert | elmo')
     parser.add_argument('--use_crf', action="store_true")
     # for BERT
     parser.add_argument("--bert_do_lower_case", action="store_true",
@@ -210,6 +217,10 @@ def main():
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument('--bert_disable_lstm', action="store_true",
                         help="disable lstm layer")
+    # for ELMo
+    parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
+    parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
+
     opt = parser.parse_args()
 
     # set path
@@ -217,6 +228,8 @@ def main():
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
     if opt.emb_class == 'bert':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
+    if opt.emb_class == 'elmo':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
     opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
     opt.label_path = os.path.join(opt.data_dir, 'label.txt')
     opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')

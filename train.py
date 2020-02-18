@@ -31,8 +31,8 @@ import random
 import json
 from seqeval.metrics import precision_score, recall_score, f1_score
 
-from model import GloveLSTMCRF, BertLSTMCRF
-from dataset import CoNLLGloveDataset, CoNLLBertDataset
+from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF
+from dataset import CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from progbar import Progbar # instead of tqdm
 
 logging.basicConfig(level=logging.INFO)
@@ -63,12 +63,12 @@ def load_config(opt):
         config = dict()
     return config
 
-def prepare_dataset(opt, filepath, DatasetClass, shuffle=False, num_workers=2):
-    dataset = DatasetClass(filepath)
+def prepare_dataset(config, filepath, DatasetClass, shuffle=False, num_workers=2):
+    dataset = DatasetClass(config, filepath)
     sampler = None
-    if opt.distributed:
+    if config['opt'].distributed:
         sampler = DistributedSampler(dataset)
-    loader = DataLoader(dataset, batch_size=opt.batch_size, \
+    loader = DataLoader(dataset, batch_size=config['opt'].batch_size, \
             shuffle=shuffle, num_workers=num_workers, sampler=sampler)
     logger.info("[{} data loaded]".format(filepath))
     return loader
@@ -247,7 +247,7 @@ def main():
     parser.add_argument("--world_size", default=1, type=int)
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument("--seed", default=5, type=int)
-    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert')
+    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert | elmo')
     parser.add_argument('--use_crf', action="store_true")
     parser.add_argument('--embedding_trainable', action="store_true")
     # for BERT
@@ -261,6 +261,9 @@ def main():
                         help="use BERT as feature-based, default fine-tuning")
     parser.add_argument('--bert_disable_lstm', action="store_true",
                         help="disable lstm layer")
+    # for ELMo
+    parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
+    parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
 
     opt = parser.parse_args()
 
@@ -276,14 +279,19 @@ def main():
     # prepare train, valid dataset
     if opt.emb_class == 'glove':
         filepath = os.path.join(opt.data_dir, 'train.txt.ids')
-        train_loader = prepare_dataset(opt, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
+        train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
-        valid_loader = prepare_dataset(opt, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
+        valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
     if opt.emb_class == 'bert':
         filepath = os.path.join(opt.data_dir, 'train.txt.fs')
-        train_loader = prepare_dataset(opt, filepath, CoNLLBertDataset, shuffle=True, num_workers=2)
+        train_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.fs')
-        valid_loader = prepare_dataset(opt, filepath, CoNLLBertDataset, shuffle=False, num_workers=2)
+        valid_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=False, num_workers=2)
+    if opt.emb_class == 'elmo':
+        filepath = os.path.join(opt.data_dir, 'train.txt.ids')
+        train_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=True, num_workers=2)
+        filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
+        valid_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=False, num_workers=2)
 
     label_path = os.path.join(opt.data_dir, opt.label_filename)
     pos_path = os.path.join(opt.data_dir, opt.pos_filename)
@@ -303,6 +311,13 @@ def main():
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, label_path, pos_path,
                            use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
+    if opt.emb_class == 'elmo':
+        from allennlp.modules.elmo import Elmo
+        embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
+        emb_non_trainable = not opt.embedding_trainable
+        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 1, dropout=0)
+        model = ElmoLSTMCRF(config, elmo_model, embedding_path, label_path, pos_path,
+                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     model.to(device)
     logger.info("[Model prepared]")
 

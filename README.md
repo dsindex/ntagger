@@ -24,6 +24,10 @@ reference pytorch code for named entity tagging
   $ pip install tensorflow-gpu==2.0
   $ pip install git+https://github.com/huggingface/transformers.git
   ```
+  - ELMo([allennlp](https://github.com/allenai/allennlp))
+  ```
+  $ pip install allennlp==0.9.0
+  ```
 
 - data
   - CoNLL 2003 (english)
@@ -124,7 +128,6 @@ INFO:__main__:[F1] : 0.8802560227575785, 3684
 INFO:__main__:[Elapsed Time] : 123709ms, 33.580076004343105ms on average
 
 accuracy:  97.48%; precision:  88.39%; recall:  87.66%; FB1:  88.03
-
 ```
 
 ### emb_class=bert
@@ -133,21 +136,17 @@ accuracy:  97.48%; precision:  88.39%; recall:  87.66%; FB1:  88.03
 ```
 * ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
-* download 'bert-large-cased' to './'
-$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased
+* download 'bert-large-cased' to './embeddings'
+$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./embeddings/bert-large-cased
 
 * fine-tuning
-$ python train.py --emb_class=bert --bert_model_name_or_path=./bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
+$ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 
 * --use_crf for adding crf layer
 
 * --bert_use_feature_based for feature-based
 
 * --bert_disable_lstm for removing lstm layer
-
-* tensorboardX
-$ rm -rf runs
-$ tensorboard --logdir runs/ --port port-number --bind_all
 ```
 
 - evaluation
@@ -180,6 +179,27 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
       INFO:__main__:[F1] : 0.9044752682543836, 3684
       INFO:__main__:[Elapsed Time] : 214022ms, 58.09500542888165ms on average
       FB1:  90.65
+```
+
+### emb_class=elmo
+
+- train
+```
+* token_emb_dim in config.json == 300 (ex, glove.6B.300d.txt )
+$ python preprocess.py --emb_class=elmo
+$ python train.py --emb_class=elmo
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
+$ python train.py --emb_class=elmo --use_crf
+```
+
+- evaluation
+```
+$ python evaluate.py --emb_class=elmo
+
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+* --use_crf
+$ python evaluate.py --emb_class=elmo --use_crf
 ```
 
 ## Naver NER 2019 (Korean)
@@ -216,9 +236,6 @@ $ python train.py --data_dir data/clova2019_morph
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
 $ python train.py --data_dir data/clova2019_morph --use_crf --embedding_trainable
 
-* tensorboardX
-$ rm -rf runs
-$ tensorboard --logdir runs/ --port ${port} --bind_all
 ```
 
 - evaluation
@@ -250,17 +267,14 @@ accuracy:  93.15%; precision:  84.46%; recall:  83.08%; FB1:  83.76
 
 * for clova2019_morph
 
-$ python preprocess.py --emb_class=bert --data_dir data/clova2019_morph --bert_model_name_or_path=./pytorch.all.dha.2.5m_step
-$ python train.py --emb_class=bert --bert_model_name_or_path=./pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf
+$ python preprocess.py --emb_class=bert --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
+$ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf
 
 * for clova2019
 
-$ python preprocess.py --emb_class=bert --data_dir data/clova2019 --bert_model_name_or_path=./pytorch.all.bpe.4.8m_step
-$ python train.py --emb_class=bert --bert_model_name_or_path=./pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
+$ python preprocess.py --emb_class=bert --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
+$ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
 
-* tensorboardX
-$ rm -rf runs
-$ tensorboard --logdir runs/ --port port-number --bind_all
 ```
 
 - evaluation
