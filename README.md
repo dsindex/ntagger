@@ -82,10 +82,13 @@ reference pytorch code for named entity tagging
         - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
       - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-      - kor.glove.300k.300d.txt
-      - pytorch.all.bpe.4.8m_step
-      - pytorch.all.dha.2.5m_step
-
+      - `pytorch.all.bpe.4.8m_step`
+      - `pytorch.all.dha.2.5m_step`
+      - `kor.glove.300k.300d.txt`
+        - training corpus was same as the data for Korean BERT.
+    - Korean ELMo was described [here](https://github.com/dsindex/bilm-tf)
+      - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json`
+        - training corpus was same as the data for Korean BERT.
 
 ## CoNLL 2003 (english)
 
@@ -95,6 +98,7 @@ reference pytorch code for named entity tagging
 | ------------------------ | ---------------------  | --------- |
 | Glove, BiLSTM-CRF        | 88.03                  | word, pos |
 | BERT(large), BiLSTM      | **91.13**              | word      |
+| ELMo, Glove, BiLSTM      | -                      | word, pos |
 | Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF        | 90.47~90.85            | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(large), BiLSTM-CRF  | 91.87~92.23            | word, [etagger](https://github.com/dsindex/etagger) |
@@ -200,6 +204,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
 $ python evaluate.py --emb_class=elmo --use_crf
+
 ```
 
 ## Naver NER 2019 (Korean)
