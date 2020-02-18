@@ -97,8 +97,8 @@ reference pytorch code for named entity tagging
 |                          | F1 (%)                 | features  |
 | ------------------------ | ---------------------  | --------- |
 | Glove, BiLSTM-CRF        | 88.03                  | word, pos |
-| BERT(large), BiLSTM      | **91.13**              | word      |
-| ELMo, Glove, BiLSTM      | -                      | word, pos |
+| BERT(large), BiLSTM      | 91.13                  | word      |
+| ELMo, Glove, BiLSTM      | **91.79**              | word, pos |
 | Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF        | 90.47~90.85            | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(large), BiLSTM-CRF  | 91.87~92.23            | word, [etagger](https://github.com/dsindex/etagger) |
@@ -190,6 +190,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 - train
 ```
 * token_emb_dim in config.json == 300 (ex, glove.6B.300d.txt )
+* elmo_emb_dim  in config.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
 $ python preprocess.py --emb_class=elmo
 $ python train.py --emb_class=elmo
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
@@ -204,7 +205,10 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
 $ python evaluate.py --emb_class=elmo --use_crf
+INFO:__main__:[F1] : 0.917948717948718, 3684
+INFO:__main__:[Elapsed Time] : 249061ms, 67.60613463626493ms on average
 
+accuracy:  98.27%; precision:  91.68%; recall:  91.91%; FB1:  91.79
 ```
 
 ## Naver NER 2019 (Korean)
