@@ -18,9 +18,6 @@ class Tokenizer():
         self.unk_id = _UNK_ID
 
     def tokenize(self, sent):
-        """Default white-space tokenizer
-        """
-
         tokens = sent.split()
         return tokens
 

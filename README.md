@@ -189,12 +189,12 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 - train
 ```
-* token_emb_dim in config-elmo.json == 100 (ex, glove.6B.100d.txt )
+* token_emb_dim in config-elmo.json == 300 (ex, glove.6B.300d.txt )
 * elmo_emb_dim  in config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
-$ python preprocess.py --emb_class=elmo --config=config-elmo.json --embedding_path=embeddings/glove.6B.100d.txt
+$ python preprocess.py --emb_class=elmo --config=config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
 $ python train.py --emb_class=elmo --config=config-elmo.json
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --emb_class=elmo --config=config-elmo.json --use_crf --batch_size=20
+$ python train.py --emb_class=elmo --config=config-elmo.json --use_crf
 ```
 
 - evaluation
@@ -209,6 +209,7 @@ INFO:__main__:[F1] : 0.9192239858906527, 3684
 INFO:__main__:[Elapsed Time] : 257335ms, 69.85206297502714ms on average
 
 accuracy:  98.34%; precision:  91.57%; recall:  92.28%; FB1:  91.92
+
 ```
 
 ## Naver NER 2019 (Korean)

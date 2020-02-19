@@ -34,6 +34,7 @@ from seqeval.metrics import precision_score, recall_score, f1_score
 from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from progbar import Progbar # instead of tqdm
+from early_stopping import EarlyStopping
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -108,7 +109,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     train_loss = 0.
     st_time = time.time()
     for local_step, (x,y) in enumerate(train_loader):
-        global_step = (len(train_loader) * (epoch_i-1)) + local_step
+        global_step = (len(train_loader) * epoch_i) + local_step
         x = to_device(x, device)
         y = to_device(y, device)
         if opt.use_crf:
@@ -128,7 +129,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         else:
             loss.backward()
         optimizer.step()
-        if scheduler:
+        if scheduler and epoch_i > opt.warmup_epoch and local_step == 0: # after warmup, for every epoch
             scheduler.step()
         # back-propagation - end
         train_loss += loss.item()
@@ -239,8 +240,10 @@ def main():
     parser.add_argument('--batch_size', type=int, default=30)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
+    parser.add_argument('--decay_rate', type=float, default=1.0)
+    parser.add_argument('--warmup_epoch', type=int, default=4)
     parser.add_argument('--l2norm', type=float, default=1e-6)
+    parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
     parser.add_argument('--tmax',type=int, default=-1)
     parser.add_argument('--opt-level', type=str, default='O1')
     parser.add_argument("--local_rank", default=0, type=int)
@@ -328,7 +331,7 @@ def main():
         model, optimizer = amp.initialize(model, optimizer, opt_level=opt.opt_level)
     if opt.distributed:
         model = DDP(model, delay_allreduce=True)
-    scheduler = None
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.decay_rate)
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
@@ -343,11 +346,13 @@ def main():
     config['scheduler'] = scheduler
     config['writer'] = writer
 
+    early_stopping = EarlyStopping(logger, patience=10, measure='f1', verbose=1)
     best_val_loss = float('inf')
     best_val_f1 = -float('inf')
     for epoch_i in range(opt.epoch):
         epoch_st_time = time.time()
-        eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i+1)
+        eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i)
+        if early_stopping.validate(eval_f1, measure='f1'): break
         if opt.local_rank == 0 and eval_f1 > best_val_f1:
             best_val_f1 = eval_f1
             if opt.save_path:
@@ -358,6 +363,8 @@ def main():
                         os.makedirs(opt.bert_output_dir)
                     bert_tokenizer.save_pretrained(opt.bert_output_dir)
                     bert_model.save_pretrained(opt.bert_output_dir)
+            early_stopping.reset(best_val_f1)
+        early_stopping.status()
    
 if __name__ == '__main__':
     main()

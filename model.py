@@ -264,7 +264,7 @@ class ElmoLSTMCRF(nn.Module):
         self.embed_pos = self.__create_embedding_layer(self.pos_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
         # BiLSTM layer
-        emb_dim = token_emb_dim + pos_emb_dim + elmo_emb_dim
+        emb_dim = elmo_emb_dim + token_emb_dim + pos_emb_dim
         self.lstm = nn.LSTM(input_size=emb_dim,
                             hidden_size=lstm_hidden_dim,
                             num_layers=lstm_num_layers,
@@ -317,10 +317,17 @@ class ElmoLSTMCRF(nn.Module):
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out   : [batch_size, seq_size, pos_emb_dim]
         elmo_embed_out = self.elmo_model(char_ids)['elmo_representations'][0]
-        elmo_embed_out = self.elmo_dropout(elmo_embed_out)
         # elmo_embed_out  : [batch_size, seq_size, elmo_emb_dim]
+        elmo_embed_out = self.elmo_dropout(elmo_embed_out)
+        device = self.config['device']
+        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
+        # mask : [batch_size, seq_size]
+        masks = mask.unsqueeze(-1).to(torch.float)
+        # masks : [batch_size, seq_size, elmo_emb_dim]
+        elmo_embed_out *= masks # auto-braodcasting
 
-        embed_out = torch.cat([token_embed_out, pos_embed_out, elmo_embed_out], dim=-1)
+        embed_out = torch.cat([elmo_embed_out, token_embed_out, pos_embed_out], dim=-1)
+        embed_out *= masks
         # embed_out : [batch_size, seq_size, emb_dim]
 
         lstm_out, (h_n, c_n) = self.lstm(embed_out)
@@ -334,9 +341,6 @@ class ElmoLSTMCRF(nn.Module):
         if not self.use_crf: return logits
 
         if tags is not None: # given golden ys(answer)
-            device = self.config['device']
-            mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
-            # mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]

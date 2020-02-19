@@ -84,9 +84,6 @@ def build_init_vocab(Tokenizer):
     return init_vocab
 
 def build_vocab_from_embedding(input_path, vocab, config):
-    """Build vocab from embedding file and init vocab(contains pad token and unk token only)
-    """
-
     logger.info("\n[Building vocab from pretrained embedding]")
     # build embedding as numpy array
     embedding = []
