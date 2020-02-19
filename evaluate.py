@@ -137,7 +137,7 @@ def evaluate(opt):
                            use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm)
     if opt.emb_class == 'elmo':
         from allennlp.modules.elmo import Elmo
-        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 1, dropout=0)
+        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
                              emb_non_trainable=True, use_crf=opt.use_crf)
     model.load_state_dict(checkpoint)
