@@ -251,7 +251,6 @@ class ElmoLSTMCRF(nn.Module):
 
         # elmo embedding
         self.elmo_model = elmo_model
-        self.elmo_dropout = nn.Dropout(config['elmo_dropout'])
 
         # glove embedding layer
         weights_matrix = self.__load_embedding(embedding_path)
@@ -312,34 +311,36 @@ class ElmoLSTMCRF(nn.Module):
         token_ids = x[0]
         pos_ids = x[1]
         char_ids = x[2]
+
+        device = self.config['device']
+        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
+        # mask : [batch_size, seq_size]
+
+        # 1. Embedding
+        elmo_embed_out = self.elmo_model(char_ids)['elmo_representations'][0]
+        # elmo_embed_out  : [batch_size, seq_size, elmo_emb_dim]
+        '''
+        masks = mask.unsqueeze(-1).to(torch.float)
+        # masks : [batch_size, seq_size, elmo_emb_dim]
+        elmo_embed_out *= masks # auto-braodcasting
+        '''
         token_embed_out = self.embed_token(token_ids)
         # token_embed_out : [batch_size, seq_size, token_emb_dim]
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out   : [batch_size, seq_size, pos_emb_dim]
-        elmo_embed_out = self.elmo_model(char_ids)['elmo_representations'][0]
-        # elmo_embed_out  : [batch_size, seq_size, elmo_emb_dim]
-        elmo_embed_out = self.elmo_dropout(elmo_embed_out)
-        device = self.config['device']
-        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
-        # mask : [batch_size, seq_size]
-        masks = mask.unsqueeze(-1).to(torch.float)
-        # masks : [batch_size, seq_size, elmo_emb_dim]
-        elmo_embed_out *= masks # auto-braodcasting
-
         embed_out = torch.cat([elmo_embed_out, token_embed_out, pos_embed_out], dim=-1)
-        embed_out *= masks
         # embed_out : [batch_size, seq_size, emb_dim]
+        embed_out = self.dropout(embed_out)
 
+        # 2. LSTM
         lstm_out, (h_n, c_n) = self.lstm(embed_out)
         # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
-
         lstm_out = self.dropout(lstm_out)
 
+        # 3. Output
         logits = self.linear(lstm_out)
         # logits : [batch_size, seq_size, label_size]
-     
         if not self.use_crf: return logits
-
         if tags is not None: # given golden ys(answer)
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
