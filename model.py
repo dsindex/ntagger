@@ -32,8 +32,6 @@ class GloveLSTMCRF(nn.Module):
         self.pos_size = len(self.poss)
         self.embed_pos = self.__create_embedding_layer(self.pos_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
-        self.dropout = nn.Dropout(config['dropout'])
-
         # BiLSTM layer
         emb_dim = token_emb_dim + pos_emb_dim
         self.lstm = nn.LSTM(input_size=emb_dim,
@@ -42,6 +40,8 @@ class GloveLSTMCRF(nn.Module):
                             dropout=lstm_dropout,
                             bidirectional=True,
                             batch_first=True)
+
+        self.dropout = nn.Dropout(config['dropout'])
 
         # projection layer
         self.labels = self.__load_dict(label_path)
@@ -132,8 +132,6 @@ class BertLSTMCRF(nn.Module):
         self.pos_size = len(self.poss)
         self.embed_pos = self.__create_embedding_layer(self.pos_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
-        self.dropout = nn.Dropout(config['dropout'])
-
         # BiLSTM layer
         emb_dim = bert_config.hidden_size + pos_emb_dim
         if not self.disable_lstm:
@@ -143,6 +141,8 @@ class BertLSTMCRF(nn.Module):
                                 dropout=lstm_dropout,
                                 bidirectional=True,
                                 batch_first=True)
+
+        self.dropout = nn.Dropout(config['dropout'])
 
         # projection layer
         self.labels = self.__load_dict(label_path)
@@ -251,6 +251,7 @@ class ElmoLSTMCRF(nn.Module):
 
         # elmo embedding
         self.elmo_model = elmo_model
+        self.elmo_dropout = nn.Dropout(config['elmo_dropout'])
 
         # glove embedding layer
         weights_matrix = self.__load_embedding(embedding_path)
@@ -262,8 +263,6 @@ class ElmoLSTMCRF(nn.Module):
         self.pos_size = len(self.poss)
         self.embed_pos = self.__create_embedding_layer(self.pos_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
-        self.dropout = nn.Dropout(config['dropout'])
-
         # BiLSTM layer
         emb_dim = token_emb_dim + pos_emb_dim + elmo_emb_dim
         self.lstm = nn.LSTM(input_size=emb_dim,
@@ -272,6 +271,8 @@ class ElmoLSTMCRF(nn.Module):
                             dropout=lstm_dropout,
                             bidirectional=True,
                             batch_first=True)
+
+        self.dropout = nn.Dropout(config['dropout'])
 
         # projection layer
         self.labels = self.__load_dict(label_path)
@@ -316,6 +317,7 @@ class ElmoLSTMCRF(nn.Module):
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out   : [batch_size, seq_size, pos_emb_dim]
         elmo_embed_out = self.elmo_model(char_ids)['elmo_representations'][0]
+        elmo_embed_out = self.elmo_dropout(elmo_embed_out)
         # elmo_embed_out  : [batch_size, seq_size, elmo_emb_dim]
 
         embed_out = torch.cat([token_embed_out, pos_embed_out, elmo_embed_out], dim=-1)

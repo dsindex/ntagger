@@ -69,7 +69,7 @@ def prepare_dataset(config, filepath, DatasetClass, shuffle=False, num_workers=2
     if config['opt'].distributed:
         sampler = DistributedSampler(dataset)
     loader = DataLoader(dataset, batch_size=config['opt'].batch_size, \
-            shuffle=shuffle, num_workers=num_workers, sampler=sampler)
+            shuffle=shuffle, num_workers=num_workers, sampler=sampler, pin_memory=True)
     logger.info("[{} data loaded]".format(filepath))
     return loader
 
@@ -315,7 +315,7 @@ def main():
         from allennlp.modules.elmo import Elmo
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         emb_non_trainable = not opt.embedding_trainable
-        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 1, dropout=0)
+        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, embedding_path, label_path, pos_path,
                              emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     model.to(device)

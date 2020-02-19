@@ -33,7 +33,7 @@ def prepare_dataset(config, filepath, DatasetClass, shuffle=False, num_workers=1
     dataset = DatasetClass(config, filepath)
     sampler = None
     loader = DataLoader(dataset, batch_size=config['opt'].batch_size, \
-            shuffle=shuffle, num_workers=num_workers, sampler=sampler)
+            shuffle=shuffle, num_workers=num_workers, sampler=sampler, pin_memory=True)
     logger.info("[{} data loaded]".format(filepath))
     return loader
 
