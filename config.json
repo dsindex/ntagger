@@ -1,4 +1,5 @@
 {
+    "emb_class": "glove",
     "n_ctx": 180,
     "lowercase": true,
     "token_emb_dim": 300,

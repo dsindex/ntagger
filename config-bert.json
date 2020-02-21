@@ -1,9 +1,9 @@
 {
-    "emb_class": "elmo",
+    "emb_class": "bert",
     "n_ctx": 180,
     "lowercase": true,
     "token_emb_dim": 300,
-    "pos_emb_dim": 7,
+    "pos_emb_dim": 100,
     "dropout": 0.3,
     "lstm_hidden_dim": 200,
     "lstm_num_layers": 2,
@@ -12,8 +12,5 @@
     "pad_pos_id": 0,
     "pad_label": "<pad>",
     "pad_label_id": 0,
-    "default_label": "O",
-    "elmo_pad_id": 0,
-    "elmo_word_length": 50,
-    "elmo_emb_dim": 1024
+    "default_label": "O"
 }

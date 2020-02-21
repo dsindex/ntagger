@@ -96,12 +96,12 @@ reference pytorch code for named entity tagging
 
 |                          | F1 (%)                 | features  |
 | ------------------------ | ---------------------  | --------- |
-| Glove, BiLSTM-CRF        | 88.03                  | word, pos |
-| BERT(large), BiLSTM      | 91.13                  | word      |
-| ELMo, Glove, BiLSTM      | **91.92**              | word, pos |
+| Glove, BiLSTM-CRF        | 88.49                  | word, pos |
+| BERT(large), BiLSTM      | 91.11                  | word, pos |
+| ELMo, Glove, BiLSTM      | **92.19**              | word, pos |
 | Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF        | 90.47~90.85            | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(large), BiLSTM-CRF  | 91.87~92.23            | word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF        | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| BERT(large), BiLSTM-CRF  | 91.87 ~ 92.23          | word, [etagger](https://github.com/dsindex/etagger) |
 | ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
@@ -122,16 +122,15 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 - evaluation
 ```
 $ python evaluate.py
-
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
 $ python evaluate.py --use_crf
-INFO:__main__:[F1] : 0.8802560227575785, 3684
-INFO:__main__:[Elapsed Time] : 123709ms, 33.580076004343105ms on average
+INFO:__main__:[F1] : 0.8848570669970794, 3684
+INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 
-accuracy:  97.48%; precision:  88.39%; recall:  87.66%; FB1:  88.03
+accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 ```
 
 ### emb_class=bert
@@ -141,48 +140,29 @@ accuracy:  97.48%; precision:  88.39%; recall:  87.66%; FB1:  88.03
 * ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
 * download 'bert-large-cased' to './embeddings'
-$ python preprocess.py --emb_class=bert --bert_model_name_or_path=./embeddings/bert-large-cased
-
-* fine-tuning
-$ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
-
+$ python preprocess.py --config=config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased
 * --use_crf for adding crf layer
-
+* --bert_use_pos for adding Part-Of-Speech features
 * --bert_use_feature_based for feature-based
-
 * --bert_disable_lstm for removing lstm layer
+$ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --bert_use_pos
 ```
 
 - evaluation
 ```
-$ python evaluate.py --emb_class=bert --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
+$ python evaluate.py --config=config-bert.json --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint --bert_use_pos
+INFO:__main__:[F1] : 0.9111325554873234, 3684
+INFO:__main__:[Elapsed Time] : 141093ms, 38.29885993485342ms on average
 
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
 
-* fine-tuning
-  * bert-large-cased
-    INFO:__main__:[F1] : 0.9113453192808433, 3684
-    INFO:__main__:[Elapsed Time] : 170391ms, 46.251628664495115ms on average
-    * --use_crf
-      1) lstm_dropout:0.0, lr:1e-5
-        INFO:__main__:[F1] : 0.908178536843032, 3684
-        INFO:__main__:[Elapsed Time] : 244903ms, 66.47747014115092ms on average
-        FB1:  91.07 (by conlleval.pl)
-      2) lstm_dropout:0.1, lr:1e-5
-        INFO:__main__:[F1] : 0.9071403447062961, 3684
-        INFO:__main__:[Elapsed Time] : 246333ms, 66.86563517915309ms on average
-        FB1:  90.91
-      3) lstm_dropout:0.1, lr:2e-5
-        INFO:__main__:[F1] : 0.8962568711281739, 3684
-        INFO:__main__:[Elapsed Time] : 237240ms, 64.39739413680782ms on average
-        FB1:  89.84
-    * --bert_disable_lstm
-      INFO:__main__:[F1] : 0.9006085192697768, 3684
-      INFO:__main__:[Elapsed Time] : 138880ms, 37.69815418023887ms on average
-    * --use_crf --bert_disable_lstm
-      INFO:__main__:[F1] : 0.9044752682543836, 3684
-      INFO:__main__:[Elapsed Time] : 214022ms, 58.09500542888165ms on average
-      FB1:  90.65
+* --use_crf
+* it seems that the F1 score is going worse with '--use_crf' for wp/bpe BERT.
+INFO:__main__:[F1] : 0.9058430130235833, 3684
+INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
+
+accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 ```
 
 ### emb_class=elmo
@@ -191,25 +171,24 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 ```
 * token_emb_dim in config-elmo.json == 300 (ex, glove.6B.300d.txt )
 * elmo_emb_dim  in config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
-$ python preprocess.py --emb_class=elmo --config=config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
-$ python train.py --emb_class=elmo --config=config-elmo.json
+$ python preprocess.py --config=config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
+$ python train.py --config=config-elmo.json
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --emb_class=elmo --config=config-elmo.json --use_crf
+$ python train.py --config=config-elmo.json --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --emb_class=elmo --config=config-elmo.json
+$ python evaluate.py --config=config-elmo.json
 
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
-$ python evaluate.py --emb_class=elmo --config=config-elmo.json --use_crf
-INFO:__main__:[F1] : 0.9192239858906527, 3684
-INFO:__main__:[Elapsed Time] : 257335ms, 69.85206297502714ms on average
+$ python evaluate.py --config=config-elmo.json --use_crf
+INFO:__main__:[F1] : 0.9219494967331803, 3684
+INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
 
-accuracy:  98.34%; precision:  91.57%; recall:  92.28%; FB1:  91.92
-
+accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 ```
 
 ## Naver NER 2019 (Korean)
@@ -229,8 +208,7 @@ accuracy:  98.34%; precision:  91.57%; recall:  92.28%; FB1:  91.92
 
 |                             | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | --------------------------- | ------------- | -------------- | ------------ |
-| Glove, BiLSTM-CRF           | 83.76         | 83.76          | morph, pos   |
-| BERT(dha), BiLSTM-CRF       | 80.05         | 82.10          | morph        |
+| Glove, BiLSTM-CRF           | 83.88         | 83.88          | morph, pos   |
 | BERT(dha), BiLSTM-CRF       | 83.99         | 84.36          | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
@@ -254,18 +232,16 @@ $ python evaluate.py --data_dir data/clova2019_morph
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf --embedding_trainable
-$ python evaluate.py --data_dir data/clova2019_morph --use_crf
-INFO:__main__:[F1] : 0.8381697194210057, 9000
-INFO:__main__:[Elapsed Time] : 340432ms, 37.82577777777778ms on average
+* --use_crf
+INFO:__main__:[F1] : 0.8393825184573288, 9000
+INFO:__main__:[Elapsed Time] : 265398ms, 29.488666666666667ms on average
 
-accuracy:  93.60%; precision:  84.45%; recall:  83.08%; FB1:  83.76
+accuracy:  93.67%; precision:  84.87%; recall:  82.91%; FB1:  83.88
+
+* --use_crf --embedding_trainable
 
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-
-accuracy:  93.15%; precision:  84.46%; recall:  83.08%; FB1:  83.76
-
 ```
 
 ### emb_class=bert
@@ -277,13 +253,13 @@ accuracy:  93.15%; precision:  84.46%; recall:  83.08%; FB1:  83.76
 
 * for clova2019_morph
 
-$ python preprocess.py --emb_class=bert --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf
+$ python preprocess.py --config=config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
+$ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 * for clova2019
 
-$ python preprocess.py --emb_class=bert --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
-$ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
+$ python preprocess.py --config=config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
+$ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
 
 ```
 
@@ -291,7 +267,7 @@ $ python train.py --emb_class=bert --bert_model_name_or_path=./embeddings/pytorc
 ```
 * for clova2019_morph
 
-$ python evaluate.py --emb_class=bert --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf
+$ python evaluate.py --config=config-bert.json --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 INFO:__main__:[F1] : 0.8405158425143053, 9000
 INFO:__main__:[Elapsed Time] : 488292ms, 54.254666666666665ms on average
 
@@ -304,10 +280,12 @@ accuracy:  93.50%; precision:  84.90%; recall:  83.83%; FB1:  84.36
 
 * for clova2019
 
-$ python evaluate.py --emb_class=bert --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
+$ python evaluate.py --config=config-bert.json --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
 
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 accuracy:  93.53%; precision:  84.27%; recall:  85.16%; FB1:  84.71
+
+* what about no crf?
 
 ```
 

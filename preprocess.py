@@ -217,7 +217,7 @@ def write_data(opt, data, output_path, tokenizer, poss, labels):
         label_ids_str = ' '.join([str(d) for d in label_ids])
         # format: label list \t token list \t pos list
         f_write.write(label_ids_str + '\t' + token_ids_str + '\t' + pos_ids_str)
-        if opt.emb_class == 'elmo':
+        if config['emb_class'] == 'elmo':
             # append tokens itself
             # format: label list \t token list \t pos list \t word list
             tokens_str = ' '.join(tokens)
@@ -359,7 +359,6 @@ def main():
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_path', type=str, default='embeddings/glove.6B.300d.txt')
     parser.add_argument('--config', type=str, default='config.json')
-    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert | elmo')
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -372,11 +371,11 @@ def main():
     config['opt'] = opt
     logger.info("%s", config)
 
-    if opt.emb_class == 'glove':
+    if config['emb_class'] == 'glove':
         preprocess_glove_or_elmo(config)
-    if opt.emb_class == 'bert' :
+    if config['emb_class'] == 'bert' :
         preprocess_bert(config)
-    if opt.emb_class == 'elmo':
+    if config['emb_class'] == 'elmo':
         preprocess_glove_or_elmo(config)
 
 

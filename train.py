@@ -227,49 +227,7 @@ def save_model(model, opt, config):
             checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
-def main():
-    parser = argparse.ArgumentParser()
-    
-    parser.add_argument('--data_dir', type=str, default='data/conll2003')
-    parser.add_argument('--embedding_filename', type=str, default='embedding.npy')
-    parser.add_argument('--label_filename', type=str, default='label.txt')
-    parser.add_argument('--pos_filename', type=str, default='pos.txt')
-    parser.add_argument('--config', type=str, default='config.json')
-    parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--use_amp', action="store_true")
-    parser.add_argument('--batch_size', type=int, default=30)
-    parser.add_argument('--epoch', type=int, default=30)
-    parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--decay_rate', type=float, default=1.0)
-    parser.add_argument('--warmup_epoch', type=int, default=4)
-    parser.add_argument('--l2norm', type=float, default=1e-6)
-    parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
-    parser.add_argument('--tmax',type=int, default=-1)
-    parser.add_argument('--opt-level', type=str, default='O1')
-    parser.add_argument("--local_rank", default=0, type=int)
-    parser.add_argument("--world_size", default=1, type=int)
-    parser.add_argument('--log_dir', type=str, default='runs')
-    parser.add_argument("--seed", default=5, type=int)
-    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert | elmo')
-    parser.add_argument('--use_crf', action="store_true")
-    parser.add_argument('--embedding_trainable', action="store_true")
-    # for BERT
-    parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
-                        help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
-    parser.add_argument("--bert_do_lower_case", action="store_true",
-                        help="Set this flag if you are using an uncased model.")
-    parser.add_argument("--bert_output_dir", type=str, default='bert-checkpoint',
-                        help="The output directory where the model predictions and checkpoints will be written.")
-    parser.add_argument('--bert_use_feature_based', action="store_true",
-                        help="use BERT as feature-based, default fine-tuning")
-    parser.add_argument('--bert_disable_lstm', action="store_true",
-                        help="disable lstm layer")
-    # for ELMo
-    parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
-    parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
-
-    opt = parser.parse_args()
-
+def train(opt):
     device = torch.device(opt.device)
     set_seed(opt)
     set_apex_and_distributed(opt)
@@ -280,17 +238,17 @@ def main():
     config['opt'] = opt
   
     # prepare train, valid dataset
-    if opt.emb_class == 'glove':
+    if config['emb_class'] == 'glove':
         filepath = os.path.join(opt.data_dir, 'train.txt.ids')
         train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
         valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
-    if opt.emb_class == 'bert':
+    if config['emb_class'] == 'bert':
         filepath = os.path.join(opt.data_dir, 'train.txt.fs')
         train_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.fs')
         valid_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=False, num_workers=2)
-    if opt.emb_class == 'elmo':
+    if config['emb_class'] == 'elmo':
         filepath = os.path.join(opt.data_dir, 'train.txt.ids')
         train_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
@@ -299,12 +257,12 @@ def main():
     label_path = os.path.join(opt.data_dir, opt.label_filename)
     pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     # prepare model
-    if opt.emb_class == 'glove':
+    if config['emb_class'] == 'glove':
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         emb_non_trainable = not opt.embedding_trainable
         model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
                              emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
-    if opt.emb_class == 'bert':
+    if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
                                                        do_lower_case=opt.bert_do_lower_case)
@@ -313,8 +271,8 @@ def main():
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, label_path, pos_path,
-                           use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
-    if opt.emb_class == 'elmo':
+                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
+    if config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
         embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
         emb_non_trainable = not opt.embedding_trainable
@@ -358,13 +316,58 @@ def main():
             if opt.save_path:
                 logger.info("[Best model saved] : {:10.6f}".format(best_val_f1))
                 save_model(model, opt, config)
-                if opt.emb_class == 'bert':
+                if config['emb_class'] == 'bert':
                     if not os.path.exists(opt.bert_output_dir):
                         os.makedirs(opt.bert_output_dir)
                     bert_tokenizer.save_pretrained(opt.bert_output_dir)
                     bert_model.save_pretrained(opt.bert_output_dir)
             early_stopping.reset(best_val_f1)
         early_stopping.status()
-   
+
+def main():
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument('--data_dir', type=str, default='data/conll2003')
+    parser.add_argument('--embedding_filename', type=str, default='embedding.npy')
+    parser.add_argument('--label_filename', type=str, default='label.txt')
+    parser.add_argument('--pos_filename', type=str, default='pos.txt')
+    parser.add_argument('--config', type=str, default='config.json')
+    parser.add_argument('--device', type=str, default='cuda')
+    parser.add_argument('--use_amp', action='store_true')
+    parser.add_argument('--batch_size', type=int, default=30)
+    parser.add_argument('--epoch', type=int, default=30)
+    parser.add_argument('--lr', type=float, default=1e-3)
+    parser.add_argument('--decay_rate', type=float, default=1.0)
+    parser.add_argument('--warmup_epoch', type=int, default=4)
+    parser.add_argument('--l2norm', type=float, default=1e-6)
+    parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
+    parser.add_argument('--tmax',type=int, default=-1)
+    parser.add_argument('--opt-level', type=str, default='O1')
+    parser.add_argument('--local_rank', default=0, type=int)
+    parser.add_argument('--world_size', default=1, type=int)
+    parser.add_argument('--log_dir', type=str, default='runs')
+    parser.add_argument('--seed', default=5, type=int)
+    parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
+    parser.add_argument('--embedding_trainable', action='store_true')
+    # for BERT
+    parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
+                        help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
+    parser.add_argument('--bert_do_lower_case', action='store_true',
+                        help="Set this flag if you are using an uncased model.")
+    parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
+                        help="The output directory where the model predictions and checkpoints will be written.")
+    parser.add_argument('--bert_use_feature_based', action='store_true',
+                        help="use BERT as feature-based, default fine-tuning")
+    parser.add_argument('--bert_disable_lstm', action='store_true',
+                        help="disable lstm layer")
+    parser.add_argument('--bert_use_pos', action='store_true', help="add Part-Of-Speech features")
+    # for ELMo
+    parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
+    parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
+
+    opt = parser.parse_args()
+
+    train(opt)
+ 
 if __name__ == '__main__':
     main()

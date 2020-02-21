@@ -102,17 +102,29 @@ def evaluate(opt):
     config['device'] = opt.device
     config['opt'] = opt
 
+    # set path
+    if config['emb_class'] == 'glove':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
+    if config['emb_class'] == 'bert':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
+    if config['emb_class'] == 'elmo':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
+    opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
+    opt.label_path = os.path.join(opt.data_dir, 'label.txt')
+    opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
+    opt.test_path = os.path.join(opt.data_dir, 'test.txt')
+
     test_data_path = opt.data_path
     batch_size = opt.batch_size
     device = opt.device
     torch.set_num_threads(opt.num_thread)
 
     # prepare test dataset
-    if opt.emb_class == 'glove':
+    if config['emb_class'] == 'glove':
         test_loader = prepare_dataset(config, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
-    if opt.emb_class == 'bert':
+    if config['emb_class'] == 'bert':
         test_loader = prepare_dataset(config, test_data_path, CoNLLBertDataset, shuffle=False, num_workers=1)
-    if opt.emb_class == 'elmo':
+    if config['emb_class'] == 'elmo':
         test_loader = prepare_dataset(config, test_data_path, CoNLLElmoDataset, shuffle=False, num_workers=1)
  
     # load pytorch model checkpoint
@@ -123,10 +135,10 @@ def evaluate(opt):
         checkpoint = torch.load(opt.model_path)
 
     # prepare model and load parameters
-    if opt.emb_class == 'glove':
+    if config['emb_class'] == 'glove':
         model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                              emb_non_trainable=True, use_crf=opt.use_crf)
-    if opt.emb_class == 'bert':
+    if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_output_dir,
                                                        do_lower_case=opt.bert_do_lower_case)
@@ -134,8 +146,8 @@ def evaluate(opt):
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, opt.label_path, opt.pos_path,
-                           use_crf=opt.use_crf, disable_lstm=opt.bert_disable_lstm)
-    if opt.emb_class == 'elmo':
+                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm)
+    if config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
@@ -208,32 +220,20 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_thread', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--emb_class', type=str, default='glove', help='glove | bert | elmo')
-    parser.add_argument('--use_crf', action="store_true")
+    parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
     # for BERT
-    parser.add_argument("--bert_do_lower_case", action="store_true",
+    parser.add_argument('--bert_do_lower_case', action='store_true',
                         help="Set this flag if you are using an uncased model.")
-    parser.add_argument("--bert_output_dir", type=str, default='bert-checkpoint',
+    parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The output directory where the model predictions and checkpoints will be written.")
-    parser.add_argument('--bert_disable_lstm', action="store_true",
+    parser.add_argument('--bert_disable_lstm', action='store_true',
                         help="disable lstm layer")
+    parser.add_argument('--bert_use_pos', action='store_true', help="add Part-Of-Speech features")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
 
     opt = parser.parse_args()
-
-    # set path
-    if opt.emb_class == 'glove':
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    if opt.emb_class == 'bert':
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
-    if opt.emb_class == 'elmo':
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
-    opt.label_path = os.path.join(opt.data_dir, 'label.txt')
-    opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
-    opt.test_path = os.path.join(opt.data_dir, 'test.txt')
 
     evaluate(opt) 
 
