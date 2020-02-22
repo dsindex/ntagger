@@ -204,7 +204,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 |                             | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 84.29         | 84.29          | morph, pos   |
-| BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos   |
+| BERT(dha), BiLSTM-CRF       | 83.78         | 84.13          | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF     | -             | -              | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
@@ -262,13 +262,13 @@ $ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddin
 
 $ python evaluate.py --config=config-bert.json --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-INFO:__main__:[F1] : 0.8405158425143053, 9000
-INFO:__main__:[Elapsed Time] : 488292ms, 54.254666666666665ms on average
-accuracy:  94.01%; precision:  84.33%; recall:  83.64%; FB1:  83.99
+INFO:__main__:[F1] : 0.838467292261662, 9000
+INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
+accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
 
 ** evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-accuracy:  93.50%; precision:  84.90%; recall:  83.83%; FB1:  84.36
+accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
 * for clova2019
 
@@ -285,13 +285,13 @@ accuracy:  93.53%; precision:  84.27%; recall:  85.16%; FB1:  84.71
 ```
 * token_emb_dim in config-elmo.json == 300 (ex, kor.glove.300k.300d.txt )
 * elmo_emb_dim  in config-elmo.json == 1024 (ex, kor_elmo_2x4096_512_2048cnn_2xhighway_1000k* )
-$ python preprocess.py --config=config-elmo.json --embedding_path=embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=config-elmo.json --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python preprocess.py --config=config-elmo.json --data_dir=data/clova2019_morph --embedding_path=embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=config-elmo.json --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-elmo.json --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python evaluate.py --config=config-elmo.json --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf --embedding_trainable
