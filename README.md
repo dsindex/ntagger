@@ -1,7 +1,9 @@
 ## ntagger
 
-reference pytorch code for named entity tagging
-
+reference pytorch code for named entity tagging.
+- embedding: Glove, BERT, ELMo
+- encoding:  BiLSTM
+- decoding:  Softmax, CRF
 
 ## requirements
 
@@ -82,13 +84,13 @@ reference pytorch code for named entity tagging
         - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
       - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-      - `pytorch.all.bpe.4.8m_step`
-      - `pytorch.all.dha.2.5m_step`
-      - `kor.glove.300k.300d.txt`
-        - training corpus was same as the data for Korean BERT.
+      - `pytorch.all.bpe.4.8m_step` (inhouse)
+      - `pytorch.all.dha.2.5m_step` (inhouse)
+      - `kor.glove.300k.300d.txt`   (inhouse)
+        - training corpus is the same as the data for Korean BERT.
     - Korean ELMo was described [here](https://github.com/dsindex/bilm-tf)
-      - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json`
-        - training corpus was same as the data for Korean BERT.
+      - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
+        - training corpus is the same as the data for Korean BERT.
 
 ## CoNLL 2003 (english)
 
@@ -126,10 +128,8 @@ $ python evaluate.py
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
-$ python evaluate.py --use_crf
 INFO:__main__:[F1] : 0.8848570669970794, 3684
 INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
-
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 ```
 
@@ -151,17 +151,15 @@ $ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddin
 - evaluation
 ```
 $ python evaluate.py --config=config-bert.json --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint --bert_use_pos
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.9111325554873234, 3684
 INFO:__main__:[Elapsed Time] : 141093ms, 38.29885993485342ms on average
-
-$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
 
 * --use_crf
 * it seems that the F1 score is going worse with '--use_crf' for wp/bpe BERT.
 INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
-
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 ```
 
@@ -180,14 +178,11 @@ $ python train.py --config=config-elmo.json --use_crf
 - evaluation
 ```
 $ python evaluate.py --config=config-elmo.json
-
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
-$ python evaluate.py --config=config-elmo.json --use_crf
 INFO:__main__:[F1] : 0.9219494967331803, 3684
 INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
-
 accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 ```
 
@@ -208,8 +203,9 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 |                             | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | --------------------------- | ------------- | -------------- | ------------ |
-| Glove, BiLSTM-CRF           | 83.88         | 83.88          | morph, pos   |
-| BERT(dha), BiLSTM-CRF       | 83.99         | 84.36          | morph, pos   |
+| Glove, BiLSTM-CRF           | 84.29         | 84.29          | morph, pos   |
+| BERT(dha), BiLSTM-CRF       | -             | -              | morph, pos   |
+| ELMo, Glove, BiLSTM-CRF     | -             | -              | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
 | ELMo, Glove, BiLSTM-CRF     | 86.75         | 86.75          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
@@ -232,16 +228,13 @@ $ python evaluate.py --data_dir data/clova2019_morph
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf
-INFO:__main__:[F1] : 0.8393825184573288, 9000
-INFO:__main__:[Elapsed Time] : 265398ms, 29.488666666666667ms on average
-
-accuracy:  93.67%; precision:  84.87%; recall:  82.91%; FB1:  83.88
-
 * --use_crf --embedding_trainable
-
+INFO:__main__:[F1] : 0.8434531044045398, 9000
+INFO:__main__:[Elapsed Time] : 270872ms, 30.096888888888888ms on average
+accuracy:  93.80%; precision:  84.82%; recall:  83.76%; FB1:  84.29
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 ```
 
 ### emb_class=bert
@@ -268,25 +261,40 @@ $ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddin
 * for clova2019_morph
 
 $ python evaluate.py --config=config-bert.json --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8405158425143053, 9000
 INFO:__main__:[Elapsed Time] : 488292ms, 54.254666666666665ms on average
-
-$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 accuracy:  94.01%; precision:  84.33%; recall:  83.64%; FB1:  83.99
 
-* evaluation eoj-by-eoj
+** evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 accuracy:  93.50%; precision:  84.90%; recall:  83.83%; FB1:  84.36
 
 * for clova2019
 
 $ python evaluate.py --config=config-bert.json --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
-
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 accuracy:  93.53%; precision:  84.27%; recall:  85.16%; FB1:  84.71
 
-* what about no crf?
+```
 
+### emb_class=elmo
+
+- train
+```
+* token_emb_dim in config-elmo.json == 300 (ex, kor.glove.300k.300d.txt )
+* elmo_emb_dim  in config-elmo.json == 1024 (ex, kor_elmo_2x4096_512_2048cnn_2xhighway_1000k* )
+$ python preprocess.py --config=config-elmo.json --embedding_path=embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=config-elmo.json --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+```
+
+- evaluation
+```
+$ python evaluate.py --config=config-elmo.json --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+* --use_crf --embedding_trainable
 ```
 
 ## references
