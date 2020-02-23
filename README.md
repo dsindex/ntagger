@@ -205,7 +205,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 84.29         | 84.29          | morph, pos   |
 | BERT(dha), BiLSTM-CRF       | 83.78         | 84.13          | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF     | -             | -              | morph, pos   |
+| ELMo, Glove, BiLSTM-CRF     | 86.37         | 86.37          | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
 | ELMo, Glove, BiLSTM-CRF     | 86.75         | 86.75          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
@@ -292,9 +292,16 @@ $ python train.py --config=config-elmo.json --data_dir=data/clova2019_morph --el
 - evaluation
 ```
 $ python evaluate.py --config=config-elmo.json --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
-$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf --embedding_trainable
+INFO:__main__:[F1] : 0.8642865647270933, 9000
+INFO:__main__:[Elapsed Time] : 744958ms, 82.7731111111111ms on average
+accuracy:  94.63%; precision:  86.36%; recall:  86.38%; FB1:  86.37
+
+* evluation eoj-by-eoj
+$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 ```
 
 ## references
