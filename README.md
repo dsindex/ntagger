@@ -116,7 +116,7 @@ reference pytorch code for named entity tagging.
 
 - train
 ```
-* token_emb_dim in config.json == 300 (ex, glove.6B.300d.txt )
+* token_emb_dim in config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py
 $ python train.py
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
@@ -143,7 +143,6 @@ accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 
 - train
 ```
-* ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
 * download 'bert-large-cased' to './embeddings'
 $ python preprocess.py --config=config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased
@@ -225,7 +224,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 - train
 ```
-* token_emb_dim in config.json == 300 (ex, kor.glove.300k.300d.txt )
+* token_emb_dim in config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 $ python train.py --data_dir data/clova2019_morph
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
@@ -252,7 +251,6 @@ accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 
 - train
 ```
-* ignore token_emb_dim in config.json
 * n_ctx size should be less than 512
 
 * for clova2019_morph
