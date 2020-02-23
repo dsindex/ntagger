@@ -13,14 +13,13 @@ reference pytorch code for named entity tagging.
 
 - pretrained embedding
   - glove
-    - [download Glove6B](http://nlp.stanford.edu/data/glove.6B.zip)
-  - unzip to 'embeddings' dir
-  ```
-  $ mkdir embeddings
-  $ ls embeddings
-  glove.6B.zip
-  $ unzip glove.6B.zip 
-  ```
+    - [download Glove6B](http://nlp.stanford.edu/data/glove.6B.zip) and unzip to 'embeddings' dir
+    ```
+    $ mkdir embeddings
+    $ ls embeddings
+    glove.6B.zip
+    $ unzip glove.6B.zip 
+    ```
   - BERT(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   ```
   $ pip install tensorflow-gpu==2.0
@@ -29,6 +28,9 @@ reference pytorch code for named entity tagging.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
   ```
   $ pip install allennlp==0.9.0
+  $ cd embeddings
+  $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5
+  $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
   ```
 
 - data
@@ -71,17 +73,21 @@ reference pytorch code for named entity tagging.
         인 X-NNG - I-CVL
         을 X-JKO - I-CVL
         먹다 VV - O
-        는 X-ETM - O
-        것 NNB - O
-        이 X-JKS - O
-        좋다 VA - O
-        다고 X-EC - O
-        하다 VV - O
-        ㄴ다 X-EC - O
-        . SF - O
+        ...
         ```
         - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
         - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+        ```
+        이기범 NNP - B-PER
+        한두 NNP - O
+        쪽 NNB - O
+        먹다 VV - O
+        10 SN - B-TIM
+        후 NNG - I-TIM
+        화제 NNG - B-CVL
+        먹다 VV - O
+        ...
+        ```
       - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
       - `pytorch.all.bpe.4.8m_step` (inhouse)
@@ -194,7 +200,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
-| BERT(bpe), BiLSTM-CRF | 84.71         | eoj      |
+| BERT(bpe), BiLSTM-CRF | **84.71**     | eoj      |
 | BiLSTM-CRF            | 76.45         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | KoBERT                | 84.23         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | HanBert               | 84.84         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
@@ -205,7 +211,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | --------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF           | 84.29         | 84.29          | morph, pos   |
 | BERT(dha), BiLSTM-CRF       | 83.78         | 84.13          | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF     | 86.37         | 86.37          | morph, pos   |
+| ELMo, Glove, BiLSTM-CRF     | 86.37         | **86.37**      | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
 | ELMo, Glove, BiLSTM-CRF     | 86.75         | 86.75          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
