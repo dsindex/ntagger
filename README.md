@@ -204,7 +204,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
-| BERT(bpe), BiLSTM-CRF | **84.71**     | eoj      |
+| BERT(bpe), BiLSTM-CRF | **85.26**     | eoj      |
 | BiLSTM-CRF            | 76.45         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | KoBERT                | 84.23         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
 | HanBert               | 84.84         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
@@ -283,9 +283,9 @@ accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
 $ python evaluate.py --config=config-bert.json --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-accuracy:  93.53%; precision:  84.27%; recall:  85.16%; FB1:  84.71
-
+INFO:__main__:[F1] : 0.8524098438884723, 9000
+INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
+accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 ```
 
 ### emb_class=elmo
