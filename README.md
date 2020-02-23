@@ -105,7 +105,7 @@ reference pytorch code for named entity tagging.
 |                          | F1 (%)                 | features  |
 | ------------------------ | ---------------------  | --------- |
 | Glove, BiLSTM-CRF        | 88.49                  | word, pos |
-| BERT(large), BiLSTM      | 91.11                  | word, pos |
+| BERT(large), BiLSTM      | 91.29                  | word      |
 | ELMo, Glove, BiLSTM      | **92.19**              | word, pos |
 | Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF        | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
@@ -151,13 +151,18 @@ $ python preprocess.py --config=config-bert.json --bert_model_name_or_path=./emb
 * --bert_use_pos for adding Part-Of-Speech features
 * --bert_use_feature_based for feature-based
 * --bert_disable_lstm for removing lstm layer
-$ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --bert_use_pos
+$ python train.py --config=config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-bert.json --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint --bert_use_pos
+$ python evaluate.py --config=config-bert.json --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.9129208531641106, 3684
+INFO:__main__:[Elapsed Time] : 135017ms, 36.64956568946797ms on average
+accuracy:  98.30%; precision:  90.89%; recall:  91.70%; FB1:  91.29
+
+* --bert_use_pos
 INFO:__main__:[F1] : 0.9111325554873234, 3684
 INFO:__main__:[Elapsed Time] : 141093ms, 38.29885993485342ms on average
 accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
