@@ -217,7 +217,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | BERT(dha), BiLSTM-CRF       | 83.78         | 84.13          | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF     | 86.37         | **86.37**      | morph, pos   |
 | Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(dha), BiLSTM-CRF       | 79.70         | 80.03          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
+| BERT(dha), BiLSTM-CRF       | 81.25         | 81.39          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
 | ELMo, Glove, BiLSTM-CRF     | 86.75         | 86.75          | morph, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
