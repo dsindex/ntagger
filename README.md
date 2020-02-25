@@ -109,7 +109,7 @@ reference pytorch code for named entity tagging.
 | ELMo, Glove, BiLSTM      | **92.19**              | word, pos |
 | Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF        | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(large), BiLSTM-CRF  | 91.87 ~ 92.23          | word, [etagger](https://github.com/dsindex/etagger) |
+| BERT(large), BiLSTM-CRF  | 90.22                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
 | ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
@@ -211,14 +211,14 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 - clova2019_morph(morph-based)
 
-|                             | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
-| --------------------------- | ------------- | -------------- | ------------ |
-| Glove, BiLSTM-CRF           | 84.29         | 84.29          | morph, pos   |
-| BERT(dha), BiLSTM-CRF       | 83.78         | 84.13          | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF     | 86.37         | **86.37**      | morph, pos   |
-| Glove, BiLSTM-CRF           | 85.51         | 85.51          | morph, character, pos, [etagger](https://github.com/dsindex/etagger) |
-| BERT(dha), BiLSTM-CRF       | 81.25         | 81.39          | morph, pos, [etagger](https://github.com/dsindex/etagger), something goes wrong? |
-| ELMo, Glove, BiLSTM-CRF     | 86.75         | 86.75          | morph, character, pos, [etagger](https://github.com/dsindex/etagger) |
+|                              | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
+| ---------------------------- | ------------- | -------------- | ------------ |
+| Glove, BiLSTM-CRF            | 84.29         | 84.29          | morph, pos   |
+| BERT(dha), BiLSTM-CRF        | 83.78         | 84.13          | morph, pos   |
+| ELMo, Glove, BiLSTM-CRF      | 86.37         | **86.37**      | morph, pos   |
+| Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos, [etagger](https://github.com/dsindex/etagger) |
+| BERT(dha), BiLSTM-CRF        | 81.25         | 81.39          | morph, pos, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
+| ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
