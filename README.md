@@ -102,15 +102,17 @@ reference pytorch code for named entity tagging.
 
 ### experiments summary
 
-|                          | F1 (%)                 | features  |
-| ------------------------ | ---------------------  | --------- |
-| Glove, BiLSTM-CRF        | 88.49                  | word, pos |
-| BERT(large), BiLSTM      | 91.29                  | word      |
-| ELMo, Glove, BiLSTM      | **92.19**              | word, pos |
-| Glove, BiLSTM-CRF        | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF        | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(large), BiLSTM-CRF  | 90.22                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
-| ELMo, Glove, BiLSTM-CRF  | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+|                                 | F1 (%)                 | features  |
+| ------------------------------- | ---------------------  | --------- |
+| Glove, BiLSTM-CRF               | 88.49                  | word, pos |
+| BERT(large), BiLSTM             | 91.29                  | word      |
+| ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
+| Glove, BiLSTM-CRF               | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
+| Glove, BiLSTM-CRF               | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+| BERT(large), BiLSTM-CRF         | 90.22                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
+| BERT(large), Glove, BiLSTM-CRF  | -                      | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
+| BERT(large), Glove, BiLSTM-CRF  | 91.19                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based), Glove trainable |
+| ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
 
