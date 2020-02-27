@@ -200,6 +200,7 @@ def train(opt):
     config = load_config(opt)
     config['device'] = device
     config['opt'] = opt
+    logger.info("%s", config)
   
     # prepare train, valid dataset
     if config['emb_class'] == 'glove':
@@ -268,7 +269,6 @@ def train(opt):
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
         writer = None
-    logger.info("%s", opt)
     logger.info("[Ready]")
 
     # training

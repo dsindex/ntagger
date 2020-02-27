@@ -160,7 +160,7 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
 INFO:__main__:[F1] : 0.8723650271279908, 3684
-INFO:__main__:[Elapsed Time] : 81729ms, 22.18485342019544ms on average
+INFO:__main__:[Elapsed Time] : 80559ms, 21.846592451805595ms on average
 accuracy:  97.30%; precision:  87.65%; recall:  86.83%; FB1:  87.24
 ```
 

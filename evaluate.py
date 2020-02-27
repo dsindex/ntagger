@@ -69,6 +69,7 @@ def evaluate(opt):
     config = load_config(opt)
     config['device'] = opt.device
     config['opt'] = opt
+    logger.info("%s", config)
 
     # set path
     if config['emb_class'] == 'glove':
@@ -160,8 +161,11 @@ def evaluate(opt):
                 ys = np.append(ys, to_numpy(y), axis=0)
             cur_examples = y.size(0)
             total_examples += cur_examples
+            if i == 0: # first one may takes longer time, so ignore in computing duration.
+                first_time = int((time.time()-whole_st_time)*1000)
+                first_examples = cur_examples
     whole_time = int((time.time()-whole_st_time)*1000)
-    avg_time = whole_time / total_examples
+    avg_time = (whole_time - first_time) / (total_examples - first_examples)
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = model.labels
