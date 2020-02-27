@@ -5,7 +5,8 @@ reference pytorch code for named entity tagging.
   - Glove, BERT, ELMo
 - encoding
   - BiLSTM
-  - DenseNet(reference : [Dynamic Self-Attention: Computing Attention over Words Dynamically for Sentence Embedding](https://arxiv.org/pdf/1808.07383.pdf))
+  - DenseNet
+    - [Dynamic Self-Attention: Computing Attention over Words Dynamically for Sentence Embedding](https://arxiv.org/pdf/1808.07383.pdf)
 - decoding
   - Softmax, CRF
 
@@ -243,6 +244,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ---------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF            | 84.29         | 84.29          | morph, pos   |
+| Glove, DenseNet-CRF          | -             | -              | morph, pos   |
 | BERT(dha), BiLSTM-CRF        | 83.78         | 84.13          | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF      | 86.37         | **86.37**      | morph, pos   |
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos, [etagger](https://github.com/dsindex/etagger) |
@@ -274,6 +276,30 @@ accuracy:  93.80%; precision:  84.82%; recall:  83.76%; FB1:  84.29
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
+```
+
+### emb_class=densenet
+
+- train
+```
+* token_emb_dim in config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
+$ python preprocess.py --config=config-densenet.json --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
+$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
+
+```
+
+- evaluation
+```
+$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph
+* seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+* --use_crf --embedding_trainable
+
+* evaluation eoj-by-eoj
+$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 ```
 
 ### emb_class=bert
