@@ -195,7 +195,7 @@ def main():
     
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--config', type=str, default='config-glove.json')
-    parser.add_argument('--model_path', type=str, default='pytorch-model.pt')
+    parser.add_argument('--model_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_thread', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)

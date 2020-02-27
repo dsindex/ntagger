@@ -255,6 +255,7 @@ def train(opt):
         model = ElmoLSTMCRF(config, elmo_model, embedding_path, label_path, pos_path,
                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     model.to(device)
+    print(model)
     logger.info("[Model prepared]")
 
     # create optimizer, scheduler, summary writer
@@ -314,7 +315,7 @@ def main():
     parser.add_argument('--decay_rate', type=float, default=1.0)
     parser.add_argument('--warmup_epoch', type=int, default=4)
     parser.add_argument('--l2norm', type=float, default=1e-6)
-    parser.add_argument('--save_path', type=str, default='pytorch-model.pt')
+    parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--tmax',type=int, default=-1)
     parser.add_argument('--opt-level', type=str, default='O1')
     parser.add_argument('--local_rank', default=0, type=int)
