@@ -11,8 +11,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.utils.data import DataLoader
-from torch.utils.data.distributed import DistributedSampler
 try:
     from apex.parallel import DistributedDataParallel as DDP
     from apex.fp16_utils import *
@@ -28,11 +26,11 @@ except ImportError:
     pass
 import numpy as np
 import random
-import json
 from seqeval.metrics import precision_score, recall_score, f1_score
 
-from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF
-from dataset import CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
+from util    import load_config, to_device, to_numpy
+from model   import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF, GloveDensenetCRF
+from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from progbar import Progbar # instead of tqdm
 from early_stopping import EarlyStopping
 
@@ -55,40 +53,6 @@ def set_apex_and_distributed(opt):
         torch.cuda.set_device(opt.local_rank)
         torch.distributed.init_process_group(backend='nccl', init_method='env://')
         opt.word_size = torch.distributed.get_world_size()
-
-def load_config(opt):
-    try:
-        with open(opt.config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    except Exception as e:
-        config = dict()
-    return config
-
-def prepare_dataset(config, filepath, DatasetClass, shuffle=False, num_workers=2):
-    dataset = DatasetClass(config, filepath)
-    sampler = None
-    if config['opt'].distributed:
-        sampler = DistributedSampler(dataset)
-    loader = DataLoader(dataset, batch_size=config['opt'].batch_size, \
-            shuffle=shuffle, num_workers=num_workers, sampler=sampler, pin_memory=True)
-    logger.info("[{} data loaded]".format(filepath))
-    return loader
-
-def to_device(x, device):
-    if type(x) != list: # torch.tensor
-        x = x.to(device)
-    else:               # list of torch.tensor
-        for i in range(len(x)):
-            x[i] = x[i].to(device)
-    return x
-
-def to_numpy(x):
-    if type(x) != list: # torch.tensor
-        x = x.detach().cpu().numpy()
-    else:               # list of torch.tensor
-        for i in range(len(x)):
-            x[i] = x[i].detach().cpu().numpy()
-    return x
 
 def train_epoch(model, config, train_loader, val_loader, epoch_i):
     device = config['device']
@@ -243,6 +207,11 @@ def train(opt):
         train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
         valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
+    if config['emb_class'] == 'densenet':
+        filepath = os.path.join(opt.data_dir, 'train.txt.ids')
+        train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
+        filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
+        valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
     if config['emb_class'] == 'bert':
         filepath = os.path.join(opt.data_dir, 'train.txt.fs')
         train_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=True, num_workers=2)
@@ -262,6 +231,11 @@ def train(opt):
         emb_non_trainable = not opt.embedding_trainable
         model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
                              emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
+    if config['emb_class'] == 'densenet':
+        embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
+        emb_non_trainable = not opt.embedding_trainable
+        model = GloveDensenetCRF(config, embedding_path, label_path, pos_path,
+                                 emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
@@ -278,7 +252,7 @@ def train(opt):
         emb_non_trainable = not opt.embedding_trainable
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, embedding_path, label_path, pos_path,
-                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
+                            emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     model.to(device)
     logger.info("[Model prepared]")
 

@@ -10,48 +10,16 @@ import logging
 
 import torch
 import torch.nn as nn
-from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF
-from dataset import CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
-from torch.utils.data import DataLoader
 import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score
 
 from tqdm import tqdm
+from util import load_config, to_device, to_numpy
+from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF, GloveDensenetCRF
+from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-def load_config(opt):
-    try:
-        with open(opt.config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    except Exception as e:
-        config = dict()
-    return config
-
-def prepare_dataset(config, filepath, DatasetClass, shuffle=False, num_workers=1):
-    dataset = DatasetClass(config, filepath)
-    sampler = None
-    loader = DataLoader(dataset, batch_size=config['opt'].batch_size, \
-            shuffle=shuffle, num_workers=num_workers, sampler=sampler, pin_memory=True)
-    logger.info("[{} data loaded]".format(filepath))
-    return loader
-
-def to_device(x, device):
-    if type(x) != list: # torch.tensor
-        x = x.to(device)
-    else:               # list of torch.tensor
-        for i in range(len(x)):
-            x[i] = x[i].to(device)
-    return x
-
-def to_numpy(x):
-    if type(x) != list: # torch.tensor
-        x = x.detach().cpu().numpy()
-    else:               # list of torch.tensor
-        for i in range(len(x)):
-            x[i] = x[i].detach().cpu().numpy()
-    return x
 
 def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
     # load test data
@@ -105,6 +73,8 @@ def evaluate(opt):
     # set path
     if config['emb_class'] == 'glove':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
+    if config['emb_class'] == 'densenet':
+        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
     if config['emb_class'] == 'bert':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     if config['emb_class'] == 'elmo':
@@ -122,6 +92,8 @@ def evaluate(opt):
     # prepare test dataset
     if config['emb_class'] == 'glove':
         test_loader = prepare_dataset(config, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
+    if config['emb_class'] == 'densenet':
+        test_loader = prepare_dataset(config, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
     if config['emb_class'] == 'bert':
         test_loader = prepare_dataset(config, test_data_path, CoNLLBertDataset, shuffle=False, num_workers=1)
     if config['emb_class'] == 'elmo':
@@ -138,6 +110,9 @@ def evaluate(opt):
     if config['emb_class'] == 'glove':
         model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                              emb_non_trainable=True, use_crf=opt.use_crf)
+    if config['emb_class'] == 'densenet':
+        model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
+                                 emb_non_trainable=True, use_crf=opt.use_crf)
     if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_output_dir,
@@ -151,7 +126,7 @@ def evaluate(opt):
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
-                             emb_non_trainable=True, use_crf=opt.use_crf)
+                            emb_non_trainable=True, use_crf=opt.use_crf)
     model.load_state_dict(checkpoint)
     model = model.to(device)
     logger.info("[Loaded]")

@@ -1,0 +1,16 @@
+{
+    "emb_class": "densenet",
+    "n_ctx": 180,
+    "lowercase": true,
+    "token_emb_dim": 300,
+    "pos_emb_dim": 100,
+    "dropout": 0.3,
+    "first_num_filters": 150,
+    "num_filters": 75,
+    "last_num_filters": 300,
+    "pad_pos": "<pad>",
+    "pad_pos_id": 0,
+    "pad_label": "<pad>",
+    "pad_label_id": 0,
+    "default_label": "O"
+}

@@ -14,6 +14,7 @@ import logging
 from torch.nn import CrossEntropyLoss
 
 from tqdm import tqdm
+from util import load_config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,14 +28,6 @@ _EMBED_FILE = 'embedding.npy'
 _POS_FILE = 'pos.txt'
 _LABEL_FILE = 'label.txt'
 _FSUFFIX = '.fs'
-
-def load_config(opt):
-    try:
-        with open(opt.config, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    except Exception as e:
-        config = dict()
-    return config
 
 def build_dict(input_path, config):
     logger.info("\n[building dict]")
@@ -358,7 +351,7 @@ def main():
     
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_path', type=str, default='embeddings/glove.6B.300d.txt')
-    parser.add_argument('--config', type=str, default='config.json')
+    parser.add_argument('--config', type=str, default='config-glove.json')
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -372,6 +365,8 @@ def main():
     logger.info("%s", config)
 
     if config['emb_class'] == 'glove':
+        preprocess_glove_or_elmo(config)
+    if config['emb_class'] == 'densenet':
         preprocess_glove_or_elmo(config)
     if config['emb_class'] == 'bert' :
         preprocess_bert(config)

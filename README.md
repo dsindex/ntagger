@@ -105,13 +105,14 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)                 | features  |
 | ------------------------------- | ---------------------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
+| Glove, DenseNet-CRF             | 87.24                  | word, pos |
 | BERT(large), BiLSTM             | 91.29                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
 | Glove, BiLSTM-CRF               | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
 | Glove, BiLSTM-CRF               | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 | BERT(large), BiLSTM-CRF         | 90.22                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
 | BERT(large), Glove, BiLSTM-CRF  | -                      | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
-| BERT(large), Glove, BiLSTM-CRF  | 91.19                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based), Glove trainable |
+| BERT(large), Glove, BiLSTM-CRF  | 91.19                  | word trainable, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
 | ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
 
 ### emb_class=glove
@@ -139,6 +140,28 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8848570669970794, 3684
 INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
+```
+
+### emb_class=densenet
+
+- train
+```
+* token_emb_dim in config-glove.json == 300 (ex, glove.6B.300d.txt )
+$ python preprocess.py --config=config-densenet
+$ python train.py --config=config-densenet
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
+$ python train.py --config=config-densenet --use_crf
+```
+
+- evaluation
+```
+$ python evaluate.py --config=config-densenet
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+* --use_crf
+INFO:__main__:[F1] : 0.8723650271279908, 3684
+INFO:__main__:[Elapsed Time] : 81729ms, 22.18485342019544ms on average
+accuracy:  97.30%; precision:  87.65%; recall:  86.83%; FB1:  87.24
 ```
 
 ### emb_class=bert
