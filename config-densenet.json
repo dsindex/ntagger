@@ -8,7 +8,7 @@
     "first_num_filters": 150,
     "num_filters": 75,
     "last_num_filters": 300,
-    "densenet_size": 2,
+    "densenet_width": 2,
     "pad_pos": "<pad>",
     "pad_pos_id": 0,
     "pad_label": "<pad>",

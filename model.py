@@ -142,32 +142,40 @@ class GloveDensenetCRF(BaseModel):
         first_num_filters = config['first_num_filters']
         num_filters = config['num_filters']
         last_num_filters = config['last_num_filters']
-        self.densenet_size = config['densenet_size']
+        self.densenet_width = config['densenet_width']
         ks = 1
         in_channels = emb_dim
         out_channels = first_num_filters
         padding = (ks - 1)//2
-        conv_1 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_size)]
-        self.conv_1 = nn.ModuleList(conv_1)
+        conv_first = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
+        self.conv_first = nn.ModuleList(conv_first)
         '''
         # depthwise convolution, 'out_channels' should be 'K * in_channels'
         # see https://pytorch.org/docs/stable/nn.html#torch.nn.Conv1d , https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728
         nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding, groups=in_channels))
         '''
+        # ----- begin densenet depth -----
         ks = 3
-        in_channels = first_num_filters
+        in_channels = first_num_filters + num_filters * (1-1)
         out_channels = num_filters
         padding = (ks - 1)//2 # for same size
-        conv_2 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_size)]
-        self.conv_2 = nn.ModuleList(conv_2)
+        conv_1 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
+        self.conv_1 = nn.ModuleList(conv_1)
         ks = 5
-        in_channels = first_num_filters + num_filters
+        in_channels = first_num_filters + num_filters * (2-1)
         out_channels = num_filters
         padding = (ks - 1)//2
-        conv_3 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_size)]
+        conv_2 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
+        self.conv_2 = nn.ModuleList(conv_2)
+        ks = 7
+        in_channels = first_num_filters + num_filters * (3-1)
+        out_channels = num_filters
+        padding = (ks - 1)//2
+        conv_3 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
         self.conv_3 = nn.ModuleList(conv_3)
+        # ----- end densenet depth -----
         ks = 1
-        in_channels = emb_dim + num_filters * self.densenet_size
+        in_channels = emb_dim + num_filters * self.densenet_width
         out_channels = last_num_filters
         padding = (ks - 1)//2
         self.conv_last = nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding)
@@ -201,21 +209,24 @@ class GloveDensenetCRF(BaseModel):
         # 2. DenseNet
         embed_out = embed_out.permute(0, 2, 1)
         # embed_out : [batch_size, emb_dim, seq_size]
-        conv_3_list = []
-        for i in range(self.densenet_size):
-            conv_1 = self.conv_1[i](embed_out)
+        merge_list = []
+        for i in range(self.densenet_width):
+            conv_first = self.conv_first[i](embed_out)
+            conv_first = F.relu(conv_first)
+            # conv_first : [batch_size, first_num_filters, seq_size]
+            conv_1 = self.conv_1[i](conv_first)
             conv_1 = F.relu(conv_1)
-            # conv_1    : [batch_size, first_num_filters, seq_size(same)]
-            conv_2 = self.conv_2[i](conv_1)
+            # conv_1     : [batch_size, num_filters, seq_size]
+            conv_2 = self.conv_2[i](torch.cat([conv_first, conv_1], dim=-2))
             conv_2 = F.relu(conv_2)
-            # conv_2    : [batch_size, num_filters, seq_size(same)]
-            conv_3 = self.conv_3[i](torch.cat([conv_1, conv_2], dim=-2))
+            # conv_2     : [batch_size, num_filters, seq_size]
+            conv_3 = self.conv_3[i](torch.cat([conv_first, conv_1, conv_2], dim=-2))
             conv_3 = F.relu(conv_3)
-            # conv_3    : [batch_size, num_filters, seq_size(same)]
-            conv_3_list.append(conv_3)
-        conv_last = self.conv_last(torch.cat([embed_out] + conv_3_list, dim=-2))
+            # conv_3     : [batch_size, num_filters, seq_size]
+            merge_list.append(conv_3)
+        conv_last = self.conv_last(torch.cat([embed_out] + merge_list, dim=-2))
         conv_last = F.relu(conv_last)
-        # conv_last : [batch_size, last_num_filters, seq_size(same)]
+        # conv_last : [batch_size, last_num_filters, seq_size]
         conv_last = conv_last.permute(0, 2, 1)
         # conv_last : [batch_size, seq_size, last_num_filters]
         conv_last = self.dropout(conv_last)

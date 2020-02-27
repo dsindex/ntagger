@@ -7,6 +7,7 @@ reference pytorch code for named entity tagging.
   - BiLSTM
   - DenseNet
     - [Dynamic Self-Attention: Computing Attention over Words Dynamically for Sentence Embedding](https://arxiv.org/pdf/1808.07383.pdf)
+    - i implemented a slightly modified DenseNet for longer dependency.
 - decoding
   - Softmax, CRF
 
@@ -110,7 +111,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)                 | features  |
 | ------------------------------- | ---------------------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
-| Glove, DenseNet-CRF             | 87.24                  | word, pos |
+| Glove, DenseNet-CRF             | 87.53                  | word, pos |
 | BERT(large), BiLSTM             | 91.29                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
 | Glove, BiLSTM-CRF               | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
@@ -164,9 +165,9 @@ $ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-de
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
-INFO:__main__:[F1] : 0.8723650271279908, 3684
-INFO:__main__:[Elapsed Time] : 80559ms, 21.846592451805595ms on average
-accuracy:  97.30%; precision:  87.65%; recall:  86.83%; FB1:  87.24
+INFO:__main__:[F1] : 0.875344291426033, 3684
+INFO:__main__:[Elapsed Time] : 79438ms, 21.54140646212327ms on average
+accuracy:  97.36%; precision:  87.85%; recall:  87.22%; FB1:  87.53
 ```
 
 ### emb_class=bert
