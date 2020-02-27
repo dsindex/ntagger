@@ -2,7 +2,7 @@
 
 reference pytorch code for named entity tagging.
 - embedding: Glove, BERT, ELMo
-- encoding:  BiLSTM
+- encoding:  BiLSTM, DenseNet
 - decoding:  Softmax, CRF
 
 ## requirements
