@@ -143,6 +143,8 @@ class GloveDensenetCRF(BaseModel):
         num_filters = config['num_filters']
         last_num_filters = config['last_num_filters']
         self.densenet_width = config['densenet_width']
+        # ----- begin densenet depth -----
+        # kernel sizes = [1, 3, 5, 7]
         ks = 1
         in_channels = emb_dim
         out_channels = first_num_filters
@@ -154,7 +156,6 @@ class GloveDensenetCRF(BaseModel):
         # see https://pytorch.org/docs/stable/nn.html#torch.nn.Conv1d , https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728
         nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding, groups=in_channels))
         '''
-        # ----- begin densenet depth -----
         ks = 3
         in_channels = first_num_filters + num_filters * (1-1)
         out_channels = num_filters
