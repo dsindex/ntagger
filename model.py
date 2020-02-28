@@ -180,7 +180,9 @@ class GloveDensenetCRF(BaseModel):
         out_channels = last_num_filters
         padding = (ks - 1)//2
         self.conv_last = nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding)
-        
+       
+        self.layernorm = nn.LayerNorm(last_num_filters)
+
         self.dropout = nn.Dropout(config['dropout'])
 
         # projection layer
@@ -230,6 +232,7 @@ class GloveDensenetCRF(BaseModel):
         # conv_last : [batch_size, last_num_filters, seq_size]
         conv_last = conv_last.permute(0, 2, 1)
         # conv_last : [batch_size, seq_size, last_num_filters]
+        conv_last = self.layernorm(conv_last)
         conv_last = self.dropout(conv_last)
 
         # 3. Output

@@ -127,7 +127,6 @@ reference pytorch code for named entity tagging.
 ```
 * token_emb_dim in config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py
-$ python train.py
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
 $ python train.py --use_crf
 
@@ -138,11 +137,10 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 
 - evaluation
 ```
-$ python evaluate.py
+$ python evaluate.py --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf
 INFO:__main__:[F1] : 0.8848570669970794, 3684
 INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
@@ -154,17 +152,15 @@ accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 ```
 * token_emb_dim in config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py --config=config-densenet.json
-$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --decay_rate=0.9 --epoch=70
+$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --warmup_epoch=5 --decay_rate=1.0 --epoch=50
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet.pt
+$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet.pt --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf
 INFO:__main__:[F1] : 0.8823112371499469, 3684
 INFO:__main__:[Elapsed Time] : 91415ms, 24.789302199294053ms on average
 accuracy:  97.53%; precision:  88.33%; recall:  88.14%; FB1:  88.23
@@ -211,17 +207,15 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 * token_emb_dim in config-elmo.json == 300 (ex, glove.6B.300d.txt )
 * elmo_emb_dim  in config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
 $ python preprocess.py --config=config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
-$ python train.py --config=config-elmo.json --save_path=pytorch-model-elmo.pt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
 $ python train.py --config=config-elmo.json --save_path=pytorch-model-elmo.pt --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-elmo.json --model_path=pytorch-model-elmo.pt
+$ python evaluate.py --config=config-elmo.json --model_path=pytorch-model-elmo.pt --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf
 INFO:__main__:[F1] : 0.9219494967331803, 3684
 INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
 accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
@@ -258,22 +252,21 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 ```
 * token_emb_dim in config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
-$ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --data_dir data/clova2019_morph --use_crf --embedding_trainable
+$ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --model_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph
+$ python evaluate.py --model_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf --embedding_trainable
 INFO:__main__:[F1] : 0.8434531044045398, 9000
 INFO:__main__:[Elapsed Time] : 270872ms, 30.096888888888888ms on average
 accuracy:  93.80%; precision:  84.82%; recall:  83.76%; FB1:  84.29
+
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
@@ -285,7 +278,6 @@ accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 ```
 * token_emb_dim in config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --config=config-densenet.json --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
 $ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
 
@@ -293,11 +285,9 @@ $ python train.py --config=config-densenet.json --save_path=pytorch-model-densen
 
 - evaluation
 ```
-$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph
+$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-* --use_crf --embedding_trainable
 
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
