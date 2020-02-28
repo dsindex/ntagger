@@ -111,7 +111,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)                 | features  |
 | ------------------------------- | ---------------------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
-| Glove, DenseNet-CRF             | 87.53                  | word, pos |
+| Glove, DenseNet-CRF             | 88.23                  | word, pos |
 | BERT(large), BiLSTM             | 91.29                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
 | Glove, BiLSTM-CRF               | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
@@ -156,7 +156,7 @@ accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 $ python preprocess.py --config=config-densenet.json
 $ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf
+$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --decay_rate=0.9 --epoch=70
 ```
 
 - evaluation
@@ -165,9 +165,9 @@ $ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-de
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf
-INFO:__main__:[F1] : 0.875344291426033, 3684
-INFO:__main__:[Elapsed Time] : 79438ms, 21.54140646212327ms on average
-accuracy:  97.36%; precision:  87.85%; recall:  87.22%; FB1:  87.53
+INFO:__main__:[F1] : 0.8823112371499469, 3684
+INFO:__main__:[Elapsed Time] : 91415ms, 24.789302199294053ms on average
+accuracy:  97.53%; precision:  88.33%; recall:  88.14%; FB1:  88.23
 ```
 
 ### emb_class=bert
