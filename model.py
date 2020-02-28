@@ -200,6 +200,14 @@ class GloveDensenetCRF(BaseModel):
         token_ids = x[0]
         pos_ids = x[1]
 
+        device = self.config['device']
+        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
+        # mask : [batch_size, seq_size]
+        masks = mask.unsqueeze(-1).to(torch.float)
+        # masks : [batch_size, seq_size, 1]
+        masks = masks.permute(0, 2, 1)
+        # masks : [batch_size, 1, seq_size]
+
         # 1. Embedding
         token_embed_out = self.embed_token(token_ids)
         # token_embed_out : [batch_size, seq_size, token_emb_dim]
@@ -215,19 +223,24 @@ class GloveDensenetCRF(BaseModel):
         merge_list = []
         for i in range(self.densenet_width):
             conv_first = self.conv_first[i](embed_out)
+            conv_first *= masks # masking, auto broadcasting along with second dimension
             conv_first = F.relu(conv_first)
             # conv_first : [batch_size, first_num_filters, seq_size]
             conv_1 = self.conv_1[i](conv_first)
+            conv_1 *= masks
             conv_1 = F.relu(conv_1)
             # conv_1     : [batch_size, num_filters, seq_size]
             conv_2 = self.conv_2[i](torch.cat([conv_first, conv_1], dim=-2))
+            conv_2 *= masks
             conv_2 = F.relu(conv_2)
             # conv_2     : [batch_size, num_filters, seq_size]
             conv_3 = self.conv_3[i](torch.cat([conv_first, conv_1, conv_2], dim=-2))
+            conv_3 *= masks
             conv_3 = F.relu(conv_3)
             # conv_3     : [batch_size, num_filters, seq_size]
             merge_list.append(conv_3)
         conv_last = self.conv_last(torch.cat([embed_out] + merge_list, dim=-2))
+        conv_last *= masks
         conv_last = F.relu(conv_last)
         # conv_last : [batch_size, last_num_filters, seq_size]
         conv_last = conv_last.permute(0, 2, 1)
@@ -240,9 +253,6 @@ class GloveDensenetCRF(BaseModel):
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         if tags is not None: # given golden ys(answer)
-            device = self.config['device']
-            mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
-            # mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
@@ -426,7 +436,7 @@ class ElmoLSTMCRF(BaseModel):
         # elmo_embed_out  : [batch_size, seq_size, elmo_emb_dim]
         '''
         masks = mask.unsqueeze(-1).to(torch.float)
-        # masks : [batch_size, seq_size, elmo_emb_dim]
+        # masks : [batch_size, seq_size, 1]
         elmo_embed_out *= masks # auto-braodcasting
         '''
         token_embed_out = self.embed_token(token_ids)
