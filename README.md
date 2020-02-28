@@ -239,7 +239,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ---------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF            | 84.29         | 84.29          | morph, pos   |
-| Glove, DenseNet-CRF          | -             | -              | morph, pos   |
+| Glove, DenseNet-CRF          | 83.44         | 83.49          | morph, pos   |
 | BERT(dha), BiLSTM-CRF        | 83.78         | 84.13          | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF      | 86.37         | **86.37**      | morph, pos   |
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos, [etagger](https://github.com/dsindex/etagger) |
@@ -288,9 +288,13 @@ $ python train.py --config=config-densenet.json --save_path=pytorch-model-densen
 $ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.8350127432612621, 9000
+INFO:__main__:[Elapsed Time] : 232331ms, 25.805978442049117ms on average
+accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
 
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 ```
 
 ### emb_class=bert
