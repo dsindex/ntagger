@@ -139,42 +139,32 @@ class GloveDensenetCRF(BaseModel):
 
         # Densenet layer
         emb_dim = token_emb_dim + pos_emb_dim
-        first_num_filters = config['first_num_filters']
-        num_filters = config['num_filters']
-        last_num_filters = config['last_num_filters']
+        first_num_filters = config['densenet_first_num_filters']
+        num_filters = config['densenet_num_filters']
+        last_num_filters = config['densenet_last_num_filters']
+        self.densenet_depth = config['densenet_depth']
         self.densenet_width = config['densenet_width']
-        # ----- begin densenet depth -----
-        # kernel sizes = [1, 3, 5, 7]
-        ks = 1
-        in_channels = emb_dim
-        out_channels = first_num_filters
-        padding = (ks - 1)//2
-        conv_first = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
-        self.conv_first = nn.ModuleList(conv_first)
-        '''
-        # depthwise convolution, 'out_channels' should be 'K * in_channels'
-        # see https://pytorch.org/docs/stable/nn.html#torch.nn.Conv1d , https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728
-        nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding, groups=in_channels))
-        '''
-        ks = 3
-        in_channels = first_num_filters + num_filters * (1-1)
-        out_channels = num_filters
-        padding = (ks - 1)//2 # for same size
-        conv_1 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
-        self.conv_1 = nn.ModuleList(conv_1)
-        ks = 5
-        in_channels = first_num_filters + num_filters * (2-1)
-        out_channels = num_filters
-        padding = (ks - 1)//2
-        conv_2 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
-        self.conv_2 = nn.ModuleList(conv_2)
-        ks = 7
-        in_channels = first_num_filters + num_filters * (3-1)
-        out_channels = num_filters
-        padding = (ks - 1)//2
-        conv_3 = [nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding) for i in range(self.densenet_width)]
-        self.conv_3 = nn.ModuleList(conv_3)
-        # ----- end densenet depth -----
+        self.densenet_block = []
+        for i, ks in enumerate(self.densenet_depth):
+            if i == 0:
+                in_channels = emb_dim
+                out_channels = first_num_filters
+            else:
+                in_channels = first_num_filters + num_filters * (i-1)
+                out_channels = num_filters
+            padding = (ks - 1)//2
+            convs = []
+            for _ in range(self.densenet_width):
+                conv = nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding)
+                '''
+                # depthwise convolution, 'out_channels' should be 'K * in_channels'
+                # see https://pytorch.org/docs/stable/nn.html#torch.nn.Conv1d , https://towardsdatascience.com/a-basic-introduction-to-separable-convolutions-b99ec3102728
+                nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding, groups=in_channels))
+                '''
+                convs.append(conv)
+            convs = nn.ModuleList(convs)
+            self.densenet_block.append(convs)
+        self.densenet_block = nn.ModuleList(self.densenet_block)
         ks = 1
         in_channels = emb_dim + num_filters * self.densenet_width
         out_channels = last_num_filters
@@ -221,24 +211,18 @@ class GloveDensenetCRF(BaseModel):
         embed_out = embed_out.permute(0, 2, 1)
         # embed_out : [batch_size, emb_dim, seq_size]
         merge_list = []
-        for i in range(self.densenet_width):
-            conv_first = self.conv_first[i](embed_out)
-            conv_first *= masks # masking, auto broadcasting along with second dimension
-            conv_first = F.relu(conv_first)
-            # conv_first : [batch_size, first_num_filters, seq_size]
-            conv_1 = self.conv_1[i](conv_first)
-            conv_1 *= masks
-            conv_1 = F.relu(conv_1)
-            # conv_1     : [batch_size, num_filters, seq_size]
-            conv_2 = self.conv_2[i](torch.cat([conv_first, conv_1], dim=-2))
-            conv_2 *= masks
-            conv_2 = F.relu(conv_2)
-            # conv_2     : [batch_size, num_filters, seq_size]
-            conv_3 = self.conv_3[i](torch.cat([conv_first, conv_1, conv_2], dim=-2))
-            conv_3 *= masks
-            conv_3 = F.relu(conv_3)
-            # conv_3     : [batch_size, num_filters, seq_size]
-            merge_list.append(conv_3)
+        for j in range(self.densenet_width):
+            conv_results = []
+            for i, ks in enumerate(self.densenet_depth):
+                if i == 0: conv_in = embed_out
+                else: conv_in  = torch.cat(conv_results, dim=-2)
+                conv_out = self.densenet_block[i][j](conv_in)
+                # conv_out first : [batch_size, first_num_filters, seq_size]
+                # conv_out other : [batch_size, num_filters, seq_size]
+                conv_out *= masks # masking, auto broadcasting along with second dimension
+                conv_out = F.relu(conv_out)
+                conv_results.append(conv_out)
+            merge_list.append(conv_results[-1]) # last one only 
         conv_last = self.conv_last(torch.cat([embed_out] + merge_list, dim=-2))
         conv_last *= masks
         conv_last = F.relu(conv_last)
