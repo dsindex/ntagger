@@ -8,7 +8,7 @@
     "densenet_first_num_filters": 200,
     "densenet_num_filters": 100,
     "densenet_last_num_filters": 400,
-    "densenet_depth": [1, 3, 5, 7],
+    "densenet_depth": [1, 3, 5, 7, 9],
     "densenet_width": 2,
     "pad_pos": "<pad>",
     "pad_pos_id": 0,
