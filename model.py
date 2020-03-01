@@ -72,9 +72,16 @@ class DenseNet(nn.Module):
         padding = (ks - 1)//2
         self.conv_last = nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding)
 
-    def forward(self, x, masks):
+    def forward(self, x, mask):
+        # x     : [batch_size, seq_size, emb_dim]
+        # mask  : [batch_size, seq_size]
+        x = x.permute(0, 2, 1)
         # x     : [batch_size, emb_dim, seq_size]
+        masks = mask.unsqueeze(-1).to(torch.float)
+        # masks : [batch_size, seq_size, 1]
+        masks = masks.permute(0, 2, 1)
         # masks : [batch_size, 1, seq_size]
+
         merge_list = []
         for j in range(self.densenet_width):
             conv_results = []
@@ -224,10 +231,6 @@ class GloveDensenetCRF(BaseModel):
         device = self.config['device']
         mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
         # mask : [batch_size, seq_size]
-        masks = mask.unsqueeze(-1).to(torch.float)
-        # masks : [batch_size, seq_size, 1]
-        masks = masks.permute(0, 2, 1)
-        # masks : [batch_size, 1, seq_size]
 
         # 1. Embedding
         token_embed_out = self.embed_token(token_ids)
@@ -239,9 +242,7 @@ class GloveDensenetCRF(BaseModel):
         embed_out = self.dropout(embed_out)
 
         # 2. DenseNet
-        embed_out = embed_out.permute(0, 2, 1)
-        # embed_out    : [batch_size, emb_dim, seq_size]
-        densenet_out = self.densenet(embed_out, masks)
+        densenet_out = self.densenet(embed_out, mask)
         # densenet_out : [batch_size, seq_size, last_num_filters]
         densenet_out = self.layernorm(densenet_out)
         densenet_out = self.dropout(densenet_out)
