@@ -108,18 +108,38 @@ reference pytorch code for named entity tagging.
 
 ### experiments summary
 
+- ntagger
+
 |                                 | F1 (%)                 | features  |
 | ------------------------------- | ---------------------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
 | Glove, DenseNet-CRF             | 88.23                  | word, pos |
 | BERT(large), BiLSTM             | 91.29                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
-| Glove, BiLSTM-CRF               | 86.48                  | word, [etagger](https://github.com/dsindex/etagger) |
-| Glove, BiLSTM-CRF               | 90.47 ~ 90.85          | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
-| BERT(large), BiLSTM-CRF         | 90.22                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
-| BERT(large), Glove, BiLSTM-CRF  | 91.83                  | word, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
-| BERT(large), Glove, BiLSTM-CRF  | 91.19                  | word trainable, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
-| ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83      | word, character, pos, chunk, [etagger](https://github.com/dsindex/etagger) |
+
+- [etagger](https://github.com/dsindex/etagger)
+
+|                                 | F1 (%)                 | features  |
+| ------------------------------- | ---------------------  | --------- |
+| Glove, BiLSTM-CRF               | 86.48                  | word      |
+| Glove, BiLSTM-CRF               | 90.47 ~ 90.85          | word, character, pos, chunk |
+| BERT(large), BiLSTM-CRF         | 90.22                  | word, BERT as feature-based |
+| BERT(large), Glove, BiLSTM-CRF  | 91.83                  | word, BERT as feature-based |
+| BERT(large), Glove, BiLSTM-CRF  | 91.19                  | word trainable, BERT as feature-based |
+| ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83      | word, character, pos, chunk |
+
+- [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
+
+|                                 | F1 (%) |
+| ------------------------------- | -------|
+| CNN Large + fine-tune           | 93.5   |
+| GCDT + BERT-L                   | 93.47  |
+| LSTM-CRF+ELMo+BERT+Flair        | 93.38  |
+| Hierarchical + BERT             | 93.37  |
+| Flair embeddings + Pooling      | 93.18  |
+| BERT Large                      | 92.8   |
+| BERT Base                       | 92.4   |
+| BiLSTM-CRF+ELMo                 | 92.22  |
 
 ### emb_class=glove
 
@@ -227,14 +247,23 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 - clova2019(eoj-based)
 
+  - ntagger
+
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
 | BERT(bpe), BiLSTM-CRF | **85.26**     | eoj      |
-| BiLSTM-CRF            | 76.45         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
-| KoBERT                | 84.23         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
-| HanBert               | 84.84         | eoj, refer to [HanBert-NER](https://github.com/monologg/HanBert-NER#results) |
+
+  - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)
+
+|                       | F1 (%)        | features |
+| --------------------- | ------------- | -------- |
+| BiLSTM-CRF            | 76.45         | eoj      |
+| KoBERT                | 84.23         | eoj      |
+| HanBert               | 84.84         | eoj      |
 
 - clova2019_morph(morph-based)
+
+  - ntagger
 
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ---------------------------- | ------------- | -------------- | ------------ |
@@ -242,9 +271,14 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | Glove, DenseNet-CRF          | 83.44         | 83.49          | morph, pos   |
 | BERT(dha), BiLSTM-CRF        | 83.78         | 84.13          | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF      | 86.37         | **86.37**      | morph, pos   |
-| Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos, [etagger](https://github.com/dsindex/etagger) |
-| BERT(dha), BiLSTM-CRF        | 81.25         | 81.39          | morph, pos, [etagger](https://github.com/dsindex/etagger)(BERT as feature-based) |
-| ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos, [etagger](https://github.com/dsindex/etagger) |
+
+  - [etagger](https://github.com/dsindex/etagger)
+
+|                              | m-by-m F1 (%) | e-by-e F1 (%)  | features         |
+| ---------------------------- | ------------- | -------------- | ---------------- |
+| Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos |
+| BERT(dha), BiLSTM-CRF        | 81.25         | 81.39          | morph, pos, BERT as feature-based |
+| ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |
 
 ### emb_class=glove
 
