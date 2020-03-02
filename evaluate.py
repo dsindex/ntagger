@@ -135,6 +135,8 @@ def evaluate(opt):
     n_batches = len(test_loader)
     total_examples = 0
     whole_st_time = time.time()
+    first_time = time.time()
+    first_examples = 0
     with torch.no_grad():
         for i, (x,y) in enumerate(tqdm(test_loader, total=n_batches)):
             x = to_device(x, device)
@@ -158,7 +160,7 @@ def evaluate(opt):
             cur_examples = y.size(0)
             total_examples += cur_examples
             if i == 0: # first one may takes longer time, so ignore in computing duration.
-                first_time = int((time.time()-whole_st_time)*1000)
+                first_time = int((time.time()-first_time)*1000)
                 first_examples = cur_examples
     whole_time = int((time.time()-whole_st_time)*1000)
     avg_time = (whole_time - first_time) / (total_examples - first_examples)
