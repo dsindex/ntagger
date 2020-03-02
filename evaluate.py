@@ -67,7 +67,8 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
 def evaluate(opt):
     # set config
     config = load_config(opt)
-    config['device'] = opt.device
+    device = torch.device(opt.device)
+    config['device'] = device
     config['opt'] = opt
     logger.info("%s", config)
 
@@ -86,8 +87,6 @@ def evaluate(opt):
     opt.test_path = os.path.join(opt.data_dir, 'test.txt')
 
     test_data_path = opt.data_path
-    batch_size = opt.batch_size
-    device = opt.device
     torch.set_num_threads(opt.num_thread)
 
     # prepare test dataset
@@ -102,7 +101,7 @@ def evaluate(opt):
  
     # load pytorch model checkpoint
     logger.info("[Loading model...]")
-    if device == 'cpu':
+    if opt.device == 'cpu':
         checkpoint = torch.load(opt.model_path, map_location=lambda storage, loc: storage)
     else:
         checkpoint = torch.load(opt.model_path)
