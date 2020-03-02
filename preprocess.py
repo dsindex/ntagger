@@ -366,8 +366,6 @@ def main():
 
     if config['emb_class'] == 'glove':
         preprocess_glove_or_elmo(config)
-    if config['emb_class'] == 'densenet':
-        preprocess_glove_or_elmo(config)
     if config['emb_class'] == 'bert' :
         preprocess_bert(config)
     if config['emb_class'] == 'elmo':

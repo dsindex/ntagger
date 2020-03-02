@@ -1,5 +1,6 @@
 {
     "emb_class": "glove",
+    "enc_class": "bilstm",
     "n_ctx": 180,
     "lowercase": true,
     "token_emb_dim": 300,

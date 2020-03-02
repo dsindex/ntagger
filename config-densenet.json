@@ -1,5 +1,6 @@
 {
-    "emb_class": "densenet",
+    "emb_class": "glove",
+    "enc_class": "densenet",
     "n_ctx": 180,
     "lowercase": true,
     "token_emb_dim": 300,

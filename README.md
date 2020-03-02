@@ -7,7 +7,7 @@ reference pytorch code for named entity tagging.
   - BiLSTM
   - DenseNet
     - [Dynamic Self-Attention: Computing Attention over Words Dynamically for Sentence Embedding](https://arxiv.org/pdf/1808.07383.pdf)
-    - i implemented a slightly modified DenseNet for longer dependency.
+    - a slightly modified DenseNet for longer dependency.
 - decoding
   - Softmax, CRF
 
@@ -141,7 +141,7 @@ reference pytorch code for named entity tagging.
 | BERT Base                       | 92.4   |
 | BiLSTM-CRF+ELMo                 | 92.22  |
 
-### emb_class=glove
+### emb_class=glove, enc_class=bilstm
 
 - train
 ```
@@ -166,7 +166,7 @@ INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 ```
 
-### emb_class=densenet
+### emb_class=glove, enc_class=densenet
 
 - train
 ```
@@ -186,7 +186,7 @@ INFO:__main__:[Elapsed Time] : 91415ms, 24.789302199294053ms on average
 accuracy:  97.53%; precision:  88.33%; recall:  88.14%; FB1:  88.23
 ```
 
-### emb_class=bert
+### emb_class=bert, enc_class=bilstm
 
 - train
 ```
@@ -220,7 +220,7 @@ INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 ```
 
-### emb_class=elmo
+### emb_class=elmo, enc_class=bilstm
 
 - train
 ```
@@ -280,7 +280,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | BERT(dha), BiLSTM-CRF        | 81.25         | 81.39          | morph, pos, BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |
 
-### emb_class=glove
+### emb_class=glove, enc_class=bilstm
 
 - train
 ```
@@ -306,7 +306,7 @@ $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj
 accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 ```
 
-### emb_class=densenet
+### emb_class=glove, enc_class=densenet
 
 - train
 ```
@@ -331,7 +331,7 @@ $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj
 accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 ```
 
-### emb_class=bert
+### emb_class=bert, enc_class=bilstm
 
 - train
 ```
@@ -372,7 +372,7 @@ INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 ```
 
-### emb_class=elmo
+### emb_class=elmo, enc_class=bilstm
 
 - train
 ```

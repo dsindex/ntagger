@@ -75,8 +75,6 @@ def evaluate(opt):
     # set path
     if config['emb_class'] == 'glove':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    if config['emb_class'] == 'densenet':
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
     if config['emb_class'] == 'bert':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     if config['emb_class'] == 'elmo':
@@ -92,8 +90,6 @@ def evaluate(opt):
     # prepare test dataset
     if config['emb_class'] == 'glove':
         test_loader = prepare_dataset(config, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
-    if config['emb_class'] == 'densenet':
-        test_loader = prepare_dataset(config, test_data_path, CoNLLGloveDataset, shuffle=False, num_workers=1)
     if config['emb_class'] == 'bert':
         test_loader = prepare_dataset(config, test_data_path, CoNLLBertDataset, shuffle=False, num_workers=1)
     if config['emb_class'] == 'elmo':
@@ -108,11 +104,12 @@ def evaluate(opt):
 
     # prepare model and load parameters
     if config['emb_class'] == 'glove':
-        model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
-                             emb_non_trainable=True, use_crf=opt.use_crf)
-    if config['emb_class'] == 'densenet':
-        model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
+        if config['enc_class'] == 'bilstm':
+            model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                  emb_non_trainable=True, use_crf=opt.use_crf)
+        if config['enc_class'] == 'densenet':
+            model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
+                                     emb_non_trainable=True, use_crf=opt.use_crf)
     if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_output_dir,

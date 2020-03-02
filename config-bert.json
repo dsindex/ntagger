@@ -1,5 +1,6 @@
 {
     "emb_class": "bert",
+    "enc_class": "bilstm",
     "n_ctx": 180,
     "lowercase": true,
     "pos_emb_dim": 100,

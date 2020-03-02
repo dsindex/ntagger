@@ -208,11 +208,6 @@ def train(opt):
         train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
         valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
-    if config['emb_class'] == 'densenet':
-        filepath = os.path.join(opt.data_dir, 'train.txt.ids')
-        train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
-        filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
-        valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
     if config['emb_class'] == 'bert':
         filepath = os.path.join(opt.data_dir, 'train.txt.fs')
         train_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=True, num_workers=2)
@@ -228,15 +223,16 @@ def train(opt):
     pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     # prepare model
     if config['emb_class'] == 'glove':
-        embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
-        emb_non_trainable = not opt.embedding_trainable
-        model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
-                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
-    if config['emb_class'] == 'densenet':
-        embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
-        emb_non_trainable = not opt.embedding_trainable
-        model = GloveDensenetCRF(config, embedding_path, label_path, pos_path,
+        if config['enc_class'] == 'bilstm':
+            embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
+            emb_non_trainable = not opt.embedding_trainable
+            model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
                                  emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
+        if config['enc_class'] == 'densenet':
+            embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
+            emb_non_trainable = not opt.embedding_trainable
+            model = GloveDensenetCRF(config, embedding_path, label_path, pos_path,
+                                     emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
