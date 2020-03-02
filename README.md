@@ -245,15 +245,15 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 ### experiments summary
 
-- clova2019(eoj-based)
+#### clova2019(eoj-based)
 
-  - ntagger
+- ntagger
 
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
 | BERT(bpe), BiLSTM-CRF | **85.26**     | eoj      |
 
-  - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)
+- [HanBert-NER](https://github.com/monologg/HanBert-NER#results)
 
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
@@ -261,9 +261,9 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
 
-- clova2019_morph(morph-based)
+#### clova2019_morph(morph-based)
 
-  - ntagger
+- ntagger
 
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ---------------------------- | ------------- | -------------- | ------------ |
@@ -272,7 +272,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | BERT(dha), BiLSTM-CRF        | 83.78         | 84.13          | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF      | 86.37         | **86.37**      | morph, pos   |
 
-  - [etagger](https://github.com/dsindex/etagger)
+- [etagger](https://github.com/dsindex/etagger)
 
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features         |
 | ---------------------------- | ------------- | -------------- | ---------------- |
