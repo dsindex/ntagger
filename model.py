@@ -208,8 +208,7 @@ class GloveDensenetCRF(BaseModel):
         num_filters = config['densenet_num_filters']
         last_num_filters = config['densenet_last_num_filters']
         self.densenet = DenseNet(densenet_depth, densenet_width, emb_dim, first_num_filters, num_filters, last_num_filters)
-       
-        self.layernorm = nn.LayerNorm(last_num_filters)
+        self.layernorm_densenet = nn.LayerNorm(last_num_filters)
 
         self.dropout = nn.Dropout(config['dropout'])
 
@@ -244,7 +243,7 @@ class GloveDensenetCRF(BaseModel):
         # 2. DenseNet
         densenet_out = self.densenet(embed_out, mask)
         # densenet_out : [batch_size, seq_size, last_num_filters]
-        densenet_out = self.layernorm(densenet_out)
+        densenet_out = self.layernorm_densenet(densenet_out)
         densenet_out = self.dropout(densenet_out)
 
         # 3. Output
