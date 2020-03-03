@@ -29,7 +29,7 @@ import random
 from seqeval.metrics import precision_score, recall_score, f1_score
 
 from util    import load_config, to_device, to_numpy
-from model   import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF, GloveDensenetCRF
+from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from progbar import Progbar # instead of tqdm
 from early_stopping import EarlyStopping

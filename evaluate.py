@@ -15,7 +15,7 @@ from seqeval.metrics import precision_score, recall_score, f1_score
 
 from tqdm import tqdm
 from util import load_config, to_device, to_numpy
-from model import GloveLSTMCRF, BertLSTMCRF, ElmoLSTMCRF, GloveDensenetCRF
+from model import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 
 logging.basicConfig(level=logging.INFO)
