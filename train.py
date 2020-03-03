@@ -275,7 +275,7 @@ def train(opt):
     config['scheduler'] = scheduler
     config['writer'] = writer
 
-    early_stopping = EarlyStopping(logger, patience=10, measure='f1', verbose=1)
+    early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
     best_val_loss = float('inf')
     best_val_f1 = -float('inf')
     for epoch_i in range(opt.epoch):
@@ -310,6 +310,7 @@ def main():
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--decay_rate', type=float, default=1.0)
     parser.add_argument('--warmup_epoch', type=int, default=4)
+    parser.add_argument("--patience", default=5, type=int)
     parser.add_argument('--l2norm', type=float, default=1e-6)
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--tmax',type=int, default=-1)
