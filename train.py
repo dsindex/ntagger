@@ -310,7 +310,7 @@ def main():
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--decay_rate', type=float, default=1.0)
     parser.add_argument('--warmup_epoch', type=int, default=4)
-    parser.add_argument("--patience", default=5, type=int)
+    parser.add_argument("--patience", default=7, type=int)
     parser.add_argument('--l2norm', type=float, default=1e-6)
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--tmax',type=int, default=-1)

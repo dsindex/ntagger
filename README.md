@@ -145,7 +145,7 @@ reference pytorch code for named entity tagging.
 
 - train
 ```
-* token_emb_dim in config-glove.json == 300 (ex, glove.6B.300d.txt )
+* token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
 $ python train.py --use_crf
@@ -170,15 +170,15 @@ accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 
 - train
 ```
-* token_emb_dim in config-glove.json == 300 (ex, glove.6B.300d.txt )
-$ python preprocess.py --config=config-densenet.json
+* token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
+$ python preprocess.py --config=configs/config-densenet.json
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --epoch=50 --warmup_epoch=13 --decay_rate=0.8
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --epoch=50 --warmup_epoch=13 --decay_rate=0.8
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet.pt --use_crf
+$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet.pt --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8823112371499469, 3684
@@ -192,17 +192,17 @@ accuracy:  97.53%; precision:  88.33%; recall:  88.14%; FB1:  88.23
 ```
 * n_ctx size should be less than 512
 * download 'bert-large-cased' to './embeddings'
-$ python preprocess.py --config=config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased
+$ python preprocess.py --config=configs/config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased
 * --use_crf for adding crf layer
 * --bert_use_pos for adding Part-Of-Speech features
 * --bert_use_feature_based for feature-based
 * --bert_disable_lstm for removing lstm layer
-$ python train.py --config=config-bert.json --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-bert.json --model_path=pytorch-model-bert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.9129208531641106, 3684
 INFO:__main__:[Elapsed Time] : 135017ms, 36.64956568946797ms on average
@@ -224,16 +224,16 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 
 - train
 ```
-* token_emb_dim in config-elmo.json == 300 (ex, glove.6B.300d.txt )
-* elmo_emb_dim  in config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
-$ python preprocess.py --config=config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
+* token_emb_dim in configs/config-elmo.json == 300 (ex, glove.6B.300d.txt )
+* elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
+$ python preprocess.py --config=configs/config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=config-elmo.json --save_path=pytorch-model-elmo.pt --use_crf
+$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo.pt --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-elmo.json --model_path=pytorch-model-elmo.pt --use_crf
+$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo.pt --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9219494967331803, 3684
@@ -284,7 +284,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 - train
 ```
-* token_emb_dim in config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
+* token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
 $ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
@@ -310,16 +310,16 @@ accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 
 - train
 ```
-* token_emb_dim in config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
-$ python preprocess.py --config=config-densenet.json --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
+* token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
+$ python preprocess.py --config=configs/config-densenet.json --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --config=config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf
+$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8350127432612621, 9000
@@ -339,13 +339,13 @@ accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 
 * for clova2019_morph
 
-$ python preprocess.py --config=config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --config=config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 * for clova2019
 
-$ python preprocess.py --config=config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
-$ python train.py --config=config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
 
 ```
 
@@ -353,7 +353,7 @@ $ python train.py --config=config-bert.json --save_path=pytorch-model-bert-kor-e
 ```
 * for clova2019_morph
 
-$ python evaluate.py --config=config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.838467292261662, 9000
 INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
@@ -365,7 +365,7 @@ accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
 * for clova2019
 
-$ python evaluate.py --config=config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8524098438884723, 9000
 INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
@@ -376,15 +376,15 @@ accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
 - train
 ```
-* token_emb_dim in config-elmo.json == 300 (ex, kor.glove.300k.300d.txt )
-* elmo_emb_dim  in config-elmo.json == 1024 (ex, kor_elmo_2x4096_512_2048cnn_2xhighway_1000k* )
-$ python preprocess.py --config=config-elmo.json --data_dir=data/clova2019_morph --embedding_path=embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=config-elmo.json --save_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+* token_emb_dim in configs/config-elmo.json == 300 (ex, kor.glove.300k.300d.txt )
+* elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, kor_elmo_2x4096_512_2048cnn_2xhighway_1000k* )
+$ python preprocess.py --config=configs/config-elmo.json --data_dir=data/clova2019_morph --embedding_path=embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=config-elmo.json --model_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --use_crf --embedding_trainable
