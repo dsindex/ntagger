@@ -7,12 +7,21 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import random
 
 from torchcrf import CRF
 
 class BaseModel(nn.Module):
-    def __init__(self):
+    def __init__(self, config=None):
         super(BaseModel, self).__init__()
+        if config:
+            self.set_seed(config['opt'])
+
+    def set_seed(self, opt):
+        random.seed(opt.seed)
+        np.random.seed(opt.seed)
+        torch.manual_seed(opt.seed)
+        torch.cuda.manual_seed(opt.seed)
 
     def load_embedding(self, input_path):
         weights_matrix = np.load(input_path)
@@ -105,7 +114,7 @@ class DenseNet(nn.Module):
 
 class GloveLSTMCRF(BaseModel):
     def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False):
-        super().__init__()
+        super().__init__(config=config)
 
         self.config = config
         seq_size = config['n_ctx']
@@ -183,7 +192,7 @@ class GloveLSTMCRF(BaseModel):
 
 class GloveDensenetCRF(BaseModel):
     def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False):
-        super().__init__()
+        super().__init__(config=config)
 
         self.config = config
         seq_size = config['n_ctx']
@@ -261,7 +270,7 @@ class GloveDensenetCRF(BaseModel):
 
 class BertLSTMCRF(BaseModel):
     def __init__(self, config, bert_config, bert_model, label_path, pos_path, use_crf=False, use_pos=False, disable_lstm=False, feature_based=False):
-        super().__init__()
+        super().__init__(config=config)
 
         self.config = config
         seq_size = config['n_ctx']
@@ -374,7 +383,7 @@ class BertLSTMCRF(BaseModel):
 
 class ElmoLSTMCRF(BaseModel):
     def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False):
-        super().__init__()
+        super().__init__(config=config)
 
         self.config = config
         seq_size = config['n_ctx']

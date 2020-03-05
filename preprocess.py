@@ -352,12 +352,16 @@ def main():
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_path', type=str, default='embeddings/glove.6B.300d.txt')
     parser.add_argument('--config', type=str, default='config-glove.json')
+    parser.add_argument("--seed", default=5, type=int)
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
     parser.add_argument("--bert_do_lower_case", action="store_true",
                         help="Set this flag if you are using an uncased model.")
     opt = parser.parse_args()
+
+    # set seed
+    random.seed(opt.seed)
 
     # set config
     config = load_config(opt)
