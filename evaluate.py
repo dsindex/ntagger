@@ -198,6 +198,7 @@ def main():
     parser.add_argument('--num_thread', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
+    parser.add_argument('--seed', default=5, type=int, help="dummy for BaseModel.")
     # for BERT
     parser.add_argument('--bert_do_lower_case', action='store_true',
                         help="Set this flag if you are using an uncased model.")
