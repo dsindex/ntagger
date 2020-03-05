@@ -204,6 +204,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 ```
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 INFO:__main__:[F1] : 0.9129208531641106, 3684
 INFO:__main__:[Elapsed Time] : 135017ms, 36.64956568946797ms on average
 accuracy:  98.30%; precision:  90.89%; recall:  91.70%; FB1:  91.29
@@ -322,6 +323,7 @@ $ python train.py --config=configs/config-densenet.json --save_path=pytorch-mode
 $ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 INFO:__main__:[F1] : 0.8350127432612621, 9000
 INFO:__main__:[Elapsed Time] : 232331ms, 25.805978442049117ms on average
 accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
@@ -355,6 +357,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 INFO:__main__:[F1] : 0.838467292261662, 9000
 INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
 accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
@@ -367,6 +370,7 @@ accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 INFO:__main__:[F1] : 0.8524098438884723, 9000
 INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
@@ -394,6 +398,7 @@ accuracy:  94.63%; precision:  86.36%; recall:  86.38%; FB1:  86.37
 
 * evluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+
 accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 ```
 
