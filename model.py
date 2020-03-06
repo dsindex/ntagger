@@ -50,8 +50,9 @@ class BaseModel(nn.Module):
         return x
 
 class DenseNet(nn.Module):
-    def __init__(self, densenet_depth, densenet_width, emb_dim, first_num_filters, num_filters, last_num_filters):
+    def __init__(self, densenet_depth, densenet_width, emb_dim, first_num_filters, num_filters, last_num_filters, activation=F.relu):
         super(DenseNet, self).__init__()
+        self.activation = activation
         self.densenet_depth = densenet_depth
         self.densenet_width = densenet_width
         self.densenet_block = []
@@ -101,7 +102,7 @@ class DenseNet(nn.Module):
                 # conv_out first : [batch_size, first_num_filters, seq_size]
                 # conv_out other : [batch_size, num_filters, seq_size]
                 conv_out *= masks # masking, auto broadcasting along with second dimension
-                conv_out = F.relu(conv_out)
+                conv_out = self.activation(conv_out)
                 conv_results.append(conv_out)
             merge_list.append(conv_results[-1]) # last one only 
         conv_last = self.conv_last(torch.cat([x] + merge_list, dim=-2))
@@ -216,7 +217,7 @@ class GloveDensenetCRF(BaseModel):
         first_num_filters = config['densenet_first_num_filters']
         num_filters = config['densenet_num_filters']
         last_num_filters = config['densenet_last_num_filters']
-        self.densenet = DenseNet(densenet_depth, densenet_width, emb_dim, first_num_filters, num_filters, last_num_filters)
+        self.densenet = DenseNet(densenet_depth, densenet_width, emb_dim, first_num_filters, num_filters, last_num_filters, activation=F.relu)
         self.layernorm_densenet = nn.LayerNorm(last_num_filters)
 
         self.dropout = nn.Dropout(config['dropout'])
