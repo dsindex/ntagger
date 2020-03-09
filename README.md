@@ -173,7 +173,7 @@ accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 * token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --epoch=50 --warmup_epoch=13 --decay_rate=0.8
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --warmup_steps=13 --decay_rate=0.8 --epoch=64
 ```
 
 - evaluation
