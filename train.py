@@ -93,8 +93,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         else:
             loss.backward()
         optimizer.step()
-        if scheduler and epoch_i > opt.warmup_epoch and local_step == 0: # after warmup, for every epoch
-            scheduler.step()
         # back-propagation - end
         train_loss += loss.item()
         if local_rank == 0 and writer:
@@ -284,6 +282,7 @@ def train(opt):
     for epoch_i in range(opt.epoch):
         epoch_st_time = time.time()
         eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i)
+        # early stopping
         if early_stopping.validate(eval_f1, measure='f1'): break
         if opt.local_rank == 0 and eval_f1 > best_val_f1:
             best_val_f1 = eval_f1
@@ -297,6 +296,9 @@ def train(opt):
                     bert_model.save_pretrained(opt.bert_output_dir)
             early_stopping.reset(best_val_f1)
         early_stopping.status()
+        # scheduling: apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch.
+        if epoch_i > opt.warmup_epoch and early_stopping.step() >= opt.decay_epoch: # after warmup
+            scheduler.step()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -312,6 +314,7 @@ def main():
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--decay_rate', type=float, default=1.0)
+    parser.add_argument('--decay_epoch', type=float, default=2)
     parser.add_argument('--warmup_epoch', type=int, default=4)
     parser.add_argument("--patience", default=7, type=int)
     parser.add_argument('--l2norm', type=float, default=1e-6)
