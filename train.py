@@ -277,28 +277,37 @@ def train(opt):
     config['writer'] = writer
 
     early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
-    best_val_loss = float('inf')
-    best_val_f1 = -float('inf')
+    local_worse_steps = 0
+    prev_eval_f1 = -float('inf')
+    best_eval_loss = float('inf')
+    best_eval_f1 = -float('inf')
     for epoch_i in range(opt.epoch):
         epoch_st_time = time.time()
         eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i)
         # early stopping
         if early_stopping.validate(eval_f1, measure='f1'): break
-        if opt.local_rank == 0 and eval_f1 > best_val_f1:
-            best_val_f1 = eval_f1
+        if opt.local_rank == 0 and eval_f1 > best_eval_f1:
+            best_eval_f1 = eval_f1
             if opt.save_path:
-                logger.info("[Best model saved] : {:10.6f}".format(best_val_f1))
+                logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
                 save_model(model, opt, config)
                 if config['emb_class'] == 'bert':
                     if not os.path.exists(opt.bert_output_dir):
                         os.makedirs(opt.bert_output_dir)
                     bert_tokenizer.save_pretrained(opt.bert_output_dir)
                     bert_model.save_pretrained(opt.bert_output_dir)
-            early_stopping.reset(best_val_f1)
+            early_stopping.reset(best_eval_f1)
         early_stopping.status()
-        # scheduling: apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch.
-        if epoch_i > opt.warmup_epoch and early_stopping.step() >= opt.decay_epoch: # after warmup
+        # begin: scheduling, apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch.
+        if prev_eval_f1 >= eval_f1:
+            local_worse_steps += 1
+        else:
+            local_worse_steps = 0
+        logger.info('Scheduler: local_worse_steps / opt.decay_steps = %d / %d' % (local_worse_steps, opt.decay_steps))
+        if epoch_i > opt.warmup_steps and (local_worse_steps >= opt.decay_steps or early_stopping.step() > opt.decay_steps):
             scheduler.step()
+        prev_eval_f1 = eval_f1
+        # end: scheduling
 
 def main():
     parser = argparse.ArgumentParser()
@@ -314,8 +323,8 @@ def main():
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--decay_rate', type=float, default=1.0)
-    parser.add_argument('--decay_epoch', type=float, default=2)
-    parser.add_argument('--warmup_epoch', type=int, default=4)
+    parser.add_argument('--decay_steps', type=float, default=2)
+    parser.add_argument('--warmup_steps', type=int, default=4)
     parser.add_argument("--patience", default=7, type=int)
     parser.add_argument('--l2norm', type=float, default=1e-6)
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
