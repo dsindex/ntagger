@@ -285,8 +285,6 @@ def train(opt):
 
     # create optimizer, scheduler, summary writer
     optimizer, scheduler, writer = prepare_osw(config, model)
-
-    # additional config setting for parameter passing
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
