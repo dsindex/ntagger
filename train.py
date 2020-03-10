@@ -235,7 +235,7 @@ def prepare_model(config):
                                                from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, opt.label_path, opt.pos_path,
+        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
     if config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
@@ -312,8 +312,8 @@ def train(opt):
                 if config['emb_class'] == 'bert':
                     if not os.path.exists(opt.bert_output_dir):
                         os.makedirs(opt.bert_output_dir)
-                    bert_tokenizer.save_pretrained(opt.bert_output_dir)
-                    bert_model.save_pretrained(opt.bert_output_dir)
+                    model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
+                    model.bert_model.save_pretrained(opt.bert_output_dir)
             early_stopping.reset(best_eval_f1)
         early_stopping.status()
         # begin: scheduling, apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch steps.

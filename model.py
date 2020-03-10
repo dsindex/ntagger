@@ -265,7 +265,7 @@ class GloveDensenetCRF(BaseModel):
             return logits, prediction
 
 class BertLSTMCRF(BaseModel):
-    def __init__(self, config, bert_config, bert_model, label_path, pos_path, use_crf=False, use_pos=False, disable_lstm=False, feature_based=False):
+    def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_pos=False, disable_lstm=False, feature_based=False):
         super().__init__(config=config)
 
         self.config = config
@@ -281,6 +281,7 @@ class BertLSTMCRF(BaseModel):
         # bert embedding
         self.bert_config = bert_config
         self.bert_model = bert_model
+        self.bert_tokenizer = bert_tokenizer
         self.feature_based = feature_based
 
         # pos embedding layer

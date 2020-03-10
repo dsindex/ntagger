@@ -114,7 +114,7 @@ def load_model(config, checkpoint):
         bert_model = BertModel.from_pretrained(opt.bert_output_dir)
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, opt.label_path, opt.pos_path,
+        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm)
     if config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
