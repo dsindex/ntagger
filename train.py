@@ -314,7 +314,7 @@ def train(opt):
                     bert_model.save_pretrained(opt.bert_output_dir)
             early_stopping.reset(best_eval_f1)
         early_stopping.status()
-        # begin: scheduling, apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch.
+        # begin: scheduling, apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch steps.
         if prev_eval_f1 >= eval_f1:
             local_worse_steps += 1
         else:
@@ -339,8 +339,8 @@ def main():
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--decay_rate', type=float, default=1.0)
-    parser.add_argument('--decay_steps', type=float, default=2)
-    parser.add_argument('--warmup_steps', type=int, default=4)
+    parser.add_argument('--decay_steps', type=float, default=2, help="number of decay epoch steps to be paitent")
+    parser.add_argument('--warmup_steps', type=int, default=4,  help="number of warmup epoch steps")
     parser.add_argument("--patience", default=7, type=int)
     parser.add_argument('--l2norm', type=float, default=1e-6)
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
