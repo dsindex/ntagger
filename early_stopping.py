@@ -28,7 +28,7 @@ class EarlyStopping():
         self._value = value
 
     def status(self):
-        self.logger.info('Status: step / patience = %d / %d, value = %f\n' % (self._step, self.patience, self._value))
+        self.logger.info('Status: global_worse_steps / patience = %d / %d, value = %f\n' % (self._step, self.patience, self._value))
 
     def step(self):
         return self._step
