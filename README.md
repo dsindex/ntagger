@@ -114,7 +114,7 @@ reference pytorch code for named entity tagging.
 | ------------------------------- | ---------------------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
 | Glove, DenseNet-CRF             | 88.23                  | word, pos |
-| BERT(large), BiLSTM             | 91.29                  | word      |
+| BERT-large, BiLSTM              | 91.29                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
 
 - [etagger](https://github.com/dsindex/etagger)
@@ -123,9 +123,9 @@ reference pytorch code for named entity tagging.
 | ------------------------------- | ---------------------  | --------- |
 | Glove, BiLSTM-CRF               | 86.48                  | word      |
 | Glove, BiLSTM-CRF               | 90.47 ~ 90.85          | word, character, pos, chunk |
-| BERT(large), BiLSTM-CRF         | 90.22                  | word, BERT as feature-based |
-| BERT(large), Glove, BiLSTM-CRF  | 91.83                  | word, BERT as feature-based |
-| BERT(large), Glove, BiLSTM-CRF  | 91.19                  | word trainable, BERT as feature-based |
+| BERT-large, BiLSTM-CRF          | 90.22                  | word, BERT as feature-based |
+| BERT-large, Glove, BiLSTM-CRF   | 91.83                  | word, BERT as feature-based |
+| BERT-large, Glove, BiLSTM-CRF   | 91.19                  | word trainable, BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83      | word, character, pos, chunk |
 
 - [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
