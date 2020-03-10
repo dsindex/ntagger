@@ -189,21 +189,8 @@ def save_model(model, opt, config):
             checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
-def train(opt):
-    device = torch.device(opt.device)
-
-    # set seed, distributed setting, etc
-    set_seed(opt)
-    set_apex_and_distributed(opt)
-    torch.autograd.set_detect_anomaly(True)
-
-    # set config
-    config = load_config(opt)
-    config['device'] = device
-    config['opt'] = opt
-    logger.info("%s", config)
-  
-    # prepare train, valid dataset
+def prepare_datasets(config):
+    opt = config['opt']
     if config['emb_class'] == 'glove':
         filepath = os.path.join(opt.data_dir, 'train.txt.ids')
         train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
@@ -219,10 +206,13 @@ def train(opt):
         train_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=True, num_workers=2)
         filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
         valid_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=False, num_workers=2)
+    return train_loader, valid_loader
 
+def prepare_model(config):
+    device = config['device']
+    opt = config['opt']
     label_path = os.path.join(opt.data_dir, opt.label_filename)
     pos_path = os.path.join(opt.data_dir, opt.pos_filename)
-    # prepare model
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
@@ -253,10 +243,11 @@ def train(opt):
                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     model.to(device)
     print(model)
-    logger.info("[Model prepared]")
+    logger.info("[model prepared]")
+    return model
 
-    # create optimizer, scheduler, summary writer
-    logger.info("[Creating optimizer, scheduler, summary writer...]")
+def prepare_osw(config, model):
+    opt = config['opt']
     optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.l2norm)
     if opt.use_amp:
         model, optimizer = amp.initialize(model, optimizer, opt_level=opt.opt_level)
@@ -267,15 +258,40 @@ def train(opt):
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
         writer = None
-    logger.info("[Ready]")
+    logger.info("[optimizer, scheduler, summary writer prepared]")
+    return optimizer, scheduler, writer
 
-    # training
+def train(opt):
+    device = torch.device(opt.device)
+    if torch.cuda.is_available():
+        logger.info("%s", torch.cuda.get_device_name(0))
+
+    # set seed, distributed setting, etc
+    set_seed(opt)
+    set_apex_and_distributed(opt)
+    torch.autograd.set_detect_anomaly(True)
+
+    # set config
+    config = load_config(opt)
+    config['device'] = device
+    config['opt'] = opt
+    logger.info("%s", config)
+  
+    # prepare train, valid dataset
+    train_loader, valid_loader = prepare_datasets(config)
+
+    # prepare model
+    model = prepare_model(config)
+
+    # create optimizer, scheduler, summary writer
+    optimizer, scheduler, writer = prepare_osw(config, model)
 
     # additional config setting for parameter passing
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
 
+    # training
     early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
     local_worse_steps = 0
     prev_eval_f1 = -float('inf')

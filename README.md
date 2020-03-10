@@ -315,7 +315,6 @@ accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 $ python preprocess.py --config=configs/config-densenet.json --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
 $ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
-
 ```
 
 - evaluation
