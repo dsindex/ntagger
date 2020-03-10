@@ -28,7 +28,7 @@ reference pytorch code for named entity tagging.
     ```
   - BERT(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   ```
-  $ pip install tensorflow-gpu==2.0
+  $ pip install tensorflow-gpu==2.0.0
   $ pip install git+https://github.com/huggingface/transformers.git
   ```
   - ELMo([allennlp](https://github.com/allenai/allennlp))
