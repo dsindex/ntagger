@@ -189,40 +189,43 @@ def save_model(model, opt, config):
             checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
+def set_path(config):
+    opt = config['opt']
+    if config['emb_class'] == 'glove':
+        opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
+        opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
+    if config['emb_class'] == 'bert':
+        opt.train_path = os.path.join(opt.data_dir, 'train.txt.fs')
+        opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.fs')
+    if config['emb_class'] == 'elmo':
+        opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
+        opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
+    opt.label_path = os.path.join(opt.data_dir, opt.label_filename)
+    opt.pos_path = os.path.join(opt.data_dir, opt.pos_filename)
+    opt.embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
+
 def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
-        filepath = os.path.join(opt.data_dir, 'train.txt.ids')
-        train_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=True, num_workers=2)
-        filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
-        valid_loader = prepare_dataset(config, filepath, CoNLLGloveDataset, shuffle=False, num_workers=2)
+        DatasetClass = CoNLLGloveDataset
     if config['emb_class'] == 'bert':
-        filepath = os.path.join(opt.data_dir, 'train.txt.fs')
-        train_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=True, num_workers=2)
-        filepath = os.path.join(opt.data_dir, 'valid.txt.fs')
-        valid_loader = prepare_dataset(config, filepath, CoNLLBertDataset, shuffle=False, num_workers=2)
+        DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
-        filepath = os.path.join(opt.data_dir, 'train.txt.ids')
-        train_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=True, num_workers=2)
-        filepath = os.path.join(opt.data_dir, 'valid.txt.ids')
-        valid_loader = prepare_dataset(config, filepath, CoNLLElmoDataset, shuffle=False, num_workers=2)
+        DatasetClass = CoNLLElmoDataset
+    train_loader = prepare_dataset(config, opt.train_path, DatsetClass, shuffle=True, num_workers=2)
+    valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, shuffle=False, num_workers=2)
     return train_loader, valid_loader
 
 def prepare_model(config):
     device = config['device']
     opt = config['opt']
-    label_path = os.path.join(opt.data_dir, opt.label_filename)
-    pos_path = os.path.join(opt.data_dir, opt.pos_filename)
+    emb_non_trainable = not opt.embedding_trainable
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
-            embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
-            emb_non_trainable = not opt.embedding_trainable
-            model = GloveLSTMCRF(config, embedding_path, label_path, pos_path,
+            model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                  emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
         if config['enc_class'] == 'densenet':
-            embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
-            emb_non_trainable = not opt.embedding_trainable
-            model = GloveDensenetCRF(config, embedding_path, label_path, pos_path,
+            model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     if config['emb_class'] == 'bert':
         from transformers import BertTokenizer, BertConfig, BertModel
@@ -232,14 +235,12 @@ def prepare_model(config):
                                                from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, label_path, pos_path,
+        model = ModelClass(config, bert_config, bert_model, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
     if config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
-        embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
-        emb_non_trainable = not opt.embedding_trainable
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
-        model = ElmoLSTMCRF(config, elmo_model, embedding_path, label_path, pos_path,
+        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     model.to(device)
     print(model)
@@ -276,6 +277,9 @@ def train(opt):
     config['device'] = device
     config['opt'] = opt
     logger.info("%s", config)
+ 
+    # set path
+    set_path(config)
   
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config)
