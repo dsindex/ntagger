@@ -296,6 +296,8 @@ def build_features(input_path, tokenizer, poss, labels, config, mode='train'):
                                             cls_token=tokenizer.cls_token,
                                             cls_token_segment_id=0,
                                             sep_token=tokenizer.sep_token,
+                                            sep_token_extra=bool(config['emb_class'] in ['roberta']),
+                                            # roberta uses an extra separator b/w pairs of sentences, cf. github.com/pytorch/fairseq/commit/1684e166e3da03f5b600dbb7855cb98ddfcd0805
                                             pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
                                             pad_token_pos_id=config['pad_pos_id'],
                                             pad_token_label_id=config['pad_label_id'],
@@ -349,9 +351,9 @@ def preprocess_bert(config):
 def main():
     parser = argparse.ArgumentParser()
     
+    parser.add_argument('--config', type=str, default='configs/config-glove.json')
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_path', type=str, default='embeddings/glove.6B.300d.txt')
-    parser.add_argument('--config', type=str, default='config-glove.json')
     parser.add_argument("--seed", default=5, type=int)
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
