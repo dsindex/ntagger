@@ -115,7 +115,7 @@ reference pytorch code for named entity tagging.
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
 | Glove, DenseNet-CRF             | 88.23                  | word, pos |
 | BERT-large, BiLSTM              | 91.29                  | word      |
-| RoBERTa-large, BiLSTM           | -                      | word      |
+| RoBERTa-large, BiLSTM           | 91.20                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
 
 - [etagger](https://github.com/dsindex/etagger)
@@ -227,10 +227,6 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 ```
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-roberta.json --bert_model_name_or_path=./embeddings/roberta-large
-* --use_crf for adding crf layer
-* --bert_use_pos for adding Part-Of-Speech features
-* --bert_use_feature_based for feature-based
-* --bert_disable_lstm for removing lstm layer
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 ```
 
@@ -239,7 +235,9 @@ $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model
 $ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-roberta.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-
+INFO:__main__:[F1] : 0.9119915848527349, 3684
+INFO:__main__:[Elapsed Time] : 145234ms, 39.37578061363019ms on average
+accuracy:  98.27%; precision:  90.31%; recall:  92.10%; FB1:  91.20
 ```
 
 ### emb_class=elmo, enc_class=bilstm
