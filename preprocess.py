@@ -310,12 +310,18 @@ def write_features(features, output_path):
     torch.save(features, output_path)
    
 def preprocess_bert(config):
-    from transformers import BertTokenizer
-
     opt = config['opt']
 
-    tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
-                                              do_lower_case=opt.bert_do_lower_case)
+    from transformers import BertTokenizer
+    from transformers import RobertaTokenizer
+    TOKENIZER_CLASSES = {
+        "bert": BertTokenizer,
+        "roberta": RobertaTokenizer
+    }
+    Tokenizer = TOKENIZER_CLASSES[config['emb_class']]
+
+    tokenizer = Tokenizer.from_pretrained(opt.bert_model_name_or_path,
+                                          do_lower_case=opt.bert_do_lower_case)
     # build poss, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
     poss, labels = build_dict(path, config)

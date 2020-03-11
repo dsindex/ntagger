@@ -229,10 +229,18 @@ def prepare_model(config):
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
     if 'bert' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
-        bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
-                                                       do_lower_case=opt.bert_do_lower_case)
-        bert_model = BertModel.from_pretrained(opt.bert_model_name_or_path,
-                                               from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
+        from transformers import RobertaConfig, RobertaTokenizer, RobertaModel
+        MODEL_CLASSES = {
+            "bert": (BertConfig, BertTokenizer, BertModel),
+            "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel)
+        }
+        Config    = MODEL_CLASSES[config['emb_class']][0]
+        Tokenizer = MODEL_CLASSES[config['emb_class']][1]
+        Model     = MODEL_CLASSES[config['emb_class']][2]
+        bert_tokenizer = Tokenizer.from_pretrained(opt.bert_model_name_or_path,
+                                                   do_lower_case=opt.bert_do_lower_case)
+        bert_model = Model.from_pretrained(opt.bert_model_name_or_path,
+                                           from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
