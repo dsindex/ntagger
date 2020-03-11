@@ -212,7 +212,7 @@ def prepare_datasets(config):
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
-    train_loader = prepare_dataset(config, opt.train_path, DatsetClass, shuffle=True, num_workers=2)
+    train_loader = prepare_dataset(config, opt.train_path, DatasetClass, shuffle=True, num_workers=2)
     valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, shuffle=False, num_workers=2)
     return train_loader, valid_loader
 
