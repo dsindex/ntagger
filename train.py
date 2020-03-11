@@ -194,7 +194,7 @@ def set_path(config):
     if config['emb_class'] == 'glove':
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
-    if config['emb_class'] == 'bert':
+    if 'bert' in config['emb_class']:
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.fs')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.fs')
     if config['emb_class'] == 'elmo':
@@ -208,7 +208,7 @@ def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if config['emb_class'] == 'bert':
+    if 'bert' in config['emb_class']:
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
@@ -227,7 +227,7 @@ def prepare_model(config):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
-    if config['emb_class'] == 'bert':
+    if 'bert' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_model_name_or_path,
                                                        do_lower_case=opt.bert_do_lower_case)
@@ -309,7 +309,7 @@ def train(opt):
             if opt.save_path:
                 logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
                 save_model(model, opt, config)
-                if config['emb_class'] == 'bert':
+                if 'bert' in config['emb_class']:
                     if not os.path.exists(opt.bert_output_dir):
                         os.makedirs(opt.bert_output_dir)
                     model.bert_tokenizer.save_pretrained(opt.bert_output_dir)

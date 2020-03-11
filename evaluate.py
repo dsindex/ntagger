@@ -68,7 +68,7 @@ def set_path(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    if config['emb_class'] == 'bert':
+    if 'bert' in config['emb_class']:
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     if config['emb_class'] == 'elmo':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
@@ -81,7 +81,7 @@ def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if config['emb_class'] == 'bert':
+    if 'bert' in config['emb_class']:
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
@@ -107,7 +107,7 @@ def load_model(config, checkpoint):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=True, use_crf=opt.use_crf)
-    if config['emb_class'] == 'bert':
+    if 'bert' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
         bert_tokenizer = BertTokenizer.from_pretrained(opt.bert_output_dir,
                                                        do_lower_case=opt.bert_do_lower_case)

@@ -11,8 +11,6 @@ from collections import Counter
 import pdb
 import logging
 
-from torch.nn import CrossEntropyLoss
-
 from tqdm import tqdm
 from util import load_config
 
@@ -372,7 +370,7 @@ def main():
 
     if config['emb_class'] == 'glove':
         preprocess_glove_or_elmo(config)
-    if config['emb_class'] == 'bert' :
+    if 'bert' in config['emb_class']:
         preprocess_bert(config)
     if config['emb_class'] == 'elmo':
         preprocess_glove_or_elmo(config)
