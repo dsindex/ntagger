@@ -251,6 +251,8 @@ INFO:__main__:[F1] : 0.9183817062445031, 3684
 INFO:__main__:[Elapsed Time] : 105306ms, 28.55253869128428ms on average
 
 * --use_crf
+INFO:__main__:[F1] : 0.9013054830287206, 3684
+INFO:__main__:[Elapsed Time] : 221208ms, 60.01221830029867ms on average
 
 ```
 
