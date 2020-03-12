@@ -228,6 +228,9 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-roberta.json --bert_model_name_or_path=./embeddings/roberta-large
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_disable_lstm
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --use_crf
 ```
 
 - evaluation
@@ -238,6 +241,17 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.9119915848527349, 3684
 INFO:__main__:[Elapsed Time] : 145234ms, 39.37578061363019ms on average
 accuracy:  98.27%; precision:  90.31%; recall:  92.10%; FB1:  91.20
+
+* --batch_size=32
+INFO:__main__:[F1] : 0.9182367890631846, 3684
+INFO:__main__:[Elapsed Time] : 147221ms, 39.92967689383654ms on average
+
+* --bert_disable_lstm
+INFO:__main__:[F1] : 0.9183817062445031, 3684
+INFO:__main__:[Elapsed Time] : 105306ms, 28.55253869128428ms on average
+
+* --use_crf
+
 ```
 
 ### emb_class=elmo, enc_class=bilstm

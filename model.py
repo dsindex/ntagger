@@ -367,9 +367,8 @@ class BertLSTMCRF(BaseModel):
         if not self.use_crf: return logits
         if tags is not None: # given golden ys(answer)
             device = self.config['device']
-            input_ids = x[0]
-            mask = torch.sign(torch.abs(input_ids)).to(torch.uint8).to(device)
-            # mask : [batch_size, seq_size]
+            mask = x[1].to(torch.uint8).to(device)
+            # mask == attention_mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
