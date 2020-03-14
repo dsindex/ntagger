@@ -96,8 +96,9 @@ reference pytorch code for named entity tagging.
         ```
       - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-      - `pytorch.all.bpe.4.8m_step`, `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
-      - `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
+      - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
+      - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
+      - dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
       - `kor.glove.300k.300d.txt`   (inhouse)
         - training corpus is the same as the data for Korean BERT.
     - Korean ELMo was described [here](https://github.com/dsindex/bilm-tf)
@@ -294,10 +295,10 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 - ntagger
 
-|                            | F1 (%)        | features |
-| -------------------------- | ------------- | -------- |
-| bpe BERT(4.8m), BiLSTM-CRF | **85.26**     | eoj      |
-| bpe BERT(4m),   BiLSTM-CRF | -             | eoj      |
+|                              | F1 (%)        | features |
+| ---------------------------- | ------------- | -------- |
+| bpe BERT(4.8m), BiLSTM-CRF   | **85.26**     | eoj      |
+| dha-bpe BERT(4m), BiLSTM-CRF | -             | eoj      |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)
 
@@ -420,7 +421,7 @@ INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 ```
 
-### emb_class=bert, enc_class=bilstm, bpe BERT(4m), dha BERT(10m)
+### emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha BERT(10m)
 
 - train
 ```
