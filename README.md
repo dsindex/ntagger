@@ -96,8 +96,8 @@ reference pytorch code for named entity tagging.
         ```
       - there is no test set. so, set valid.txt as test.txt.
     - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-      - `pytorch.all.bpe.4.8m_step` (inhouse)
-      - `pytorch.all.dha.2.5m_step` (inhouse)
+      - `pytorch.all.bpe.4.8m_step`, `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
+      - `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
       - `kor.glove.300k.300d.txt`   (inhouse)
         - training corpus is the same as the data for Korean BERT.
     - Korean ELMo was described [here](https://github.com/dsindex/bilm-tf)
@@ -294,9 +294,10 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 - ntagger
 
-|                       | F1 (%)        | features |
-| --------------------- | ------------- | -------- |
-| BERT(bpe), BiLSTM-CRF | **85.26**     | eoj      |
+|                            | F1 (%)        | features |
+| -------------------------- | ------------- | -------- |
+| bpe BERT(4.8m), BiLSTM-CRF | **85.26**     | eoj      |
+| bpe BERT(4m),   BiLSTM-CRF | -             | eoj      |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results)
 
@@ -314,7 +315,8 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | ---------------------------- | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF            | 84.29         | 84.29          | morph, pos   |
 | Glove, DenseNet-CRF          | 83.44         | 83.49          | morph, pos   |
-| BERT(dha), BiLSTM-CRF        | 83.78         | 84.13          | morph, pos   |
+| dha BERT(2.5m), BiLSTM-CRF   | 83.78         | 84.13          | morph, pos   |
+| dha BERT(10m),  BiLSTM-CRF   | -             | -              | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF      | 86.37         | **86.37**      | morph, pos   |
 
 - [etagger](https://github.com/dsindex/etagger)
@@ -322,7 +324,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features         |
 | ---------------------------- | ------------- | -------------- | ---------------- |
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos |
-| BERT(dha), BiLSTM-CRF        | 81.25         | 81.39          | morph, pos, BERT as feature-based |
+| dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos, BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |
 
 ### emb_class=glove, enc_class=bilstm
@@ -376,7 +378,7 @@ $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj
 accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 ```
 
-### emb_class=bert, enc_class=bilstm
+### emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), dha BERT(2.5m)
 
 - train
 ```
@@ -391,7 +393,6 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
-
 ```
 
 - evaluation
@@ -406,8 +407,8 @@ INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
 accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
 
 ** evaluation eoj-by-eoj
-$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
 * for clova2019
 
@@ -417,6 +418,40 @@ $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8524098438884723, 9000
 INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
+```
+
+### emb_class=bert, enc_class=bilstm, bpe BERT(4m), dha BERT(10m)
+
+- train
+```
+* n_ctx size should be less than 512
+
+* for clova2019_morph
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/ pytorch.all.dha_s2.9.4_d2.9.27.10m_step--bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+
+* for clova2019
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
+```
+
+- evaluation
+```
+* for clova2019_morph
+
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+** evaluation eoj-by-eoj
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+
+* for clova2019
+
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 ```
 
 ### emb_class=elmo, enc_class=bilstm
