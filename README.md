@@ -115,7 +115,7 @@ reference pytorch code for named entity tagging.
 | Glove, BiLSTM-CRF               | 88.49                  | word, pos |
 | Glove, DenseNet-CRF             | 88.23                  | word, pos |
 | BERT-large, BiLSTM              | 91.29                  | word      |
-| RoBERTa-large, BiLSTM           | 91.20                  | word      |
+| RoBERTa-large, BiLSTM           | 91.45                  | word      |
 | ELMo, Glove, BiLSTM             | **92.19**              | word, pos |
 
 - [etagger](https://github.com/dsindex/etagger)
@@ -231,6 +231,8 @@ $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_disable_lstm
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --use_crf
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9 --bert_use_pos
 ```
 
 - evaluation
@@ -254,6 +256,13 @@ INFO:__main__:[Elapsed Time] : 105306ms, 28.55253869128428ms on average
 INFO:__main__:[F1] : 0.9013054830287206, 3684
 INFO:__main__:[Elapsed Time] : 221208ms, 60.01221830029867ms on average
 
+* --decay_rate=0.9
+INFO:__main__:[F1] : 0.9145419377527695, 3684
+INFO:__main__:[Elapsed Time] : 152493ms, 41.35270160195493ms on average
+
+* --decay_rate=0.9 --bert_use_pos
+INFO:__main__:[F1] : 0.914000175330937, 3684
+INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
 ```
 
 ### emb_class=elmo, enc_class=bilstm
