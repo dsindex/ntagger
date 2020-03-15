@@ -350,8 +350,8 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos   |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos   |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos   |
-| dha BERT(10m),  BiLSTM-CRF     | 82.83         | 83.83          | morph, pos   |
-| dha-bpe BERT(10m),  BiLSTM-CRF | -             | -              | morph, pos   |
+| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos   |
+| dha BERT(10m),  BiLSTM-CRF     | -             | -              | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | **86.37**      | morph, pos   |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
