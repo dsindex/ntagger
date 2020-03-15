@@ -338,6 +338,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
 | BiLSTM-CRF            | 76.45         | eoj      |
+| Bert-multilingual     | 81.78         | eoj      |
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
 
