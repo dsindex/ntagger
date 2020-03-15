@@ -107,17 +107,36 @@ reference pytorch code for named entity tagging.
   - KMOU NER 2019 (Korean)
     - from [KMOU NER](https://github.com/kmounlp/NER)
       - data/kmou2019
-        - build train.txt, valid.txt
+        - build train.raw, valid.raw
           - same as [pytorch-bert-crf-ner](https://github.com/eagle705/pytorch-bert-crf-ner)
-            - train.txt : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
-            - valid.txt : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
-        - set valid.txt as test.txt
+            - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
+            - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
         - apply correction and converting to CoNLL data format
         ```
+        $ cd data/kmou2019
         $ python correction.py -g train.raw > t
         $ python to-conll.py -g t > train.txt
+  
+        ex)
+        마음	마음	NNG	B-POH
+        ’	’	SS	O
+        에	에	JKB	O
+        _	_	_	O
+        담긴	담기+ㄴ	VV+ETM	O
+        ->
+        마음 NNG - B-POH
+        ’ SS - O
+        에 JKB - O
+        _ _ - O
+        담기다 VV - O
+        ㄴ ETM - O
+
         $ python correction.py -g valid.raw > t
         $ python to-conll.py -g t > valid.txt
+        ```
+        - set valid.txt as test.txt
+        ```
+        $ cp -rf valid.txt test.txt
         ```
 
 ## CoNLL 2003 (english)
@@ -331,7 +350,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos   |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos   |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos   |
-| dha BERT(10m),  BiLSTM-CRF     | -             | -              | morph, pos   |
+| dha BERT(10m),  BiLSTM-CRF     | 82.83         | 83.83          | morph, pos   |
 | dha-bpe BERT(10m),  BiLSTM-CRF | -             | -              | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | **86.37**      | morph, pos   |
 
@@ -462,8 +481,13 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+INFO:__main__:[F1] : 0.8295019157088124, 9000
+INFO:__main__:[Elapsed Time] : 382042ms, 42.434714968329814ms on average
+accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
+
 *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
 ** dha
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
@@ -506,7 +530,7 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 
 |                                | m-by-m F1 (%) | features     |
 | ------------------------------ | ------------- | ------------ |
-| Glove, BiLSTM-CRF              | -             | morph, pos   |
+| Glove, BiLSTM-CRF              | 84.38         | morph, pos   |
 | Glove, DenseNet-CRF            | -             | morph, pos   |
 | dha BERT(2.5m), BiLSTM-CRF     | -             | morph, pos   |
 | dha BERT(10m),  BiLSTM-CRF     | -             | morph, pos   |
@@ -526,7 +550,7 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 * token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/kmou2019 --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/kmou2019--use_crf --embedding_trainable
+$ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/kmou2019 --use_crf --embedding_trainable
 
 ```
 
@@ -536,6 +560,9 @@ $ python evaluate.py --model_path=pytorch-model-glove-kor-morph.pt --data_dir da
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+INFO:__main__:[F1] : 0.8438235294117648, 927
+INFO:__main__:[Elapsed Time] : 31811ms, 34.21922246220302ms on average
+accuracy:  96.67%; precision:  84.51%; recall:  84.26%; FB1:  84.38
 ```
 
 ### emb_class=glove, enc_class=densenet
@@ -545,7 +572,7 @@ $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 * token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json --data_dir data/kmou2019 --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/kmou2019--use_crf --embedding_trainable
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/kmou2019 --use_crf --embedding_trainable
 ```
 
 - evaluation
