@@ -143,7 +143,7 @@ reference pytorch code for named entity tagging.
 
 ### experiments summary
 
-- ntagger, measured by conlleval (micro F1)
+- ntagger, measured by conlleval.pl (micro F1)
 
 |                                 | F1 (%)       | features  |
 | ------------------------------- | -----------  | --------- |
@@ -327,7 +327,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 #### clova2019(eoj-based)
 
-- ntagger, measured by conlleval (micro F1)
+- ntagger, measured by conlleval.pl (micro F1)
 
 |                              | F1 (%)      | features |
 | ---------------------------- | ------------| -------- |
@@ -343,7 +343,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 #### clova2019_morph(morph-based)
 
-- ntagger, measured by conlleval (micro F1)
+- ntagger, measured by conlleval.pl (micro F1)
 
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ------------------------------ | ------------- | -------------- | ------------ |
@@ -526,22 +526,22 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 
 ### experiments summary
 
-- ntagger, measured by conlleval (micro F1)
+- ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | F1 (%)  | features     |
-| ------------------------------ | ------- | ------------ |
-| Glove, BiLSTM-CRF              | 84.38   | morph, pos   |
-| Glove, DenseNet-CRF            | -       | morph, pos   |
-| dha BERT(2.5m), BiLSTM-CRF     | -       | morph, pos   |
-| dha BERT(10m),  BiLSTM-CRF     | -       | morph, pos   |
-| dha-bpe BERT(10m),  BiLSTM-CRF | -       | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF        | -       | morph, pos   |
+|                                | span / token F1 (%)    | features     |
+| ------------------------------ | ---------------------- | ------------ |
+| Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos   |
+| Glove, DenseNet-CRF            | -                      | morph, pos   |
+| dha BERT(2.5m), BiLSTM-CRF     | -                      | morph, pos   |
+| dha BERT(10m),  BiLSTM-CRF     | -                      | morph, pos   |
+| dha-bpe BERT(10m),  BiLSTM-CRF | -                      | morph, pos   |
+| ELMo, Glove, BiLSTM-CRF        | -                      | morph, pos   |
 
-- [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics
+- [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics (token-level F1)
 
-|                       | F1 (%)                          | features |
-| --------------------- | ------------------------------- | -------- | 
-| KoBERT+CRF            | 87.56 / 89.70 (macro / micro)   | morph    |
+|                       | token-level macro / micro F1 (%)   | features |
+| --------------------- | ---------------------------------- | -------- | 
+| KoBERT+CRF            | 87.56 / 89.70                      | morph    |
 
 ### emb_class=glove, enc_class=bilstm
 
@@ -559,10 +559,13 @@ $ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/k
 $ python evaluate.py --model_path=pytorch-model-glove-kor-morph.pt --data_dir data/kmou2019 --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+* token-level micro F1
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8438235294117648, 927
 INFO:__main__:[Elapsed Time] : 31811ms, 34.21922246220302ms on average
 accuracy:  96.67%; precision:  84.51%; recall:  84.26%; FB1:  84.38
+token_eval micro F1: 0.8602867105772956
 ```
 
 ### emb_class=glove, enc_class=densenet
@@ -580,6 +583,8 @@ $ python train.py --config=configs/config-densenet.json --save_path=pytorch-mode
 $ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/kmou2019 --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+* token-level micro F1
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 ```
 
@@ -598,6 +603,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 ```
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 ```
 
@@ -622,10 +628,12 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 * dha-bpe
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 * dha
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 ```
 
@@ -643,6 +651,7 @@ $ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-el
 ```
 $ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/kmou2019 --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 * --use_crf --embedding_trainable
 
