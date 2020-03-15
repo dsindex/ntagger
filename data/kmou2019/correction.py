@@ -81,6 +81,10 @@ def read_corpus(filename) :
     return data
 
 def apply_correction_rules(morphi, morphs, tags):
+    if morphi == u'\xad':
+        morphi = '_'
+        morphs = '_'
+        tags   = '_'
     if tags[0] == '+':
         if morphi == '봤':
             morphs = '보+았'
@@ -176,7 +180,7 @@ def apply_correction_rules(morphi, morphs, tags):
             morphs = '뜨+어'
             tags   = 'VV+EC'
 
-    return morphs, tags
+    return morphi, morphs, tags
 
 if __name__ == '__main__':
 
@@ -214,7 +218,7 @@ if __name__ == '__main__':
             tags = entry['tags']
             etype = entry['etype']
 
-            morphs, tags = apply_correction_rules(morphi, morphs, tags)
+            morphi, morphs, tags = apply_correction_rules(morphi, morphs, tags)
                 
             out = morphi + '\t' + morphs + '\t' + tags + '\t' + etype
             fd.write(out + '\n')
