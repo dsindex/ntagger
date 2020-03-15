@@ -143,7 +143,7 @@ reference pytorch code for named entity tagging.
 
 ### experiments summary
 
-- ntagger
+- ntagger, measured by conlleval (micro F1)
 
 |                                 | F1 (%)       | features  |
 | ------------------------------- | -----------  | --------- |
@@ -153,9 +153,7 @@ reference pytorch code for named entity tagging.
 | RoBERTa-large, BiLSTM           | 91.45        | word      |
 | ELMo, Glove, BiLSTM             | **92.19**    | word, pos |
 
-* measured by conlleval (micro F1)
-
-- [etagger](https://github.com/dsindex/etagger)
+- [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
 |                                 | F1 (%)            | features  |
 | ------------------------------- | ----------------  | --------- |
@@ -166,9 +164,7 @@ reference pytorch code for named entity tagging.
 | BERT-large, Glove, BiLSTM-CRF   | 91.19             | word trainable, BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83 | word, character, pos, chunk |
 
-* measured by conlleval (micro F1)
-
-- [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
+- [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
 
 |                                 | F1 (%) |
 | ------------------------------- | ------ |
@@ -180,8 +176,6 @@ reference pytorch code for named entity tagging.
 | BERT Large                      | 92.8   |
 | BERT Base                       | 92.4   |
 | BiLSTM-CRF+ELMo                 | 92.22  |
-
-* measured by span-level F1 (same as micro F1)
 
 ### emb_class=glove, enc_class=bilstm
 
@@ -333,15 +327,13 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 #### clova2019(eoj-based)
 
-- ntagger
+- ntagger, measured by conlleval (micro F1)
 
 |                              | F1 (%)      | features |
 | ---------------------------- | ------------| -------- |
 | bpe BERT(4.8m), BiLSTM-CRF   | **85.26**   | eoj      |
 
-* measured by conlleval (micro F1)
-
-- [HanBert-NER](https://github.com/monologg/HanBert-NER#results)
+- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), measured by seqeval (same as conlleval, micro F1)
 
 |                       | F1 (%)        | features |
 | --------------------- | ------------- | -------- |
@@ -349,11 +341,9 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
 
-* measured by seqeval (same as conlleval, micro F1) 
-
 #### clova2019_morph(morph-based)
 
-- ntagger
+- ntagger, measured by conlleval (micro F1)
 
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ------------------------------ | ------------- | -------------- | ------------ |
@@ -364,17 +354,13 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 | dha-bpe BERT(10m),  BiLSTM-CRF | -             | -              | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | **86.37**      | morph, pos   |
 
-* measured by conlleval (micro F1)
-
-- [etagger](https://github.com/dsindex/etagger)
+- [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | features         |
 | ---------------------------- | ------------- | -------------- | ---------------- |
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, char, pos |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos, BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |
-
-* measured by conlleval (micro F1)
 
 ### emb_class=glove, enc_class=bilstm
 
@@ -540,7 +526,7 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 
 ### experiments summary
 
-- ntagger
+- ntagger, measured by conlleval (micro F1)
 
 |                                | F1 (%)  | features     |
 | ------------------------------ | ------- | ------------ |
@@ -551,15 +537,11 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 | dha-bpe BERT(10m),  BiLSTM-CRF | -       | morph, pos   |
 | ELMo, Glove, BiLSTM-CRF        | -       | morph, pos   |
 
-* measured by conlleval (micro F1)
-
-- [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner)
+- [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics
 
 |                       | F1 (%)                          | features |
 | --------------------- | ------------------------------- | -------- | 
 | KoBERT+CRF            | 87.56 / 89.70 (macro / micro)   | morph    |
-
-* measured by sklearn.metrics
 
 ### emb_class=glove, enc_class=bilstm
 
