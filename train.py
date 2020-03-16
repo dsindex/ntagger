@@ -223,7 +223,7 @@ def prepare_model(config):
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
-                                 emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
+                                 emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
@@ -362,6 +362,7 @@ def main():
     parser.add_argument('--seed', default=5, type=int)
     parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
     parser.add_argument('--embedding_trainable', action='store_true')
+    parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")

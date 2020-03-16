@@ -24,16 +24,21 @@ _SUFFIX = '.ids'
 _VOCAB_FILE = 'vocab.txt'
 _EMBED_FILE = 'embedding.npy'
 _POS_FILE = 'pos.txt'
+_CHAR_FILE = 'char.txt'
 _LABEL_FILE = 'label.txt'
 _FSUFFIX = '.fs'
 
 def build_dict(input_path, config):
     logger.info("\n[building dict]")
     poss = {}
+    chars = {}
     labels = {}
-    # add pad info
+    # add pad, unk info
     poss[config['pad_pos']] = config['pad_pos_id']
     pos_id = 1
+    chars[config['pad_token']] = config['pad_token_id']
+    chars[config['unk_token']] = config['unk_token_id']
+    char_id = 2
     labels[config['pad_label']] = config['pad_label_id']
     label_id = 1
     tot_num_line = sum(1 for _ in open(input_path, 'r')) 
@@ -43,16 +48,21 @@ def build_dict(input_path, config):
             if line == "": continue
             toks = line.split()
             assert(len(toks) == 4)
+            word = toks[0]
             pos = toks[1]
             label = toks[-1]
             if pos not in poss:
                 poss[pos] = pos_id
                 pos_id += 1
+            for ch in word:
+                if ch not in chars:
+                    chars[ch] = char_id
+                    char_id += 1
             if label not in labels:
                 labels[label] = label_id
                 label_id += 1
-    logger.info("\nUnique poss, labels : {}, {}".format(len(poss), len(labels)))
-    return poss, labels
+    logger.info("\nUnique poss, chars, labels : {}, {}".format(len(poss), len(chars), len(labels)))
+    return poss, chars, labels
 
 def write_dict(dic, output_path):
     logger.info("\n[Writing dict]")
@@ -68,10 +78,10 @@ def write_dict(dic, output_path):
 # Glove
 # ---------------------------------------------------------------------------- #
 
-def build_init_vocab(Tokenizer):
+def build_init_vocab(config):
     init_vocab = {}
-    init_vocab[Tokenizer.get_pad_token()] = Tokenizer.get_pad_id()
-    init_vocab[Tokenizer.get_unk_token()] = Tokenizer.get_unk_id()
+    init_vocab[config['pad_token']] = config['pad_token_id']
+    init_vocab[config['unk_token']] = config['unk_token_id']
     return init_vocab
 
 def build_vocab_from_embedding(input_path, vocab, config):
@@ -206,13 +216,9 @@ def write_data(opt, data, output_path, tokenizer, poss, labels):
         for _ in range(config['n_ctx'] - len(label_ids)):
             label_ids.append(config['pad_label_id'])
         label_ids_str = ' '.join([str(d) for d in label_ids])
-        # format: label list \t token list \t pos list
-        f_write.write(label_ids_str + '\t' + token_ids_str + '\t' + pos_ids_str)
-        if config['emb_class'] == 'elmo':
-            # append tokens itself
-            # format: label list \t token list \t pos list \t word list
-            tokens_str = ' '.join(tokens)
-            f_write.write('\t' + tokens_str)
+        tokens_str = ' '.join(tokens)
+        # format: label list \t token list \t pos list \t word list
+        f_write.write(label_ids_str + '\t' + token_ids_str + '\t' + pos_ids_str + '\t' + tokens_str)
         num_tok_per_sent.append(len(tokens))
         f_write.write('\n')
     f_write.close()
@@ -239,12 +245,16 @@ def preprocess_glove_or_elmo(config):
     opt = config['opt']
 
     # vocab, embedding
-    init_vocab = build_init_vocab(Tokenizer)
+    init_vocab = build_init_vocab(config)
     vocab, embedding = build_vocab_from_embedding(opt.embedding_path, init_vocab, config)
 
-    # build data
-    tokenizer = Tokenizer(vocab, config)
+    # build poss, chars, labels
+    path = os.path.join(opt.data_dir, _TRAIN_FILE)
+    poss, chars, labels = build_dict(path, config)
 
+    tokenizer = Tokenizer(vocab, config, chars=chars)
+
+    # build data
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
     train_data = build_data(path, tokenizer)
 
@@ -253,10 +263,6 @@ def preprocess_glove_or_elmo(config):
 
     path = os.path.join(opt.data_dir, _TEST_FILE)
     test_data = build_data(path, tokenizer)
-
-    # build poss, labels
-    path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    poss, labels = build_dict(path, config)
 
     # write data, vocab, embedding, poss, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _SUFFIX)
@@ -276,6 +282,9 @@ def preprocess_glove_or_elmo(config):
 
     path = os.path.join(opt.data_dir, _POS_FILE)
     write_dict(poss, path)
+
+    path = os.path.join(opt.data_dir, _CHAR_FILE)
+    write_dict(chars, path)
 
     path = os.path.join(opt.data_dir, _LABEL_FILE)
     write_dict(labels, path)
@@ -322,9 +331,9 @@ def preprocess_bert(config):
 
     tokenizer = Tokenizer.from_pretrained(opt.bert_model_name_or_path,
                                           do_lower_case=opt.bert_do_lower_case)
-    # build poss, labels
+    # build poss, chars, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    poss, labels = build_dict(path, config)
+    poss, chars, labels = build_dict(path, config)
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)

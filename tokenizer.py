@@ -3,19 +3,23 @@ from __future__ import absolute_import, division, print_function
 import os
 import pdb
 
-_PAD_TOKEN = '<pad>'
-_UNK_TOKEN = '<unk>'
-_PAD_ID  = 0
-_UNK_ID  = 1
-
 class Tokenizer():
-    def __init__(self, vocab, config):
+    def __init__(self, vocab, config, chars=None):
         self.vocab = vocab
         self.config = config
-        self.pad_token = _PAD_TOKEN
-        self.unk_token = _UNK_TOKEN
-        self.pad_id = _PAD_ID
-        self.unk_id = _UNK_ID
+        self.chars  = chars
+        self.char_n_ctx = config['char_n_ctx']
+        self.pad_token = config['pad_token']
+        self.unk_token = config['unk_token']
+        self.pad_id = config['pad_token_id']
+        self.unk_id = config['unk_token_id']
+        self.lowercase = config['lowercase']
+
+    def update_vocab(self, vocab):
+        self.vocab = vocab
+
+    def update_chars(self, chars):
+        self.chars = chars
 
     def tokenize(self, sent):
         tokens = sent.split()
@@ -25,24 +29,22 @@ class Tokenizer():
         ids = []
         vocab = self.vocab
         for token in tokens:
-            if self.config['lowercase']: token = token.lower()
+            if self.lowercase: token = token.lower()
             d = vocab[token] if token in vocab else self.unk_id
             ids.append(d)
         return ids
-            
-    @staticmethod
-    def get_pad_token():
-        return _PAD_TOKEN
 
-    @staticmethod
-    def get_unk_token():
-        return _UNK_TOKEN
-
-    @staticmethod
-    def get_pad_id():
-        return _PAD_ID
-
-    @staticmethod
-    def get_unk_id():
-        return _UNK_ID
-
+    def convert_tokens_to_cids(self, tokens):
+        assert self.chars is not None
+        ids = []
+        vocab = self.chars
+        for token in tokens:
+            cids = []
+            for ch in token:
+                d = vocab[ch] if ch in vocab else self.unk_id
+                cids.append(d)
+            # padding cids
+            padding_length = self.char_n_ctx - len(cids)
+            cids += [self.pad_id] * padding_length
+            ids.append(cids)
+        return ids

@@ -148,6 +148,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)       | features  |
 | ------------------------------- | -----------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos |
+| Glove, BiLSTM-CRF               | -            | word, character, pos |
 | Glove, DenseNet-CRF             | 88.23        | word, pos |
 | BERT-large, BiLSTM              | 91.29        | word      |
 | RoBERTa-large, BiLSTM           | 91.45        | word      |
@@ -200,6 +201,9 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8848570669970794, 3684
 INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
+
+* --use_char_cnn
+
 ```
 
 ### emb_class=glove, enc_class=densenet

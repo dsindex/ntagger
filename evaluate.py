@@ -103,7 +103,7 @@ def load_model(config, checkpoint):
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
-                                 emb_non_trainable=True, use_crf=opt.use_crf)
+                                 emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=True, use_crf=opt.use_crf)
@@ -224,8 +224,9 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_thread', type=int, default=1)
     parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
     parser.add_argument('--seed', default=5, type=int, help="dummy for BaseModel.")
+    parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
+    parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")
     # for BERT
     parser.add_argument('--bert_do_lower_case', action='store_true',
                         help="Set this flag if you are using an uncased model.")
