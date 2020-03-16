@@ -542,7 +542,7 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos   |     |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos   |     |
 | dha BERT(10m), BiLSTM-CRF      | 85.23 / 87.35          | morph, pos   |     |
-| dha-bpe BERT(4m), BiLSTM-CRF   | -                      | morph, pos   |     |
+| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos   |     |
 | ELMo, Glove, BiLSTM-CRF        | **88.18** / 89.22      | morph, pos   |     |
 | ELMo, Glove, BiLSTM-CRF        | 87.55 / 88.97          | morph, pos   | --embedding_trainable |
 
@@ -664,6 +664,11 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.8517251211861989, 927
+INFO:__main__:[Elapsed Time] : 36267ms, 39.018358531317496ms on average
+accuracy:  97.14%; precision:  82.79%; recall:  87.72%; FB1:  85.18
+token_eval micro F1: 0.8801729462631254
 
 ```
 
