@@ -541,16 +541,16 @@ accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 | Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos   |     |
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos   |     |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos   |     |
-| dha BERT(10m),  BiLSTM-CRF     | -                      | morph, pos   |     |
-| dha-bpe BERT(10m),  BiLSTM-CRF | -                      | morph, pos   |     |
-| ELMo, Glove, BiLSTM-CRF        | 88.04 / 88.80          | morph, pos   |     |
+| dha BERT(10m), BiLSTM-CRF      | 85.23 / 87.35          | morph, pos   |     |
+| dha-bpe BERT(4m), BiLSTM-CRF   | -                      | morph, pos   |     |
+| ELMo, Glove, BiLSTM-CRF        | **88.18** / 89.22      | morph, pos   |     |
 | ELMo, Glove, BiLSTM-CRF        | 87.55 / 88.97          | morph, pos   | --embedding_trainable |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
 |                              | span / token F1 (%) | features              |
 | ---------------------------- | ------------------- | --------------------- |
-| ELMo, Glove, BiLSTM-CRF      | -                   | morph, character, pos |
+| ELMo, Glove, BiLSTM-CRF      | 89.09 / 89.90       | morph, character, pos |
 
 - [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics (token-level F1)
 
@@ -641,6 +641,11 @@ $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-mode
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
+INFO:__main__:[F1] : 0.8519003931847969, 927
+INFO:__main__:[Elapsed Time] : 35123ms, 37.7829373650108ms on average
+accuracy:  96.83%; precision:  84.59%; recall:  85.90%; FB1:  85.24
+token_eval micro F1: 0.8735865242143024
+
 ```
 
 ### emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m)
@@ -684,6 +689,11 @@ accuracy:  97.30%; precision:  88.00%; recall:  88.08%; FB1:  88.04
 token_eval micro F1: 0.8880736809241336
 
 * --batch_size=64 --decay_rate=0.9
+
+INFO:__main__:[F1] : 0.8817518248175182, 927
+INFO:__main__:[Elapsed Time] : 123401ms, 132.93304535637148ms on average
+accuracy:  97.37%; precision:  87.66%; recall:  88.69%; FB1:  88.18
+token_eval micro F1: 0.8922982036851438
 
 * --use_crf --embedding_trainable
 
