@@ -8,12 +8,13 @@ class Tokenizer():
         self.vocab = vocab
         self.config = config
         self.chars  = chars
-        self.char_n_ctx = config['char_n_ctx']
+        if 'char_n_ctx' in config: self.char_n_ctx = config['char_n_ctx']
         self.pad_token = config['pad_token']
         self.unk_token = config['unk_token']
         self.pad_id = config['pad_token_id']
         self.unk_id = config['unk_token_id']
-        self.lowercase = config['lowercase']
+        self.lowercase = False
+        if 'lowercase' in config: self.lowercase = config['lowercase']
 
     def update_vocab(self, vocab):
         self.vocab = vocab

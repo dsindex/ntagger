@@ -2,7 +2,6 @@
     "emb_class": "roberta",
     "enc_class": "bilstm",
     "n_ctx": 180,
-    "lowercase": true,
     "pos_emb_dim": 100,
     "pad_pos": "<pad>",
     "pad_pos_id": 0,

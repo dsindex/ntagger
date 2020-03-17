@@ -148,7 +148,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)       | features  |
 | ------------------------------- | -----------  | --------- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos |
-| Glove, BiLSTM-CRF               | -            | word, character, pos |
+| Glove, BiLSTM-CRF               | 88.39        | word, character, pos |
 | Glove, DenseNet-CRF             | 88.23        | word, pos |
 | BERT-large, BiLSTM              | 91.29        | word      |
 | RoBERTa-large, BiLSTM           | 91.45        | word      |
@@ -203,6 +203,9 @@ INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 
 * --use_char_cnn
+INFO:__main__:[F1] : 0.8839285714285714, 3684
+INFO:__main__:[Elapsed Time] : 125507ms, 34.04642954113494ms on average
+accuracy:  97.54%; precision:  87.41%; recall:  89.39%; FB1:  88.39
 
 ```
 
