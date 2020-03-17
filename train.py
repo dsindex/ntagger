@@ -361,7 +361,7 @@ def main():
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument('--seed', default=5, type=int)
     parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
-    parser.add_argument('--embedding_trainable', action='store_true')
+    parser.add_argument('--embedding_trainable', action='store_true', help="set word embedding(Glove) trainable")
     parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',

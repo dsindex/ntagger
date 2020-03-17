@@ -2,7 +2,9 @@
 
 reference pytorch code for named entity tagging.
 - embedding
-  - Glove, BERT, RoBERTa, ELMo
+  - word : Glove, BERT, RoBERTa, ELMo
+  - character : CNN
+  - pos : look-up
 - encoding
   - BiLSTM
   - DenseNet
