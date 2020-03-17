@@ -97,6 +97,7 @@ class DenseNet(nn.Module):
         out_channels = last_num_filters
         padding = (ks - 1)//2
         self.conv_last = nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=ks, padding=padding)
+        self.last_dim = last_num_filters
 
     def forward(self, x, mask):
         # x     : [batch_size, seq_size, emb_dim]
@@ -130,6 +131,36 @@ class DenseNet(nn.Module):
         # conv_last : [batch_size, seq_size, last_num_filters]
         return conv_last
 
+class CharCNN(BaseModel):
+    def __init__(self, config):
+        super().__init__(config=config)
+        self.config = config
+        self.seq_size = config['n_ctx']
+        self.char_n_ctx = config['char_n_ctx']
+        char_vocab_size = config['char_vocab_size']
+        self.char_emb_dim = config['char_emb_dim']
+        char_num_filters = config['char_num_filters']
+        char_kernel_sizes = config['char_kernel_sizes']
+
+        self.embed_char = super().create_embedding_layer(char_vocab_size, self.char_emb_dim, weights_matrix=None, non_trainable=False)
+        self.textcnn = TextCNN(self.char_emb_dim, char_num_filters, char_kernel_sizes)
+        self.last_dim = len(char_kernel_sizes) * char_num_filters
+
+    def forward(self, x):
+        # x : [batch_size, seq_size, char_n_ctx]
+
+        char_ids = x
+        # char_ids : [batch_size, seq_size, char_n_ctx]
+        char_embed_out = self.embed_char(char_ids)
+        # char_embed_out : [batch_size, seq_size, char_n_ctx, char_emb_dim]
+        char_embed_out = char_embed_out.view(-1, self.char_n_ctx, self.char_emb_dim)
+        # char_embed_out : [batch_size*seq_size, char_n_ctx, char_emb_dim]
+        charcnn_out = self.textcnn(char_embed_out)
+        # charcnn_out : [batch_size*seq_size, last_dim]
+        charcnn_out = charcnn_out.view(-1, self.seq_size, charcnn_out.shape[-1])
+        # charcnn_out : [batch_size, seq_size, last_dim]
+        return charcnn_out
+
 class GloveLSTMCRF(BaseModel):
     def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
         super().__init__(config=config)
@@ -137,11 +168,6 @@ class GloveLSTMCRF(BaseModel):
         self.config = config
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
-        self.char_n_ctx = config['char_n_ctx']
-        char_vocab_size = config['char_vocab_size']
-        self.char_emb_dim = config['char_emb_dim']
-        char_num_filters = config['char_num_filters']
-        char_kernel_sizes = config['char_kernel_sizes']
         lstm_hidden_dim = config['lstm_hidden_dim']
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
@@ -161,10 +187,8 @@ class GloveLSTMCRF(BaseModel):
         emb_dim = token_emb_dim + pos_emb_dim
         # char embedding layer
         if self.use_char_cnn:
-            self.embed_char = super().create_embedding_layer(char_vocab_size, self.char_emb_dim, weights_matrix=None, non_trainable=False)
-            self.charcnn = TextCNN(self.char_emb_dim, char_num_filters, char_kernel_sizes)
-            self.layernorm_charcnn = nn.LayerNorm(len(char_kernel_sizes) * char_num_filters)
-            emb_dim = token_emb_dim + pos_emb_dim + len(char_kernel_sizes) * char_num_filters
+            self.charcnn = CharCNN(config)
+            emb_dim = token_emb_dim + pos_emb_dim + self.charcnn.last_dim
 
         # BiLSTM layer
         self.lstm = nn.LSTM(input_size=emb_dim,
@@ -200,15 +224,8 @@ class GloveLSTMCRF(BaseModel):
         if self.use_char_cnn:
             char_ids = x[2]
             # char_ids : [batch_size, seq_size, char_n_ctx]
-            char_embed_out = self.embed_char(char_ids)
-            # char_embed_out : [batch_size, seq_size, char_n_ctx, char_emb_dim]
-            char_embed_out = char_embed_out.view(-1, self.char_n_ctx, self.char_emb_dim)
-            # char_embed_out : [batch_size*seq_size, char_n_ctx, char_emb_dim]
-            charcnn_out = self.charcnn(char_embed_out)
-            # charcnn_out : [batch_size*seq_size, len(char_kernel_sizes)*char_num_filters]
-            charcnn_out = charcnn_out.view(-1, self.seq_size, charcnn_out.shape[-1])
-            # charcnn_out : [batch_size, seq_size, last_dim]
-            charcnn_out = self.layernorm_charcnn(charcnn_out)
+            charcnn_out = self.charcnn(char_ids)
+            # charcnn_out : [batch_size, seq_size, self.charcnn.last_dim]
             embed_out = torch.cat([token_embed_out, pos_embed_out, charcnn_out], dim=-1)
             # embed_out : [batch_size, seq_size, emb_dim]
         else:
@@ -263,7 +280,7 @@ class GloveDensenetCRF(BaseModel):
         num_filters = config['densenet_num_filters']
         last_num_filters = config['densenet_last_num_filters']
         self.densenet = DenseNet(densenet_kernels, emb_dim, first_num_filters, num_filters, last_num_filters, activation=F.relu)
-        self.layernorm_densenet = nn.LayerNorm(last_num_filters)
+        self.layernorm_densenet = nn.LayerNorm(self.densenet.last_dim)
 
         self.dropout = nn.Dropout(config['dropout'])
 
