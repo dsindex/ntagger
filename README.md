@@ -110,6 +110,7 @@ reference pytorch code for named entity tagging.
     - from [KMOU NER](https://github.com/kmounlp/NER)
       - data/kmou2019
         - build train.raw, valid.raw
+          - data version : https://github.com/kmounlp/NER/commit/0b32e066870bda9f65cc190f5e89c2edc6cf8f6d
           - same as [pytorch-bert-crf-ner](https://github.com/eagle705/pytorch-bert-crf-ner)
             - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
             - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
@@ -156,7 +157,7 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM              | 91.29        | word      |
 | RoBERTa-large, BiLSTM           | 91.45        | word      |
 | ELMo, Glove, BiLSTM             | **92.19**    | word, pos |
-| ELMo, Glove, BiLSTM             | -            | word, character, pos |
+| ELMo, Glove, BiLSTM             | 91.37        | word, character, pos |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -338,6 +339,11 @@ INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
 accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
 * --use_char_cnn
+INFO:__main__:[F1] : 0.9137136782423814, 3684
+INFO:__main__:[Elapsed Time] : 280253ms, 76.05566114580505ms on average
+accuracy:  98.15%; precision:  91.44%; recall:  91.31%; FB1:  91.37
+
+* --user_char_cnn --decay_rate=0.9
 
 ```
 
@@ -369,7 +375,7 @@ accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
 | ------------------------------ | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos   |
-| Glove, BiLSTM-CRF              | -             | -              | morph, character, pos |
+| Glove, BiLSTM-CRF              | 84.76         | 84.76          | morph, character, pos |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos   |
 | Glove, DenseNet-CRF            | -             | -              | morph, character, pos |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos   |
@@ -412,8 +418,11 @@ $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj
 accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 
 * --use_char_cnn
-
+INFO:__main__:[F1] : 0.8481546211576025, 9000
+INFO:__main__:[Elapsed Time] : 296373ms, 32.918768752083565ms on average
+accuracy:  93.96%; precision:  85.38%; recall:  84.14%; FB1:  84.76
   ** evaluation eoj-by-eoj
+  accuracy:  93.55%; precision:  85.38%; recall:  84.15%; FB1:  84.76
 
 ```
 
@@ -440,6 +449,10 @@ accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
 * evaluation eoj-by-eoj
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
+
+* --user_char_cnn --decay_rate=0.9  without --embedding_trainable
+
+  ** evaluation eoj-by-eoj
 ```
 
 ### emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), dha BERT(2.5m)
