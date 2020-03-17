@@ -87,7 +87,7 @@ class CoNLLBertDataset(Dataset):
 class CoNLLElmoDataset(Dataset):
     def __init__(self, config, path):
         from allennlp.modules.elmo import batch_to_ids
-        pad_ids = [config['elmo_pad_id']] * config['elmo_word_length']
+        pad_ids = [config['pad_token_id']] * config['char_n_ctx']
         all_token_ids = []
         all_pos_ids = []
         all_char_ids = []

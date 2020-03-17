@@ -226,7 +226,7 @@ def prepare_model(config):
                                  emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
-                                     emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
+                                     emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     if 'bert' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
         from transformers import RobertaConfig, RobertaTokenizer, RobertaModel
@@ -249,7 +249,7 @@ def prepare_model(config):
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
-                            emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf)
+                            emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     model.to(device)
     print(model)
     logger.info("[model prepared]")

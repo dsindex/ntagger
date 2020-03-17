@@ -255,13 +255,14 @@ class GloveLSTMCRF(BaseModel):
             return logits, prediction
 
 class GloveDensenetCRF(BaseModel):
-    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False):
+    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
         super().__init__(config=config)
 
         self.config = config
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         self.use_crf = use_crf
+        self.use_char_cnn = use_char_cnn
 
         # glove embedding layer
         weights_matrix = super().load_embedding(embedding_path)
@@ -273,9 +274,14 @@ class GloveDensenetCRF(BaseModel):
         self.pos_vocab_size = len(self.poss)
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
+        emb_dim = token_emb_dim + pos_emb_dim
+        # char embedding layer
+        if self.use_char_cnn:
+            self.charcnn = CharCNN(config)
+            emb_dim = token_emb_dim + pos_emb_dim + self.charcnn.last_dim
+
         # Densenet layer
         densenet_kernels = config['densenet_kernels']
-        emb_dim = token_emb_dim + pos_emb_dim
         first_num_filters = config['densenet_first_num_filters']
         num_filters = config['densenet_num_filters']
         last_num_filters = config['densenet_last_num_filters']
@@ -294,8 +300,9 @@ class GloveDensenetCRF(BaseModel):
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def forward(self, x, tags=None):
-        # x : [batch_size, seq_size]
-        # tags : [batch_size, seq_size]
+        # x[0, 1] : [batch_size, seq_size]
+        # x[2]    : [batch_size, seq_size, char_n_ctx]
+        # tags    : [batch_size, seq_size]
         token_ids = x[0]
         pos_ids = x[1]
 
@@ -308,8 +315,16 @@ class GloveDensenetCRF(BaseModel):
         # token_embed_out : [batch_size, seq_size, token_emb_dim]
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out   : [batch_size, seq_size, pos_emb_dim]
-        embed_out = torch.cat([token_embed_out, pos_embed_out], dim=-1)
-        # embed_out       : [batch_size, seq_size, emb_dim=token_emb_dim+pos_emb_dim]
+        if self.use_char_cnn:
+            char_ids = x[2]
+            # char_ids : [batch_size, seq_size, char_n_ctx]
+            charcnn_out = self.charcnn(char_ids)
+            # charcnn_out : [batch_size, seq_size, self.charcnn.last_dim]
+            embed_out = torch.cat([token_embed_out, pos_embed_out, charcnn_out], dim=-1)
+            # embed_out : [batch_size, seq_size, emb_dim]
+        else:
+            embed_out = torch.cat([token_embed_out, pos_embed_out], dim=-1)
+            # embed_out : [batch_size, seq_size, emb_dim]
         embed_out = self.dropout(embed_out)
 
         # 2. DenseNet
@@ -445,7 +460,7 @@ class BertLSTMCRF(BaseModel):
             return logits, prediction
 
 class ElmoLSTMCRF(BaseModel):
-    def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False):
+    def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
         super().__init__(config=config)
 
         self.config = config
@@ -456,6 +471,7 @@ class ElmoLSTMCRF(BaseModel):
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
+        self.use_char_cnn = use_char_cnn
 
         # elmo embedding
         self.elmo_model = elmo_model
@@ -470,8 +486,13 @@ class ElmoLSTMCRF(BaseModel):
         self.pos_vocab_size = len(self.poss)
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
 
-        # BiLSTM layer
         emb_dim = elmo_emb_dim + token_emb_dim + pos_emb_dim
+        # char embedding layer
+        if self.use_char_cnn:
+            self.charcnn = CharCNN(config)
+            emb_dim = elmo_emb_dim + token_emb_dim + pos_emb_dim + self.charcnn.last_dim
+
+        # BiLSTM layer
         self.lstm = nn.LSTM(input_size=emb_dim,
                             hidden_size=lstm_hidden_dim,
                             num_layers=lstm_num_layers,
@@ -514,8 +535,16 @@ class ElmoLSTMCRF(BaseModel):
         # token_embed_out : [batch_size, seq_size, token_emb_dim]
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out   : [batch_size, seq_size, pos_emb_dim]
-        embed_out = torch.cat([elmo_embed_out, token_embed_out, pos_embed_out], dim=-1)
-        # embed_out : [batch_size, seq_size, emb_dim]
+        if self.use_char_cnn:
+            char_ids = x[2]
+            # char_ids : [batch_size, seq_size, char_n_ctx]
+            charcnn_out = self.charcnn(char_ids)
+            # charcnn_out : [batch_size, seq_size, self.charcnn.last_dim]
+            embed_out = torch.cat([elmo_embed_out, token_embed_out, pos_embed_out, charcnn_out], dim=-1)
+            # embed_out : [batch_size, seq_size, emb_dim]
+        else:
+            embed_out = torch.cat([elmo_embed_out, token_embed_out, pos_embed_out], dim=-1)
+            # embed_out : [batch_size, seq_size, emb_dim]
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
