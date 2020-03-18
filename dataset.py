@@ -41,6 +41,7 @@ class CoNLLGloveDataset(Dataset):
                 token_ids = [int(d) for d in items[1].split()]
                 pos_ids   = [int(d) for d in items[2].split()]
                 # using ELMo.batch_to_ids, compute character ids: ex) 'The' [259, 85, 105, 102, 260, 261, 261, ...]
+                # (actually byte-based, char_vocab_size == 262, char_padding_idx == 261)
                 tokens    = items[3].split()
                 char_ids  = batch_to_ids([tokens])[0].detach().cpu().numpy().tolist()
                 for _ in range(len(token_ids) - len(char_ids)):
