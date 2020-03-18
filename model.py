@@ -28,8 +28,8 @@ class BaseModel(nn.Module):
         weights_matrix = torch.tensor(weights_matrix)
         return weights_matrix
 
-    def create_embedding_layer(self, vocab_dim, emb_dim, weights_matrix=None, non_trainable=True):
-        emb_layer = nn.Embedding(vocab_dim, emb_dim)
+    def create_embedding_layer(self, vocab_dim, emb_dim, weights_matrix=None, non_trainable=True, padding_idx=0):
+        emb_layer = nn.Embedding(vocab_dim, emb_dim, padding_idx=padding_idx)
         if torch.is_tensor(weights_matrix):
             emb_layer.load_state_dict({'weight': weights_matrix})
         if non_trainable:
@@ -142,7 +142,8 @@ class CharCNN(BaseModel):
         char_num_filters = config['char_num_filters']
         char_kernel_sizes = config['char_kernel_sizes']
 
-        self.embed_char = super().create_embedding_layer(char_vocab_size, self.char_emb_dim, weights_matrix=None, non_trainable=False)
+        self.char_padding_idx = config['char_padding_idx']
+        self.embed_char = super().create_embedding_layer(char_vocab_size, self.char_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=self.char_padding_idx)
         self.textcnn = TextCNN(self.char_emb_dim, char_num_filters, char_kernel_sizes)
         self.last_dim = len(char_kernel_sizes) * char_num_filters
 
@@ -151,10 +152,17 @@ class CharCNN(BaseModel):
 
         char_ids = x
         # char_ids : [batch_size, seq_size, char_n_ctx]
+        mask = char_ids.view(-1, self.char_n_ctx).eq(self.char_padding_idx)
+        # mask : [batch_size*seq_size, char_n_ctx]
+        mask = mask.unsqueeze(-1).to(torch.float)
+        # mask : [batch_size*seq_size, char_n_ctx, 1]
+
         char_embed_out = self.embed_char(char_ids)
         # char_embed_out : [batch_size, seq_size, char_n_ctx, char_emb_dim]
         char_embed_out = char_embed_out.view(-1, self.char_n_ctx, self.char_emb_dim)
         # char_embed_out : [batch_size*seq_size, char_n_ctx, char_emb_dim]
+        char_embed_out *= mask # masking, auto-broadcasting
+
         charcnn_out = self.textcnn(char_embed_out)
         # charcnn_out : [batch_size*seq_size, last_dim]
         charcnn_out = charcnn_out.view(-1, self.seq_size, charcnn_out.shape[-1])
@@ -177,12 +185,14 @@ class GloveLSTMCRF(BaseModel):
         # glove embedding layer
         weights_matrix = super().load_embedding(embedding_path)
         vocab_dim, token_emb_dim = weights_matrix.size()
-        self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable)
+        padding_idx = config['pad_token_id']
+        self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
 
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
         self.pos_vocab_size = len(self.poss)
-        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
+        padding_idx = config['pad_pos_id']
+        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         emb_dim = token_emb_dim + pos_emb_dim
         # char embedding layer
@@ -267,12 +277,14 @@ class GloveDensenetCRF(BaseModel):
         # glove embedding layer
         weights_matrix = super().load_embedding(embedding_path)
         vocab_dim, token_emb_dim = weights_matrix.size()
-        self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable)
+        padding_idx = config['pad_token_id']
+        self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
 
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
         self.pos_vocab_size = len(self.poss)
-        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
+        padding_idx = config['pad_pos_id']
+        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         emb_dim = token_emb_dim + pos_emb_dim
         # char embedding layer
@@ -369,7 +381,8 @@ class BertLSTMCRF(BaseModel):
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
         self.pos_vocab_size = len(self.poss)
-        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
+        padding_idx = config['pad_pos_id']
+        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         # BiLSTM layer
         if self.use_pos:
@@ -479,12 +492,14 @@ class ElmoLSTMCRF(BaseModel):
         # glove embedding layer
         weights_matrix = super().load_embedding(embedding_path)
         vocab_dim, token_emb_dim = weights_matrix.size()
-        self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable)
+        padding_idx = config['pad_token_id']
+        self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
 
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
         self.pos_vocab_size = len(self.poss)
-        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False)
+        padding_idx = config['pad_pos_id']
+        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         emb_dim = elmo_emb_dim + token_emb_dim + pos_emb_dim
         # char embedding layer
