@@ -156,8 +156,8 @@ reference pytorch code for named entity tagging.
 | Glove, DenseNet-CRF             | 88.48        | word, character, pos |
 | BERT-large, BiLSTM              | 91.29        | word      |
 | RoBERTa-large, BiLSTM           | 91.45        | word      |
-| ELMo, Glove, BiLSTM             | **92.19**    | word, pos |
-| ELMo, Glove, BiLSTM             | 91.37        | word, character, pos |
+| ELMo, Glove, BiLSTM             | **92.23**    | word, pos |
+| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -338,13 +338,20 @@ INFO:__main__:[F1] : 0.9219494967331803, 3684
 INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
 accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
+* --decay_rate=0.9
+INFO:__main__:[F1] : 0.922342119228728, 3684
+INFO:__main__:[Elapsed Time] : 294772ms, 79.98968232419223ms on average
+accuracy:  98.35%; precision:  92.15%; recall:  92.32%; FB1:  92.23
+
 * --use_char_cnn
 INFO:__main__:[F1] : 0.9137136782423814, 3684
 INFO:__main__:[Elapsed Time] : 280253ms, 76.05566114580505ms on average
 accuracy:  98.15%; precision:  91.44%; recall:  91.31%; FB1:  91.37
 
 * --user_char_cnn --decay_rate=0.9
-
+INFO:__main__:[F1] : 0.9196578181497487, 3684
+INFO:__main__:[Elapsed Time] : 291372ms, 79.06489275047515ms on average
+accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 ```
 
 ## Naver NER 2019 (Korean)
@@ -450,7 +457,7 @@ accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
 $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
 accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 
-* --user_char_cnn --decay_rate=0.9  without --embedding_trainable
+* --user_char_cnn --decay_rate=0.9
 
   ** evaluation eoj-by-eoj
 ```
