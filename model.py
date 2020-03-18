@@ -152,7 +152,7 @@ class CharCNN(BaseModel):
 
         char_ids = x
         # char_ids : [batch_size, seq_size, char_n_ctx]
-        mask = char_ids.view(-1, self.char_n_ctx).eq(self.char_padding_idx)
+        mask = char_ids.view(-1, self.char_n_ctx).ne(self.char_padding_idx) # broadcasting
         # mask : [batch_size*seq_size, char_n_ctx]
         mask = mask.unsqueeze(-1).to(torch.float)
         # mask : [batch_size*seq_size, char_n_ctx, 1]
