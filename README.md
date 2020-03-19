@@ -161,16 +161,18 @@ reference pytorch code for named entity tagging.
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                                 | F1 (%)            | features  |
-| ------------------------------- | ----------------  | --------- |
-| Glove, BiLSTM-CRF               | 87.91             | word      |
-| Glove, BiLSTM-CRF               | 89.20             | word, pos |
-| Glove, BiLSTM-CRF               | 90.06             | word, character, pos |
-| Glove, BiLSTM-CRF               | 90.47 ~ 90.85     | word, character, pos, chunk |
-| BERT-large, BiLSTM-CRF          | 90.22             | word, BERT as feature-based |
-| BERT-large, Glove, BiLSTM-CRF   | 91.83             | word, BERT as feature-based |
-| BERT-large, Glove, BiLSTM-CRF   | 91.19             | word trainable, BERT as feature-based |
-| ELMo, Glove, BiLSTM-CRF         | 92.45(avg), 92.83 | word, character, pos, chunk |
+|                                 | F1 (%)            | features                              | etc        |
+| ------------------------------- | ----------------  | ------------------------------------- | ---------- |
+| Glove, BiLSTM-CRF               | 87.91             | word                                  |            |
+| Glove, BiLSTM-CRF               | 89.20             | word, pos                             |            |
+| Glove, BiLSTM-CRF               | 90.06             | word, character, pos                  |            |
+| Glove, BiLSTM-CRF               | 90.85             | word, character, pos, chunk           |            |
+| BERT-large, BiLSTM-CRF          | 90.22             | word, BERT as feature-based           |            |
+| BERT-large, Glove, BiLSTM-CRF   | 91.83             | word, BERT as feature-based           |            |
+| BERT-large, Glove, BiLSTM-CRF   | 91.19             | word trainable, BERT as feature-based |            |
+| ELMo, Glove, BiLSTM-CRF         | -                 | word, pos                             |            |
+| ELMo, Glove, BiLSTM-CRF         | -                 | word, character, pos                  |            |
+| ELMo, Glove, BiLSTM-CRF         | 92.83             | word, character, pos, chunk           | Glove-100d |
 
 - [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
 
@@ -384,12 +386,12 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos   |
 | Glove, BiLSTM-CRF              | 84.76         | 84.76          | morph, character, pos |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos   |
-| Glove, DenseNet-CRF            | -             | -              | morph, character, pos |
+| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos   |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos   |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF        | 86.37         | **86.37**      | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF        | -             | -              | morph, character, pos |
+| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos   |
+| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.46**      | morph, character, pos |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -419,10 +421,9 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.8434531044045398, 9000
 INFO:__main__:[Elapsed Time] : 270872ms, 30.096888888888888ms on average
 accuracy:  93.80%; precision:  84.82%; recall:  83.76%; FB1:  84.29
-
-* evaluation eoj-by-eoj
-$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
+  ** evaluation eoj-by-eoj
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 
 * --use_char_cnn
 INFO:__main__:[F1] : 0.8481546211576025, 9000
@@ -452,14 +453,16 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.8350127432612621, 9000
 INFO:__main__:[Elapsed Time] : 232331ms, 25.805978442049117ms on average
 accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
-
-* evaluation eoj-by-eoj
-$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
+  ** evaluation eoj-by-eoj
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 
 * --user_char_cnn --decay_rate=0.9
-
+INFO:__main__:[F1] : 0.8402205267380136, 9000
+INFO:__main__:[Elapsed Time] : 255785ms, 28.405156128458717ms on average
+accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
   ** evaluation eoj-by-eoj
+  accuracy:  93.24%; precision:  84.28%; recall:  83.69%; FB1:  83.98
 ```
 
 ### emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), dha BERT(2.5m)
@@ -489,10 +492,17 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.838467292261662, 9000
 INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
 accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
-
-** evaluation eoj-by-eoj
+  *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
+
+** bert_outputs[2][-7], --decay_rate=0.9
+INFO:__main__:[F1] : 0.8296454550078846, 9000
+INFO:__main__:[Elapsed Time] : 376186ms, 41.786642960328926ms on average
+accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
+  *** evaluation eoj-by-eoj
+  accuracy:  93.19%; precision:  83.25%; recall:  83.34%; FB1:  83.29
+
 
 * for clova2019
 
@@ -533,8 +543,7 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.8295019157088124, 9000
 INFO:__main__:[Elapsed Time] : 382042ms, 42.434714968329814ms on average
 accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
-
-*** evaluation eoj-by-eoj
+  *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
@@ -545,8 +554,7 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.8336304521299173, 9000
 INFO:__main__:[Elapsed Time] : 400446ms, 44.48138682075786ms on average
 accuracy:  93.58%; precision:  83.12%; recall:  83.46%; FB1:  83.29
-
-*** evaluation eoj-by-eoj
+  *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.06%; precision:  83.55%; recall:  83.59%; FB1:  83.57
 
@@ -567,15 +575,20 @@ $ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-el
 $ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* --use_crf --embedding_trainable
+* --embedding_trainable
 INFO:__main__:[F1] : 0.8642865647270933, 9000
 INFO:__main__:[Elapsed Time] : 744958ms, 82.7731111111111ms on average
 accuracy:  94.63%; precision:  86.36%; recall:  86.38%; FB1:  86.37
+  ** evluation eoj-by-eoj
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 
-* evluation eoj-by-eoj
-$ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-
-accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
+* --use_char_cnn --embedding_trainable
+INFO:__main__:[F1] : 0.8651979978889305, 9000
+INFO:__main__:[Elapsed Time] : 982480ms, 109.15546171796866ms on average
+accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
+  ** evaluation eoj-by-eoj
+  accuracy:  94.33%; precision:  86.54%; recall:  86.39%; FB1:  86.47
 ```
 
 ## KMOU NER 2019 (Korean)
@@ -632,6 +645,9 @@ INFO:__main__:[F1] : 0.8438235294117648, 927
 INFO:__main__:[Elapsed Time] : 31811ms, 34.21922246220302ms on average
 accuracy:  96.67%; precision:  84.51%; recall:  84.26%; FB1:  84.38
 token_eval micro F1: 0.8602867105772956
+
+* --use_char_cnn
+
 ```
 
 ### emb_class=glove, enc_class=densenet
@@ -751,7 +767,7 @@ INFO:__main__:[Elapsed Time] : 123401ms, 132.93304535637148ms on average
 accuracy:  97.37%; precision:  87.66%; recall:  88.69%; FB1:  88.18
 token_eval micro F1: 0.8922982036851438
 
-* --use_crf --embedding_trainable
+* --embedding_trainable
 
 INFO:__main__:[F1] : 0.8755125951962508, 927
 INFO:__main__:[Elapsed Time] : 125665ms, 135.366090712743ms on average
