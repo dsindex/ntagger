@@ -240,7 +240,8 @@ def prepare_model(config):
         bert_tokenizer = Tokenizer.from_pretrained(opt.bert_model_name_or_path,
                                                    do_lower_case=opt.bert_do_lower_case)
         bert_model = Model.from_pretrained(opt.bert_model_name_or_path,
-                                           from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
+                                           from_tf=bool(".ckpt" in opt.bert_model_name_or_path),
+                                           output_hidden_states=True)
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
