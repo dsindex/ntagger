@@ -148,20 +148,26 @@ reference pytorch code for named entity tagging.
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                 | F1 (%)       | features  |
-| ------------------------------- | -----------  | --------- |
-| Glove, BiLSTM-CRF               | 88.49        | word, pos |
-| Glove, BiLSTM-CRF               | 89.80        | word, character, pos |
-| Glove, DenseNet-CRF             | 88.23        | word, pos |
-| Glove, DenseNet-CRF             | 88.48        | word, character, pos |
-| BERT-large, BiLSTM              | 91.29        | word      |
-| RoBERTa-large, BiLSTM           | 91.45        | word      |
-| ELMo, Glove, BiLSTM             | **92.23**    | word, pos |
-| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos |
+|                                 | F1 (%)       | Features             | Elapsed time / example (ms) |
+| ------------------------------- | -----------  | -------------------- | --------------------------- |
+| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 |
+| Glove, BiLSTM-CRF               | 89.80        | word, character, pos | 36.7597 |
+| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |
+| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 |
+| BERT-tiny, BiLSTM               | -            | word                 |   |
+| BERT-mini, BiLSTM               | -            | word                 |   |
+| BERT-small, BiLSTM              | -            | word                 |   |
+| BERT-medium, BiLSTM             | -            | word                 |   |
+| BERT-base, BiLSTM               | -            | word                 |   |
+| BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |
+| RoBERTa-base, BiLSTM            | -            | word                 |   |
+| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |
+| ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |
+| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                                 | F1 (%)            | features                              | etc        |
+|                                 | F1 (%)            | Features                              | Etc        |
 | ------------------------------- | ----------------  | ------------------------------------- | ---------- |
 | Glove, BiLSTM-CRF               | 87.91             | word                                  |            |
 | Glove, BiLSTM-CRF               | 89.20             | word, pos                             |            |
@@ -318,6 +324,9 @@ INFO:__main__:[Elapsed Time] : 152493ms, 41.35270160195493ms on average
 * --decay_rate=0.9 --bert_use_pos
 INFO:__main__:[F1] : 0.914000175330937, 3684
 INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
+
+* --bert_model_name_or_path=./embeddings/roberta-base --bert_disable_lstm
+
 ```
 
 ### emb_class=elmo, enc_class=bilstm
@@ -364,13 +373,13 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                              | F1 (%)      | features |
+|                              | F1 (%)      | Features |
 | ---------------------------- | ------------| -------- |
 | bpe BERT(4.8m), BiLSTM-CRF   | **85.26**   | eoj      |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), measured by seqeval (same as conlleval, micro F1)
 
-|                       | F1 (%)        | features |
+|                       | F1 (%)        | Features |
 | --------------------- | ------------- | -------- |
 | BiLSTM-CRF            | 76.45         | eoj      |
 | Bert-multilingual     | 81.78         | eoj      |
@@ -381,7 +390,7 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                | m-by-m F1 (%) | e-by-e F1 (%)  | features     |
+|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features     |
 | ------------------------------ | ------------- | -------------- | ------------ |
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos   |
 | Glove, BiLSTM-CRF              | 84.76         | 84.76          | morph, character, pos |
@@ -395,7 +404,7 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                              | m-by-m F1 (%) | e-by-e F1 (%)  | features         |
+|                              | m-by-m F1 (%) | e-by-e F1 (%)  | Features         |
 | ---------------------------- | ------------- | -------------- | ---------------- |
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos, BERT as feature-based |
@@ -597,7 +606,7 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | span / token F1 (%)    | features              | etc |
+|                                | span / token F1 (%)    | Features              | Etc |
 | ------------------------------ | ---------------------- | --------------------- | --- |    
 | Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |     |
 | Glove, BiLSTM-CRF              | 85.76 / 87.04          | morph, character, pos |     |
@@ -612,13 +621,13 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                              | span / token F1 (%) | features              |
+|                              | span / token F1 (%) | Features              |
 | ---------------------------- | ------------------- | --------------------- |
 | ELMo, Glove, BiLSTM-CRF      | 89.09 / 89.90       | morph, character, pos |
 
 - [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics (token-level F1)
 
-|                       | token-level macro / micro F1 (%)   | features |
+|                       | token-level macro / micro F1 (%)   | Features |
 | --------------------- | ---------------------------------- | -------- | 
 | KoBERT+CRF            | 87.56 / 89.70                      | morph    |
 
