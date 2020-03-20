@@ -160,7 +160,7 @@ reference pytorch code for named entity tagging.
 | BERT-medium, BiLSTM             | -            | word                 |   |
 | BERT-base, BiLSTM               | -            | word                 |   |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |
-| RoBERTa-base, BiLSTM            | -            | word                 |   |
+| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |
 | ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |
@@ -280,6 +280,10 @@ accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
 INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
+
+* --bert_model_name_or_path=./embedings/bert-base-uncased
+
+
 ```
 
 ### emb_class=roberta, enc_class=bilstm
@@ -326,6 +330,8 @@ INFO:__main__:[F1] : 0.914000175330937, 3684
 INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
 
 * --bert_model_name_or_path=./embeddings/roberta-base --bert_disable_lstm
+INFO:__main__:[F1] : 0.9002973587545915, 3684
+INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
 
 ```
 
