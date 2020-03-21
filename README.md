@@ -154,7 +154,7 @@ reference pytorch code for named entity tagging.
 | **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |
 | Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 |
-| BERT-tiny, BiLSTM               | -            | word                 |         |
+| BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 |
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 |
@@ -163,6 +163,7 @@ reference pytorch code for named entity tagging.
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |
 | ELMo, BiLSTM                    | -            | word, pos            | -       |
+| ELMo, BiLSTM                    | -            | word, character, pos | -       |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |
 | ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |
 
@@ -307,7 +308,9 @@ INFO:__main__:[Elapsed Time] : 79173ms, 21.463209340211783ms on average
 accuracy:  96.32%; precision:  80.82%; recall:  82.29%; FB1:  81.55
 
 * --bert_model_name_or_path=./embedings/pytorch.uncased_L-2_H-128_A-2 --bert_do_lower_case
-
+INFO:__main__:[F1] : 0.6965218958370878, 3684
+INFO:__main__:[Elapsed Time] : 74261ms, 20.137659516698342ms on average
+accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
 ```
 
 ### emb_class=roberta, enc_class=bilstm
@@ -393,6 +396,9 @@ accuracy:  98.15%; precision:  91.44%; recall:  91.31%; FB1:  91.37
 INFO:__main__:[F1] : 0.9196578181497487, 3684
 INFO:__main__:[Elapsed Time] : 291372ms, 79.06489275047515ms on average
 accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
+
+* --decay_rate=0.9, modify model.py for disabling glove
+
 ```
 
 ## Naver NER 2019 (Korean)
@@ -630,6 +636,9 @@ INFO:__main__:[Elapsed Time] : 982480ms, 109.15546171796866ms on average
 accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
   ** evaluation eoj-by-eoj
   accuracy:  94.33%; precision:  86.54%; recall:  86.39%; FB1:  86.47
+
+* modify model.py for disabling glove
+
 ```
 
 ## KMOU NER 2019 (Korean)
