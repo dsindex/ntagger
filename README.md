@@ -151,7 +151,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)       | Features             | Elapsed time / example (ms) |
 | ------------------------------- | -----------  | -------------------- | --------------------------- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 |
-| Glove, BiLSTM-CRF               | 89.80        | word, character, pos | 36.7597 |
+| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |
 | Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 |
 | BERT-tiny, BiLSTM               | -            | word                 |         |
@@ -423,7 +423,7 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms) |
 | ------------------------------ | ------------- | -------------- | --------------------- | --------------------------- |
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 |
-| Glove, BiLSTM-CRF              | 84.76         | 84.76          | morph, character, pos | 32.9187 |
+| **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 |
@@ -641,7 +641,7 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
 |                                | span / token F1 (%)    | Features              | Etc                   | Elapsed time / example (ms) |
 | ------------------------------ | ---------------------- | --------------------- | --------------------- | --------------------------- |    
 | Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |                       | 34.2192 |
-| Glove, BiLSTM-CRF              | 85.76 / 87.04          | morph, character, pos |                       | 37.2386 |
+| **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |                       | 37.2386 |
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |                       | 23.3758 |
 | Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |                       | 22.6004 |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |                       | 44.3250 |
