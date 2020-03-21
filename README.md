@@ -31,7 +31,7 @@ reference pytorch code for named entity tagging.
   - BERT(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   ```
   $ pip install tensorflow-gpu==2.0.0
-  $ pip install git+https://github.com/huggingface/transformers.git
+  $ pip install transformers
   ```
   - ELMo([allennlp](https://github.com/allenai/allennlp))
   ```
@@ -154,14 +154,15 @@ reference pytorch code for named entity tagging.
 | Glove, BiLSTM-CRF               | 89.80        | word, character, pos | 36.7597 |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |
 | Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 |
-| BERT-tiny, BiLSTM               | -            | word                 |   |
-| BERT-mini, BiLSTM               | -            | word                 |   |
-| BERT-small, BiLSTM              | -            | word                 |   |
-| BERT-medium, BiLSTM             | -            | word                 |   |
-| BERT-base, BiLSTM               | -            | word                 |   |
+| BERT-tiny, BiLSTM               | -            | word                 |         |
+| BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 |
+| BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 |
+| BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 |
+| BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |
+| ELMo, BiLSTM                    | -            | word, pos            | -       |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |
 | ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |
 
@@ -176,8 +177,12 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.22             | word, BERT as feature-based           |            |
 | BERT-large, Glove, BiLSTM-CRF   | 91.83             | word, BERT as feature-based           |            |
 | BERT-large, Glove, BiLSTM-CRF   | 91.19             | word trainable, BERT as feature-based |            |
+| ELMo, BiLSTM-CRF                | -                 | word, pos                             |            |
+| ELMo, BiLSTM-CRF                | -                 | word, character, pos                  |            |
+| ELMo, BiLSTM-CRF                | -                 | word, character, pos, chunk           |            |
 | ELMo, Glove, BiLSTM-CRF         | 91.78             | word, pos                             |            |
 | ELMo, Glove, BiLSTM-CRF         | 92.38             | word, character, pos                  |            |
+| ELMo, Glove, BiLSTM-CRF         | -                 | word, character, pos, chunk           |            |
 | ELMo, Glove, BiLSTM-CRF         | 92.83             | word, character, pos, chunk           | Glove-100d |
 
 - [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
@@ -281,8 +286,27 @@ INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case
+INFO:__main__:[F1] : 0.9054532577903682, 3684
+INFO:__main__:[Elapsed Time] : 112704ms, 30.563127884876458ms on average
+accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 --bert_do_lower_case
+INFO:__main__:[F1] : 0.8829307140960977, 3684
+INFO:__main__:[Elapsed Time] : 99730ms, 27.048601683410265ms on average
+accuracy:  97.61%; precision:  88.25%; recall:  88.33%; FB1:  88.29
+
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-4_H-512_A-8 --bert_do_lower_case
+INFO:__main__:[F1] : 0.8634692805881324, 3684
+INFO:__main__:[Elapsed Time] : 83385ms, 22.60874287265816ms on average
+accuracy:  97.23%; precision:  85.38%; recall:  87.34%; FB1:  86.35
+
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-4_H-256_A-4 --bert_do_lower_case
+INFO:__main__:[F1] : 0.8155101324677603, 3684
+INFO:__main__:[Elapsed Time] : 79173ms, 21.463209340211783ms on average
+accuracy:  96.32%; precision:  80.82%; recall:  82.29%; FB1:  81.55
+
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-2_H-128_A-2 --bert_do_lower_case
 
 ```
 
@@ -379,9 +403,9 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                              | F1 (%)      | Features |
-| ---------------------------- | ------------| -------- |
-| bpe BERT(4.8m), BiLSTM-CRF   | **85.26**   | eoj      |
+|                              | F1 (%)      | Features | Elapsed time / example (ms) |
+| ---------------------------- | ------------| -------- | --------------------------- |    
+| bpe BERT(4.8m), BiLSTM-CRF   | **85.26**   | eoj      | 44.094  |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), measured by seqeval (same as conlleval, micro F1)
 
@@ -396,25 +420,27 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features     |
-| ------------------------------ | ------------- | -------------- | ------------ |
-| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos   |
-| Glove, BiLSTM-CRF              | 84.76         | 84.76          | morph, character, pos |
-| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos   |
-| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos |
-| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos   |
-| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos   |
-| dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos   |
-| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.46**      | morph, character, pos |
+|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms) |
+| ------------------------------ | ------------- | -------------- | --------------------- | --------------------------- |
+| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 |
+| Glove, BiLSTM-CRF              | 84.76         | 84.76          | morph, character, pos | 32.9187 |
+| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 |
+| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 |
+| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 |
+| dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 |
+| ELMo, BiLSTM-CRF               | -             | -              | morph, pos            | -       |
+| ELMo, BiLSTM-CRF               | -             | -              | morph, character, pos | -       |
+| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 |
+| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                              | m-by-m F1 (%) | e-by-e F1 (%)  | Features         |
-| ---------------------------- | ------------- | -------------- | ---------------- |
-| Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |
+|                              | m-by-m F1 (%) | e-by-e F1 (%)  | Features                          |
+| ---------------------------- | ------------- | -------------- | --------------------------------- |
+| Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos             |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos, BERT as feature-based |
-| ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |
+| ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos             |
 
 ### emb_class=glove, enc_class=bilstm
 
@@ -612,18 +638,19 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | span / token F1 (%)    | Features              | Etc |
-| ------------------------------ | ---------------------- | --------------------- | --- |    
-| Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |     |
-| Glove, BiLSTM-CRF              | 85.76 / 87.04          | morph, character, pos |     |
-| Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |     |
-| Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |     |
-| dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |     |
-| dha BERT(10m), BiLSTM-CRF      | 85.23 / 87.35          | morph, pos            |     |
-| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |     |
-| ELMo, Glove, BiLSTM-CRF        | **88.18** / 89.22      | morph, pos            |     |
-| ELMo, Glove, BiLSTM-CRF        | 87.55 / 88.97          | morph, pos            | --embedding_trainable |
-| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |     |
+|                                | span / token F1 (%)    | Features              | Etc                   | Elapsed time / example (ms) |
+| ------------------------------ | ---------------------- | --------------------- | --------------------- | --------------------------- |    
+| Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |                       | 34.2192 |
+| Glove, BiLSTM-CRF              | 85.76 / 87.04          | morph, character, pos |                       | 37.2386 |
+| Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |                       | 23.3758 |
+| Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |                       | 22.6004 |
+| dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |                       | 44.3250 |
+| dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |                       | 37.7829 |
+| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |                       | 39.0183 |
+| ELMo, BiLSTM-CRF               | -     / -              | morph, pos            |                       | -       |
+| ELMo, BiLSTM-CRF               | -     / -              | morph, character, pos |                       | -       |
+| ELMo, Glove, BiLSTM-CRF        | **88.18** / 89.22      | morph, pos            |                       | 132.933 |
+| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |                       | 110.277 |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
