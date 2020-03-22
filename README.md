@@ -162,8 +162,8 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |
-| ELMo, BiLSTM                    | -            | word, pos            | -       |
-| ELMo, BiLSTM                    | -            | word, character, pos | -       |
+| ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |
+| ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |
 | ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |
 
@@ -178,12 +178,9 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.22             | word, BERT as feature-based           |            |
 | BERT-large, Glove, BiLSTM-CRF   | 91.83             | word, BERT as feature-based           |            |
 | BERT-large, Glove, BiLSTM-CRF   | 91.19             | word trainable, BERT as feature-based |            |
-| ELMo, BiLSTM-CRF                | -                 | word, pos                             |            |
-| ELMo, BiLSTM-CRF                | -                 | word, character, pos                  |            |
-| ELMo, BiLSTM-CRF                | -                 | word, character, pos, chunk           |            |
 | ELMo, Glove, BiLSTM-CRF         | 91.78             | word, pos                             |            |
 | ELMo, Glove, BiLSTM-CRF         | 92.38             | word, character, pos                  |            |
-| ELMo, Glove, BiLSTM-CRF         | -                 | word, character, pos, chunk           |            |
+| ELMo, Glove, BiLSTM-CRF         | 92.43             | word, character, pos, chunk           |            |
 | ELMo, Glove, BiLSTM-CRF         | 92.83             | word, character, pos, chunk           | Glove-100d |
 
 - [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
@@ -398,7 +395,14 @@ INFO:__main__:[Elapsed Time] : 291372ms, 79.06489275047515ms on average
 accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
 * --decay_rate=0.9, modify model.py for disabling glove
+INFO:__main__:[F1] : 0.917751217352811, 3684
+INFO:__main__:[Elapsed Time] : 273089ms, 74.10019006244909ms on average
+accuracy:  98.27%; precision:  91.78%; recall:  91.77%; FB1:  91.78
 
+* --use_char_cnn --decay_rate=0.9, modify model.py for disabling glove
+INFO:__main__:[F1] : 0.9193262411347518, 3684
+INFO:__main__:[Elapsed Time] : 249467ms, 67.69318490361118ms on average
+accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 ```
 
 ## Naver NER 2019 (Korean)
@@ -435,7 +439,7 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 |
-| ELMo, BiLSTM-CRF               | -             | -              | morph, pos            | -       |
+| ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 |
 | ELMo, BiLSTM-CRF               | -             | -              | morph, character, pos | -       |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 |
 | ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 |
@@ -455,13 +459,13 @@ accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 * token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
+$ python train.py --save_path=pytorch-model-glove-kor-clova-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --model_path=pytorch-model-glove-kor-morph.pt --data_dir data/clova2019_morph --use_crf
+$ python evaluate.py --model_path=pytorch-model-glove-kor-clova-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
@@ -488,12 +492,12 @@ accuracy:  93.96%; precision:  85.38%; recall:  84.14%; FB1:  84.76
 * token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json --data_dir data/clova2019_morph --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-clova-morph.pt --data_dir data/clova2019_morph --use_crf --embedding_trainable
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/clova2019_morph --use_crf
+$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-clova-morph.pt --data_dir data/clova2019_morph --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
@@ -521,7 +525,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 * for clova2019_morph
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 * for clova2019
 
@@ -533,7 +537,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 ```
 * for clova2019_morph
 
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.838467292261662, 9000
@@ -571,11 +575,11 @@ accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
 ** dha-bpe
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 ** dha
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 ```
 
@@ -584,7 +588,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 * for clova2019_morph
 
 ** dha-bpe
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8295019157088124, 9000
@@ -595,7 +599,7 @@ accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
 ** dha
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8336304521299173, 9000
@@ -614,12 +618,12 @@ accuracy:  93.58%; precision:  83.12%; recall:  83.46%; FB1:  83.29
 * token_emb_dim in configs/config-elmo.json == 300 (ex, kor.glove.300k.300d.txt )
 * elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, kor_elmo_2x4096_512_2048cnn_2xhighway_1000k* )
 $ python preprocess.py --config=configs/config-elmo.json --data_dir=data/clova2019_morph --embedding_path=embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-clova-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-clova-morph.pt --data_dir=data/clova2019_morph --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 * --embedding_trainable
@@ -638,6 +642,13 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
   accuracy:  94.33%; precision:  86.54%; recall:  86.39%; FB1:  86.47
 
 * modify model.py for disabling glove
+INFO:__main__:[F1] : 0.856990797967312, 9000
+INFO:__main__:[Elapsed Time] : 863968ms, 95.98688743193688ms on average
+accuracy:  94.30%; precision:  86.44%; recall:  84.85%; FB1:  85.64
+  ** evaluation eoj-by-eoj
+  accuracy:  93.95%; precision:  86.46%; recall:  84.87%; FB1:  85.66 
+
+* --use_char_cnn , modify model.py for disabling glove
 
 ```
 
@@ -656,9 +667,9 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |                       | 44.3250 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |                       | 37.7829 |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |                       | 39.0183 |
-| ELMo, BiLSTM-CRF               | -     / -              | morph, pos            |                       | -       |
+| ELMo, BiLSTM-CRF               | **88.22** / 89.05      | morph, pos            |                       | 128.029 |
 | ELMo, BiLSTM-CRF               | -     / -              | morph, character, pos |                       | -       |
-| ELMo, Glove, BiLSTM-CRF        | **88.18** / 89.22      | morph, pos            |                       | 132.933 |
+| ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            |                       | 132.933 |
 | ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |                       | 110.277 |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
@@ -680,13 +691,13 @@ accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
 * token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --data_dir data/kmou2019 --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --save_path=pytorch-model-glove-kor-morph.pt --data_dir data/kmou2019 --use_crf --embedding_trainable
+$ python train.py --save_path=pytorch-model-glove-kor-kmou-morph.pt --data_dir data/kmou2019 --use_crf --embedding_trainable
 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --model_path=pytorch-model-glove-kor-morph.pt --data_dir data/kmou2019 --use_crf
+$ python evaluate.py --model_path=pytorch-model-glove-kor-kmou-morph.pt --data_dir data/kmou2019 --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 * token-level micro F1
@@ -712,12 +723,12 @@ token_eval micro F1: 0.8704952336665891
 * token_emb_dim in configs/config-glove.json == 300 (ex, kor.glove.300k.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json --data_dir data/kmou2019 --embedding_path embeddings/kor.glove.300k.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding.
-$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-morph.pt --data_dir data/kmou2019 --use_crf --embedding_trainable
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet-kor-kmou-morph.pt --data_dir data/kmou2019 --use_crf --embedding_trainable
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-morph.pt --data_dir data/kmou2019 --use_crf
+$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet-kor-kmou-morph.pt --data_dir data/kmou2019 --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 * token-level micro F1
@@ -744,18 +755,18 @@ token_eval micro F1: 0.8575865817673552
 
 * dha (2.5m)
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 * dha (10m)
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 ```
 
 - evaluation
 ```
 * dha (2.5m)
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
@@ -765,7 +776,7 @@ accuracy:  96.83%; precision:  85.53%; recall:  85.40%; FB1:  85.47
 token_eval micro F1: 0.8731952291274326
 
 * dha(10m)
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
@@ -783,13 +794,13 @@ token_eval micro F1: 0.8735865242143024
 * n_ctx size should be less than 512
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
@@ -807,12 +818,12 @@ token_eval micro F1: 0.8801729462631254
 * token_emb_dim in configs/config-elmo.json == 300 (ex, kor.glove.300k.300d.txt )
 * elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, kor_elmo_2x4096_512_2048cnn_2xhighway_1000k* )
 $ python preprocess.py --config=configs/config-elmo.json --data_dir=data/kmou2019 --embedding_path=embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/kmou2019 --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-kmou-morph.pt --data_dir=data/kmou2019 --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-morph.pt --data_dir=data/kmou2019 --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-kmou-morph.pt --data_dir=data/kmou2019 --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
@@ -838,6 +849,15 @@ INFO:__main__:[F1] : 0.8786279683377308, 927
 INFO:__main__:[Elapsed Time] : 102389ms, 110.27753779697625ms on average
 accuracy:  97.29%; precision:  87.71%; recall:  88.02%; FB1:  87.86
 token_eval micro F1: 0.8875822050290135
+
+* --batch_size=64 --decay_rate=0.9 , modify model.py for disabling glove
+INFO:__main__:[F1] : 0.8822326125073057, 927
+INFO:__main__:[Elapsed Time] : 118884ms, 128.0291576673866ms on average
+accuracy:  97.35%; precision:  87.79%; recall:  88.66%; FB1:  88.22
+token_eval micro F1: 0.8905289052890529
+
+* --use_char_cnn --batch_size=64 --decay_rate=0.9 , modify model.py for disabling glove
+
 
 ```
 
