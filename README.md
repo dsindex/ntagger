@@ -667,8 +667,8 @@ accuracy:  94.30%; precision:  86.44%; recall:  84.85%; FB1:  85.64
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |                       | 44.3250 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |                       | 37.7829 |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |                       | 39.0183 |
-| ELMo, BiLSTM-CRF               | **88.22** / 89.05      | morph, pos            |                       | 128.029 |
-| ELMo, BiLSTM-CRF               | -     / -              | morph, character, pos |                       | -       |
+| ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            |                       | 128.029 |
+| ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos |                       | 127.514 |
 | ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            |                       | 132.933 |
 | ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |                       | 110.277 |
 
@@ -857,8 +857,10 @@ accuracy:  97.35%; precision:  87.79%; recall:  88.66%; FB1:  88.22
 token_eval micro F1: 0.8905289052890529
 
 * --use_char_cnn --batch_size=64 --decay_rate=0.9 , modify model.py for disabling glove
-
-
+INFO:__main__:[F1] : 0.8825072886297376, 927
+INFO:__main__:[Elapsed Time] : 118407ms, 127.51403887688984ms on average
+accuracy:  97.43%; precision:  87.61%; recall:  88.90%; FB1:  88.25
+token_eval micro F1: 0.8926606215608773
 ```
 
 ## references
