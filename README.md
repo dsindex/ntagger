@@ -440,7 +440,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 |
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 |
-| ELMo, BiLSTM-CRF               | -             | -              | morph, character, pos | -       |
+| ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 |
 | ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 |
 
@@ -649,7 +649,11 @@ accuracy:  94.30%; precision:  86.44%; recall:  84.85%; FB1:  85.64
   accuracy:  93.95%; precision:  86.46%; recall:  84.87%; FB1:  85.66 
 
 * --use_char_cnn , modify model.py for disabling glove
-
+INFO:__main__:[F1] : 0.8587286088699316, 9000
+INFO:__main__:[Elapsed Time] : 860675ms, 95.61962440271141ms on average
+accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
+  ** evaluation eoj-by-eoj
+  accuracy:  94.01%; precision:  86.42%; recall:  85.22%; FB1:  85.82
 ```
 
 ## KMOU NER 2019 (Korean)

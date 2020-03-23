@@ -427,8 +427,8 @@ class BertLSTMCRF(BaseModel):
                                            token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
             embedded = bert_outputs[0]
             '''
-            # 6 layer for base, 18 layer for large
-            embedded = bert_outputs[2][-7]
+            # pooled output, initial embedding layer, 1 ~ last layer's hidden states
+            bert_outputs[1], bert_outputs[2][0], bert_outputs[2][1:]
             '''
             # [batch_size, seq_size, hidden_size]
             # [batch_size, 0, hidden_size] corresponding to [CLS] == 'embedded[:, 0]'
