@@ -33,6 +33,8 @@ reference pytorch code for named entity tagging.
   $ pip install tensorflow-gpu==2.0.0
   $ pip install transformers
   ```
+  - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
+    - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
   ```
   $ pip install allennlp==0.9.0
@@ -148,24 +150,28 @@ reference pytorch code for named entity tagging.
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                 | F1 (%)       | Features             | Elapsed time / example (ms) |
-| ------------------------------- | -----------  | -------------------- | --------------------------- |
-| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 |
-| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 |
-| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |
-| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 |
-| BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 |
-| BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 |
-| BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 |
-| BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 |
-| BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 |
-| BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |
-| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |
-| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |
-| ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |
-| ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |
-| ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |
-| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |
+|                                 | F1 (%)       | Features             | Elapsed time / example (ms) | Etc   |
+| ------------------------------- | -----------  | -------------------- | --------------------------- | ----- |
+| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 |    |
+| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 |    |
+| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |    |
+| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 |    |
+| BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 |    |
+| BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 |    |
+| BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 |    |
+| BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 |    |
+| BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 |    |
+| BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |    |
+| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
+| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
+| ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |    |
+| ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |    |
+| ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |    |
+| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |    |
+| SpanBERT-base, BiLSTM           | -            | word                 | -       |    |
+| SpanBERT-large, BiLSTM          | -            | word                 | -       |    |
+| BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 | BERT as feature-based, initial embedding |
+| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, initial embedding |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -308,6 +314,19 @@ accuracy:  96.32%; precision:  80.82%; recall:  82.29%; FB1:  81.55
 INFO:__main__:[F1] : 0.6965218958370878, 3684
 INFO:__main__:[Elapsed Time] : 74261ms, 20.137659516698342ms on average
 accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
+
+* for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
+* --bert_model_name_or_path=./embedding/spanbert_hf_base 
+
+* --bert_model_name_or_path=./embedding/spanbert_hf_large
+
+* --bert_use_feature_based --epoch=64 --lr=1e-4 , modify model.py to use initial embedding
+INFO:__main__:[F1] : 0.8610818405338954, 3684
+INFO:__main__:[Elapsed Time] : 181867ms, 49.310344827586206ms on average
+accuracy:  97.43%; precision:  85.42%; recall:  86.81%; FB1:  86.11
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use initial embedding
+
 ```
 
 ### emb_class=roberta, enc_class=bilstm
