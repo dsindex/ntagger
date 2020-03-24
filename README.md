@@ -890,3 +890,12 @@ token_eval micro F1: 0.8926606215608773
 
 - [transformers_examples](https://github.com/dsindex/transformers_examples)
 - [macro and micro precision/recall/f1 score](https://datascience.stackexchange.com/a/24051)
+- [RoBERTa](https://github.com/pytorch/fairseq/tree/master/examples/roberta)
+  - [RoBERTa GLUE task setting](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.glue.md)
+- [BERT Miniatures](https://huggingface.co/google/bert_uncased_L-12_H-128_A-2)
+  - search range of hyperparameters
+    - batch sizes: 8, 16, 32, 64, 128
+    - learning rates: 3e-4, 1e-4, 5e-5, 3e-5
+- scalar mixtures of BERT all layers
+  - [ScalarMixWithDropout](https://github.com/Hyperparticle/udify/blob/master/udify/modules/scalar_mix.py)
+  - [ScalarMix](https://github.com/allenai/allennlp/blob/master/allennlp/modules/scalar_mix.py)
