@@ -168,10 +168,12 @@ reference pytorch code for named entity tagging.
 | ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |    |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |    |
 | ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |    |
-| SpanBERT-base, BiLSTM           | -            | word                 | -       |    |
-| SpanBERT-large, BiLSTM          | -            | word                 | -       |    |
+| SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
+| SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 | BERT as feature-based, initial embedding |
-| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, initial embedding |
+| BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 | BERT as feature-based, initial embedding |
+| BERT-large, BiLSTM              | -            | word                 | -       | BERT as feature-based, initial+first+last embedding |
+| BERT-large, BiLSTM-CRF          | 89.96        | word                 | 67.2041 | BERT as feature-based, initial+first+last embedding |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -316,9 +318,15 @@ INFO:__main__:[Elapsed Time] : 74261ms, 20.137659516698342ms on average
 accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
-* --bert_model_name_or_path=./embedding/spanbert_hf_base 
+* --bert_model_name_or_path=./embedding/spanbert_hf_base
+INFO:__main__:[F1] : 0.9046450482033305, 3684
+INFO:__main__:[Elapsed Time] : 110977ms, 30.09910399131143ms on average
+accuracy:  98.02%; precision:  89.57%; recall:  91.38%; FB1:  90.46
 
 * --bert_model_name_or_path=./embedding/spanbert_hf_large
+INFO:__main__:[F1] : 0.9139340659340659, 3684
+INFO:__main__:[Elapsed Time] : 157069ms, 42.59598153679066ms on average
+accuracy:  98.23%; precision:  90.76%; recall:  92.03%; FB1:  91.39
 
 * --bert_use_feature_based --epoch=64 --lr=1e-4 , modify model.py to use initial embedding
 INFO:__main__:[F1] : 0.8610818405338954, 3684
@@ -326,6 +334,17 @@ INFO:__main__:[Elapsed Time] : 181867ms, 49.310344827586206ms on average
 accuracy:  97.43%; precision:  85.42%; recall:  86.81%; FB1:  86.11
 
 * --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use initial embedding
+INFO:__main__:[F1] : 0.8575426322693486, 3684
+INFO:__main__:[Elapsed Time] : 232758ms, 63.13765951669834ms on average
+accuracy:  97.06%; precision:  86.06%; recall:  86.81%; FB1:  86.43
+
+* --bert_use_feature_based --epoch=64 --lr=3e-4 , modify model.py to use initial+first+last embedding
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use initial+first+last embedding
+INFO:__main__:[F1] : 0.8946078431372549, 3684
+INFO:__main__:[Elapsed Time] : 247716ms, 67.20418137387999ms on average
+accuracy:  97.81%; precision:  89.46%; recall:  90.47%; FB1:  89.96
+
 
 ```
 
@@ -335,17 +354,17 @@ accuracy:  97.43%; precision:  85.42%; recall:  86.81%; FB1:  86.11
 ```
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-roberta.json --bert_model_name_or_path=./embeddings/roberta-large
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_disable_lstm
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --use_crf
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9 --bert_use_pos
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5 --epoch=10 --bert_disable_lstm
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --use_crf
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9 --bert_use_pos
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-roberta.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
+$ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-roberta.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-roberta
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9119915848527349, 3684
@@ -544,19 +563,19 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 * for clova2019_morph
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 * for clova2019
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/pytorch.all.bpe.4.8m_step --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
 ```
 
 - evaluation
 ```
 * for clova2019_morph
 
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.838467292261662, 9000
@@ -576,7 +595,7 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
 
 * for clova2019
 
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint --use_crf
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --use_crf
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8524098438884723, 9000
@@ -594,11 +613,11 @@ accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
 ** dha-bpe
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 ** dha
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 ```
 
@@ -607,7 +626,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 * for clova2019_morph
 
 ** dha-bpe
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8295019157088124, 9000
@@ -618,7 +637,7 @@ accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
 ** dha
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8336304521299173, 9000
@@ -778,18 +797,18 @@ token_eval micro F1: 0.8575865817673552
 
 * dha (2.5m)
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 * dha (10m)
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27.10m_step --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 ```
 
 - evaluation
 ```
 * dha (2.5m)
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
@@ -799,7 +818,7 @@ accuracy:  96.83%; precision:  85.53%; recall:  85.40%; FB1:  85.47
 token_eval micro F1: 0.8731952291274326
 
 * dha(10m)
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
@@ -817,13 +836,13 @@ token_eval micro F1: 0.8735865242143024
 * n_ctx size should be less than 512
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
