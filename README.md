@@ -172,10 +172,11 @@ reference pytorch code for named entity tagging.
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 | BERT as feature-based, initial embedding |
 | BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 | BERT as feature-based, initial embedding |
-| BERT-large, BiLSTM              | -            | word                 | -       | BERT as feature-based, initial+first+last embedding |
+| BERT-large, BiLSTM              | 89.72        | word                 | 47.9704 | BERT as feature-based, initial+first+last embedding |
 | BERT-large, BiLSTM-CRF          | 89.96        | word                 | 67.2041 | BERT as feature-based, initial+first+last embedding |
-| BERT-large, BiLSTM              | -            | word                 | -       | BERT as feature-based, [-4:] embedding |
-| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, [-4:] embedding |
+| BERT-large, BiLSTM-CRF          | 89.67        | word                 | 68.7548 | BERT as feature-based, last embedding |
+| BERT-large, BiLSTM-CRF          | 90.64        | word                 | 63.9397 | BERT as feature-based, [-4:] embedding |
+| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, mean([0:3] + [-4:]) embedding |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -341,12 +342,26 @@ INFO:__main__:[Elapsed Time] : 232758ms, 63.13765951669834ms on average
 accuracy:  97.06%; precision:  86.06%; recall:  86.81%; FB1:  86.43
 
 * --bert_use_feature_based --epoch=64 --lr=3e-4 , modify model.py to use initial+first+last embedding
+INFO:__main__:[F1] : 0.8971681415929202, 3684
+INFO:__main__:[Elapsed Time] : 176851ms, 47.970404561498775ms on average
+accuracy:  98.00%; precision:  89.69%; recall:  89.75%; FB1:  89.72
 
 * --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use initial+first+last embedding
 INFO:__main__:[F1] : 0.8946078431372549, 3684
 INFO:__main__:[Elapsed Time] : 247716ms, 67.20418137387999ms on average
 accuracy:  97.81%; precision:  89.46%; recall:  90.47%; FB1:  89.96
 
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use last embedding
+INFO:__main__:[F1] : 0.8912471496228732, 3684
+INFO:__main__:[Elapsed Time] : 253449ms, 68.75481944067336ms on average
+accuracy:  97.75%; precision:  89.38%; recall:  89.96%; FB1:  89.67
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use [-4:] embedding
+INFO:__main__:[F1] : 0.90263319044703, 3684
+INFO:__main__:[Elapsed Time] : 235691ms, 63.9397230518599ms on average
+accuracy:  97.99%; precision:  89.94%; recall:  91.34%; FB1:  90.64
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use mean([0:3] + [-4:]) embedding
 
 ```
 
