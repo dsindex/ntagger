@@ -174,9 +174,11 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 | BERT as feature-based, initial embedding |
 | BERT-large, BiLSTM              | 89.72        | word                 | 47.9704 | BERT as feature-based, initial+first+last embedding |
 | BERT-large, BiLSTM-CRF          | 89.96        | word                 | 67.2041 | BERT as feature-based, initial+first+last embedding |
-| BERT-large, BiLSTM-CRF          | 89.67        | word                 | 68.7548 | BERT as feature-based, last embedding |
+| BERT-large, BiLSTM-CRF          | 89.67        | word                 | 68.7548 | BERT as feature-based, last embedding  |
 | BERT-large, BiLSTM-CRF          | 90.64        | word                 | 63.9397 | BERT as feature-based, [-4:] embedding |
-| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, mean([0:3] + [-4:]) embedding |
+| BERT-large, BiLSTM-CRF          | 90.52        | word                 | 70.8322 | BERT as feature-based, mean([0:3] + [-4:]) embedding |
+| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, mean([0:17]) embedding |
+| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, max([0:17]) embedding  |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -362,6 +364,13 @@ INFO:__main__:[Elapsed Time] : 235691ms, 63.9397230518599ms on average
 accuracy:  97.99%; precision:  89.94%; recall:  91.34%; FB1:  90.64
 
 * --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use mean([0:3] + [-4:]) embedding
+INFO:__main__:[F1] : 0.9026813186813187, 3684
+INFO:__main__:[Elapsed Time] : 261161ms, 70.83220200923161ms on average
+accuracy:  98.02%; precision:  90.15%; recall:  90.90%; FB1:  90.52
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use mean([0:17]) embedding
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use max([0:17]) embedding
 
 ```
 
