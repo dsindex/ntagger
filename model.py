@@ -131,6 +131,69 @@ class DenseNet(nn.Module):
         # conv_last : [batch_size, seq_size, last_num_filters]
         return conv_last
 
+class DSA(nn.Module):
+    def __init__(self, config, dsa_num_attentions, dsa_input_dim, dsa_dim, dsa_r=3):
+        super(DSA, self).__init__()
+        self.config = config
+        dsa = []
+        for i in range(dsa_num_attentions):
+            dsa.append(nn.Linear(dsa_input_dim, dsa_dim))
+        self.dsa = nn.ModuleList(dsa)
+        self.dsa_r = dsa_r # r iterations
+        self.last_dim = dsa_num_attentions * dsa_dim
+
+    def __self_attention(self, x, mask, r=3):
+        # x    : [batch_size, seq_size, dsa_dim]
+        # mask : [batch_size, seq_size]
+        # r    : r iterations
+        device = self.config['device']
+        # initialize
+        mask = mask.to(torch.float)
+        inv_mask = mask.eq(0.0)
+        # inv_mask : [batch_size, seq_size], ex) [False, ..., False, True, ..., True]
+        softmax_mask = mask.masked_fill(inv_mask, -1e20)
+        # softmax_mask : [batch_size, seq_size], ex) [1., 1., 1.,  ..., -1e20, -1e20, -1e20] 
+        q = torch.zeros(mask.shape[0], mask.shape[-1], requires_grad=False).to(torch.float).to(device)
+        # q : [batch_size, seq_size]
+        z_list = []
+        # iterative computing attention
+        for idx in range(r):
+            # softmax masking
+            q *= softmax_mask
+            # attention weights
+            a = torch.softmax(q.detach().clone(), dim=-1) # preventing from unreachable variable at gradient computation. 
+            # a : [batch_size, seq_size]
+            a *= mask
+            a = a.unsqueeze(-1)
+            # a : [batch_size, seq_size, 1]
+            # element-wise multiplication(broadcasting) and summation along 1 dim
+            s = (a * x).sum(1)
+            # s : [batch_size, dsa_dim]
+            z = torch.tanh(s)
+            # z : [batch_size, dsa_dim]
+            z_list.append(z)
+            # update q
+            m = z.unsqueeze(-1)
+            # m : [batch_size, dsa_dim, 1]
+            q += torch.matmul(x, m).squeeze(-1)
+            # q : [batch_size, seq_size]
+        return z_list[-1]
+
+    def forward(self, x, mask):
+        # x     : [batch_size, seq_size, dsa_input_dim]
+        # mak   : [batch_size, seq_size]
+        z_list = []
+        for p in self.dsa: # dsa_num_attentions
+            # projection to dsa_dim
+            p_out = F.leaky_relu(p(x))
+            # p_out : [batch_size, seq_size, dsa_dim]
+            z_j = self.__self_attention(p_out, mask, r=self.dsa_r)
+            # z_j : [batch_size, dsa_dim]
+            z_list.append(z_j)
+        z = torch.cat(z_list, dim=-1)
+        # z : [batch_size, dsa_num_attentions * dsa_dim]
+        return z
+
 class CharCNN(BaseModel):
     def __init__(self, config):
         super().__init__(config=config)
@@ -377,6 +440,7 @@ class BertLSTMCRF(BaseModel):
         self.bert_model = bert_model
         self.bert_tokenizer = bert_tokenizer
         self.feature_based = feature_based
+        bert_emb_dim = bert_config.hidden_size
 
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
@@ -386,9 +450,9 @@ class BertLSTMCRF(BaseModel):
 
         # BiLSTM layer
         if self.use_pos:
-            emb_dim = bert_config.hidden_size + pos_emb_dim
+            emb_dim = bert_emb_dim + pos_emb_dim
         else:
-            emb_dim = bert_config.hidden_size
+            emb_dim = bert_emb_dim
         if not self.disable_lstm:
             self.lstm = nn.LSTM(input_size=emb_dim,
                                 hidden_size=lstm_hidden_dim,
@@ -419,6 +483,13 @@ class BertLSTMCRF(BaseModel):
                                                attention_mask=x[1],
                                                token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
                 embedded = bert_outputs[0]
+                '''
+                stack = torch.stack(bert_outputs[2][0:], dim=-1)
+                embedded = torch.mean(stack, dim=-1)
+                # ([batch_size, seq_size, hidden_size], ..., [batch_size, seq_size, hidden_size])
+                # -> stack(-1) -> [batch_size, seq_size, hidden_size, *] 
+                # -> max/mean(-1) ->  [batch_size, seq_size, hidden_size]
+                '''
         else:
             # fine-tuning
             # x[0], x[1], x[2] : [batch_size, seq_size]
@@ -427,8 +498,12 @@ class BertLSTMCRF(BaseModel):
                                            token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
             embedded = bert_outputs[0]
             '''
-            # pooled output, initial embedding layer, 1 ~ last layer's hidden states
-            bert_outputs[1], bert_outputs[2][0], bert_outputs[2][1:]
+            stack = torch.stack(bert_outputs[2][0:], dim=-1)
+            embedded = torch.mean(stack, dim=-1)
+            '''
+            '''
+            last hidden states, pooled output,   initial embedding layer, 1 ~ last layer's hidden states
+            bert_outputs[0],    bert_outputs[1], bert_outputs[2][0],      bert_outputs[2][1:]
             '''
             # [batch_size, seq_size, hidden_size]
             # [batch_size, 0, hidden_size] corresponding to [CLS] == 'embedded[:, 0]'
