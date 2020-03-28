@@ -179,8 +179,8 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.52        | word                 | 70.8322 | BERT as feature-based, mean([0:3] + [-4:]) embedding |
 | BERT-large, BiLSTM-CRF          | 90.81        | word                 | 68.6139 | BERT as feature-based, mean([0:17]) embedding |
 | BERT-large, BiLSTM-CRF          | 90.76        | word                 | 60.8039 | BERT as feature-based, max([0:17]) embedding  |
-| BERT-large, BiLSTM-CRF          | -            | word                 | 60.8039 | BERT as feature-based, mean([0:]) embedding  |
-| BERT-large, BiLSTM-CRF          | -            | word                 | 60.8039 | BERT as feature-based, DSA |
+| BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 | BERT as feature-based, mean([0:]) embedding  |
+| BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, DSA |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -192,12 +192,11 @@ reference pytorch code for named entity tagging.
 | Glove, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  |            |
 | BERT-large, BiLSTM-CRF              | 90.22             | word                         | BERT as feature-based |
 | BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | BERT as feature-based |
-| BERT-large, Glove, BiLSTM-CRF       | 91.19             | word                         | BERT as feature-based, Glove trainable |
 | ELMo, Glove, BiLSTM-CRF             | 91.78             | word, pos                    |            |
 | ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         |            |
 | ELMo, Glove, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  |            |
 | ELMo, Glove, BiLSTM-CRF             | 92.83             | word, character, pos, chunk  | Glove-100d |
-| BERT-large, ELMo, Glove, BiLSTM-CRF | -                 | word, character, pos         | BERT as feature-based, Glove-100d |
+| BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | BERT as feature-based, Glove-100d |
 
 - [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
 
@@ -382,6 +381,11 @@ INFO:__main__:[Elapsed Time] : 224124ms, 60.80396415965246ms on average
 accuracy:  98.09%; precision:  90.67%; recall:  90.85%; FB1:  90.76
 
 * --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use mean([0:]) embedding
+INFO:__main__:[F1] : 0.9071163694155041, 3684
+INFO:__main__:[Elapsed Time] : 217202ms, 58.91121368449633ms on average
+accuracy:  98.13%; precision:  91.00%; recall:  90.95%; FB1:  90.98
+
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use DSA
 
 ```
 
