@@ -135,6 +135,7 @@ class DSA(nn.Module):
     def __init__(self, config, dsa_num_attentions, dsa_input_dim, dsa_dim, dsa_r=3):
         super(DSA, self).__init__()
         self.config = config
+        self.device = config['device']
         dsa = []
         for i in range(dsa_num_attentions):
             dsa.append(nn.Linear(dsa_input_dim, dsa_dim))
@@ -146,14 +147,13 @@ class DSA(nn.Module):
         # x    : [batch_size, seq_size, dsa_dim]
         # mask : [batch_size, seq_size]
         # r    : r iterations
-        device = self.config['device']
         # initialize
         mask = mask.to(torch.float)
         inv_mask = mask.eq(0.0)
         # inv_mask : [batch_size, seq_size], ex) [False, ..., False, True, ..., True]
         softmax_mask = mask.masked_fill(inv_mask, -1e20)
         # softmax_mask : [batch_size, seq_size], ex) [1., 1., 1.,  ..., -1e20, -1e20, -1e20] 
-        q = torch.zeros(mask.shape[0], mask.shape[-1], requires_grad=False).to(torch.float).to(device)
+        q = torch.zeros(mask.shape[0], mask.shape[-1], requires_grad=False).to(torch.float).to(self.device)
         # q : [batch_size, seq_size]
         z_list = []
         # iterative computing attention
@@ -198,6 +198,7 @@ class CharCNN(BaseModel):
     def __init__(self, config):
         super().__init__(config=config)
         self.config = config
+        self.device = config['device']
         self.seq_size = config['n_ctx']
         self.char_n_ctx = config['char_n_ctx']
         char_vocab_size = config['char_vocab_size']
@@ -237,6 +238,7 @@ class GloveLSTMCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
+        self.device = config['device']
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
@@ -316,8 +318,7 @@ class GloveLSTMCRF(BaseModel):
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         if tags is not None: # given golden ys(answer)
-            device = self.config['device']
-            mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
+            mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(self.device)
             # mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
@@ -332,6 +333,7 @@ class GloveDensenetCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
+        self.device = config['device']
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         self.use_crf = use_crf
@@ -381,8 +383,7 @@ class GloveDensenetCRF(BaseModel):
         token_ids = x[0]
         pos_ids = x[1]
 
-        device = self.config['device']
-        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
+        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(self.device)
         # mask : [batch_size, seq_size]
 
         # 1. Embedding
@@ -426,6 +427,7 @@ class BertLSTMCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
+        self.device = config['device']
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
@@ -435,12 +437,30 @@ class BertLSTMCRF(BaseModel):
         self.use_pos = use_pos
         self.disable_lstm = disable_lstm
 
-        # bert embedding
+        # bert embedding layer
         self.bert_config = bert_config
         self.bert_model = bert_model
         self.bert_tokenizer = bert_tokenizer
-        self.feature_based = feature_based
-        bert_emb_dim = bert_config.hidden_size
+        self.bert_feature_based = feature_based
+        self.bert_hidden_size = bert_config.hidden_size
+        self.bert_num_layers = bert_config.num_hidden_layers
+
+        # DSA layer for bert_feature_based
+        dsa_num_attentions = config['dsa_num_attentions']
+        dsa_input_dim = self.bert_hidden_size
+        dsa_dim = config['dsa_dim']
+        dsa_r = config['dsa_r']
+        self.dsa = DSA(config, dsa_num_attentions, dsa_input_dim, dsa_dim, dsa_r=dsa_r)
+        self.layernorm_dsa = nn.LayerNorm(self.dsa.last_dim)
+
+        bert_emb_dim = self.bert_hidden_size
+        if self.bert_feature_based:
+            '''
+            # 1, 2) last layer or mean pooling
+            bert_emb_dim = self.bert_hidden_size
+            '''
+            # 3) DSA pooling
+            bert_emb_dim = self.dsa.last_dim
 
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
@@ -476,20 +496,39 @@ class BertLSTMCRF(BaseModel):
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def __compute_bert_embedding(self, x):
-        if self.feature_based:
+        if self.bert_feature_based:
             # feature-based
             with torch.no_grad():
                 bert_outputs = self.bert_model(input_ids=x[0],
                                                attention_mask=x[1],
                                                token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
-                embedded = bert_outputs[0]
                 '''
+                # 1) last layer
+                embedded = bert_outputs[0]
+                # embedded : [batch_size, seq_size, bert_hidden_size]
+                '''
+                '''
+                # 2) mean pooling
                 stack = torch.stack(bert_outputs[2][0:], dim=-1)
                 embedded = torch.mean(stack, dim=-1)
-                # ([batch_size, seq_size, hidden_size], ..., [batch_size, seq_size, hidden_size])
-                # -> stack(-1) -> [batch_size, seq_size, hidden_size, *] 
-                # -> max/mean(-1) ->  [batch_size, seq_size, hidden_size]
+                # ([batch_size, seq_size, bert_hidden_size], ..., [batch_size, seq_size, bert_hidden_size])
+                # -> stack(-1) -> [batch_size, seq_size, bert_hidden_size, *], ex) * == 25 for bert large
+                # -> max/mean(-1) ->  [batch_size, seq_size, bert_hidden_size]
+                # last hidden states, pooled output,   initial embedding layer, 1 ~ last layer's hidden states
+                # bert_outputs[0],    bert_outputs[1], bert_outputs[2][0],      bert_outputs[2][1:]
                 '''
+                # 3) DSA pooling
+                stack = torch.stack(bert_outputs[2][0:], dim=-2)
+                # stack : [batch_size, seq_size, *, bert_hidden_size]
+                stack = stack.view(-1, self.bert_num_layers + 1, self.bert_hidden_size)
+                # stack : [*, bert_num_layers, bert_hidden_size]
+                dsa_mask = torch.ones(stack.shape[0], stack.shape[1]).to(self.device)
+                # dsa_mask : [*, bert_num_layers]
+                dsa_out = self.dsa(stack, dsa_mask)
+                # dsa_out : [*, self.dsa.last_dim]
+                dsa_out = self.layernorm_dsa(dsa_out)
+                embedded = dsa_out.view(-1, self.seq_size, self.dsa.last_dim)
+                # embedded : [batch_size, seq_size, self.dsa.last_dim]
         else:
             # fine-tuning
             # x[0], x[1], x[2] : [batch_size, seq_size]
@@ -497,16 +536,7 @@ class BertLSTMCRF(BaseModel):
                                            attention_mask=x[1],
                                            token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
             embedded = bert_outputs[0]
-            '''
-            stack = torch.stack(bert_outputs[2][0:], dim=-1)
-            embedded = torch.mean(stack, dim=-1)
-            '''
-            '''
-            last hidden states, pooled output,   initial embedding layer, 1 ~ last layer's hidden states
-            bert_outputs[0],    bert_outputs[1], bert_outputs[2][0],      bert_outputs[2][1:]
-            '''
-            # [batch_size, seq_size, hidden_size]
-            # [batch_size, 0, hidden_size] corresponding to [CLS] == 'embedded[:, 0]'
+            # [batch_size, seq_size, bert_hidden_size]
         return embedded
 
     def forward(self, x, tags=None):
@@ -515,7 +545,7 @@ class BertLSTMCRF(BaseModel):
 
         # 1. Embedding
         bert_embed_out = self.__compute_bert_embedding(x)
-        # bert_embed_out : [batch_size, seq_size, bert_config.hidden_size]
+        # bert_embed_out : [batch_size, seq_size, *]
         pos_ids = x[3]
         pos_embed_out = self.embed_pos(pos_ids)
         # pos_embed_out : [batch_size, seq_size, pos_emb_dim]
@@ -533,15 +563,14 @@ class BertLSTMCRF(BaseModel):
             lstm_out = self.dropout(lstm_out)
         else:
             lstm_out = embed_out
-            # lstm_out : [batch_size, seq_size, bert_config.hidden_size]
+            # lstm_out : [batch_size, seq_size, emb_dim]
 
         # 3. Output
         logits = self.linear(lstm_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         if tags is not None: # given golden ys(answer)
-            device = self.config['device']
-            mask = x[1].to(torch.uint8).to(device)
+            mask = x[1].to(torch.uint8).to(self.device)
             # mask == attention_mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
@@ -556,6 +585,7 @@ class ElmoLSTMCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
+        self.device = config['device']
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         elmo_emb_dim = config['elmo_emb_dim']
@@ -613,8 +643,7 @@ class ElmoLSTMCRF(BaseModel):
         pos_ids = x[1]
         char_ids = x[2]
 
-        device = self.config['device']
-        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(device)
+        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(self.device)
         # mask : [batch_size, seq_size]
 
         # 1. Embedding
