@@ -2,7 +2,7 @@
 
 reference pytorch code for named entity tagging.
 - embedding
-  - word : Glove, BERT, RoBERTa, ELMo
+  - word : Glove, BERT, SpanBERT, RoBERTa, ELMo
   - character : CNN
   - pos : look-up
 - encoding
@@ -162,14 +162,6 @@ reference pytorch code for named entity tagging.
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 |    |
 | BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 |    |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |    |
-| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
-| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
-| ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |    |
-| ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |    |
-| ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |    |
-| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |    |
-| SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
-| SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 | BERT as feature-based, initial embedding |
 | BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 | BERT as feature-based, initial embedding |
 | BERT-large, BiLSTM              | 89.72        | word                 | 47.9704 | BERT as feature-based, initial+first+last embedding |
@@ -181,6 +173,14 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.76        | word                 | 60.8039 | BERT as feature-based, max([0:17]) embedding  |
 | BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 | BERT as feature-based, mean([0:]) embedding  |
 | BERT-large, BiLSTM-CRF          | -            | word                 | -       | BERT as feature-based, DSA |
+| SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
+| SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
+| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
+| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
+| ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |    |
+| ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |    |
+| ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |    |
+| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 |    |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
