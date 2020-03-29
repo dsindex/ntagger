@@ -2,7 +2,7 @@
 
 reference pytorch code for named entity tagging.
 - embedding
-  - word : Glove, BERT, SpanBERT, RoBERTa, ELMo
+  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, RoBERTa, ELMo
   - character : CNN
   - pos : look-up
 - encoding
