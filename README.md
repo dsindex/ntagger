@@ -99,13 +99,13 @@ reference pytorch code for named entity tagging.
         ...
         ```
       - there is no test set. so, set valid.txt as test.txt.
-    - Korean BERT and Glove were described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+    - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
       - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
       - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
       - dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
       - `kor.glove.300k.300d.txt`   (inhouse)
         - training corpus is the same as the data for Korean BERT.
-    - Korean ELMo was described [here](https://github.com/dsindex/bilm-tf)
+    - Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
       - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
         - training corpus is the same as the data for Korean BERT.
   - KMOU NER 2019 (Korean)
