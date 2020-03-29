@@ -456,7 +456,7 @@ class BertLSTMCRF(BaseModel):
         bert_emb_dim = self.bert_hidden_size
         if self.bert_feature_based:
             '''
-            # 1, 2) last layer or mean pooling
+            # 1) last layer, 2) mean pooling
             bert_emb_dim = self.bert_hidden_size
             '''
             # 3) DSA pooling
