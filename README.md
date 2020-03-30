@@ -171,8 +171,8 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.52        | word                 | 70.8322 | BERT as feature-based, mean([0:3] + [-4:]) embedding |
 | BERT-large, BiLSTM-CRF          | 90.81        | word                 | 68.6139 | BERT as feature-based, mean([0:17]) embedding |
 | BERT-large, BiLSTM-CRF          | 90.76        | word                 | 60.8039 | BERT as feature-based, max([0:17]) embedding  |
-| BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 | BERT as feature-based, mean([0:]) embedding  |
-| BERT-large, BiLSTM-CRF          | 90.62        | word                 | 66.6576 | BERT as feature-based, DSA |
+| BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 | BERT as feature-based, mean([0:]) embedding   |
+| BERT-large, BiLSTM-CRF          | 90.62        | word                 | 66.6576 | BERT as feature-based, DSA(4, 300)  |
 | SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
@@ -385,12 +385,15 @@ INFO:__main__:[F1] : 0.9071163694155041, 3684
 INFO:__main__:[Elapsed Time] : 217202ms, 58.91121368449633ms on average
 accuracy:  98.13%; precision:  91.00%; recall:  90.95%; FB1:  90.98
 
-* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use DSA
+* --bert_use_feature_based --use_crf --epoch=64 --lr=3e-4 , modify model.py to use DSA(4, 300)
 INFO:__main__:[F1] : 0.9036879808967896, 3684
 INFO:__main__:[Elapsed Time] : 245729ms, 66.65761607385284ms on average
 accuracy:  98.08%; precision:  90.78%; recall:  90.46%; FB1:  90.62
 
-* --bert_use_feature_based --use_crf --epoch=64 --lr=1e-3 --decay_rate=0.9 , modify model.py to use DSA
+* --bert_use_feature_based --use_crf --epoch=64 --lr=1e-3 --decay_rate=0.9 , modify model.py to use DSA(2, 1024)
+INFO:__main__:[F1] : 0.8953335090957026, 3684
+INFO:__main__:[Elapsed Time] : 219016ms, 59.40619060548466ms on average
+accuracy:  97.94%; precision:  89.37%; recall:  90.19%; FB1:  89.78
 
 ```
 
