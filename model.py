@@ -499,9 +499,23 @@ class BertLSTMCRF(BaseModel):
         if self.bert_feature_based:
             # feature-based
             with torch.no_grad():
-                bert_outputs = self.bert_model(input_ids=x[0],
-                                               attention_mask=x[1],
-                                               token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
+                if 'bart' in self.config['emb_class']:
+                    bert_outputs = self.bert_model(input_ids=x[0],
+                                                   attention_mask=x[1])
+                    # bart model's output(output_hidden_states == True)
+                    # [0] last decoder layer's output : [batch_size, seq_size, bert_hidden_size]
+                    # [1] all hidden states of decoder layer's
+                    # [2] last encoder layer's output : [seq_size, batch_size, bert_hidden_size]
+                    # [3] all hidden states of encoder layer's
+                    all_hidden_states = bert_outputs[1][0:]
+                else:
+                    bert_outputs = self.bert_model(input_ids=x[0],
+                                                   attention_mask=x[1],
+                                                   token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
+                    all_hidden_states = bert_outputs[2][0:]
+                    # last hidden states, pooled output,   initial embedding layer, 1 ~ last layer's hidden states
+                    # bert_outputs[0],    bert_outputs[1], bert_outputs[2][0],      bert_outputs[2][1:]
+
                 '''
                 # 1) last layer
                 embedded = bert_outputs[0]
@@ -509,16 +523,14 @@ class BertLSTMCRF(BaseModel):
                 '''
                 '''
                 # 2) mean pooling
-                stack = torch.stack(bert_outputs[2][0:], dim=-1)
+                stack = torch.stack(all_hidden_states, dim=-1)
                 embedded = torch.mean(stack, dim=-1)
                 # ([batch_size, seq_size, bert_hidden_size], ..., [batch_size, seq_size, bert_hidden_size])
                 # -> stack(-1) -> [batch_size, seq_size, bert_hidden_size, *], ex) * == 25 for bert large
                 # -> max/mean(-1) ->  [batch_size, seq_size, bert_hidden_size]
-                # last hidden states, pooled output,   initial embedding layer, 1 ~ last layer's hidden states
-                # bert_outputs[0],    bert_outputs[1], bert_outputs[2][0],      bert_outputs[2][1:]
                 '''
                 # 3) DSA pooling
-                stack = torch.stack(bert_outputs[2][0:], dim=-2)
+                stack = torch.stack(all_hidden_states, dim=-2)
                 # stack : [batch_size, seq_size, *, bert_hidden_size]
                 stack = stack.view(-1, self.bert_num_layers + 1, self.bert_hidden_size)
                 # stack : [*, bert_num_layers, bert_hidden_size]
@@ -532,11 +544,16 @@ class BertLSTMCRF(BaseModel):
         else:
             # fine-tuning
             # x[0], x[1], x[2] : [batch_size, seq_size]
-            bert_outputs = self.bert_model(input_ids=x[0],
-                                           attention_mask=x[1],
-                                           token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
-            embedded = bert_outputs[0]
-            # [batch_size, seq_size, bert_hidden_size]
+            if 'bart' in self.config['emb_class']:
+                bert_outputs = self.bert_model(input_ids=x[0],
+                                               attention_mask=x[1])
+                embedded = bert_outputs[0]
+            else:
+                bert_outputs = self.bert_model(input_ids=x[0],
+                                               attention_mask=x[1],
+                                               token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2]) # RoBERTa don't use segment_ids
+                embedded = bert_outputs[0]
+                # embedded : [batch_size, seq_size, bert_hidden_size]
         return embedded
 
     def forward(self, x, tags=None):

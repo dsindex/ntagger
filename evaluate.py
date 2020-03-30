@@ -68,7 +68,7 @@ def set_path(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    if 'bert' in config['emb_class']:
+    if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     if config['emb_class'] == 'elmo':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
@@ -81,7 +81,7 @@ def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if 'bert' in config['emb_class']:
+    if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
@@ -107,12 +107,14 @@ def load_model(config, checkpoint):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
-    if 'bert' in config['emb_class']:
+    if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
         from transformers import RobertaConfig, RobertaTokenizer, RobertaModel
+        from transformers import BartConfig, BartTokenizer, BartModel
         MODEL_CLASSES = {
             "bert": (BertConfig, BertTokenizer, BertModel),
-            "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel)
+            "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel),
+            "bart": (BartConfig, BartTokenizer, BartModel)
         }
         Config    = MODEL_CLASSES[config['emb_class']][0]
         Tokenizer = MODEL_CLASSES[config['emb_class']][1]

@@ -2,7 +2,7 @@
 
 reference pytorch code for named entity tagging.
 - embedding
-  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, RoBERTa, ELMo
+  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, RoBERTa, BART, ELMo
   - character : CNN
   - pos : look-up
 - encoding
@@ -28,7 +28,7 @@ reference pytorch code for named entity tagging.
     glove.6B.zip
     $ unzip glove.6B.zip 
     ```
-  - BERT(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  - BERT, RoBERTa, BART(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   ```
   $ pip install tensorflow-gpu==2.0.0
   $ pip install transformers
@@ -177,6 +177,7 @@ reference pytorch code for named entity tagging.
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
+| BART-large, BiLSTM              | -            | word                 | -       |    |
 | ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |    |
 | ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |    |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |    |
@@ -443,6 +444,22 @@ INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
 * --bert_model_name_or_path=./embeddings/roberta-base --bert_disable_lstm
 INFO:__main__:[F1] : 0.9002973587545915, 3684
 INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
+
+```
+
+### emb_class=bart, enc_class=bilstm
+
+- train
+```
+* n_ctx size should be less than 512
+$ python preprocess.py --config=configs/config-bart.json --bert_model_name_or_path=./embeddings/bart-large
+$ python train.py --config=configs/config-bart.json --save_path=pytorch-model-bart.pt --bert_model_name_or_path=./embeddings/bart-large --bert_output_dir=bert-checkpoint-bart --batch_size=32 --lr=1e-5 --epoch=10
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bart.json --model_path=pytorch-model-bart.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-bart
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 ```
 

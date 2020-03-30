@@ -194,7 +194,7 @@ def set_path(config):
     if config['emb_class'] == 'glove':
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
-    if 'bert' in config['emb_class']:
+    if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.fs')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.fs')
     if config['emb_class'] == 'elmo':
@@ -208,7 +208,7 @@ def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if 'bert' in config['emb_class']:
+    if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
@@ -227,21 +227,24 @@ def prepare_model(config):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
-    if 'bert' in config['emb_class']:
+    if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
         from transformers import RobertaConfig, RobertaTokenizer, RobertaModel
+        from transformers import BartConfig, BartTokenizer, BartModel
         MODEL_CLASSES = {
             "bert": (BertConfig, BertTokenizer, BertModel),
-            "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel)
+            "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel),
+            "bart": (BartConfig, BartTokenizer, BartModel)
         }
         Config    = MODEL_CLASSES[config['emb_class']][0]
         Tokenizer = MODEL_CLASSES[config['emb_class']][1]
         Model     = MODEL_CLASSES[config['emb_class']][2]
         bert_tokenizer = Tokenizer.from_pretrained(opt.bert_model_name_or_path,
                                                    do_lower_case=opt.bert_do_lower_case)
+        output_hidden_states = True
         bert_model = Model.from_pretrained(opt.bert_model_name_or_path,
                                            from_tf=bool(".ckpt" in opt.bert_model_name_or_path),
-                                           output_hidden_states=True)
+                                           output_hidden_states=output_hidden_states)
         bert_config = bert_model.config
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
@@ -318,7 +321,7 @@ def train(opt):
             if opt.save_path:
                 logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
                 save_model(model, opt, config)
-                if 'bert' in config['emb_class']:
+                if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
                     if not os.path.exists(opt.bert_output_dir):
                         os.makedirs(opt.bert_output_dir)
                     model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
