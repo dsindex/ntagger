@@ -175,6 +175,8 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.62        | word                 | 66.6576 | BERT as feature-based, DSA(4, 300)  |
 | SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
+| ALBERT-base, BiLSTM             | -            | word                 | -       |    |
+| ALBERT-xxlarge, BiLSTM          | -            | word                 | -       |    |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
 | BART-large, BiLSTM              | 90.43        | word                 | 53.3657 |    |
@@ -395,6 +397,24 @@ accuracy:  98.08%; precision:  90.78%; recall:  90.46%; FB1:  90.62
 INFO:__main__:[F1] : 0.8953335090957026, 3684
 INFO:__main__:[Elapsed Time] : 219016ms, 59.40619060548466ms on average
 accuracy:  97.94%; precision:  89.37%; recall:  90.19%; FB1:  89.78
+
+```
+
+### emb_class=albert, enc_class=bilstm
+
+- train
+```
+* n_ctx size should be less than 512
+$ python preprocess.py --config=configs/config-albert.json --bert_model_name_or_path=./embeddings/albert-xxlarge-v2
+$ python train.py --config=configs/config-albert.json --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-xxlarge-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=10
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-albert.json --model_path=pytorch-model-albert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-albert
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+* --bert_model_name_or_path=./embeddings/albert-base-v2 
 
 ```
 
