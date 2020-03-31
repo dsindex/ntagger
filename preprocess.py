@@ -322,10 +322,12 @@ def preprocess_bert(config):
     opt = config['opt']
 
     from transformers import BertTokenizer
+    from transformers import AlbertTokenizer
     from transformers import RobertaTokenizer
     from transformers import BartTokenizer
     TOKENIZER_CLASSES = {
         "bert": BertTokenizer,
+        "albert": AlbertTokenizer,
         "roberta": RobertaTokenizer,
         "bart": BartTokenizer
     }

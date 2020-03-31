@@ -229,10 +229,12 @@ def prepare_model(config):
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
         from transformers import BertTokenizer, BertConfig, BertModel
+        from transformers import AlbertTokenizer, AlbertConfig, AlbertModel
         from transformers import RobertaConfig, RobertaTokenizer, RobertaModel
         from transformers import BartConfig, BartTokenizer, BartModel
         MODEL_CLASSES = {
             "bert": (BertConfig, BertTokenizer, BertModel),
+            "albert": (AlbertConfig, AlbertTokenizer, AlbertModel),
             "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel),
             "bart": (BartConfig, BartTokenizer, BartModel)
         }
