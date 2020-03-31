@@ -177,7 +177,7 @@ reference pytorch code for named entity tagging.
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
-| BART-large, BiLSTM              | -            | word                 | -       |    |
+| BART-large, BiLSTM              | 90.43        | word                 | 53.3657 |    |
 | ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 |    |
 | ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 |    |
 | ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 |    |
@@ -460,6 +460,10 @@ $ python train.py --config=configs/config-bart.json --save_path=pytorch-model-ba
 ```
 $ python evaluate.py --config=configs/config-bart.json --model_path=pytorch-model-bart.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-bart
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.9042961928047503, 3684
+INFO:__main__:[Elapsed Time] : 196742ms, 53.36573445560684ms on average
+accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
 
 ```
 
