@@ -2,7 +2,7 @@
 
 reference pytorch code for named entity tagging.
 - embedding
-  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, RoBERTa, BART, ELMo
+  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELMo
   - character : CNN
   - pos : look-up
 - encoding
@@ -176,7 +176,7 @@ reference pytorch code for named entity tagging.
 | SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | ALBERT-base, BiLSTM             | 80.98        | word                 | 30.3434 |    |
-| ALBERT-xxlarge, BiLSTM          | -            | word                 | -       |    |
+| ALBERT-xxlarge, BiLSTM          | 84.43        | word                 | 108.309 |    |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
 | BART-large, BiLSTM              | 90.43        | word                 | 53.3657 |    |
@@ -419,6 +419,9 @@ INFO:__main__:[Elapsed Time] : 111861ms, 30.34346999728482ms on average
 accuracy:  96.03%; precision:  79.51%; recall:  82.44%; FB1:  80.95
 
 * --bert_model_name_or_path=./embeddings/albert-xxlarge-v2 --batch_size=16
+INFO:__main__:[F1] : 0.8462152808589937, 3684
+INFO:__main__:[Elapsed Time] : 399120ms, 108.30925875644854ms on average
+accuracy:  96.67%; precision:  84.47%; recall:  84.38%; FB1:  84.43
 
 ```
 
