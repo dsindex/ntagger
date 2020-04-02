@@ -176,7 +176,7 @@ reference pytorch code for named entity tagging.
 | SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 |    |
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 |    |
 | ALBERT-base, BiLSTM             | 88.19        | word                 | 31.0868 |    |
-| ALBERT-xxlarge, BiLSTM          | -            | word                 | -       |    |
+| ALBERT-xxlarge, BiLSTM          | 90.39        | word                 | 107.778 |    |
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 |    |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 |    |
 | BART-large, BiLSTM              | 90.43        | word                 | 53.3657 |    |
@@ -419,6 +419,9 @@ INFO:__main__:[Elapsed Time] : 114627ms, 31.08688569101276ms on average
 accuracy:  97.44%; precision:  86.93%; recall:  89.48%; FB1:  88.19
 
 * --bert_model_name_or_path=./embeddings/albert-xxlarge-v2 --batch_size=16
+INFO:__main__:[F1] : 0.9041648399824638, 3684
+INFO:__main__:[Elapsed Time] : 397151ms, 107.77871300570187ms on average
+accuracy:  98.06%; precision:  89.51%; recall:  91.29%; FB1:  90.39
 
 ```
 
