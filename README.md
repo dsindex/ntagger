@@ -1,10 +1,11 @@
 ## ntagger
 
 reference pytorch code for named entity tagging.
+
 - embedding
   - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELMo
   - character : CNN
-  - pos : look-up
+  - pos : lookup
 - encoding
   - BiLSTM
   - DenseNet
