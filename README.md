@@ -1022,3 +1022,5 @@ token_eval micro F1: 0.8926606215608773
 - scalar mixtures of BERT all layers
   - [ScalarMixWithDropout](https://github.com/Hyperparticle/udify/blob/master/udify/modules/scalar_mix.py)
   - [ScalarMix](https://github.com/allenai/allennlp/blob/master/allennlp/modules/scalar_mix.py)
+- [Poor Man’s BERT: Smaller and Faster Transformer Models](https://arxiv.org/pdf/2004.03844v1.pdf)
+  - https://github.com/hsajjad/transformers/blob/master/examples/run_glue.py
