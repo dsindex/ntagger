@@ -216,6 +216,27 @@ def prepare_datasets(config):
     valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, shuffle=False, num_workers=2)
     return train_loader, valid_loader
 
+def get_bert_embed_layer_list(config, bert_model):
+    opt = config['opt']
+    embed_list = list(bert_model.embeddings.parameters())
+    layer_list = bert_model.encoder.layer
+    return embed_list, layer_list
+
+def reduce_bert_model(config, bert_model, bert_config):
+    opt = config['opt']
+    embed_list, layer_list = get_bert_embed_layer_list(config, bert_model)
+    remove_layers = opt.bert_remove_layers
+    # drop layers
+    if remove_layers is not "":
+        layer_indexes = [int(x) for x in remove_layers.split(",")]
+        layer_indexes.sort(reverse=True)
+        for layer_idx in layer_indexes:
+            if layer_idx < 0 or layer_idx >= bert_config.num_hidden_layers: continue
+            del(layer_list[layer_idx])
+            logger.info("%s layer removed" % (layer_idx))
+        if len(layer_indexes) > 0:
+            bert_config.num_hidden_layers = len(layer_list)
+
 def prepare_model(config):
     device = config['device']
     opt = config['opt']
@@ -248,6 +269,8 @@ def prepare_model(config):
                                            from_tf=bool(".ckpt" in opt.bert_model_name_or_path),
                                            output_hidden_states=output_hidden_states)
         bert_config = bert_model.config
+        # bert model reduction
+        reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
@@ -381,6 +404,8 @@ def main():
     parser.add_argument('--bert_disable_lstm', action='store_true',
                         help="disable lstm layer")
     parser.add_argument('--bert_use_pos', action='store_true', help="add Part-Of-Speech features")
+    parser.add_argument('--bert_remove_layers', type=str, default='',
+                        help="specify layer numbers to remove during finetuning e.g. 8,9,10,11 to remove last 4 layers from BERT base(12 layers)")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
