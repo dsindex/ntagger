@@ -162,7 +162,7 @@ reference pytorch code for named entity tagging.
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 |    |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 |    |
 | BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 |    |
-| BERT-base, BiLSTM               | -            | word                 | -       | del 8,9,10,11 |
+| BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 | del 8,9,10,11 |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 |    |
 | BERT-large, BiLSTM              | -            | word                 | -       | del 12 ~ 23   |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 | BERT as feature-based, initial embedding |
@@ -402,6 +402,9 @@ INFO:__main__:[Elapsed Time] : 219016ms, 59.40619060548466ms on average
 accuracy:  97.94%; precision:  89.37%; recall:  90.19%; FB1:  89.78
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_remove_layers=8,9,10,11
+INFO:__main__:[F1] : 0.8902760682257781, 3684
+INFO:__main__:[Elapsed Time] : 91854ms, 24.907683953298942ms on average
+accuracy:  97.75%; precision:  88.42%; recall:  89.64%; FB1:  89.03
 
 * --bert_remove_layers=12,13,14,15,16,17,18,19,20,21,22,23
 
