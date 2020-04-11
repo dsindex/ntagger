@@ -578,19 +578,20 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms, GPU / CPU) |
-| ------------------------------ | ------------- | -------------- | --------------------- | --------------------------------- |
-| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |
-| **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 / - |
-| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |
-| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |
-| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |
-| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |
-| dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |
-| ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |
-| ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |
-| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |
-| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |
+|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms, GPU / CPU) | Etc  |
+| ------------------------------ | ------------- | -------------- | --------------------- | -------------------------------------- | ---- |  
+| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |   |
+| **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 / - |   |
+| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |   |
+| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |   |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |   |
+| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | del 8,9,10,11 |
+| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |   |
+| dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |   |
+| ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |   |
+| ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |   |
+| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |   |
+| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |   |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -702,6 +703,9 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
   *** evaluation eoj-by-eoj
   accuracy:  93.19%; precision:  83.25%; recall:  83.34%; FB1:  83.29
 
+** --bert_remove_layers=8,9,10,11
+
+  *** evaluation eoj-by-eoj
 
 * for clova2019
 
@@ -810,19 +814,20 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | span / token F1 (%)    | Features              | Etc        | Elapsed time / example (ms, GPU / CPU) |
-| ------------------------------ | ---------------------- | --------------------- | ---------- | -------------------------------------- |    
-| Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |            | 34.2192 / - |
-| **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |            | 37.2386 / - |
-| Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |            | 23.3758 / - |
-| Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |            | 22.6004 / - |
-| dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |            | 44.3250 / - |
-| dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |            | 37.7829 / - |
-| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |            | 39.0183 / - |
-| ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            |            | 128.029 / - |
-| ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos |            | 127.514 / - |
-| ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            |            | 132.933 / - |
-| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |            | 110.277 / - |
+|                                | span / token F1 (%)    | Features              | Etc           | Elapsed time / example (ms, GPU / CPU) |
+| ------------------------------ | ---------------------- | --------------------- | ------------- | -------------------------------------- |    
+| Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |               | 34.2192 / - |
+| **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |               | 37.2386 / - |
+| Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
+| Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
+| dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |               | 44.3250 / - |
+| dha BERT(2.5m), BiLSTM-CRF     | -     / -              | morph, pos            | del 8,9,10,11 | -       / - |
+| dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |               | 37.7829 / - |
+| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |               | 39.0183 / - |
+| ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            |               | 128.029 / - |
+| ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos |               | 127.514 / - |
+| ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            |               | 132.933 / - |
+| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |               | 110.277 / - |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -926,6 +931,8 @@ INFO:__main__:[F1] : 0.8546656869948568, 927
 INFO:__main__:[Elapsed Time] : 41296ms, 44.32505399568034ms on average
 accuracy:  96.83%; precision:  85.53%; recall:  85.40%; FB1:  85.47
 token_eval micro F1: 0.8731952291274326
+
+  ** --bert_remove_layers=8,9,10,11
 
 * dha(10m)
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
