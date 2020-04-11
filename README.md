@@ -151,8 +151,8 @@ reference pytorch code for named entity tagging.
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                 | F1 (%)       | Features             | Elapsed time / example (ms) | Etc   |
-| ------------------------------- | -----------  | -------------------- | --------------------------- | ----- |
+|                                 | F1 (%)       | Features             | Elapsed time / example (ms, V100) | Etc   |
+| ------------------------------- | -----------  | -------------------- | --------------------------------- | ----- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 |    |
 | **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 |    |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 |    |
@@ -558,8 +558,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                              | F1 (%)      | Features | Elapsed time / example (ms) |
-| ---------------------------- | ------------| -------- | --------------------------- |    
+|                              | F1 (%)      | Features | Elapsed time / example (ms, V100) |
+| ---------------------------- | ------------| -------- | --------------------------------- |    
 | bpe BERT(4.8m), BiLSTM-CRF   | **85.26**   | eoj      | 44.094  |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), measured by seqeval (same as conlleval, micro F1)
@@ -575,8 +575,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms) |
-| ------------------------------ | ------------- | -------------- | --------------------- | --------------------------- |
+|                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms, V100) |
+| ------------------------------ | ------------- | -------------- | --------------------- | --------------------------------- |
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 |
 | **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 |
@@ -807,8 +807,8 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | span / token F1 (%)    | Features              | Etc        | Elapsed time / example (ms) |
-| ------------------------------ | ---------------------- | --------------------- | ---------- | --------------------------- |    
+|                                | span / token F1 (%)    | Features              | Etc        | Elapsed time / example (ms, V100) |
+| ------------------------------ | ---------------------- | --------------------- | ---------- | --------------------------------- |    
 | Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |            | 34.2192 |
 | **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |            | 37.2386 |
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |            | 23.3758 |
