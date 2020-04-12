@@ -153,10 +153,10 @@ reference pytorch code for named entity tagging.
 
 |                                 | F1 (%)       | Features             | Elapsed time / example (ms, GPU / CPU) | Etc   |
 | ------------------------------- | -----------  | -------------------- | -------------------------------------- | ----- |
-| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / -        |     |
+| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  | threads=14 |
 | **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 / 74.6060  | threads=14 |
-| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / -        |     |
-| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / -        |     |
+| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  | threads=14 |
+| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  | threads=14 |
 | BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |     |
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |     |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |     |
@@ -195,7 +195,7 @@ reference pytorch code for named entity tagging.
 | Glove, BiLSTM-CRF                   | 87.91             | word                         | - / -            |       |
 | Glove, BiLSTM-CRF                   | 89.20             | word, pos                    | - / -            |       |
 | Glove, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14 |
-| Glove, BiLSTM-CRF                   | -                 | word, character, pos         | 25.0094 / 7.0887 | LSTMCell(), threads=14           |
+| Glove, BiLSTM-CRF                   | 90.57             | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14           |
 | Glove, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |       |
 | BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based |
 | BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based |
