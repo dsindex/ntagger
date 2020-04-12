@@ -153,18 +153,18 @@ reference pytorch code for named entity tagging.
 
 |                                 | F1 (%)       | Features             | Elapsed time / example (ms, GPU / CPU) | Etc   |
 | ------------------------------- | -----------  | -------------------- | -------------------------------------- | ----- |
-| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  | threads=14 |
-| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 / 74.6060  | threads=14 |
-| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  | threads=14 |
-| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  | threads=14 |
-| BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |     |
-| BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |     |
-| BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |     |
-| BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |     |
-| BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |     |
+| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  | threads=14  |
+| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 / 74.6060  | threads=14  |
+| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  | threads=14  |
+| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  | threads=14  |
+| BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |             |
+| BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |             |
+| BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |             |
+| BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |             |
+| BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |             |
 | BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.666  | del 8,9,10,11 , threads=14 |
-| BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |     |
-| BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        | del 12 ~ 23   |
+| BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |             |
+| BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        | del 12 ~ 23 |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 / -        | BERT as feature-based, initial embedding |
 | BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 / -        | BERT as feature-based, initial embedding |
 | BERT-large, BiLSTM              | 89.72        | word                 | 47.9704 / -        | BERT as feature-based, initial+first+last embedding |
@@ -176,33 +176,33 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF          | 90.76        | word                 | 60.8039 / -        | BERT as feature-based, max([0:17]) embedding  |
 | BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 / -        | BERT as feature-based, mean([0:]) embedding   |
 | BERT-large, BiLSTM-CRF          | 90.62        | word                 | 66.6576 / -        | BERT as feature-based, DSA(4, 300)  |
-| SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 / -        |     |
-| SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 / -        |     |
-| ALBERT-base, BiLSTM             | 88.19        | word                 | 31.0868 / -        |     |
-| ALBERT-xxlarge, BiLSTM          | 90.39        | word                 | 107.778 / -        |     |
-| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 / -        |     |
-| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 / -        |     |
-| BART-large, BiLSTM              | 90.43        | word                 | 53.3657 / -        |     |
-| ELMo, BiLSTM                    | 91.78        | word, pos            | 74.1001 / -        |     |
-| ELMo, BiLSTM                    | 91.93        | word, character, pos | 67.6931 / -        |     |
-| ELMo, Glove, BiLSTM             | **92.23**    | word, pos            | 79.9896 / -        |     |
-| ELMo, Glove, BiLSTM             | 91.97        | word, character, pos | 79.0648 / -        |     |
+| SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 / -        |             |
+| SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 / -        |             |
+| ALBERT-base, BiLSTM             | 88.19        | word                 | 31.0868 / -        |             |
+| ALBERT-xxlarge, BiLSTM          | 90.39        | word                 | 107.778 / -        |             |
+| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 / -        |             |
+| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 / -        |             |
+| BART-large, BiLSTM              | 90.43        | word                 | 53.3657 / -        |             |
+| ELMo, BiLSTM-CRF                | 91.78        | word, pos            | 74.1001 / -        |             |
+| ELMo, BiLSTM-CRF                | 91.93        | word, character, pos | 67.6931 / -        |             |
+| ELMo, Glove, BiLSTM-CRF         | **92.23**    | word, pos            | 79.9896 / -        |             |
+| ELMo, Glove, BiLSTM-CRF         | 91.97        | word, character, pos | 79.0648 / 232.1111 | threads=14  |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                                     | F1 (%)            | Features                     | Elapsed time / example (ms, GPU / CPU) | Etc        |
-| ----------------------------------- | ----------------  | ---------------------------- | -------------------------------------- | ---------- |
-| Glove, BiLSTM-CRF                   | 87.91             | word                         | - / -            |       |
-| Glove, BiLSTM-CRF                   | 89.20             | word, pos                    | - / -            |       |
-| Glove, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14 |
-| Glove, BiLSTM-CRF                   | 90.57             | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14           |
-| Glove, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |       |
-| BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based |
-| BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based |
-| ELMo, Glove, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |       |
-| ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         | - / -            |       |
-| ELMo, Glove, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |       |
-| ELMo, Glove, BiLSTM-CRF             | 92.83             | word, character, pos, chunk  | - / -            | Glove-100d |
+|                                     | F1 (%)            | Features                     | Elapsed time / example (ms, GPU / CPU) | Etc         |
+| ----------------------------------- | ----------------  | ---------------------------- | -------------------------------------- | ----------- |
+| Glove, BiLSTM-CRF                   | 87.91             | word                         | - / -            |                                   |
+| Glove, BiLSTM-CRF                   | 89.20             | word, pos                    | 14.9682 / 5.0336 | LSTMBlockFusedCell(), threads=14  |
+| Glove, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
+| Glove, BiLSTM-CRF                   | 90.57             | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14            |
+| Glove, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |                                   |
+| BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based             |
+| BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based             |
+| ELMo, Glove, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |                                   |
+| ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295281 | threads=14                        |
+| ELMo, Glove, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |                                   |
+| ELMo, Glove, BiLSTM-CRF             | 92.83             | word, character, pos, chunk  | - / -            | Glove-100d                        |
 | BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
 
 - [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
