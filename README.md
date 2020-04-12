@@ -582,11 +582,11 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms, GPU / CPU) | Etc  |
 | ------------------------------ | ------------- | -------------- | --------------------- | -------------------------------------- | ---- |  
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |   |
-| **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 / - |   |
+| **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 / 71.9898 | 64.7878 ms(CPU) without CRF |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |   |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |   |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |   |
-| dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / 173.4646 | del 8,9,10,11, threads=14 |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / 173.464 | del 8,9,10,11, threads=14 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |   |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |   |
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |   |
