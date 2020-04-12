@@ -118,7 +118,7 @@ export OMP_NUM_THREADS=14
 export KMP_AFFINITY=granularity=fine,explicit
 
 #numactl --cpunodebind=0 --membind=0
-numactl --physcpubind=0-13 --membind=0 
+numactl --physcpubind=0-13 --membind=0 python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos --device=cpu --num_examples=100 --num_threads=14 
 
 close_fd
 
