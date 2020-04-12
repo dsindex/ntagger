@@ -824,7 +824,7 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
 | Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |               | 44.3250 / - |
-| dha BERT(2.5m), BiLSTM-CRF     | -     / -              | morph, pos            | del 8,9,10,11 | -       / - |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | del 8,9,10,11, threads=14 | 40.5205 / 174.0303 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |               | 37.7829 / - |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |               | 39.0183 / - |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            |               | 128.029 / - |
@@ -936,6 +936,10 @@ accuracy:  96.83%; precision:  85.53%; recall:  85.40%; FB1:  85.47
 token_eval micro F1: 0.8731952291274326
 
   ** --bert_remove_layers=8,9,10,11
+  INFO:__main__:[F1] : 0.8392018779342724, 927
+  INFO:__main__:[Elapsed Time] : 37666ms, 40.52051835853132ms on average
+  accuracy:  96.88%; precision:  83.99%; recall:  83.99%; FB1:  83.99
+  token_eval micro F1: 0.8754817902934005
 
 * dha(10m)
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
