@@ -585,7 +585,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |   |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |   |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |   |
-| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | del 8,9,10,11 |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / 173.4646 | del 8,9,10,11, threads=14 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |   |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |   |
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |   |
@@ -704,8 +704,11 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
   accuracy:  93.19%; precision:  83.25%; recall:  83.34%; FB1:  83.29
 
 ** --bert_remove_layers=8,9,10,11
-
+  INFO:__main__:[F1] : 0.8361804271488914, 9000
+  INFO:__main__:[Elapsed Time] : 414339ms, 46.025447271919106ms on average
+  accuracy:  93.83%; precision:  83.31%; recall:  83.79%; FB1:  83.55
   *** evaluation eoj-by-eoj
+  accuracy:  93.31%; precision:  83.78%; recall:  83.93%; FB1:  83.85 
 
 * for clova2019
 
