@@ -195,7 +195,7 @@ reference pytorch code for named entity tagging.
 | Glove, BiLSTM-CRF                   | 87.91             | word                         | - / -            |       |
 | Glove, BiLSTM-CRF                   | 89.20             | word, pos                    | - / -            |       |
 | Glove, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14 |
-| Glove, BiLSTM-CRF                   | -                 | word, character, pos         | 25.0094 / 7.0887 | LSTMCELL(), threads=14           |
+| Glove, BiLSTM-CRF                   | -                 | word, character, pos         | 25.0094 / 7.0887 | LSTMCell(), threads=14           |
 | Glove, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |       |
 | BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based |
 | BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based |
