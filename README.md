@@ -162,7 +162,7 @@ reference pytorch code for named entity tagging.
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |     |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |     |
 | BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |     |
-| BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.6666 | del 8,9,10,11 |
+| BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.666  | del 8,9,10,11 , threads=14 |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |     |
 | BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        | del 12 ~ 23   |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 / -        | BERT as feature-based, initial embedding |
@@ -821,7 +821,7 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 |                                | span / token F1 (%)    | Features              | Etc           | Elapsed time / example (ms, GPU / CPU) |
 | ------------------------------ | ---------------------- | --------------------- | ------------- | -------------------------------------- |    
 | Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |               | 34.2192 / - |
-| **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |               | 37.2386 / - |
+| **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos | threads=14    | 37.2386 / 77.3434 |
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
 | Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |               | 44.3250 / - |
