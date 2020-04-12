@@ -200,7 +200,7 @@ reference pytorch code for named entity tagging.
 | BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based             |
 | BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based             |
 | ELMo, Glove, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |                                   |
-| ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295281 | threads=14                        |
+| ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
 | ELMo, Glove, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |                                   |
 | ELMo, Glove, BiLSTM-CRF             | 92.83             | word, character, pos, chunk  | - / -            | Glove-100d                        |
 | BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
