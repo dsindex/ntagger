@@ -121,10 +121,10 @@ def load_model(config, checkpoint):
         Config    = MODEL_CLASSES[config['emb_class']][0]
         Tokenizer = MODEL_CLASSES[config['emb_class']][1]
         Model     = MODEL_CLASSES[config['emb_class']][2]
+        bert_config = Config.from_pretrained(opt.bert_output_dir)
         bert_tokenizer = Tokenizer.from_pretrained(opt.bert_output_dir,
                                                    do_lower_case=opt.bert_do_lower_case)
-        bert_model = Model.from_pretrained(opt.bert_output_dir)
-        bert_config = bert_model.config
+        bert_model = Model(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm,
