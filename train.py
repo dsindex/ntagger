@@ -346,6 +346,7 @@ def train(opt):
             if opt.save_path:
                 logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
                 save_model(model, opt, config)
+                # save finetuned bert model/config/tokenizer
                 if 'bert' in config['emb_class'] or 'bart' in config['emb_class']:
                     if not os.path.exists(opt.bert_output_dir):
                         os.makedirs(opt.bert_output_dir)

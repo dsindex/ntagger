@@ -124,6 +124,7 @@ def load_model(config, checkpoint):
         bert_config = Config.from_pretrained(opt.bert_output_dir)
         bert_tokenizer = Tokenizer.from_pretrained(opt.bert_output_dir,
                                                    do_lower_case=opt.bert_do_lower_case)
+        # no need to use 'from_pretrained'
         bert_model = Model(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
