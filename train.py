@@ -97,7 +97,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         train_loss += loss.item()
         if local_rank == 0 and writer:
             writer.add_scalar('Loss/train', loss.item(), global_step)
-        curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
+        curr_lr = scheduler.get_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
         prog.update(local_step+1,
                     [('global step', global_step),
                      ('train curr loss', loss.item()),
