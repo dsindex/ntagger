@@ -30,15 +30,10 @@ reference pytorch code for named entity tagging.
     $ unzip glove.6B.zip 
     ```
   - BERT, RoBERTa, BART(huggingface's [transformers](https://github.com/huggingface/transformers.git))
-  ```
-  $ pip install tensorflow-gpu==2.0.0
-  $ pip install transformers
-  ```
   - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
     - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
   ```
-  $ pip install allennlp==0.9.0
   $ cd embeddings
   $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5
   $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
@@ -155,14 +150,14 @@ reference pytorch code for named entity tagging.
 | ------------------------------- | -----------  | -------------------- | -------------------------------------- | ----- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  | threads=14  |
 | **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 / 74.6060  | threads=14  |
-| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  | threads=14  |
-| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  | threads=14  |
+| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  | threads=14, conda pytorch=1.2.0 17.2121ms |
+| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  | threads=14, conda pytorch=1.2.0 19.3434ms |
 | BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |             |
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |             |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |             |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |             |
 | BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |             |
-| BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.666  | del 8,9,10,11 , threads=14 |
+| BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.666  | del 8,9,10,11 , threads=14, conda pytorch=1.2.0 142.7979ms |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |             |
 | BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        | del 12 ~ 23 |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 / -        | BERT as feature-based, initial embedding |
