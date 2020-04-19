@@ -508,6 +508,13 @@ class BertLSTMCRF(BaseModel):
                     # [2] last encoder layer's output : [seq_size, batch_size, bert_hidden_size]
                     # [3] all hidden states of encoder layer's
                     all_hidden_states = bert_outputs[1][0:]
+                elif 'electra' in self.config['emb_class']:
+                    bert_outputs = self.bert_model(input_ids=x[0],
+                                                   attention_mask=x[1],
+                                                   token_type_ids=x[2])
+                    # electra model's output
+                    # list of each layer's hidden states
+                    all_hidden_states = bert_outputs
                 else:
                     bert_outputs = self.bert_model(input_ids=x[0],
                                                    attention_mask=x[1],

@@ -3,7 +3,7 @@
 reference pytorch code for named entity tagging.
 
 - embedding
-  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELMo
+  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
   - character : CNN
   - pos : lookup
 - encoding
@@ -29,7 +29,7 @@ reference pytorch code for named entity tagging.
     glove.6B.zip
     $ unzip glove.6B.zip 
     ```
-  - BERT, RoBERTa, BART(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  - BERT, ALBERT, RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
     - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
@@ -178,6 +178,8 @@ reference pytorch code for named entity tagging.
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 / -        |             |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 / -        |             |
 | BART-large, BiLSTM              | 90.43        | word                 | 53.3657 / -        |             |
+| ELECTRA-base, BiLSTM            | -            | word                 | - / -              |             |
+| ELECTRA-large, BiLSTM           | -            | word                 | - / -              |             |
 | ELMo, BiLSTM-CRF                | 91.78        | word, pos            | 74.1001 / -        |             |
 | ELMo, BiLSTM-CRF                | 91.93        | word, character, pos | 67.6931 / -        |             |
 | ELMo, Glove, BiLSTM-CRF         | **92.23**    | word, pos            | 79.9896 / -        |             |
@@ -500,6 +502,24 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.9042961928047503, 3684
 INFO:__main__:[Elapsed Time] : 196742ms, 53.36573445560684ms on average
 accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
+
+```
+
+### emb_class=electra, enc_class=bilstm
+
+- train
+```
+* n_ctx size should be less than 512
+$ python preprocess.py --config=configs/config-electra.json --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_do_lower_case
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=10 --bert_do_lower_case
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-electra.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-electra --bert_do_lower_case
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+* --bert_model_name_or_path=./embeddings/electra-large-discriminator
 
 ```
 
