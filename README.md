@@ -511,7 +511,7 @@ accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
 ```
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-electra.json --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_do_lower_case
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=10 --bert_do_lower_case
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 --bert_do_lower_case
 ```
 
 - evaluation
