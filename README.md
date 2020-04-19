@@ -178,7 +178,7 @@ reference pytorch code for named entity tagging.
 | RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 / -        |             |
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 / -        |             |
 | BART-large, BiLSTM              | 90.43        | word                 | 53.3657 / -        |             |
-| ELECTRA-base, BiLSTM            | -            | word                 | - / -              |             |
+| ELECTRA-base, BiLSTM            | 90.73        | word                 | 28.8096 / -        |             |
 | ELECTRA-large, BiLSTM           | -            | word                 | - / -              |             |
 | ELMo, BiLSTM-CRF                | 91.78        | word, pos            | 74.1001 / -        |             |
 | ELMo, BiLSTM-CRF                | 91.93        | word, character, pos | 67.6931 / -        |             |
@@ -518,6 +518,10 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 ```
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-electra.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-electra --bert_do_lower_case
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.9072818526019194, 3684
+INFO:__main__:[Elapsed Time] : 106594ms, 28.80966603312517ms on average
+accuracy:  98.08%; precision:  90.24%; recall:  91.22%; FB1:  90.73
 
 * --bert_model_name_or_path=./embeddings/electra-large-discriminator
 
