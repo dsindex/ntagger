@@ -179,7 +179,7 @@ reference pytorch code for named entity tagging.
 | RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 / -        |             |
 | BART-large, BiLSTM              | 90.43        | word                 | 53.3657 / -        |             |
 | ELECTRA-base, BiLSTM            | 90.73        | word                 | 28.8096 / -        |             |
-| ELECTRA-large, BiLSTM           | -            | word                 | - / -              |             |
+| ELECTRA-large                   | 91.39        | word                 | 29.5734 / -        |             |
 | ELMo, BiLSTM-CRF                | 91.78        | word, pos            | 74.1001 / -        |             |
 | ELMo, BiLSTM-CRF                | 91.93        | word, character, pos | 67.6931 / -        |             |
 | ELMo, Glove, BiLSTM-CRF         | **92.23**    | word, pos            | 79.9896 / -        |             |
@@ -523,7 +523,10 @@ INFO:__main__:[F1] : 0.9072818526019194, 3684
 INFO:__main__:[Elapsed Time] : 106594ms, 28.80966603312517ms on average
 accuracy:  98.08%; precision:  90.24%; recall:  91.22%; FB1:  90.73
 
-* --bert_model_name_or_path=./embeddings/electra-large-discriminator
+* --bert_model_name_or_path=./embeddings/electra-large-discriminator --lr=1e-6 --bert_disable_lstm --epoch=40
+
+INFO:__main__:[F1] : 0.91392938696645, 3684
+INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
 
 ```
 
