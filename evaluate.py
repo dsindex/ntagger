@@ -11,7 +11,7 @@ import logging
 import torch
 import torch.nn as nn
 import numpy as np
-from seqeval.metrics import precision_score, recall_score, f1_score
+from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 
 from tqdm import tqdm
 from util import load_config, to_device, to_numpy
@@ -85,7 +85,7 @@ def prepare_datasets(config):
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
-    test_loader = prepare_dataset(config, opt.data_path, DatasetClass, shuffle=False, num_workers=1)
+    test_loader = prepare_dataset(config, opt.data_path, DatasetClass, sampling=False, num_workers=1)
     return test_loader
 
 def load_checkpoint(config):
@@ -216,8 +216,10 @@ def evaluate(opt):
     ret = {
         "precision": precision_score(ys_lbs, preds_lbs),
         "recall": recall_score(ys_lbs, preds_lbs),
-        "f1": f1_score(ys_lbs, preds_lbs)
+        "f1": f1_score(ys_lbs, preds_lbs),
+        "report": classification_report(ys_lbs, preds_lbs),
     }
+    print(ret['report'])
     f1 = ret['f1']
     # write predicted labels to file
     default_label = config['default_label']
@@ -236,7 +238,6 @@ def main():
     parser.add_argument('--num_threads', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_examples', default=0, type=int, help="number of examples to evaluate, 0 means all of them.")
-    parser.add_argument('--seed', default=5, type=int, help="dummy for BaseModel.")
     parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
     parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")
     # for BERT

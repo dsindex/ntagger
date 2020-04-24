@@ -26,7 +26,7 @@ except ImportError:
     pass
 import numpy as np
 import random
-from seqeval.metrics import precision_score, recall_score, f1_score
+from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 
 from util    import load_config, to_device, to_numpy
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
@@ -172,8 +172,10 @@ def evaluate(model, config, val_loader, device):
         "loss": eval_loss,
         "precision": precision_score(ys_lbs, preds_lbs),
         "recall": recall_score(ys_lbs, preds_lbs),
-        "f1": f1_score(ys_lbs, preds_lbs)
+        "f1": f1_score(ys_lbs, preds_lbs),
+        "report": classification_report(ys_lbs, preds_lbs),
     }
+    print(ret['report'])
     return ret
 
 def save_model(model, opt, config):
@@ -212,8 +214,8 @@ def prepare_datasets(config):
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
-    train_loader = prepare_dataset(config, opt.train_path, DatasetClass, shuffle=True, num_workers=2)
-    valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, shuffle=False, num_workers=2)
+    train_loader = prepare_dataset(config, opt.train_path, DatasetClass, sampling=True, num_workers=2)
+    valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, sampling=False, num_workers=2)
     return train_loader, valid_loader
 
 def get_bert_embed_layer_list(config, bert_model):
@@ -288,12 +290,12 @@ def prepare_model(config):
 
 def prepare_osw(config, model):
     opt = config['opt']
-    optimizer = torch.optim.Adam(model.parameters(), lr=opt.lr, weight_decay=opt.l2norm)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=opt.lr, eps=opt.adam_epsilon, weight_decay=opt.weight_decay)
     if opt.use_amp:
         model, optimizer = amp.initialize(model, optimizer, opt_level=opt.opt_level)
     if opt.distributed:
         model = DDP(model, delay_allreduce=True)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.decay_rate)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.lr_decay_rate)
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
@@ -361,8 +363,8 @@ def train(opt):
             local_worse_steps += 1
         else:
             local_worse_steps = 0
-        logger.info('Scheduler: local_worse_steps / opt.decay_steps = %d / %d' % (local_worse_steps, opt.decay_steps))
-        if epoch_i > opt.warmup_steps and (local_worse_steps >= opt.decay_steps or early_stopping.step() > opt.decay_steps):
+        logger.info('Scheduler: local_worse_steps / opt.lr_decay_steps = %d / %d' % (local_worse_steps, opt.lr_decay_steps))
+        if epoch_i > opt.warmup_steps and (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
             scheduler.step()
         prev_eval_f1 = eval_f1
         # end: scheduling
@@ -380,18 +382,19 @@ def main():
     parser.add_argument('--batch_size', type=int, default=30)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--decay_rate', type=float, default=1.0)
-    parser.add_argument('--decay_steps', type=float, default=2, help="number of decay epoch steps to be paitent")
+    parser.add_argument('--lr_decay_rate', type=float, default=1.0)
+    parser.add_argument('--lr_decay_steps', type=float, default=2, help="number of decay epoch steps to be paitent")
     parser.add_argument('--warmup_steps', type=int, default=4,  help="number of warmup epoch steps")
-    parser.add_argument("--patience", default=7, type=int)
-    parser.add_argument('--l2norm', type=float, default=1e-6)
+    parser.add_argument('--patience', default=7, type=int, help="max number of epoch to be patient for early stopping.")
+    parser.add_argument('--adam_epsilon', type=float, default=1e-8)
+    parser.add_argument('--weight_decay', type=float, default=0.01)
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--tmax',type=int, default=-1)
     parser.add_argument('--opt-level', type=str, default='O1')
     parser.add_argument('--local_rank', default=0, type=int)
     parser.add_argument('--world_size', default=1, type=int)
     parser.add_argument('--log_dir', type=str, default='runs')
-    parser.add_argument('--seed', default=5, type=int)
+    parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
     parser.add_argument('--embedding_trainable', action='store_true', help="set word embedding(Glove) trainable")
     parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")

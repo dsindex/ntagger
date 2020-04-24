@@ -239,7 +239,7 @@ INFO:__main__:[F1] : 0.8848570669970794, 3684
 INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 
-* --use_char_cnn --decay_rate=0.9
+* --use_char_cnn --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8979916836238168, 3684
 INFO:__main__:[Elapsed Time] : 135526ms, 36.75970676079283ms on average
 accuracy:  97.85%; precision:  89.74%; recall:  89.85%; FB1:  89.80
@@ -252,7 +252,7 @@ accuracy:  97.85%; precision:  89.74%; recall:  89.85%; FB1:  89.80
 * token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --warmup_steps=13 --decay_rate=0.8 --epoch=64
+$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --warmup_steps=13 --lr_decay_rate=0.8 --epoch=64
 ```
 
 - evaluation
@@ -394,7 +394,7 @@ INFO:__main__:[F1] : 0.9036879808967896, 3684
 INFO:__main__:[Elapsed Time] : 245729ms, 66.65761607385284ms on average
 accuracy:  98.08%; precision:  90.78%; recall:  90.46%; FB1:  90.62
 
-* --bert_use_feature_based --use_crf --epoch=64 --lr=1e-3 --decay_rate=0.9 , modify model.py to use DSA(2, 1024)
+* --bert_use_feature_based --use_crf --epoch=64 --lr=1e-3 --lr_decay_rate=0.9 , modify model.py to use DSA(2, 1024)
 INFO:__main__:[F1] : 0.8953335090957026, 3684
 INFO:__main__:[Elapsed Time] : 219016ms, 59.40619060548466ms on average
 accuracy:  97.94%; precision:  89.37%; recall:  90.19%; FB1:  89.78
@@ -417,7 +417,7 @@ accuracy:  97.80%; precision:  88.11%; recall:  90.12%; FB1:  89.10
 ```
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-albert.json --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_do_lower_case
-$ python train.py --config=configs/config-albert.json --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --decay_rate=0.9 --bert_do_lower_case
+$ python train.py --config=configs/config-albert.json --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --lr_decay_rate=0.9 --bert_do_lower_case
 ```
 
 - evaluation
@@ -446,8 +446,8 @@ $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5 --epoch=10
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5 --epoch=10 --bert_disable_lstm
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --use_crf
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --decay_rate=0.9 --bert_use_pos
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --lr_decay_rate=0.9
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --lr_decay_rate=0.9 --bert_use_pos
 ```
 
 - evaluation
@@ -471,11 +471,11 @@ INFO:__main__:[Elapsed Time] : 105306ms, 28.55253869128428ms on average
 INFO:__main__:[F1] : 0.9013054830287206, 3684
 INFO:__main__:[Elapsed Time] : 221208ms, 60.01221830029867ms on average
 
-* --decay_rate=0.9
+* --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.9145419377527695, 3684
 INFO:__main__:[Elapsed Time] : 152493ms, 41.35270160195493ms on average
 
-* --decay_rate=0.9 --bert_use_pos
+* --lr_decay_rate=0.9 --bert_use_pos
 INFO:__main__:[F1] : 0.914000175330937, 3684
 INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
 
@@ -550,7 +550,7 @@ INFO:__main__:[F1] : 0.9219494967331803, 3684
 INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
 accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
-* --decay_rate=0.9
+* --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.922342119228728, 3684
 INFO:__main__:[Elapsed Time] : 294772ms, 79.98968232419223ms on average
 accuracy:  98.35%; precision:  92.15%; recall:  92.32%; FB1:  92.23
@@ -560,17 +560,17 @@ INFO:__main__:[F1] : 0.9137136782423814, 3684
 INFO:__main__:[Elapsed Time] : 280253ms, 76.05566114580505ms on average
 accuracy:  98.15%; precision:  91.44%; recall:  91.31%; FB1:  91.37
 
-* --user_char_cnn --decay_rate=0.9
+* --user_char_cnn --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.9196578181497487, 3684
 INFO:__main__:[Elapsed Time] : 291372ms, 79.06489275047515ms on average
 accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
-* --decay_rate=0.9, modify model.py for disabling glove
+* --lr_decay_rate=0.9, modify model.py for disabling glove
 INFO:__main__:[F1] : 0.917751217352811, 3684
 INFO:__main__:[Elapsed Time] : 273089ms, 74.10019006244909ms on average
 accuracy:  98.27%; precision:  91.78%; recall:  91.77%; FB1:  91.78
 
-* --use_char_cnn --decay_rate=0.9, modify model.py for disabling glove
+* --use_char_cnn --lr_decay_rate=0.9, modify model.py for disabling glove
 INFO:__main__:[F1] : 0.9193262411347518, 3684
 INFO:__main__:[Elapsed Time] : 249467ms, 67.69318490361118ms on average
 accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
@@ -586,16 +586,26 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                              | F1 (%)      | Features | Elapsed time / example (ms, GPU / CPU) |
 | ---------------------------- | ------------| -------- | -------------------------------------- |    
-| bpe BERT(4.8m), BiLSTM-CRF   | **85.26**   | eoj      | 44.094 / - |
+| bpe BERT(4.8m), BiLSTM-CRF   | 85.26       | eoj      | 44.094 / - |
+| bpe BERT(4.8m), CRF          | -           | eoj      | -      / - |
+| bpe BERT(4.8m)               | -           | eoj      | -      / - |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), measured by seqeval (same as conlleval, micro F1)
 
-|                       | F1 (%)        | Features |
+| (updated) max_seq_len=50 | F1 (%)        | Features |
+| ------------------------ | ------------- | -------- |
+| BiLSTM-CRF               | 74.57         | eoj      |
+| Bert-multilingual        | 84.20         | eoj      |
+| KoBERT                   | 86.11         | eoj      |
+| HanBert                  | 87.31         | eoj      |
+
+| (previous)            | F1 (%)        | Features |
 | --------------------- | ------------- | -------- |
 | BiLSTM-CRF            | 76.45         | eoj      |
 | Bert-multilingual     | 81.78         | eoj      |
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
+
 
 #### clova2019_morph(morph-based)
 
@@ -680,7 +690,7 @@ accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 
-* --user_char_cnn --decay_rate=0.9
+* --user_char_cnn --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8402205267380136, 9000
 INFO:__main__:[Elapsed Time] : 255785ms, 28.405156128458717ms on average
 accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
@@ -719,7 +729,7 @@ accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
-** bert_outputs[2][-7], --decay_rate=0.9
+** bert_outputs[2][-7], --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8296454550078846, 9000
 INFO:__main__:[Elapsed Time] : 376186ms, 41.786642960328926ms on average
 accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
@@ -741,6 +751,17 @@ $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8524098438884723, 9000
 INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50, dropout=0.1
+  INFO:__main__:[F1] : 0.8602524268436113, 9000
+  INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
+  accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9 ,  dropout=0.1
+
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf, dropout=0.1
+
 ```
 
 ### emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha BERT(10m)
@@ -1021,7 +1042,7 @@ INFO:__main__:[Elapsed Time] : 126180ms, 135.92548596112312ms on average
 accuracy:  97.30%; precision:  88.00%; recall:  88.08%; FB1:  88.04
 token_eval micro F1: 0.8880736809241336
 
-* --batch_size=64 --decay_rate=0.9
+* --batch_size=64 --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8817518248175182, 927
 INFO:__main__:[Elapsed Time] : 123401ms, 132.93304535637148ms on average
 accuracy:  97.37%; precision:  87.66%; recall:  88.69%; FB1:  88.18
@@ -1033,19 +1054,19 @@ INFO:__main__:[Elapsed Time] : 125665ms, 135.366090712743ms on average
 accuracy:  97.33%; precision:  87.32%; recall:  87.78%; FB1:  87.55
 token_eval micro F1: 0.8897515527950312
 
-* --use_char_cnn --batch_size=64 --decay_rate=0.9
+* --use_char_cnn --batch_size=64 --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8786279683377308, 927
 INFO:__main__:[Elapsed Time] : 102389ms, 110.27753779697625ms on average
 accuracy:  97.29%; precision:  87.71%; recall:  88.02%; FB1:  87.86
 token_eval micro F1: 0.8875822050290135
 
-* --batch_size=64 --decay_rate=0.9 , modify model.py for disabling glove
+* --batch_size=64 --lr_decay_rate=0.9 , modify model.py for disabling glove
 INFO:__main__:[F1] : 0.8822326125073057, 927
 INFO:__main__:[Elapsed Time] : 118884ms, 128.0291576673866ms on average
 accuracy:  97.35%; precision:  87.79%; recall:  88.66%; FB1:  88.22
 token_eval micro F1: 0.8905289052890529
 
-* --use_char_cnn --batch_size=64 --decay_rate=0.9 , modify model.py for disabling glove
+* --use_char_cnn --batch_size=64 --lr_decay_rate=0.9 , modify model.py for disabling glove
 INFO:__main__:[F1] : 0.8825072886297376, 927
 INFO:__main__:[Elapsed Time] : 118407ms, 127.51403887688984ms on average
 accuracy:  97.43%; precision:  87.61%; recall:  88.90%; FB1:  88.25
