@@ -784,7 +784,9 @@ accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
   ** --lr_decay_rate=0.9 , without --use_crf
 
+
   ** --bert_disable_lstm --lr_decay_rate=0.9
+
 
   ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf
   INFO:__main__:[F1] : 0.8677214324767633, 9000
