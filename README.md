@@ -305,20 +305,20 @@ INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf (BERT-base BiLSTM-CRF)
 
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case (BERT-base BiLSTM)
 INFO:__main__:[F1] : 0.9054532577903682, 3684
 INFO:__main__:[Elapsed Time] : 112704ms, 30.563127884876458ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf (BERT-base CRF)
 INFO:__main__:[F1] : 0.8961356880573526, 3684
 INFO:__main__:[Elapsed Time] : 135607ms, 36.68938365462938ms on average
 accuracy:  97.78%; precision:  89.24%; recall:  90.74%; FB1:  89.98
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm (BERT-base)
 INFO:__main__:[F1] : 0.9024668598015978, 3684
 INFO:__main__:[Elapsed Time] : 61914ms, 16.68775454792289ms on average
 accuracy:  98.01%; precision:  89.50%; recall:  91.01%; FB1:  90.25
@@ -742,6 +742,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+(dha BERT BiLSTM-CRF)
 INFO:__main__:[F1] : 0.838467292261662, 9000
 INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
 accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
@@ -749,13 +750,13 @@ accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
-** --lr_decay_rate=0.9 , without --use_crf
+** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
 
 
-** --bert_disable_lstm --lr_decay_rate=0.9
+** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
 
 
-** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf
+** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (dha BERT)
 
 
 
@@ -778,17 +779,18 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --use_crf
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+(bpe BERT BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8524098438884723, 9000
 INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
-  ** --lr_decay_rate=0.9 , without --use_crf
+  ** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
 
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9
+  ** --bert_disable_lstm --lr_decay_rate=0.9 (bpe BERT CRF)
 
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf
+  ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT)
   INFO:__main__:[F1] : 0.8677214324767633, 9000
   INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
   accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
@@ -904,6 +906,9 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
 | Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |               | 44.3250 / - |
+| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            |               | -       / - |
+| dha BERT(2.5m), CRF            | -     / -              | morph, pos            |               | -       / - |
+| dha BERT(2.5m)                 | -     / -              | morph, pos            |               | -       / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | del 8,9,10,11, threads=14 | 40.5205 / 174.0303 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |               | 37.7829 / - |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |               | 39.0183 / - |
@@ -1010,10 +1015,20 @@ $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-mode
 $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
+(dha BERT BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8546656869948568, 927
 INFO:__main__:[Elapsed Time] : 41296ms, 44.32505399568034ms on average
 accuracy:  96.83%; precision:  85.53%; recall:  85.40%; FB1:  85.47
 token_eval micro F1: 0.8731952291274326
+
+  ** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
+
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
+
+
+  ** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
+
 
   ** --bert_remove_layers=8,9,10,11
   INFO:__main__:[F1] : 0.8392018779342724, 927
