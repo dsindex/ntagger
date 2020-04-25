@@ -156,7 +156,10 @@ reference pytorch code for named entity tagging.
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |             |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |             |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |             |
+| BERT-base, BiLSTM-CRF           | -            | word                 | -       / -        |             |
 | BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |             |
+| BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |             |
+| BERT-base                       | 90.25        | word                 | 16.6877 / -        |             |
 | BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.666  | del 8,9,10,11 , threads=14, conda pytorch=1.2.0 142.7979ms |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |             |
 | BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        | del 12 ~ 23 |
@@ -298,15 +301,27 @@ INFO:__main__:[Elapsed Time] : 141093ms, 38.29885993485342ms on average
 accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
 
 * --use_crf
-* it seems that the F1 score is going worse with '--use_crf' for wp/bpe BERT.
 INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
+
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf
+
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case
 INFO:__main__:[F1] : 0.9054532577903682, 3684
 INFO:__main__:[Elapsed Time] : 112704ms, 30.563127884876458ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
+
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf
+INFO:__main__:[F1] : 0.8961356880573526, 3684
+INFO:__main__:[Elapsed Time] : 135607ms, 36.68938365462938ms on average
+accuracy:  97.78%; precision:  89.24%; recall:  90.74%; FB1:  89.98
+
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm
+INFO:__main__:[F1] : 0.9024668598015978, 3684
+INFO:__main__:[Elapsed Time] : 61914ms, 16.68775454792289ms on average
+accuracy:  98.01%; precision:  89.50%; recall:  91.01%; FB1:  90.25
 
 * --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 --bert_do_lower_case
 INFO:__main__:[F1] : 0.8829307140960977, 3684
@@ -586,11 +601,12 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                              | F1 (%)      | Features | Elapsed time / example (ms, GPU / CPU) |
 | ---------------------------- | ------------| -------- | -------------------------------------- |    
-| bpe BERT(4.8m), BiLSTM-CRF   | 85.26       | eoj      | 44.094 / - |
-| bpe BERT(4.8m), CRF          | -           | eoj      | -      / - |
-| bpe BERT(4.8m)               | -           | eoj      | -      / - |
+| bpe BERT(4.8m), BiLSTM-CRF   | 85.26       | eoj      | 44.094  / - |
+| bpe BERT(4.8m), BiLSTM       | -           | eoj      | -       / - |
+| bpe BERT(4.8m), CRF          | -           | eoj      | -       / - |
+| bpe BERT(4.8m)               | **86.68**   | eoj      | 96.4547 / - |
 
-- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), measured by seqeval (same as conlleval, micro F1)
+- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (same as conlleval, micro F1)
 
 | (updated) max_seq_len=50 | F1 (%)        | Features |
 | ------------------------ | ------------- | -------- |
@@ -598,6 +614,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Bert-multilingual        | 84.20         | eoj      |
 | KoBERT                   | 86.11         | eoj      |
 | HanBert                  | 87.31         | eoj      |
+| KoELECTRA-Base           | 86.87         | eoj      |
 
 | (previous)            | F1 (%)        | Features |
 | --------------------- | ------------- | -------- |
@@ -618,6 +635,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |   |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |   |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |   |
+| dha BERT(2.5m), BiLSTM         | -             | -              | morph, pos            | -       / - |   |
+| dha BERT(2.5m), CRF            | -             | -              | morph, pos            | -       / - |   |
+| dha BERT(2.5m)                 | -             | -              | morph, pos            | -       / - |   |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / 173.464 | del 8,9,10,11, threads=14 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |   |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |   |
@@ -729,6 +749,16 @@ accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
+** --lr_decay_rate=0.9 , without --use_crf
+
+
+** --bert_disable_lstm --lr_decay_rate=0.9
+
+
+** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf
+
+
+
 ** bert_outputs[2][-7], --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8296454550078846, 9000
 INFO:__main__:[Elapsed Time] : 376186ms, 41.786642960328926ms on average
@@ -752,15 +782,19 @@ INFO:__main__:[F1] : 0.8524098438884723, 9000
 INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50, dropout=0.1
+  ** --lr_decay_rate=0.9 , without --use_crf
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf
+  INFO:__main__:[F1] : 0.8677214324767633, 9000
+  INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
+  accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
+
+  ** --bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50
   INFO:__main__:[F1] : 0.8602524268436113, 9000
   INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
   accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
-
-  ** --bert_disable_lstm --lr_decay_rate=0.9 ,  dropout=0.1
-
-
-  ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf, dropout=0.1
 
 ```
 
