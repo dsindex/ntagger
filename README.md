@@ -156,7 +156,7 @@ reference pytorch code for named entity tagging.
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |             |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |             |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |             |
-| BERT-base, BiLSTM-CRF           | -            | word                 | -       / -        |             |
+| BERT-base, BiLSTM-CRF           | 90.20        | word                 | 50.2655 / -        |             |
 | BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |             |
 | BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |             |
 | BERT-base                       | 90.25        | word                 | 16.6877 / -        |             |
@@ -306,7 +306,9 @@ INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf (BERT-base BiLSTM-CRF)
-
+INFO:__main__:[F1] : 0.8993429697766097, 3684
+INFO:__main__:[Elapsed Time] : 185670ms, 50.265544393157754ms on average
+accuracy:  97.87%; precision:  89.52%; recall:  90.88%; FB1:  90.20
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case (BERT-base BiLSTM)
 INFO:__main__:[F1] : 0.9054532577903682, 3684
