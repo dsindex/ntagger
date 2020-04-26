@@ -147,7 +147,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)       | Features             | Elapsed time / example (ms, GPU / CPU) | Etc   |
 | ------------------------------- | -----------  | -------------------- | -------------------------------------- | ----- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  | threads=14  |
-| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 36.7597 / 74.6060  | threads=14  |
+| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 23.8180 / 21.4545  | threads=14, update eplapsed time |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  | threads=14, conda pytorch=1.2.0 17.2121ms |
 | Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  | threads=14, conda pytorch=1.2.0 19.3434ms |
 | BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |             |
@@ -679,12 +679,6 @@ accuracy:  93.80%; precision:  84.82%; recall:  83.76%; FB1:  84.29
   accuracy:  93.37%; precision:  84.83%; recall:  83.76%; FB1:  84.29
 
 * --use_char_cnn
-INFO:__main__:[F1] : 0.8481546211576025, 9000
-INFO:__main__:[Elapsed Time] : 296373ms, 32.918768752083565ms on average
-accuracy:  93.96%; precision:  85.38%; recall:  84.14%; FB1:  84.76
-  ** evaluation eoj-by-eoj
-  accuracy:  93.55%; precision:  85.38%; recall:  84.15%; FB1:  84.76
-
 INFO:__main__:[F1] : 0.856091088091773, 9000
 INFO:__main__:[Elapsed Time] : 339428ms, 37.7036337370819ms on average
 accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55

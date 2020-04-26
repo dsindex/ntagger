@@ -291,6 +291,11 @@ class GloveLSTMCRF(BaseModel):
         token_ids = x[0]
         pos_ids = x[1]
 
+        mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(self.device)
+        # mask : [batch_size, seq_size]
+        lengths = torch.sum(mask, dim=1)
+        # lengths : [batch_size]
+
         # 1. Embedding
         token_embed_out = self.embed_token(token_ids)
         # token_embed_out : [batch_size, seq_size, token_emb_dim]
@@ -309,7 +314,9 @@ class GloveLSTMCRF(BaseModel):
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
-        lstm_out, (h_n, c_n) = self.lstm(embed_out)
+        packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths, batch_first=True, enforce_sorted=False)
+        lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
+        lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
         # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
         lstm_out = self.dropout(lstm_out)
 
@@ -318,8 +325,6 @@ class GloveLSTMCRF(BaseModel):
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         if tags is not None: # given golden ys(answer)
-            mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(self.device)
-            # mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
@@ -567,6 +572,11 @@ class BertLSTMCRF(BaseModel):
         # x : [batch_size, seq_size]
         # tags : [batch_size, seq_size]
 
+        mask = x[1].to(torch.uint8).to(self.device)
+        # mask == attention_mask : [batch_size, seq_size]
+        lengths = torch.sum(mask, dim=1)
+        # lengths : [batch_size]
+
         # 1. Embedding
         bert_embed_out = self.__compute_bert_embedding(x)
         # bert_embed_out : [batch_size, seq_size, *]
@@ -594,8 +604,6 @@ class BertLSTMCRF(BaseModel):
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         if tags is not None: # given golden ys(answer)
-            mask = x[1].to(torch.uint8).to(self.device)
-            # mask == attention_mask : [batch_size, seq_size]
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
@@ -669,6 +677,8 @@ class ElmoLSTMCRF(BaseModel):
 
         mask = torch.sign(torch.abs(token_ids)).to(torch.uint8).to(self.device)
         # mask : [batch_size, seq_size]
+        lengths = torch.sum(mask, dim=1)
+        # lengths : [batch_size]
 
         # 1. Embedding
         elmo_embed_out = self.elmo_model(char_ids)['elmo_representations'][0]
