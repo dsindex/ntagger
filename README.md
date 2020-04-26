@@ -100,10 +100,8 @@ reference pytorch code for named entity tagging.
       - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
       - dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
       - `kor.glove.300k.300d.txt`   (inhouse)
-        - training corpus is the same as the data for Korean BERT.
     - Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
       - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
-        - training corpus is the same as the data for Korean BERT.
   - KMOU NER 2019 (Korean)
     - from [KMOU NER](https://github.com/kmounlp/NER)
       - data/kmou2019
@@ -601,16 +599,16 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                              | F1 (%)      | Features | Elapsed time / example (ms, GPU / CPU) |
-| ---------------------------- | ------------| -------- | -------------------------------------- |    
-| bpe BERT(4.8m), BiLSTM-CRF   | 85.26       | eoj      | 44.094  / - |
-| bpe BERT(4.8m), BiLSTM       | -           | eoj      | -       / - |
-| bpe BERT(4.8m), CRF          | -           | eoj      | -       / - |
-| bpe BERT(4.8m)               | **86.68**   | eoj      | 96.4547 / - |
+|                              | F1 (%)      | Features | Elapsed time / example (ms, GPU / CPU) | Etc    |
+| ---------------------------- | ------------| -------- | -------------------------------------- | ------ |    
+| bpe BERT(4.8m), BiLSTM-CRF   | 85.26       | eoj      | 44.094  / - |        |
+| bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 109.035 / - | update |
+| bpe BERT(4.8m), CRF          | 86.42       | eoj      | 38.0072 / - | update |
+| bpe BERT(4.8m)               | **86.68**   | eoj      | 96.4547 / - | update |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (same as conlleval, micro F1)
 
-| (updated) max_seq_len=50 | F1 (%)        | Features |
+| (update) max_seq_len=50  | F1 (%)        | Features |
 | ------------------------ | ------------- | -------- |
 | BiLSTM-CRF               | 74.57         | eoj      |
 | Bert-multilingual        | 84.20         | eoj      |
@@ -632,21 +630,21 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms, GPU / CPU) | Etc  |
 | ------------------------------ | ------------- | -------------- | --------------------- | -------------------------------------- | ---- |  
-| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |   |
-| **Glove, BiLSTM-CRF**          | 84.76         | 84.76          | morph, character, pos | 32.9187 / 71.9898 | 64.7878 ms(CPU) without CRF |
-| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |   |
-| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |   |
-| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |   |
-| dha BERT(2.5m), BiLSTM         | -             | -              | morph, pos            | -       / - |   |
-| dha BERT(2.5m), CRF            | -             | -              | morph, pos            | -       / - |   |
-| dha BERT(2.5m)                 | -             | -              | morph, pos            | -       / - |   |
+| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |        |
+| **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | 37.7036 / - | update |
+| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |        |
+| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |        |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |        |
+| dha BERT(2.5m), BiLSTM         | 84.46         | 85.41          | morph, pos            | 106.569 / - | update |
+| dha BERT(2.5m), CRF            | -             | -              | morph, pos            | -       / - | update |
+| dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | 97.1273 / - | update |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / 173.464 | del 8,9,10,11, threads=14 |
-| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |   |
-| dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |   |
-| ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |   |
-| ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |   |
-| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |   |
-| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |   |
+| dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |        |
+| dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |        |
+| ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |        |
+| ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |        |
+| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |        |
+| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |        |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -686,6 +684,12 @@ INFO:__main__:[Elapsed Time] : 296373ms, 32.918768752083565ms on average
 accuracy:  93.96%; precision:  85.38%; recall:  84.14%; FB1:  84.76
   ** evaluation eoj-by-eoj
   accuracy:  93.55%; precision:  85.38%; recall:  84.15%; FB1:  84.76
+
+INFO:__main__:[F1] : 0.856091088091773, 9000
+INFO:__main__:[Elapsed Time] : 339428ms, 37.7036337370819ms on average
+accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55
+  ** evaluation eoj-by-eoj
+  accuracy:  93.88%; precision:  86.11%; recall:  85.00%; FB1:  85.55
 
 ```
 
@@ -753,14 +757,21 @@ accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
   accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
 
 ** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
-
+INFO:__main__:[F1] : 0.8453688900983027, 9000
+INFO:__main__:[Elapsed Time] : 959136ms, 106.56972996999667ms on average
+accuracy:  94.39%; precision:  84.43%; recall:  84.49%; FB1:  84.46
+  *** evaluation eoj-by-eoj
+  accuracy:  93.94%; precision:  85.90%; recall:  84.93%; FB1:  85.41 
 
 ** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
 
 
 ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (dha BERT)
-
-
+INFO:__main__:[F1] : 0.8122244286627849, 9000
+INFO:__main__:[Elapsed Time] : 874152ms, 97.12734748305367ms on average
+accuracy:  93.85%; precision:  80.28%; recall:  82.04%; FB1:  81.15
+  *** evaluation eoj-by-eoj
+  accuracy:  93.48%; precision:  84.92%; recall:  83.61%; FB1:  84.26
 
 ** bert_outputs[2][-7], --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.8296454550078846, 9000
@@ -787,10 +798,14 @@ INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
 accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
 
   ** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
-
+  INFO:__main__:[F1] : 0.8646059046587216, 9000
+  INFO:__main__:[Elapsed Time] : 981318ms, 109.03533725969552ms on average
+  accuracy:  94.31%; precision:  85.92%; recall:  86.82%; FB1:  86.37 
 
   ** --bert_disable_lstm --lr_decay_rate=0.9 (bpe BERT CRF)
-
+  INFO:__main__:[F1] : 0.8643569376373161, 9000
+  INFO:__main__:[Elapsed Time] : 342154ms, 38.00722302478053ms on average
+  accuracy:  94.35%; precision:  85.90%; recall:  86.94%; FB1:  86.42
 
   ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT)
   INFO:__main__:[F1] : 0.8677214324767633, 9000
@@ -908,9 +923,9 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
 | Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |               | 44.3250 / - |
-| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            |               | -       / - |
-| dha BERT(2.5m), CRF            | -     / -              | morph, pos            |               | -       / - |
-| dha BERT(2.5m)                 | -     / -              | morph, pos            |               | -       / - |
+| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            | update        | -       / - |
+| dha BERT(2.5m), CRF            | -     / -              | morph, pos            | update        | -       / - |
+| dha BERT(2.5m)                 | -     / -              | morph, pos            | update        | -       / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | del 8,9,10,11, threads=14 | 40.5205 / 174.0303 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |               | 37.7829 / - |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |               | 39.0183 / - |
