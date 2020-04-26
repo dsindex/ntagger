@@ -9,6 +9,7 @@ import pdb
 import logging
 
 import torch
+import torch.quantization
 import torch.nn as nn
 import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
@@ -162,9 +163,14 @@ def evaluate(opt):
 
     # prepare model and load parameters
     model = load_model(config, checkpoint)
+    model.eval()
+    
+    # enable to use dynamic quantized model (pytorch>=1.3.0)
+    if opt.enable_dqm and opt.device == 'cpu':
+        model = torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+        print(model)
  
     # evaluation
-    model.eval()
     preds = None
     ys    = None
     n_batches = len(test_loader)
@@ -253,6 +259,9 @@ def main():
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
+    # for Quantization
+    parser.add_argument('--enable_dqm', action='store_true',
+                        help="Set this flag to use dynamic quantized model.")
 
     opt = parser.parse_args()
 
