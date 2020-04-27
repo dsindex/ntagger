@@ -44,6 +44,9 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
         pred_path = opt.test_path + '.pred'
         with open(pred_path, 'w', encoding='utf-8') as f:
             for i, bucket in enumerate(data):      # foreach sentence
+                if i >= ys.shape[0]:
+                    logger.info("Stop to write predictions: %s" % (i))
+                    break
                 # from preds
                 j_bucket = 0
                 for j in range(ys.shape[1]):       # foreach token
