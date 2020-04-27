@@ -147,18 +147,18 @@ reference pytorch code for named entity tagging.
 
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA   | Dynamic   | Etc         |
 | ------------------------------- | -----------  | -------------------- | ------------------ | ------- | --------- | ----------- |
-| Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  |         |           | threads=14  |
+| Glove, BiLSTM-CRF               | 88.64        | word, pos            | 26.5454 / -        | 19.7171 |           | threads=14, update/packed |
 | **Glove, BiLSTM-CRF**           | 90.14        | word, character, pos | 26.2807 / -        | 21.7474 |           | threads=14, update/packed |
-| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  |         |           | threads=14, conda pytorch=1.2.0 17.2121ms |
-| Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  |         |           | threads=14, conda pytorch=1.2.0 19.3434ms |
+| Glove, DenseNet-CRF             | -            | word, pos            | -       / -        |         |           | threads=14, update |
+| Glove, DenseNet-CRF             | -            | word, character, pos | -       / -        |         |           | threads=14, update |
 | BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |         |           |             |
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |         |           |             |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |         |           |             |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |         |           |             |
-| BERT-base, BiLSTM-CRF           | 90.20        | word                 | 50.2655 / -        |         |           |             |
-| BERT-base, BiLSTM               | 90.55        | word                 | 30.5631 / -        |         |           |             |
-| BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           |             |
-| BERT-base                       | 90.25        | word                 | 16.6877 / -        |         |           |             |
+| BERT-base, BiLSTM-CRF           | 90.20        | word                 | -       / -        |         |           | update/packed      |
+| BERT-base, BiLSTM               | 90.55        | word                 | -       / -        |         |           | update/packed      |
+| BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           | update             |
+| BERT-base                       | 90.25        | word                 | 16.6877 / -        |         |           | update             |
 | BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / 164.666  |         |           | del 8,9,10,11 , threads=14, conda pytorch=1.2.0 142.7979ms |
 | BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |         |           |             |
 | BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        |         |           | del 12 ~ 23 |
@@ -241,9 +241,9 @@ $ python evaluate.py --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-INFO:__main__:[F1] : 0.8848570669970794, 3684
-INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
-accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
+INFO:__main__:[F1] : 0.8864423333037378, 3684
+INFO:__main__:[Elapsed Time] : 97879ms, 26.54547922888949ms on average
+accuracy:  97.60%; precision:  88.90%; recall:  88.39%; FB1:  88.64
 
 * --use_char_cnn --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.9013611454834718, 3684
@@ -607,10 +607,10 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                              | F1 (%)      | Features | Elapsed time / example (ms, GPU / CPU) | Etc    |
 | ---------------------------- | ------------| -------- | -------------------------------------- | ------ |    
-| bpe BERT(4.8m), BiLSTM-CRF   | 85.26       | eoj      | 44.094  / - |        |
-| bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 109.035 / - | update |
-| bpe BERT(4.8m), CRF          | 86.42       | eoj      | 38.0072 / - | update |
-| bpe BERT(4.8m)               | **86.68**   | eoj      | 96.4547 / - | update |
+| bpe BERT(4.8m), BiLSTM-CRF   | 86.11       | eoj      | -       / - | update/packed |
+| bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | -       / - | update/packed |
+| bpe BERT(4.8m), CRF          | 86.42       | eoj      | -       / - | update        |
+| bpe BERT(4.8m)               | **86.68**   | eoj      | -       / - | update        |
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (same as conlleval, micro F1)
 
@@ -637,13 +637,13 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Elapsed time / example (ms, GPU / CPU) | Etc  |
 | ------------------------------ | ------------- | -------------- | --------------------- | -------------------------------------- | ---- |  
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |        |
-| **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | 37.7036 / - | update |
+| **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | -       / - | update/packed |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |        |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |        |
-| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update |
-| dha BERT(2.5m), BiLSTM         | 84.46         | 85.41          | morph, pos            | 106.569 / - | update |
-| dha BERT(2.5m), CRF            | 82.94         | 84.99          | morph, pos            | 39.6817 / - | update |
-| dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | 97.1273 / - | update |
+| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update/packed |
+| dha BERT(2.5m), BiLSTM         | 84.46         | 85.41          | morph, pos            | -       / - | update/packed |
+| dha BERT(2.5m), CRF            | 82.94         | 84.99          | morph, pos            | -       / - | update |
+| dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | -       / - | update |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |        |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |        |
@@ -797,9 +797,9 @@ $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-mode
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 (bpe BERT BiLSTM-CRF)
-INFO:__main__:[F1] : 0.8524098438884723, 9000
-INFO:__main__:[Elapsed Time] : 396846ms, 44.094ms on average
-accuracy:  93.81%; precision:  85.49%; recall:  85.02%; FB1:  85.26
+INFO:__main__:[F1] : 0.8613367390378885, 9000
+INFO:__main__:[Elapsed Time] : 476814ms, 52.96955217246361ms on average
+accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
   ** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
   INFO:__main__:[F1] : 0.8646059046587216, 9000
@@ -926,8 +926,8 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |               | 37.2386 / - |
 | Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
 | Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
-| dha BERT(2.5m), BiLSTM-CRF     | 85.47 / 87.31          | morph, pos            |               | 44.3250 / - |
-| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            | update        | -       / - |
+| dha BERT(2.5m), BiLSTM-CRF     | -     / -              | morph, pos            | update/packed | -       / - |
+| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            | update/packed | -       / - |
 | dha BERT(2.5m), CRF            | -     / -              | morph, pos            | update        | -       / - |
 | dha BERT(2.5m)                 | -     / -              | morph, pos            | update        | -       / - |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | del 8,9,10,11 | 40.5205 / - |
