@@ -13,6 +13,7 @@ reference pytorch code for named entity tagging.
     - a slightly modified DenseNet for longer dependency.
 - decoding
   - Softmax, CRF
+- related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
 
 ## requirements
 
