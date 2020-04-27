@@ -100,7 +100,6 @@ def load_checkpoint(config):
 
 def load_model(config, checkpoint):
     opt = config['opt']
-    device = config['device']
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
@@ -139,18 +138,16 @@ def load_model(config, checkpoint):
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
                             emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     model.load_state_dict(checkpoint)
-    model = model.to(device)
+    model = model.to(opt.device)
     logger.info("[Loaded]")
     return model
 
 def evaluate(opt):
     # set config
     config = load_config(opt)
-    device = torch.device(opt.device)
     if opt.num_threads > 0: torch.set_num_threads(opt.num_threads)
-    config['device'] = device
     config['opt'] = opt
-    logger.info("%s", config)
+    logger.info("%s", json.dumps(config, indent=4))
 
     # set path
     set_path(config)
@@ -180,8 +177,8 @@ def evaluate(opt):
     first_examples = 0
     with torch.no_grad():
         for i, (x,y) in enumerate(tqdm(test_loader, total=n_batches)):
-            x = to_device(x, device)
-            y = to_device(y, device)
+            x = to_device(x, opt.device)
+            y = to_device(y, opt.device)
             if opt.use_crf:
                 logits, prediction = model(x)
             else:

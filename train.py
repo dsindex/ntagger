@@ -5,6 +5,7 @@ import os
 import argparse
 import time
 import pdb
+import json
 import logging
 
 import torch
@@ -55,7 +56,6 @@ def set_apex_and_distributed(opt):
         opt.word_size = torch.distributed.get_world_size()
 
 def train_epoch(model, config, train_loader, val_loader, epoch_i):
-    device = config['device']
     opt = config['opt']
 
     optimizer = config['optimizer']
@@ -64,7 +64,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     pad_label_id = config['pad_label_id']
 
     local_rank = opt.local_rank
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(train_loader)
     prog = Progbar(target=n_batches)
     # train one epoch
@@ -74,8 +74,8 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     st_time = time.time()
     for local_step, (x,y) in enumerate(train_loader):
         global_step = (len(train_loader) * epoch_i) + local_step
-        x = to_device(x, device)
-        y = to_device(y, device)
+        x = to_device(x, opt.device)
+        y = to_device(y, opt.device)
         if opt.use_crf:
             logits, log_likelihood, prediction = model(x, tags=y)
             loss = -1 * log_likelihood
@@ -109,7 +109,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     train_loss = train_loss / n_batches
 
     # evaluate
-    eval_ret = evaluate(model, config, val_loader, device)
+    eval_ret = evaluate(model, config, val_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
     curr_time = time.time()
@@ -125,21 +125,21 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             writer.add_scalar('LearningRate/train', curr_lr, global_step)
     return eval_loss, eval_f1
  
-def evaluate(model, config, val_loader, device):
+def evaluate(model, config, val_loader):
     model.eval()
     opt = config['opt']
     pad_label_id = config['pad_label_id']
 
     eval_loss = 0.
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(val_loader)
     prog = Progbar(target=n_batches)
     preds = None
     ys    = None
     with torch.no_grad():
         for i, (x,y) in enumerate(val_loader):
-            x = to_device(x, device)
-            y = to_device(y, device)
+            x = to_device(x, opt.device)
+            y = to_device(y, opt.device)
             if opt.use_crf:
                 logits, log_likelihood, prediction = model(x, y)
                 loss = -1 * log_likelihood
@@ -244,7 +244,6 @@ def reduce_bert_model(config, bert_model, bert_config):
             bert_config.num_hidden_layers = len(layer_list)
 
 def prepare_model(config):
-    device = config['device']
     opt = config['opt']
     emb_non_trainable = not opt.embedding_trainable
     if config['emb_class'] == 'glove':
@@ -287,7 +286,7 @@ def prepare_model(config):
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
-    model.to(device)
+    model.to(opt.device)
     print(model)
     logger.info("[model prepared]")
     return model
@@ -308,7 +307,6 @@ def prepare_osw(config, model):
     return optimizer, scheduler, writer
 
 def train(opt):
-    device = torch.device(opt.device)
     if torch.cuda.is_available():
         logger.info("%s", torch.cuda.get_device_name(0))
 
@@ -319,7 +317,6 @@ def train(opt):
 
     # set config
     config = load_config(opt)
-    config['device'] = device
     config['opt'] = opt
     logger.info("%s", config)
  

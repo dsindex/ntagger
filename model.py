@@ -135,7 +135,7 @@ class DSA(nn.Module):
     def __init__(self, config, dsa_num_attentions, dsa_input_dim, dsa_dim, dsa_r=3):
         super(DSA, self).__init__()
         self.config = config
-        self.device = config['device']
+        self.device = config['opt'].device
         dsa = []
         for i in range(dsa_num_attentions):
             dsa.append(nn.Linear(dsa_input_dim, dsa_dim))
@@ -198,7 +198,7 @@ class CharCNN(BaseModel):
     def __init__(self, config):
         super().__init__(config=config)
         self.config = config
-        self.device = config['device']
+        self.device = config['opt'].device
         self.seq_size = config['n_ctx']
         self.char_n_ctx = config['char_n_ctx']
         char_vocab_size = config['char_vocab_size']
@@ -238,7 +238,7 @@ class GloveLSTMCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
-        self.device = config['device']
+        self.device = config['opt'].device
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
@@ -338,7 +338,7 @@ class GloveDensenetCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
-        self.device = config['device']
+        self.device = config['opt'].device
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         self.use_crf = use_crf
@@ -432,7 +432,7 @@ class BertLSTMCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
-        self.device = config['device']
+        self.device = config['opt'].device
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         lstm_hidden_dim = config['lstm_hidden_dim']
@@ -617,7 +617,7 @@ class ElmoLSTMCRF(BaseModel):
         super().__init__(config=config)
 
         self.config = config
-        self.device = config['device']
+        self.device = config['opt'].device
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         elmo_emb_dim = config['elmo_emb_dim']
