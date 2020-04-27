@@ -147,7 +147,7 @@ reference pytorch code for named entity tagging.
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA   | Dynamic   | Etc         |
 | ------------------------------- | -----------  | -------------------- | ------------------ | ------- | --------- | ----------- |
 | Glove, BiLSTM-CRF               | 88.49        | word, pos            | 32.8716 / 72.4141  |         |           | threads=14  |
-| **Glove, BiLSTM-CRF**           | 89.80        | word, character, pos | 23.8180 / -        | 21.4545 |           | threads=14, update/packed |
+| **Glove, BiLSTM-CRF**           | 90.14        | word, character, pos | 26.2807 / -        | 21.7474 |           | threads=14, update/packed |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / 18.5050  |         |           | threads=14, conda pytorch=1.2.0 17.2121ms |
 | Glove, DenseNet-CRF             | 88.48        | word, character, pos | 28.5851 / 19.6060  |         |           | threads=14, conda pytorch=1.2.0 19.3434ms |
 | BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |         |           |             |
@@ -245,9 +245,10 @@ INFO:__main__:[Elapsed Time] : 121099ms, 32.87160694896851ms on average
 accuracy:  97.61%; precision:  88.46%; recall:  88.51%; FB1:  88.49
 
 * --use_char_cnn --lr_decay_rate=0.9
-INFO:__main__:[F1] : 0.8979916836238168, 3684
-INFO:__main__:[Elapsed Time] : 135526ms, 36.75970676079283ms on average
-accuracy:  97.85%; precision:  89.74%; recall:  89.85%; FB1:  89.80
+INFO:__main__:[F1] : 0.9013611454834718, 3684
+INFO:__main__:[Elapsed Time] : 96906ms, 26.280749389084985ms on average
+accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
+
 ```
 
 ### emb_class=glove, enc_class=densenet
@@ -638,9 +639,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | 37.7036 / - | update |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |        |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |        |
-| dha BERT(2.5m), BiLSTM-CRF     | 83.78         | 84.13          | morph, pos            | 41.8604 / - |        |
+| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update |
 | dha BERT(2.5m), BiLSTM         | 84.46         | 85.41          | morph, pos            | 106.569 / - | update |
-| dha BERT(2.5m), CRF            | -             | -              | morph, pos            | -       / - | update |
+| dha BERT(2.5m), CRF            | 82.94         | 84.99          | morph, pos            | 39.6817 / - | update |
 | dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | 97.1273 / - | update |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |        |
@@ -762,7 +763,11 @@ accuracy:  94.39%; precision:  84.43%; recall:  84.49%; FB1:  84.46
   accuracy:  93.94%; precision:  85.90%; recall:  84.93%; FB1:  85.41 
 
 ** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
-
+INFO:__main__:[F1] : 0.8300803673938002, 9000
+INFO:__main__:[Elapsed Time] : 357236ms, 39.68174241582398ms on average
+accuracy:  94.18%; precision:  82.33%; recall:  83.57%; FB1:  82.94
+  *** evaluation eoj-by-eoj
+  accuracy:  93.84%; precision:  85.15%; recall:  84.83%; FB1:  84.99
 
 ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (dha BERT)
 INFO:__main__:[F1] : 0.8122244286627849, 9000

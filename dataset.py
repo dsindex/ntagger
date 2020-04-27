@@ -13,7 +13,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=1):
+def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=1, batch_size=0):
     opt = config['opt']
     dataset = DatasetClass(config, filepath)
     if sampling:
@@ -22,8 +22,9 @@ def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=
         sampler = SequentialSampler(dataset)
     if hasattr(opt, 'distributed') and opt.distributed:
         sampler = DistributedSampler(dataset)
-    loader = DataLoader(dataset, batch_size=opt.batch_size,
-                        num_workers=num_workers, sampler=sampler, pin_memory=True)
+    bz = opt.batch_size
+    if batch_size > 0: bz = batch_size
+    loader = DataLoader(dataset, batch_size=bz, num_workers=num_workers, sampler=sampler, pin_memory=True)
     logger.info("[{} data loaded]".format(filepath))
     return loader
 

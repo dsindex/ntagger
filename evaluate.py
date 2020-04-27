@@ -243,19 +243,19 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--num_threads', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=1)
-    parser.add_argument('--num_examples', default=0, type=int, help="number of examples to evaluate, 0 means all of them.")
-    parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
-    parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")
+    parser.add_argument('--num_examples', default=0, type=int, help="Number of examples to evaluate, 0 means all of them.")
+    parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
+    parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     # for BERT
     parser.add_argument('--bert_do_lower_case', action='store_true',
                         help="Set this flag if you are using an uncased model.")
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action='store_true',
-                        help="use BERT as feature-based, default fine-tuning")
+                        help="Use BERT as feature-based, default fine-tuning")
     parser.add_argument('--bert_disable_lstm', action='store_true',
-                        help="disable lstm layer")
-    parser.add_argument('--bert_use_pos', action='store_true', help="add Part-Of-Speech features")
+                        help="Disable lstm layer")
+    parser.add_argument('--bert_use_pos', action='store_true', help="Add Part-Of-Speech features")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')

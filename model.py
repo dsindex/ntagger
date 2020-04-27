@@ -705,7 +705,9 @@ class ElmoLSTMCRF(BaseModel):
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
-        lstm_out, (h_n, c_n) = self.lstm(embed_out)
+        packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths, batch_first=True, enforce_sorted=False)
+        lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
+        lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
         # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
         lstm_out = self.dropout(lstm_out)
 

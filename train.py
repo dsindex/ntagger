@@ -64,12 +64,12 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     pad_label_id = config['pad_label_id']
 
     local_rank = opt.local_rank
-    use_amp = opt.use_amp
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
     n_batches = len(train_loader)
     prog = Progbar(target=n_batches)
     # train one epoch
     model.train()
+    optimizer.zero_grad()
     train_loss = 0.
     st_time = time.time()
     for local_step, (x,y) in enumerate(train_loader):
@@ -86,13 +86,17 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             y_view = y.view(-1)
             loss = criterion(logits_view, y_view)
         # back-propagation - begin
-        optimizer.zero_grad()
-        if use_amp:
+        if opt.gradient_accumulation_steps > 1:
+            loss = loss / opt.gradient_accumulation_steps
+        if opt.use_amp:
             with amp.scale_loss(loss, optimizer) as scaled_loss:
                 scaled_loss.backward()
         else:
             loss.backward()
-        optimizer.step()
+        if (local_step + 1) % opt.gradient_accumulation_steps == 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
+            optimizer.step()
+            optimizer.zero_grad()
         # back-propagation - end
         train_loss += loss.item()
         if local_rank == 0 and writer:
@@ -215,7 +219,7 @@ def prepare_datasets(config):
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
     train_loader = prepare_dataset(config, opt.train_path, DatasetClass, sampling=True, num_workers=2)
-    valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, sampling=False, num_workers=2)
+    valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, sampling=False, num_workers=2, batch_size=opt.eval_batch_size)
     return train_loader, valid_loader
 
 def get_bert_embed_layer_list(config, bert_model):
@@ -379,15 +383,19 @@ def main():
     parser.add_argument('--pos_filename', type=str, default='pos.txt')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--use_amp', action='store_true')
-    parser.add_argument('--batch_size', type=int, default=30)
+    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--eval_batch_size', type=int, default=64)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--lr_decay_rate', type=float, default=1.0)
-    parser.add_argument('--lr_decay_steps', type=float, default=2, help="number of decay epoch steps to be paitent")
-    parser.add_argument('--warmup_steps', type=int, default=4,  help="number of warmup epoch steps")
-    parser.add_argument('--patience', default=7, type=int, help="max number of epoch to be patient for early stopping.")
+    parser.add_argument('--lr_decay_steps', type=float, default=2, help="Number of decay epoch steps to be paitent")
+    parser.add_argument('--warmup_steps', type=int, default=4,  help="Number of warmup epoch steps")
+    parser.add_argument('--patience', default=7, type=int, help="Max number of epoch to be patient for early stopping.")
     parser.add_argument('--adam_epsilon', type=float, default=1e-8)
     parser.add_argument('--weight_decay', type=float, default=0.01)
+    parser.add_argument('--gradient_accumulation_steps', type=int, default=1,
+                        help="Number of updates steps to accumulate before performing a backward/update pass.")
+    parser.add_argument('--max_grad_norm', default=1.0, type=float, help="Max gradient norm.")
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--tmax',type=int, default=-1)
     parser.add_argument('--opt-level', type=str, default='O1')
@@ -395,9 +403,9 @@ def main():
     parser.add_argument('--world_size', default=1, type=int)
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument('--seed', default=42, type=int)
-    parser.add_argument('--use_crf', action='store_true', help="add CRF layer")
-    parser.add_argument('--embedding_trainable', action='store_true', help="set word embedding(Glove) trainable")
-    parser.add_argument('--use_char_cnn', action='store_true', help="add Character features")
+    parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
+    parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable")
+    parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -406,12 +414,12 @@ def main():
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action='store_true',
-                        help="use BERT as feature-based, default fine-tuning")
+                        help="Use BERT as feature-based, default fine-tuning")
     parser.add_argument('--bert_disable_lstm', action='store_true',
-                        help="disable lstm layer")
-    parser.add_argument('--bert_use_pos', action='store_true', help="add Part-Of-Speech features")
+                        help="Disable lstm layer")
+    parser.add_argument('--bert_use_pos', action='store_true', help="Add Part-Of-Speech features")
     parser.add_argument('--bert_remove_layers', type=str, default='',
-                        help="specify layer numbers to remove during finetuning e.g. 8,9,10,11 to remove last 4 layers from BERT base(12 layers)")
+                        help="Specify layer numbers to remove during finetuning e.g. 8,9,10,11 to remove last 4 layers from BERT base(12 layers)")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
