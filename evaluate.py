@@ -147,7 +147,7 @@ def evaluate(opt):
     config = load_config(opt)
     if opt.num_threads > 0: torch.set_num_threads(opt.num_threads)
     config['opt'] = opt
-    logger.info("%s", json.dumps(config, indent=4))
+    logger.info("%s", config)
 
     # set path
     set_path(config)
