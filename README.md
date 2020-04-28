@@ -679,9 +679,6 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
 | ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |               |
 
-* default batch size, learning rate : 32, 1e-3
-* elapsed time measured is including iterations time over 'DataLoader' which is very slow. 
-
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Etc        |
@@ -966,9 +963,6 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos | 127.514 / - |               |
 | ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            | 132.933 / - |               |
 | ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos | 110.277 / - |               |
-
-* default batch size, learning rate : 32, 1e-3
-* elapsed time measured is including iterations time over 'DataLoader' which is very slow. 
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
