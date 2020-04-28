@@ -394,8 +394,6 @@ def main():
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument('--max_grad_norm', default=1.0, type=float, help="Max gradient norm.")
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
-    parser.add_argument('--tmax',type=int, default=-1)
-    parser.add_argument('--opt-level', type=str, default='O1')
     parser.add_argument('--local_rank', default=0, type=int)
     parser.add_argument('--world_size', default=1, type=int)
     parser.add_argument('--log_dir', type=str, default='runs')
