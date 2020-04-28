@@ -8,6 +8,7 @@ class Tokenizer():
         self.vocab = vocab
         self.config = config
         self.chars  = chars
+        self.n_ctx = config['n_ctx']
         if 'char_n_ctx' in config: self.char_n_ctx = config['char_n_ctx']
         self.pad_token = config['pad_token']
         self.unk_token = config['unk_token']
@@ -33,6 +34,10 @@ class Tokenizer():
             if self.lowercase: token = token.lower()
             d = vocab[token] if token in vocab else self.unk_id
             ids.append(d)
+        # padding
+        padding_length = self.n_ctx - len(ids)
+        ids += [self.pad_id] * padding_length
+        ids = ids[:self.n_ctx]
         return ids
 
     def convert_tokens_to_cids(self, tokens):
@@ -47,5 +52,6 @@ class Tokenizer():
             # padding cids
             padding_length = self.char_n_ctx - len(cids)
             cids += [self.pad_id] * padding_length
+            cids = cids[:self.char_n_ctx]
             ids.append(cids)
         return ids
