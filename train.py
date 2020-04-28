@@ -381,7 +381,7 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--use_amp', action='store_true')
     parser.add_argument('--batch_size', type=int, default=32)
-    parser.add_argument('--eval_batch_size', type=int, default=64)
+    parser.add_argument('--eval_batch_size', type=int, default=128)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--lr_decay_rate', type=float, default=1.0)

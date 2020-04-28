@@ -127,8 +127,7 @@ def load_model(config, checkpoint):
         Tokenizer = MODEL_CLASSES[config['emb_class']][1]
         Model     = MODEL_CLASSES[config['emb_class']][2]
         bert_config = Config.from_pretrained(opt.bert_output_dir)
-        bert_tokenizer = Tokenizer.from_pretrained(opt.bert_output_dir,
-                                                   do_lower_case=opt.bert_do_lower_case)
+        bert_tokenizer = Tokenizer.from_pretrained(opt.bert_output_dir)
         # no need to use 'from_pretrained'
         bert_model = Model(bert_config)
         ModelClass = BertLSTMCRF
@@ -232,7 +231,7 @@ def evaluate(opt):
     write_prediction(opt, ys, preds, labels, pad_label_id, default_label)
 
     logger.info("[F1] : {}, {}".format(f1, total_examples))
-    logger.info("[Elapsed Time] : {}ms, {}ms on average".format(whole_time, avg_time))
+    logger.info("[Elapsed Time] : {} examples, {}ms, {}ms on average".format(total_examples, whole_time, avg_time))
 
 def main():
     parser = argparse.ArgumentParser()
@@ -247,8 +246,6 @@ def main():
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     # for BERT
-    parser.add_argument('--bert_do_lower_case', action='store_true',
-                        help="Set this flag if you are using an uncased model.")
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action='store_true',
