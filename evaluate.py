@@ -22,52 +22,6 @@ from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLE
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
-    # load test data
-    tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
-    with open(opt.test_path, 'r', encoding='utf-8') as f:
-        data = []
-        bucket = []
-        for idx, line in enumerate(tqdm(f, total=tot_num_line)):
-            line = line.strip()
-            if line == "":
-                data.append(bucket)
-                bucket = []
-            else:
-                entry = line.split()
-                assert(len(entry) == 4)
-                bucket.append(entry)
-        if len(bucket) != 0:
-            data.append(bucket)
-    # write prediction
-    try:
-        pred_path = opt.test_path + '.pred'
-        with open(pred_path, 'w', encoding='utf-8') as f:
-            for i, bucket in enumerate(data):      # foreach sentence
-                if i >= ys.shape[0]:
-                    logger.info("Stop to write predictions: %s" % (i))
-                    break
-                # from preds
-                j_bucket = 0
-                for j in range(ys.shape[1]):       # foreach token
-                    pred_label = default_label
-                    if ys[i][j] != pad_label_id:
-                        pred_label = labels[preds[i][j]]
-                        entry = bucket[j_bucket]
-                        entry.append(pred_label)
-                        f.write(' '.join(entry) + '\n')
-                        j_bucket += 1
-                # remained
-                for j, entry in enumerate(bucket): # foreach remained token
-                    if j < j_bucket: continue
-                    pred_label = default_label
-                    entry = bucket[j]
-                    entry.append(pred_label)
-                    f.write(' '.join(entry) + '\n')
-                f.write('\n')
-    except Exception as e:
-        logger.warn(str(e))
-
 def set_path(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
@@ -80,17 +34,7 @@ def set_path(config):
     opt.label_path = os.path.join(opt.data_dir, 'label.txt')
     opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
     opt.test_path = os.path.join(opt.data_dir, 'test.txt')
-
-def prepare_datasets(config):
-    opt = config['opt']
-    if config['emb_class'] == 'glove':
-        DatasetClass = CoNLLGloveDataset
-    if config['emb_class'] in ['bert', 'albert', 'roberta', 'bart', 'electra']:
-        DatasetClass = CoNLLBertDataset
-    if config['emb_class'] == 'elmo':
-        DatasetClass = CoNLLElmoDataset
-    test_loader = prepare_dataset(config, opt.data_path, DatasetClass, sampling=False, num_workers=1)
-    return test_loader
+    opt.vocab_path = os.path.join(opt.data_dir, 'vocab.txt')
 
 def load_checkpoint(config):
     opt = config['opt']
@@ -144,6 +88,67 @@ def load_model(config, checkpoint):
     logger.info("[Loaded]")
     return model
 
+# ---------------------------------------------------------------------------- #
+# Evaluation
+# ---------------------------------------------------------------------------- #
+
+def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
+    # load test data
+    tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
+    with open(opt.test_path, 'r', encoding='utf-8') as f:
+        data = []
+        bucket = []
+        for idx, line in enumerate(tqdm(f, total=tot_num_line)):
+            line = line.strip()
+            if line == "":
+                data.append(bucket)
+                bucket = []
+            else:
+                entry = line.split()
+                assert(len(entry) == 4)
+                bucket.append(entry)
+        if len(bucket) != 0:
+            data.append(bucket)
+    # write prediction
+    try:
+        pred_path = opt.test_path + '.pred'
+        with open(pred_path, 'w', encoding='utf-8') as f:
+            for i, bucket in enumerate(data):      # foreach sentence
+                if i >= ys.shape[0]:
+                    logger.info("Stop to write predictions: %s" % (i))
+                    break
+                # from preds
+                j_bucket = 0
+                for j in range(ys.shape[1]):       # foreach token
+                    pred_label = default_label
+                    if ys[i][j] != pad_label_id:
+                        pred_label = labels[preds[i][j]]
+                        entry = bucket[j_bucket]
+                        entry.append(pred_label)
+                        f.write(' '.join(entry) + '\n')
+                        j_bucket += 1
+                # remained
+                for j, entry in enumerate(bucket): # foreach remained token
+                    if j < j_bucket: continue
+                    pred_label = default_label
+                    entry = bucket[j]
+                    entry.append(pred_label)
+                    f.write(' '.join(entry) + '\n')
+                f.write('\n')
+    except Exception as e:
+        logger.warn(str(e))
+
+def prepare_datasets(config):
+    opt = config['opt']
+    if config['emb_class'] == 'glove':
+        DatasetClass = CoNLLGloveDataset
+    if config['emb_class'] in ['bert', 'albert', 'roberta', 'bart', 'electra']:
+        DatasetClass = CoNLLBertDataset
+    if config['emb_class'] == 'elmo':
+        DatasetClass = CoNLLElmoDataset
+    test_loader = prepare_dataset(config, opt.data_path, DatasetClass, sampling=False, num_workers=1)
+    return test_loader
+
 def evaluate(opt):
     # set config
     config = load_config(opt)
@@ -177,8 +182,10 @@ def evaluate(opt):
     whole_st_time = time.time()
     first_time = time.time()
     first_examples = 0
+    total_duration_time = 0.0
     with torch.no_grad():
         for i, (x,y) in enumerate(tqdm(test_loader, total=n_batches)):
+            start_time = time.time()
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
             if opt.use_crf:
@@ -205,6 +212,11 @@ def evaluate(opt):
             if opt.num_examples != 0 and total_examples >= opt.num_examples:
                 logger.info("[Stop Evaluation] : up to the {} examples".format(total_examples))
                 break
+            duration_time = int((time.time()-start_time)*1000)
+            if i != 0: total_duration_time += duration_time
+            '''
+            logger.info("[Elapsed Time] : {}ms".format(duration_time))
+            '''
     whole_time = int((time.time()-whole_st_time)*1000)
     avg_time = (whole_time - first_time) / (total_examples - first_examples)
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
@@ -232,6 +244,7 @@ def evaluate(opt):
 
     logger.info("[F1] : {}, {}".format(f1, total_examples))
     logger.info("[Elapsed Time] : {} examples, {}ms, {}ms on average".format(total_examples, whole_time, avg_time))
+    logger.info("[Elapsed Time(total_duration_time, average)] : {}ms, {}ms".format(total_duration_time, total_duration_time/(total_examples-1)))
 
 def main():
     parser = argparse.ArgumentParser()

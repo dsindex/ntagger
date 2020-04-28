@@ -191,6 +191,7 @@ reference pytorch code for named entity tagging.
 * CONDA   : conda pytorch=1.5.0
 * Dynamic : conda pytorch=1.5.0, dynamic quantization
 * default batch size, learning rate : 32, 1e-3
+* elapsed time measured is including iterations time over 'DataLoader' which is very slow. 
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -310,8 +311,11 @@ INFO:__main__:[Elapsed Time] : 135017ms, 36.64956568946797ms on average
 accuracy:  98.30%; precision:  90.89%; recall:  91.70%; FB1:  91.29
 
 
-* --batch_size=32
 
+* --batch_size=32
+INFO:__main__:[F1] : 0.9118733509234828, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 141879ms, 38.48330165625848ms on average
+accuracy:  98.24%; precision:  90.60%; recall:  91.78%; FB1:  91.19
 
 * --bert_use_pos
 INFO:__main__:[F1] : 0.9111325554873234, 3684
@@ -676,6 +680,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |               |
 
 * default batch size, learning rate : 32, 1e-3
+* elapsed time measured is including iterations time over 'DataLoader' which is very slow. 
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -963,6 +968,7 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos | 110.277 / - |               |
 
 * default batch size, learning rate : 32, 1e-3
+* elapsed time measured is including iterations time over 'DataLoader' which is very slow. 
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
