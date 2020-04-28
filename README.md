@@ -191,7 +191,6 @@ reference pytorch code for named entity tagging.
 * CONDA   : conda pytorch=1.5.0
 * Dynamic : conda pytorch=1.5.0, dynamic quantization
 * default batch size, learning rate : 32, 1e-3
-* elapsed time measured is including iterations time over 'DataLoader' which is very slow. 
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -953,7 +952,7 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | Glove, DenseNet-CRF            | 85.30 / 86.89          | morph, pos            | 24.0280 / - | update        |
 | Glove, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 87.56 / 90.47          | morph, pos            | 40.0766 / - | update/packed |
-| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            | -       / - | update/packed |
+| dha BERT(2.5m), BiLSTM         | 88.00 / 90.24          | morph, pos            | 23.0388 / - | update/packed |
 | dha BERT(2.5m), CRF            | -     / -              | morph, pos            | -       / - | update        |
 | dha BERT(2.5m)                 | -     / -              | morph, pos            | -       / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
@@ -1068,7 +1067,10 @@ accuracy:  97.58%; precision:  86.59%; recall:  88.55%; FB1:  87.56
 token_eval micro F1: 0.9047362341162879
 
   ** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
-
+  INFO:__main__:[F1] : 0.8800116635078, 927
+  INFO:__main__:[Elapsed Time] : 927 examples, 21444ms, 23.03887688984881ms on average
+  accuracy:  97.56%; precision:  87.38%; recall:  88.63%; FB1:  88.00
+  token_eval micro F1: 0.9024978600887091
 
   ** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
 
