@@ -95,7 +95,7 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
-      - there is no test set. so, set valid.txt as test.txt.
+      - there is no test set. therefore, set valid.txt as test.txt.
     - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
       - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
       - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
@@ -155,8 +155,8 @@ reference pytorch code for named entity tagging.
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |         |           |             |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |         |           |             |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |         |           |             |
-| BERT-base, BiLSTM-CRF           | 90.20        | word                 | -       / -        |         |           | update/packed      |
-| BERT-base, BiLSTM               | 90.55        | word                 | -       / -        |         |           | update/packed      |
+| BERT-base, BiLSTM-CRF           | 90.20        | word                 | 42.6464 / -        |         |           | update/packed      |
+| BERT-base, BiLSTM               | 90.55        | word                 | 18.2323 / -        |         |           | update/packed      |
 | BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           | update             |
 | BERT-base                       | 90.25        | word                 | 16.6877 / -        |         |           | update             |
 | BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / -        |         |           | del 8,9,10,11 , threads=14 |
@@ -320,12 +320,12 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
-INFO:__main__:[Elapsed Time] : 185670ms, 50.265544393157754ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4368ms, 42.64646464646464ms on average
 accuracy:  97.87%; precision:  89.52%; recall:  90.88%; FB1:  90.20
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case (BERT-base BiLSTM)
 INFO:__main__:[F1] : 0.9054532577903682, 3684
-INFO:__main__:[Elapsed Time] : 112704ms, 30.563127884876458ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1922ms, 18.232323232323232ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf (BERT-base CRF)
@@ -452,7 +452,7 @@ $ python train.py --config=configs/config-albert.json --save_path=pytorch-model-
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-albert.json --model_path=pytorch-model-albert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-albert --bert_do_lower_case
+$ python evaluate.py --config=configs/config-albert.json --model_path=pytorch-model-albert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-albert
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8821014050091632, 3684
@@ -473,11 +473,6 @@ accuracy:  98.06%; precision:  89.51%; recall:  91.29%; FB1:  90.39
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-roberta.json --bert_model_name_or_path=./embeddings/roberta-large
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5 --epoch=10
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5 --epoch=10 --bert_disable_lstm
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --use_crf
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --lr_decay_rate=0.9
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10 --lr_decay_rate=0.9 --bert_use_pos
 ```
 
 - evaluation
@@ -546,17 +541,25 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-electra.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-electra --bert_do_lower_case
+$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-electra.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-electra
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9072818526019194, 3684
 INFO:__main__:[Elapsed Time] : 106594ms, 28.80966603312517ms on average
 accuracy:  98.08%; precision:  90.24%; recall:  91.22%; FB1:  90.73
 
+* --batch_size=64 --gradient_accumulation_steps=2 --lr=8e-5
+
+
+
 * --bert_model_name_or_path=./embeddings/electra-large-discriminator --lr=1e-6 --bert_disable_lstm --epoch=40
 
 INFO:__main__:[F1] : 0.91392938696645, 3684
 INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
+
+* --batch_size=64 --gradient_accumulation_steps=2 --lr=8e-5
+
+
 
 ```
 
@@ -646,10 +649,10 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ------------- | -------------- | --------------------- | ----------- | ------------- |  
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |               |
-| **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | -       / - | update/packed |
+| **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | 25.0146 / - | update/packed |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
-| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update/packed |
+| dha BERT(2.5m), BiLSTM-CRF     | 84.95         | 85.25          | morph, pos            | 42.1063 / - | update/packed |
 | dha BERT(2.5m), BiLSTM         | 84.46         | 85.41          | morph, pos            | -       / - | update/packed |
 | dha BERT(2.5m), CRF            | 82.94         | 84.99          | morph, pos            | -       / - | update        |
 | dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | -       / - | update        |
@@ -695,7 +698,7 @@ accuracy:  93.80%; precision:  84.82%; recall:  83.76%; FB1:  84.29
 
 * --use_char_cnn
 INFO:__main__:[F1] : 0.856091088091773, 9000
-INFO:__main__:[Elapsed Time] : 339428ms, 37.7036337370819ms on average
+INFO:__main__:[Elapsed Time] : 9000 examples, 225223ms, 25.014668296477385ms on average
 accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55
   ** evaluation eoj-by-eoj
   accuracy:  93.88%; precision:  86.11%; recall:  85.00%; FB1:  85.55
@@ -758,12 +761,11 @@ $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-mode
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 (dha BERT BiLSTM-CRF)
-INFO:__main__:[F1] : 0.838467292261662, 9000
-INFO:__main__:[Elapsed Time] : 376744ms, 41.86044444444445ms on average
-accuracy:  94.01%; precision:  83.72%; recall:  83.84%; FB1:  83.78
+INFO:__main__:[F1] : 0.850251256281407, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 379036ms, 42.10634514946105ms on average
+accuracy:  94.30%; precision:  85.06%; recall:  84.84%; FB1:  84.95
   *** evaluation eoj-by-eoj
-  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-  accuracy:  93.47%; precision:  84.26%; recall:  84.01%; FB1:  84.13
+  accuracy:  93.86%; precision:  85.50%; recall:  84.99%; FB1:  85.25
 
 ** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
 INFO:__main__:[F1] : 0.8453688900983027, 9000
@@ -812,7 +814,7 @@ accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
   ** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
   INFO:__main__:[F1] : 0.8646059046587216, 9000
-  INFO:__main__:[Elapsed Time] : 2224ms, 21.32323232323232ms on average
+  INFO:__main__:[Elapsed Time] : 100 examples, 2224ms, 21.32323232323232ms on average
   accuracy:  94.31%; precision:  85.92%; recall:  86.82%; FB1:  86.37 
 
   ** --bert_disable_lstm --lr_decay_rate=0.9 (bpe BERT CRF)
@@ -929,23 +931,23 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | span / token F1 (%)    | Features              | Etc           | GPU / CPU   |
-| ------------------------------ | ---------------------- | --------------------- | ------------- | ----------- |    
-| Glove, BiLSTM-CRF              | 84.38 / 86.02          | morph, pos            |               | 34.2192 / - |
-| **Glove, BiLSTM-CRF**          | 85.76 / 87.04          | morph, character, pos |               | 37.2386 / - |
-| Glove, DenseNet-CRF            | 82.98 / 84.79          | morph, pos            |               | 23.3758 / - |
-| Glove, DenseNet-CRF            | 84.32 / 85.75          | morph, character, pos |               | 22.6004 / - |
-| dha BERT(2.5m), BiLSTM-CRF     | -     / -              | morph, pos            | update/packed | -       / - |
-| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            | update/packed | -       / - |
-| dha BERT(2.5m), CRF            | -     / -              | morph, pos            | update        | -       / - |
-| dha BERT(2.5m)                 | -     / -              | morph, pos            | update        | -       / - |
-| dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | del 8,9,10,11 | 40.5205 / - |
-| dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            |               | 37.7829 / - |
-| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            |               | 39.0183 / - |
-| ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            |               | 128.029 / - |
-| ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos |               | 127.514 / - |
-| ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            |               | 132.933 / - |
-| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos |               | 110.277 / - |
+|                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
+| ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
+| Glove, BiLSTM-CRF              | -     / -              | morph, pos            | -       / - | update/packed |
+| **Glove, BiLSTM-CRF**          | -     / -              | morph, character, pos | -       / - | update/packed |
+| Glove, DenseNet-CRF            | -     / -              | morph, pos            | -       / - | update        |
+| Glove, DenseNet-CRF            | -     / -              | morph, character, pos | -       / - | update        |
+| dha BERT(2.5m), BiLSTM-CRF     | 87.56 / 90.47          | morph, pos            | 40.0766 / - | update/packed |
+| dha BERT(2.5m), BiLSTM         | -     / -              | morph, pos            | -       / - | update/packed |
+| dha BERT(2.5m), CRF            | -     / -              | morph, pos            | -       / - | update        |
+| dha BERT(2.5m)                 | -     / -              | morph, pos            | -       / - | update        |
+| dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
+| dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
+| dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
+| ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
+| ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos | 127.514 / - |               |
+| ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            | 132.933 / - |               |
+| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos | 110.277 / - |               |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -1046,10 +1048,10 @@ $ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 (dha BERT BiLSTM-CRF)
-INFO:__main__:[F1] : 0.8546656869948568, 927
-INFO:__main__:[Elapsed Time] : 41296ms, 44.32505399568034ms on average
-accuracy:  96.83%; precision:  85.53%; recall:  85.40%; FB1:  85.47
-token_eval micro F1: 0.8731952291274326
+INFO:__main__:[F1] : 0.8751814223512336, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 37240ms, 40.076673866090715ms on average
+accuracy:  97.58%; precision:  86.59%; recall:  88.55%; FB1:  87.56
+token_eval micro F1: 0.9047362341162879
 
   ** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
 
