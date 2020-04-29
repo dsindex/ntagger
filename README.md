@@ -1,3 +1,5 @@
+{::options parse_block_html="true" /}
+
 ## ntagger
 
 reference pytorch code for named entity tagging.
@@ -49,7 +51,7 @@ reference pytorch code for named entity tagging.
     - from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
       - data/clova2019
         - converted to CoNLL data format.
-        ```bash
+        ```
         이기범 eoj - B-PER
         한두 eoj - O
         쪽을 eoj - O
