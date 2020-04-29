@@ -48,7 +48,9 @@ reference pytorch code for named entity tagging.
   - Naver NER 2019 (Korean)
     - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
       - data/clova2019
+
         - <details><summary>converted to CoNLL data format.</summary>
+
         ```
         이기범 eoj - B-PER
         한두 eoj - O
@@ -65,8 +67,11 @@ reference pytorch code for named entity tagging.
         ```
 
         </details>
+
       - data/clova2019_morph
-        - tokenized by morphological analyzer and converted to CoNLL data format.
+
+        - <details><summary>tokenized by morphological analyzer and converted to CoNLL data format.</summary>
+
         ```
         이기범 NNP - B-PER
         한두 NNP - O
@@ -84,8 +89,13 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
+
+        </details>
+
         - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
-        - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+
+        - <details><summary>we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).</summary>
+
         ```
         이기범 NNP - B-PER
         한두 NNP - O
@@ -97,8 +107,13 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
+
+        </details>
+
       - data/clova2019_morph_space
-        - this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
+
+        - <details><summary>this data is identical to `data/clova2019_morph` except it treats spaces as tokens.</summary>
+
         ```
         이기범 NNP - B-PER
         _ _ - O
@@ -123,7 +138,11 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
+
+        </details>
+
       - there is no test set. therefore, set valid.txt as test.txt.
+
     - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
       - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
       - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
