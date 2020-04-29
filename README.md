@@ -1,5 +1,3 @@
-{::options parse_block_html="true" /}
-
 ## ntagger
 
 reference pytorch code for named entity tagging.
