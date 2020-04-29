@@ -46,12 +46,10 @@ reference pytorch code for named entity tagging.
       - data/conll2003
     - [SOTA on CoNLL 2003 english](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
   - Naver NER 2019 (Korean)
-    - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
+    - from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
       - data/clova2019
-
-<details><summary>converted to CoNLL data format.</summary>
-
-        ```
+        - converted to CoNLL data format.
+        ```bash
         이기범 eoj - B-PER
         한두 eoj - O
         쪽을 eoj - O
@@ -65,14 +63,9 @@ reference pytorch code for named entity tagging.
         한다 eoj - O
         . eoj - O
         ```
-
-</details>
-
       - data/clova2019_morph
-
-<details><summary>tokenized by morphological analyzer and converted to CoNLL data format.</summary>
-
-        ```
+        - tokenized by morphological analyzer and converted to CoNLL data format.
+        ```bash
         이기범 NNP - B-PER
         한두 NNP - O
         쪽 NNB - O
@@ -89,14 +82,9 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
-
-</details>
-
         - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
-
-<details><summary>we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).</summary>
-
-        ```
+        - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+        ```bash
         이기범 NNP - B-PER
         한두 NNP - O
         쪽 NNB - O
@@ -107,14 +95,9 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
-
-</details>
-
       - data/clova2019_morph_space
-
-<details><summary>this data is identical to `data/clova2019_morph` except it treats spaces as tokens.</summary>
-
-        ```
+        - this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
+        ```bash
         이기범 NNP - B-PER
         _ _ - O
         한두 NNP - O
@@ -138,11 +121,7 @@ reference pytorch code for named entity tagging.
         먹다 VV - O
         ...
         ```
-
-</details>
-
       - there is no test set. therefore, set valid.txt as test.txt.
-
     - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
       - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
       - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
@@ -159,7 +138,7 @@ reference pytorch code for named entity tagging.
             - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
             - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
         - apply correction and converting to CoNLL data format
-        ```
+        ```bash
         $ cd data/kmou2019
         $ python correction.py -g train.raw > t
         $ python to-conll.py -g t > train.txt
