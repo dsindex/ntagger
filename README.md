@@ -717,7 +717,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | -         | -      | morph, character, pos | - / - | update/packed |
+| ELMo, Glove, BiLSTM-CRF        | 86.62         | **86.63**      | morph, character, pos | 105.739 / - | update/packed |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -1036,12 +1036,12 @@ accuracy:  94.63%; precision:  86.36%; recall:  86.38%; FB1:  86.37
   accuracy:  94.26%; precision:  86.37%; recall:  86.38%; FB1:  86.37
 
 ** --use_char_cnn --embedding_trainable
-INFO:__main__:[F1] : 0.8651979978889305, 9000
-INFO:__main__:[Elapsed Time] : 982480ms, 109.15546171796866ms on average
-accuracy:  94.70%; precision:  86.53%; recall:  86.39%; FB1:  86.46
+INFO:__main__:[F1] : 0.866860266484455, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 951810ms, 105.7396377375264ms on average
+accuracy:  94.65%; precision:  86.99%; recall:  86.26%; FB1:  86.62
   *** evaluation eoj-by-eoj
-  accuracy:  94.33%; precision:  86.54%; recall:  86.39%; FB1:  86.47
-
+  accuracy:  94.33%; precision:  87.00%; recall:  86.26%; FB1:  86.63
+    
 ** modify model.py for disabling glove
 INFO:__main__:[F1] : 0.856990797967312, 9000
 INFO:__main__:[Elapsed Time] : 863968ms, 95.98688743193688ms on average
