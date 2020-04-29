@@ -48,7 +48,7 @@ reference pytorch code for named entity tagging.
   - Naver NER 2019 (Korean)
     - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
       - data/clova2019
-        - converted to CoNLL data format.
+        - <details><summary>converted to CoNLL data format.</summary>
         ```
         이기범 eoj - B-PER
         한두 eoj - O
@@ -63,6 +63,8 @@ reference pytorch code for named entity tagging.
         한다 eoj - O
         . eoj - O
         ```
+
+        </details>
       - data/clova2019_morph
         - tokenized by morphological analyzer and converted to CoNLL data format.
         ```
@@ -97,6 +99,30 @@ reference pytorch code for named entity tagging.
         ```
       - data/clova2019_morph_space
         - this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
+        ```
+        이기범 NNP - B-PER
+        _ _ - O
+        한두 NNP - O
+        _ _ - O
+        쪽 NNB - O
+        을 X-JKO - O
+        _ _ - O
+        먹다 VV - O
+        고 X-EC - O
+        _ _ - O
+        10 SN - B-TIM
+        분 X-NNB - I-TIM
+        _ _ - I-TIM
+        후 NNG - I-TIM
+        쯤 X-XSN - I-TIM
+        _ _ - O
+        화제 NNG - B-CVL
+        인 X-NNG - I-CVL
+        을 X-JKO - I-CVL
+        _ _ - O
+        먹다 VV - O
+        ...
+        ```
       - there is no test set. therefore, set valid.txt as test.txt.
     - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
       - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
