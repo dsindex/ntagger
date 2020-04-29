@@ -54,4 +54,8 @@ class Tokenizer():
             cids += [self.pad_id] * padding_length
             cids = cids[:self.char_n_ctx]
             ids.append(cids)
+        # padding
+        padding_length = self.n_ctx - len(ids)
+        ids += [self.pad_id] * padding_length
+        ids = ids[:self.n_ctx]
         return ids

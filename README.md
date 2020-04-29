@@ -160,7 +160,7 @@ reference pytorch code for named entity tagging.
 | BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           | update                    |
 | BERT-base                       | 90.25        | word                 | 16.6877 / -        |         |           | update                    |
 | BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / -        |         |           | del 8,9,10,11, threads=14 |
-| BERT-large, BiLSTM              | 91.29        | word                 | 36.6495 / -        |         |           |                           |
+| BERT-large, BiLSTM              | 91.32        | word                 | 40.3581 / -        |         |           | update/packed             |
 | BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        |         |           | del 12 ~ 23               |
 | BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 / -        |         |           | BERT as feature-based, initial embedding             |
 | BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 / -        |         |           | BERT as feature-based, initial embedding             |
@@ -305,11 +305,9 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-INFO:__main__:[F1] : 0.9129208531641106, 3684
-INFO:__main__:[Elapsed Time] : 135017ms, 36.64956568946797ms on average
-accuracy:  98.30%; precision:  90.89%; recall:  91.70%; FB1:  91.29
-
-
+INFO:__main__:[F1] : 0.9131544214694237, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 148789ms, 40.358131957643224ms on average
+accuracy:  98.27%; precision:  90.76%; recall:  91.87%; FB1:  91.32
 
 * --batch_size=32
 INFO:__main__:[F1] : 0.9118733509234828, 3684
@@ -953,7 +951,7 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | Glove, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 87.56 / 90.47          | morph, pos            | 40.0766 / - | update/packed |
 | dha BERT(2.5m), BiLSTM         | 88.00 / 90.24          | morph, pos            | 23.0388 / - | update/packed |
-| dha BERT(2.5m), CRF            | -     / -              | morph, pos            | -       / - | update        |
+| dha BERT(2.5m), CRF            | 88.46 / 90.56          | morph, pos            | 34.1522 / - | update        |
 | dha BERT(2.5m)                 | -     / -              | morph, pos            | -       / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
@@ -1073,7 +1071,10 @@ token_eval micro F1: 0.9047362341162879
   token_eval micro F1: 0.9024978600887091
 
   ** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
-
+  INFO:__main__:[F1] : 0.8844425112367696, 927
+  INFO:__main__:[Elapsed Time] : 927 examples, 31752ms, 34.152267818574515ms on average
+  accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
+  token_eval mciro F1: 0.9056049478160032
 
   ** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
 
