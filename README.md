@@ -674,7 +674,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
 | ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | 86.46         | **86.47**      | morph, character, pos | 109.155 / - |               |
+| ELMo, Glove, BiLSTM-CRF        | -         | -      | morph, character, pos | - / - | update/packed |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -951,15 +951,15 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 | Glove, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 87.56 / 90.47          | morph, pos            | 40.0766 / - | update/packed |
 | dha BERT(2.5m), BiLSTM         | 88.00 / 90.24          | morph, pos            | 23.0388 / - | update/packed |
-| dha BERT(2.5m), CRF            | 88.46 / 90.56          | morph, pos            | 34.1522 / - | update        |
-| dha BERT(2.5m)                 | -     / -              | morph, pos            | -       / - | update        |
+| dha BERT(2.5m), CRF            | **88.46** / 90.56      | morph, pos            | 34.1522 / - | update        |
+| dha BERT(2.5m)                 | 88.04 / 90.64          | morph, pos            | 17.8542 / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
-| ELMo, BiLSTM-CRF               | **88.25** / 89.26      | morph, character, pos | 127.514 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | 88.18 / 89.22          | morph, pos            | 132.933 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | 87.86 / 88.75          | morph, character, pos | 110.277 / - |               |
+| ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
+| ELMo, Glove, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | update/packed |
+| ELMo, Glove, BiLSTM-CRF        | 88.00 / 89.20          | morph, character, pos | 116.965 / - | update/packed |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -1074,10 +1074,13 @@ token_eval micro F1: 0.9047362341162879
   INFO:__main__:[F1] : 0.8844425112367696, 927
   INFO:__main__:[Elapsed Time] : 927 examples, 31752ms, 34.152267818574515ms on average
   accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
-  token_eval mciro F1: 0.9056049478160032
+  token_eval micro F1: 0.9056049478160032
 
   ** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
-
+  INFO:__main__:[F1] : 0.880439496891716, 927
+  INFO:__main__:[Elapsed Time] : 927 examples, 16635ms, 17.854211663066955ms on average
+  accuracy:  97.65%; precision:  86.70%; recall:  89.43%; FB1:  88.04
+  token_eval micro F1: 0.9064737125702409
 
   ** --bert_remove_layers=8,9,10,11
   INFO:__main__:[F1] : 0.8392018779342724, 927
@@ -1143,10 +1146,10 @@ accuracy:  97.30%; precision:  88.00%; recall:  88.08%; FB1:  88.04
 token_eval micro F1: 0.8880736809241336
 
 * --batch_size=64 --lr_decay_rate=0.9
-INFO:__main__:[F1] : 0.8817518248175182, 927
-INFO:__main__:[Elapsed Time] : 123401ms, 132.93304535637148ms on average
-accuracy:  97.37%; precision:  87.66%; recall:  88.69%; FB1:  88.18
-token_eval micro F1: 0.8922982036851438
+INFO:__main__:[F1] : 0.8809558502112778, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 118820ms, 127.98920086393089ms on average
+accuracy:  97.29%; precision:  87.42%; recall:  88.78%; FB1:  88.10
+token_eval micro F1: 0.8871589332511176
 
 * --embedding_trainable
 INFO:__main__:[F1] : 0.8755125951962508, 927
@@ -1155,10 +1158,10 @@ accuracy:  97.33%; precision:  87.32%; recall:  87.78%; FB1:  87.55
 token_eval micro F1: 0.8897515527950312
 
 * --use_char_cnn --batch_size=64 --lr_decay_rate=0.9
-INFO:__main__:[F1] : 0.8786279683377308, 927
-INFO:__main__:[Elapsed Time] : 102389ms, 110.27753779697625ms on average
-accuracy:  97.29%; precision:  87.71%; recall:  88.02%; FB1:  87.86
-token_eval micro F1: 0.8875822050290135
+INFO:__main__:[F1] : 0.8799648248571009, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 108596ms, 116.96544276457884ms on average
+accuracy:  97.37%; precision:  87.83%; recall:  88.16%; FB1:  88.00
+token_eval micro F1: 0.8920632495607668
 
 * --batch_size=64 --lr_decay_rate=0.9 , modify model.py for disabling glove
 INFO:__main__:[F1] : 0.8822326125073057, 927
