@@ -49,7 +49,7 @@ reference pytorch code for named entity tagging.
     - from [HanBert-NER](https://github.com/monologg/HanBert-NER)
       - data/clova2019
 
-        - <details><summary>converted to CoNLL data format.</summary>
+<details><summary>converted to CoNLL data format.</summary>
 
         ```
         이기범 eoj - B-PER
@@ -66,11 +66,11 @@ reference pytorch code for named entity tagging.
         . eoj - O
         ```
 
-        </details>
+</details>
 
       - data/clova2019_morph
 
-        - <details><summary>tokenized by morphological analyzer and converted to CoNLL data format.</summary>
+<details><summary>tokenized by morphological analyzer and converted to CoNLL data format.</summary>
 
         ```
         이기범 NNP - B-PER
@@ -90,11 +90,11 @@ reference pytorch code for named entity tagging.
         ...
         ```
 
-        </details>
+</details>
 
         - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
 
-        - <details><summary>we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).</summary>
+<details><summary>we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).</summary>
 
         ```
         이기범 NNP - B-PER
@@ -108,11 +108,11 @@ reference pytorch code for named entity tagging.
         ...
         ```
 
-        </details>
+</details>
 
       - data/clova2019_morph_space
 
-        - <details><summary>this data is identical to `data/clova2019_morph` except it treats spaces as tokens.</summary>
+<details><summary>this data is identical to `data/clova2019_morph` except it treats spaces as tokens.</summary>
 
         ```
         이기범 NNP - B-PER
@@ -139,7 +139,7 @@ reference pytorch code for named entity tagging.
         ...
         ```
 
-        </details>
+</details>
 
       - there is no test set. therefore, set valid.txt as test.txt.
 
