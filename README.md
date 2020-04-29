@@ -224,7 +224,9 @@ reference pytorch code for named entity tagging.
 | BERT Base                       | 92.4   |
 | BiLSTM-CRF+ELMo                 | 92.22  |
 
-### emb_class=glove, enc_class=bilstm
+
+<details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -255,7 +257,12 @@ accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
 
 ```
 
-### emb_class=glove, enc_class=densenet
+</p>
+</details>
+
+
+<details><summary><b>emb_class=glove, enc_class=densenet</b></summary>
+<p>
 
 - train
 ```
@@ -289,7 +296,12 @@ accuracy:  97.75%; precision:  89.17%; recall:  88.62%; FB1:  88.89
 
 ```
 
-### emb_class=bert, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -449,7 +461,12 @@ accuracy:  97.80%; precision:  88.11%; recall:  90.12%; FB1:  89.10
 
 ```
 
-### emb_class=albert, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=albert, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -474,7 +491,12 @@ accuracy:  98.06%; precision:  89.51%; recall:  91.29%; FB1:  90.39
 
 ```
 
-### emb_class=roberta, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=roberta, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -518,7 +540,12 @@ INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
 
 ```
 
-### emb_class=bart, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bart, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -538,7 +565,12 @@ accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
 
 ```
 
-### emb_class=electra, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=electra, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -567,7 +599,12 @@ INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
 
 ```
 
-### emb_class=elmo, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=elmo, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -622,6 +659,10 @@ INFO:__main__:[F1] : 0.9193262411347518, 3684
 INFO:__main__:[Elapsed Time] : 249467ms, 67.69318490361118ms on average
 accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 ```
+
+</p>
+</details>
+
 
 ## Naver NER 2019 (Korean)
 
@@ -696,7 +737,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update/packed |
 | ELMo, Glove, BiLSTM-CRF        | -             | -              | morph, pos            | -       / - | update/packed |
 
-### emb_class=glove, enc_class=bilstm
+
+<details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -746,7 +789,12 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 
 ```
 
-### emb_class=glove, enc_class=densenet
+</p>
+</details>
+
+
+<details><summary><b>emb_class=glove, enc_class=densenet</b></summary>
+<p>
 
 - train
 ```
@@ -777,7 +825,12 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
   accuracy:  93.24%; precision:  84.28%; recall:  83.69%; FB1:  83.98
 ```
 
-### emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), dha BERT(2.5m)
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), dha BERT(2.5m)</b></summary>
+<p>
 
 - train
 ```
@@ -892,7 +945,12 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 
 ```
 
-### emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha BERT(10m)
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha BERT(10m)</b></summary>
+<p>
 
 - train
 ```
@@ -938,7 +996,12 @@ accuracy:  93.58%; precision:  83.12%; recall:  83.46%; FB1:  83.29
 
 ```
 
-### emb_class=elmo, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=elmo, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -1004,6 +1067,10 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 
 ```
 
+</p>
+</details>
+
+
 ## KMOU NER 2019 (Korean)
 
 ### experiments summary
@@ -1040,7 +1107,10 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 | --------------------- | ---------------------------------- | -------- | 
 | KoBERT+CRF            | 87.56 / 89.70                      | morph    |
 
-### emb_class=glove, enc_class=bilstm
+
+
+<details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -1072,7 +1142,12 @@ token_eval micro F1: 0.8641512381845168
 
 ```
 
-### emb_class=glove, enc_class=densenet
+</p>
+</details>
+
+
+<details><summary><b>emb_class=glove, enc_class=densenet</b></summary>
+<p>
 
 - train
 ```
@@ -1102,7 +1177,12 @@ accuracy:  96.77%; precision:  86.58%; recall:  85.26%; FB1:  85.91
 token_eval micro F1: 0.8638321196460731
 ```
 
-### emb_class=bert, enc_class=bilstm, dha BERT(2.5m), dha BERT(10m)
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha BERT(2.5m), dha BERT(10m)</b></summary>
+<p>
 
 - train
 ```
@@ -1167,7 +1247,12 @@ token_eval micro F1: 0.8735865242143024
 
 ```
 
-### emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m)
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m)</b></summary>
+<p>
 
 - train
 ```
@@ -1191,7 +1276,12 @@ token_eval micro F1: 0.8801729462631254
 
 ```
 
-### emb_class=elmo, enc_class=bilstm
+</p>
+</details>
+
+
+<details><summary><b>emb_class=elmo, enc_class=bilstm</b></summary>
+<p>
 
 - train
 ```
@@ -1242,6 +1332,11 @@ INFO:__main__:[Elapsed Time] : 118407ms, 127.51403887688984ms on average
 accuracy:  97.43%; precision:  87.61%; recall:  88.90%; FB1:  88.25
 token_eval micro F1: 0.8926606215608773
 ```
+
+</p>
+</details>
+
+
 
 ## references
 
