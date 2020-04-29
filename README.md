@@ -62,7 +62,7 @@ reference pytorch code for named entity tagging.
         좋다고 eoj - O
         한다 eoj - O
         . eoj - O
-        ```
+        ```       
       - data/clova2019_morph
         - tokenized by morphological analyzer and converted to CoNLL data format.
         ```bash
