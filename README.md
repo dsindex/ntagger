@@ -16,6 +16,9 @@ reference pytorch code for named entity tagging.
 - related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
 
 
+<br><br>
+
+
 ## Requirements
 
 - python >= 3.6
@@ -41,19 +44,27 @@ reference pytorch code for named entity tagging.
   $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
   ```
 
+<br><br>
 
 
 ## Data
 
+<br>
 
 ### CoNLL 2003 (English)
 
 - from [etagger](https://github.com/dsindex/etagger)
   - data/conll2003
 
+<br>
+
 ### Naver NER 2019 (Korean)
 
+<br>
+
 #### from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
+
+<br>
 
 ##### data/clova2019
 
@@ -170,10 +181,15 @@ _ _ - O
 - Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
 
+<br>
 
 ### KMOU NER 2019 (Korean)
 
+<br>
+
 #### from [KMOU NER](https://github.com/kmounlp/NER)
+
+<br>
 
 ##### data/kmou2019
    
@@ -215,7 +231,12 @@ $ python to-conll.py -g t > valid.txt
 - set valid.txt as test.txt
 
 
+<br><br>
+
+
 ## CoNLL 2003 (English)
+
+<br>
 
 ### experiments summary
 
@@ -738,9 +759,16 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 </details>
 
 
+<br><br>
+
+
 ## Naver NER 2019 (Korean)
 
+<br>
+
 ### experiments summary
+
+<br>
 
 #### clova2019(eoj-based)
 
@@ -770,6 +798,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
 
+<br>
 
 #### clova2019_morph(morph-based)
 
@@ -800,6 +829,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |            |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos            | BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |            |
+
+<br>
 
 #### clova2019_morph_space(morph-based + space as token)
 
@@ -1149,7 +1180,12 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 </details>
 
 
+<br><br>
+
+
 ## KMOU NER 2019 (Korean)
+
+<br>
 
 ### experiments summary
 
@@ -1415,8 +1451,10 @@ token_eval micro F1: 0.8926606215608773
 </details>
 
 
+<br><br>
 
-## references
+
+## References
 
 - [transformers_examples](https://github.com/dsindex/transformers_examples)
 - [macro and micro precision/recall/f1 score](https://datascience.stackexchange.com/a/24051)
