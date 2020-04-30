@@ -58,7 +58,8 @@
 
 ##### data/clova2019
 
-<details><summary>- converted to CoNLL data format.</summary>
+- converted to CoNLL data format.
+<details><summary>details</summary>
 <p>
 
 ```
@@ -81,7 +82,8 @@
 
 ##### data/clova2019_morph
 
-<details><summary>- tokenized by morphological analyzer and converted to CoNLL data format.</summary>
+- tokenized by morphological analyzer and converted to CoNLL data format.
+<details><summary>details</summary>
 <p>
 
 ```
@@ -107,7 +109,8 @@
 
 - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
 
-<details><summary>- we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).</summary>
+- we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+<details><summary>details</summary>
 <p>
 
 ```
@@ -128,7 +131,8 @@
 
 ##### data/clova2019_morph_space
 
-<details><summary>- this data is identical to `data/clova2019_morph` except it treats spaces as tokens.</summary>
+- this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
+<details><summary>details</summary>
 <p>
   
 ```
