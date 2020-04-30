@@ -1,6 +1,6 @@
 ## Description
 
-reference pytorch code for named entity tagging.
+**reference pytorch code for named entity tagging.**
 
 - embedding
   - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
@@ -15,9 +15,7 @@ reference pytorch code for named entity tagging.
   - Softmax, CRF
 - related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
 
-
-<br><br>
-
+<br>
 
 ## Requirements
 
@@ -44,27 +42,18 @@ reference pytorch code for named entity tagging.
   $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
   ```
 
-<br><br>
-
+<br>
 
 ## Data
-
-<br>
 
 ### CoNLL 2003 (English)
 
 - from [etagger](https://github.com/dsindex/etagger)
   - data/conll2003
 
-<br>
-
 ### Naver NER 2019 (Korean)
 
-<br>
-
 #### from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
-
-<br>
 
 ##### data/clova2019
 
@@ -185,11 +174,7 @@ _ _ - O
 
 ### KMOU NER 2019 (Korean)
 
-<br>
-
 #### from [KMOU NER](https://github.com/kmounlp/NER)
-
-<br>
 
 ##### data/kmou2019
    
@@ -198,8 +183,8 @@ _ _ - O
   - same as [pytorch-bert-crf-ner](https://github.com/eagle705/pytorch-bert-crf-ner)
   - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
   - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
-
-<details><summary>- apply correction rules and converting to CoNLL data format</summary>
+  - apply correction rules and converting to CoNLL data format
+<details><summary>details</summary>
 <p>
   
 ```
@@ -230,13 +215,9 @@ $ python to-conll.py -g t > valid.txt
 
 - set valid.txt as test.txt
 
-
-<br><br>
-
+<br>
 
 ## CoNLL 2003 (English)
-
-<br>
 
 ### experiments summary
 
@@ -758,17 +739,11 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 </p>
 </details>
 
-
-<br><br>
-
+<br>
 
 ## Naver NER 2019 (Korean)
 
-<br>
-
 ### experiments summary
-
-<br>
 
 #### clova2019(eoj-based)
 
@@ -797,8 +772,6 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Bert-multilingual     | 81.78         | eoj      |
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
-
-<br>
 
 #### clova2019_morph(morph-based)
 
@@ -829,8 +802,6 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |            |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos            | BERT as feature-based |
 | ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |            |
-
-<br>
 
 #### clova2019_morph_space(morph-based + space as token)
 
@@ -1179,13 +1150,9 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 </p>
 </details>
 
-
-<br><br>
-
+<br>
 
 ## KMOU NER 2019 (Korean)
-
-<br>
 
 ### experiments summary
 
@@ -1450,9 +1417,7 @@ token_eval micro F1: 0.8926606215608773
 </p>
 </details>
 
-
-<br><br>
-
+<br>
 
 ## References
 
