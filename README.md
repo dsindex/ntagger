@@ -40,130 +40,145 @@ reference pytorch code for named entity tagging.
   $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
   ```
 
-- data
-  - CoNLL 2003 (english)
-    - from [etagger](https://github.com/dsindex/etagger)
-      - data/conll2003
-    - [SOTA on CoNLL 2003 english](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003)
-  - Naver NER 2019 (Korean)
-    - from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
-      - data/clova2019
-        - converted to CoNLL data format.
-        ```
-        이기범 eoj - B-PER
-        한두 eoj - O
-        쪽을 eoj - O
-        먹고 eoj - O
-        10분 eoj - B-TIM
-        후쯤 eoj - I-TIM
-        화제인을 eoj - B-CVL
-        먹는 eoj - O
-        것이 eoj - O
-        좋다고 eoj - O
-        한다 eoj - O
-        . eoj - O
-        ```       
-      - data/clova2019_morph
-        - tokenized by morphological analyzer and converted to CoNLL data format.
-        ```bash
-        이기범 NNP - B-PER
-        한두 NNP - O
-        쪽 NNB - O
-        을 X-JKO - O
-        먹다 VV - O
-        고 X-EC - O
-        10 SN - B-TIM
-        분 X-NNB - I-TIM
-        후 NNG - I-TIM
-        쯤 X-XSN - I-TIM
-        화제 NNG - B-CVL
-        인 X-NNG - I-CVL
-        을 X-JKO - I-CVL
-        먹다 VV - O
-        ...
-        ```
-        - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
-        - we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
-        ```bash
-        이기범 NNP - B-PER
-        한두 NNP - O
-        쪽 NNB - O
-        먹다 VV - O
-        10 SN - B-TIM
-        후 NNG - I-TIM
-        화제 NNG - B-CVL
-        먹다 VV - O
-        ...
-        ```
-      - data/clova2019_morph_space
-        - this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
-        ```bash
-        이기범 NNP - B-PER
-        _ _ - O
-        한두 NNP - O
-        _ _ - O
-        쪽 NNB - O
-        을 X-JKO - O
-        _ _ - O
-        먹다 VV - O
-        고 X-EC - O
-        _ _ - O
-        10 SN - B-TIM
-        분 X-NNB - I-TIM
-        _ _ - I-TIM
-        후 NNG - I-TIM
-        쯤 X-XSN - I-TIM
-        _ _ - O
-        화제 NNG - B-CVL
-        인 X-NNG - I-CVL
-        을 X-JKO - I-CVL
-        _ _ - O
-        먹다 VV - O
-        ...
-        ```
-      - there is no test set. therefore, set valid.txt as test.txt.
-    - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-      - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
-      - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
-      - dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
-      - `kor.glove.300k.300d.txt`   (inhouse)
-    - Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
-      - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
-  - KMOU NER 2019 (Korean)
-    - from [KMOU NER](https://github.com/kmounlp/NER)
-      - data/kmou2019
-        - build train.raw, valid.raw
-          - data version : https://github.com/kmounlp/NER/commit/0b32e066870bda9f65cc190f5e89c2edc6cf8f6d
-          - same as [pytorch-bert-crf-ner](https://github.com/eagle705/pytorch-bert-crf-ner)
-            - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
-            - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
-        - apply correction and converting to CoNLL data format
-        ```bash
-        $ cd data/kmou2019
-        $ python correction.py -g train.raw > t
-        $ python to-conll.py -g t > train.txt
-  
-        ex)
-        마음	마음	NNG	B-POH
-        ’	’	SS	O
-        에	에	JKB	O
-        _	_	_	O
-        담긴	담기+ㄴ	VV+ETM	O
-        ->
-        마음 NNG - B-POH
-        ’ SS - O
-        에 JKB - O
-        _ _ - O
-        담기다 VV - O
-        ㄴ ETM - O
+## data
 
-        $ python correction.py -g valid.raw > t
-        $ python to-conll.py -g t > valid.txt
-        ```
-        - set valid.txt as test.txt
-        ```
-        $ cp -rf valid.txt test.txt
-        ```
+### CoNLL 2003 (English)
+
+- from [etagger](https://github.com/dsindex/etagger)
+  - data/conll2003
+
+### Naver NER 2019 (Korean)
+
+#### from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
+
+##### data/clova2019
+
+- converted to CoNLL data format.
+```
+이기범 eoj - B-PER
+한두 eoj - O
+쪽을 eoj - O
+먹고 eoj - O
+10분 eoj - B-TIM
+후쯤 eoj - I-TIM
+화제인을 eoj - B-CVL
+먹는 eoj - O
+것이 eoj - O
+좋다고 eoj - O
+한다 eoj - O
+. eoj - O
+```       
+
+##### data/clova2019_morph
+
+- tokenized by morphological analyzer and converted to CoNLL data format.
+```
+이기범 NNP - B-PER
+한두 NNP - O
+쪽 NNB - O
+을 X-JKO - O
+먹다 VV - O
+고 X-EC - O
+10 SN - B-TIM
+분 X-NNB - I-TIM
+후 NNG - I-TIM
+쯤 X-XSN - I-TIM
+화제 NNG - B-CVL
+인 X-NNG - I-CVL
+을 X-JKO - I-CVL
+먹다 VV - O
+...
+```
+- 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
+- we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+```
+이기범 NNP - B-PER
+한두 NNP - O
+쪽 NNB - O
+먹다 VV - O
+10 SN - B-TIM
+후 NNG - I-TIM
+화제 NNG - B-CVL
+먹다 VV - O
+...
+```
+
+##### data/clova2019_morph_space
+
+- this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
+```
+이기범 NNP - B-PER
+_ _ - O
+한두 NNP - O
+_ _ - O
+쪽 NNB - O
+을 X-JKO - O
+_ _ - O
+먹다 VV - O
+고 X-EC - O
+_ _ - O
+10 SN - B-TIM
+분 X-NNB - I-TIM
+_ _ - I-TIM
+후 NNG - I-TIM
+쯤 X-XSN - I-TIM
+_ _ - O
+화제 NNG - B-CVL
+인 X-NNG - I-CVL
+을 X-JKO - I-CVL
+_ _ - O
+먹다 VV - O
+...
+```
+
+##### there is no test set. therefore, set valid.txt as test.txt.
+
+- Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+  - bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
+  - dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
+  - dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
+  - `kor.glove.300k.300d.txt`   (inhouse)
+
+- Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
+  - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
+
+### KMOU NER 2019 (Korean)
+
+#### from [KMOU NER](https://github.com/kmounlp/NER)
+
+##### data/kmou2019
+   
+- build train.raw, valid.raw
+  - data version : https://github.com/kmounlp/NER/commit/0b32e066870bda9f65cc190f5e89c2edc6cf8f6d
+  - same as [pytorch-bert-crf-ner](https://github.com/eagle705/pytorch-bert-crf-ner)
+  - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
+  - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
+
+- apply correction and converting to CoNLL data format
+```
+$ cd data/kmou2019
+$ python correction.py -g train.raw > t
+$ python to-conll.py -g t > train.txt
+  
+ex)
+마음	마음	NNG	B-POH
+’	’	SS	O
+에	에	JKB	O
+_	_	_	O
+담긴	담기+ㄴ	VV+ETM	O
+->
+마음 NNG - B-POH
+’ SS - O
+에 JKB - O
+_ _ - O
+담기다 VV - O
+ㄴ ETM - O
+
+$ python correction.py -g valid.raw > t
+$ python to-conll.py -g t > valid.txt
+```
+
+- set valid.txt as test.txt
 
 ## CoNLL 2003 (english)
 
