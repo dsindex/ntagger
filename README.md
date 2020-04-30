@@ -1,4 +1,4 @@
-## ntagger
+## Description
 
 reference pytorch code for named entity tagging.
 
@@ -15,7 +15,8 @@ reference pytorch code for named entity tagging.
   - Softmax, CRF
 - related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
 
-## requirements
+
+## Requirements
 
 - python >= 3.6
 
@@ -40,7 +41,10 @@ reference pytorch code for named entity tagging.
   $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
   ```
 
-## data
+
+
+## Data
+
 
 ### CoNLL 2003 (English)
 
@@ -53,7 +57,9 @@ reference pytorch code for named entity tagging.
 
 ##### data/clova2019
 
-- converted to CoNLL data format.
+<details><summary>- converted to CoNLL data format.</summary>
+<p>
+
 ```
 이기범 eoj - B-PER
 한두 eoj - O
@@ -69,9 +75,14 @@ reference pytorch code for named entity tagging.
 . eoj - O
 ```       
 
+</p>
+</details>
+
 ##### data/clova2019_morph
 
-- tokenized by morphological analyzer and converted to CoNLL data format.
+<details><summary>- tokenized by morphological analyzer and converted to CoNLL data format.</summary>
+<p>
+
 ```
 이기범 NNP - B-PER
 한두 NNP - O
@@ -89,8 +100,15 @@ reference pytorch code for named entity tagging.
 먹다 VV - O
 ...
 ```
+
+</p>
+</details>
+
 - 'X-' prefix is prepending to POS(Part of Speech) tag of inside morphs for distinguishing following morphs.
-- we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).
+
+<details><summary>- we can evaluate the predicted result morph-by-morph or eojeol by eojeol manner(every lines having 'X-' POS tag are removed).</summary>
+<p>
+
 ```
 이기범 NNP - B-PER
 한두 NNP - O
@@ -103,9 +121,15 @@ reference pytorch code for named entity tagging.
 ...
 ```
 
+</p>
+</details>
+
+
 ##### data/clova2019_morph_space
 
-- this data is identical to `data/clova2019_morph` except it treats spaces as tokens.
+<details><summary>- this data is identical to `data/clova2019_morph` except it treats spaces as tokens.</summary>
+<p>
+  
 ```
 이기범 NNP - B-PER
 _ _ - O
@@ -131,6 +155,10 @@ _ _ - O
 ...
 ```
 
+</p>
+</details>
+
+
 ##### there is no test set. therefore, set valid.txt as test.txt.
 
 - Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
@@ -141,6 +169,7 @@ _ _ - O
 
 - Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
+
 
 ### KMOU NER 2019 (Korean)
 
@@ -154,7 +183,9 @@ _ _ - O
   - train.raw : 00002_NER.txt, ..., EXOBRAIN_NE_CORPUS_007.txt (1,425 files)
   - valid.raw : EXOBRAIN_NE_CORPUS_009.txt, EXOBRAIN_NE_CORPUS_010.txt (2 files)
 
-- apply correction and converting to CoNLL data format
+<details><summary>- apply correction rules and converting to CoNLL data format</summary>
+<p>
+  
 ```
 $ cd data/kmou2019
 $ python correction.py -g train.raw > t
@@ -178,7 +209,11 @@ $ python correction.py -g valid.raw > t
 $ python to-conll.py -g t > valid.txt
 ```
 
+</p>
+</details>
+
 - set valid.txt as test.txt
+
 
 ## CoNLL 2003 (English)
 
