@@ -166,18 +166,6 @@ _ _ - O
 
 ##### there is no test set. therefore, set valid.txt as test.txt.
 
-##### Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-
-- bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
-- dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
-- dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
-- `kor.glove.300k.300d.txt`   (inhouse)
-
-##### Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
-  
-- `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
-
-
 ### KMOU NER 2019 (Korean)
 
 #### from [KMOU NER](https://github.com/kmounlp/NER)
@@ -220,6 +208,19 @@ $ python to-conll.py -g t > valid.txt
 </details>
 
 - set valid.txt as test.txt
+
+### Korean pretrained model
+
+##### Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+
+- bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
+- dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
+- dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
+- `kor.glove.300k.300d.txt`   (inhouse)
+
+##### Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
+  
+- `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
 
 <br>
 
@@ -271,10 +272,13 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF         | **92.63**    | word, pos            | 74.6521 / -        |         |           | update/packed             |
 | ELMo, Glove, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595 |           | threads=14, update/packed |
 
-* GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0)
-* CONDA   : conda pytorch=1.5.0
-* Dynamic : conda pytorch=1.5.0, dynamic quantization
-* default batch size, learning rate : 32, 1e-3
+> 
+```
+GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0)
+CONDA   : conda pytorch=1.5.0
+Dynamic : conda pytorch=1.5.0, dynamic quantization
+default batch size, learning rate : 32, 1e-3
+```
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
