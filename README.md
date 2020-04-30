@@ -296,7 +296,7 @@ default batch size, learning rate : 32, 1e-3
 | ELMo, Glove, BiLSTM-CRF             | 92.83             | word, character, pos, chunk  | - / -            | Glove-100d                        |
 | BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
 
-- [CoNLL 2003(English) learderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
+- [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
 
 |                                 | F1 (%) |
 | ------------------------------- | ------ |
