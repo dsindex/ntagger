@@ -272,7 +272,6 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF         | **92.63**    | word, pos            | 74.6521 / -        |         |           | update/packed             |
 | ELMo, Glove, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595 |           | threads=14, update/packed |
 
-> 
 ```
 GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0)
 CONDA   : conda pytorch=1.5.0
