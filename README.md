@@ -757,7 +757,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ------------- | -------------- | --------------------- | ----------- | ------------- |  
-| Glove, BiLSTM-CRF              | -             | -              | morph, character, pos | -       / - | update/packed |
+| Glove, BiLSTM-CRF              | 85.59         | 85.72          | morph, character, pos | 29.0723 / - | update/packed |
 | dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update/packed |
 | ELMo, Glove, BiLSTM-CRF        | -             | -              | morph, pos            | -       / - | update/packed |
 
@@ -808,8 +808,12 @@ accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55
 $ python evaluate.py --model_path=pytorch-model-glove-kor-clova-morph-space.pt --data_dir data/clova2019_morph_space --use_crf --use_char_cnn
 $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-
-
+INFO:__main__:[F1] : 0.8573393391328268, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 261744ms, 29.072341371263473ms on average
+accuracy:  95.38%; precision:  86.43%; recall:  84.77%; FB1:  85.59
+  *** evaluation eoj-by-eoj
+  $ cd data/clova2019_morph_space ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.89%; precision:  86.56%; recall:  84.89%; FB1:  85.72
 
 ```
 
@@ -873,7 +877,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 * for clova2019_morph_space
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph_space --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph-space.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint-kor-clova-morph-space --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph-space --use_crf --bert_use_pos
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph-space.pt --bert_model_name_or_path=./embeddings/pytorch.all.dha.2.5m_step --bert_output_dir=bert-checkpoint-kor-clova-morph-space --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph_space --use_crf --bert_use_pos
 
 ```
 
