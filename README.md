@@ -173,7 +173,6 @@ _ _ - O
   
 - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
 
-<br>
 
 ### KMOU NER 2019 (Korean)
 
