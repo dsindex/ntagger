@@ -180,7 +180,7 @@ $ python to-conll.py -g t > valid.txt
 
 - set valid.txt as test.txt
 
-## CoNLL 2003 (english)
+## CoNLL 2003 (English)
 
 ### experiments summary
 
