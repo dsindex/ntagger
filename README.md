@@ -1,4 +1,4 @@
-## Description
+# Description
 
 **reference pytorch code for named entity tagging.**
 
@@ -17,7 +17,7 @@
 
 <br>
 
-## Requirements
+# Requirements
 
 - python >= 3.6
 
@@ -44,7 +44,7 @@
 
 <br>
 
-## Data
+# Data
 
 ### CoNLL 2003 (English)
 
@@ -224,7 +224,7 @@ $ python to-conll.py -g t > valid.txt
 
 <br>
 
-## CoNLL 2003 (English)
+# CoNLL 2003 (English)
 
 ### experiments summary
 
@@ -750,7 +750,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 <br>
 
-## Naver NER 2019 (Korean)
+# Naver NER 2019 (Korean)
 
 ### experiments summary
 
@@ -1161,7 +1161,7 @@ $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; c
 
 <br>
 
-## KMOU NER 2019 (Korean)
+# KMOU NER 2019 (Korean)
 
 ### experiments summary
 
@@ -1428,7 +1428,7 @@ token_eval micro F1: 0.8926606215608773
 
 <br>
 
-## References
+# References
 
 - [transformers_examples](https://github.com/dsindex/transformers_examples)
 - [macro and micro precision/recall/f1 score](https://datascience.stackexchange.com/a/24051)
