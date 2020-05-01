@@ -819,8 +819,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ------------- | -------------- | --------------------- | ----------- | ------------- |  
 | Glove, BiLSTM-CRF              | 85.59         | 85.72          | morph, character, pos | 29.0723 / - | update/packed |
-| dha BERT(2.5m), BiLSTM-CRF     | -             | -              | morph, pos            | -       / - | update/packed |
-| ELMo, Glove, BiLSTM-CRF        | -             | -              | morph, pos            | -       / - | update/packed |
+| dha BERT(2.5m), BiLSTM-CRF     | 85.17         | 85.61          | morph, pos            | 43.7969 / - | update/packed |
+| ELMo, Glove, BiLSTM-CRF        | -             | -              | morph, character, pos | -       / - | update/packed |
 
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
@@ -1029,8 +1029,12 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph-space.pt --data_dir=data/clova2019_morph_space --bert_output_dir=bert-checkpoint-kor-clova-morph-space --use_crf --bert_use_pos
 $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+INFO:__main__:[F1] : 0.853110511030723, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 394271ms, 43.79697744193799ms on average
+accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
   *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph_space ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.93%; precision:  85.52%; recall:  85.70%; FB1:  85.61
 
 ```
 
@@ -1105,7 +1109,7 @@ $ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-el
 * for clova2019_morph_space
 
 $ python preprocess.py --config=configs/config-elmo.json --data_dir=data/clova2019_morph_space --embedding_path=embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-clova-morph-space.pt --data_dir=data/clova2019_morph_space --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo-kor-clova-morph-space.pt --data_dir=data/clova2019_morph_space --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf --use_char_cnn
 
 ```
 
@@ -1148,7 +1152,7 @@ accuracy:  94.29%; precision:  86.42%; recall:  85.21%; FB1:  85.81
 
 * for clova2019_morph_space
 
-$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-clova-morph-space.pt --data_dir=data/clova2019_morph_space --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf
+$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo-kor-clova-morph-space.pt --data_dir=data/clova2019_morph_space --elmo_options_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json --elmo_weights_file=embeddings/kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5 --use_crf --use_char_cnn
 $ cd data/clova2019_morph_space; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
   *** evaluation eoj-by-eoj
