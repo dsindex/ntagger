@@ -293,7 +293,7 @@ default batch size, learning rate : 32, 1e-3
 | ELMo, Glove, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |                                   |
 | ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
 | ELMo, Glove, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |                                   |
-| ELMo, Glove, BiLSTM-CRF             | 92.83             | word, character, pos, chunk  | - / -            | Glove-100d                        |
+| ELMo, Glove, BiLSTM-CRF             | **92.83**         | word, character, pos, chunk  | - / -            | Glove-100d                        |
 | BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
 
 - [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
@@ -810,7 +810,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | ---------------------------- | ------------- | -------------- | ----------------------| ---------- |
 | Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |            |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos            | BERT as feature-based |
-| ELMo, Glove, BiLSTM-CRF      | 86.75         | 86.75          | morph, character, pos |            |
+| ELMo, Glove, BiLSTM-CRF      | 86.75         | **86.75**          | morph, character, pos |            |
 
 #### clova2019_morph_space(morph-based + space as token)
 
@@ -1197,7 +1197,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 
 |                              | span / token F1 (%) | Features              |
 | ---------------------------- | ------------------- | --------------------- |
-| ELMo, Glove, BiLSTM-CRF      | 89.09 / 89.90       | morph, character, pos |
+| ELMo, Glove, BiLSTM-CRF      | **89.09** / 89.90   | morph, character, pos |
 
 - [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics (token-level F1)
 
