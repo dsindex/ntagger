@@ -218,7 +218,7 @@ $ python to-conll.py -g t > valid.txt
   - bpe bert : `pytorch.all.bpe.4.8m_step` (inhouse)
   - dha-bpe bert : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
   - dha bert : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
-  - monologg electra : `koelectra-base-discriminator`
+  - KoELECTRA-Base : `koelectra-base-discriminator`
   - bpe electra : `kor-electra-base-bpe-128-1m` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
@@ -765,7 +765,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **86.68**   | eoj      | 16.2424 / -    |          |           | update        |
-| monologg ELECTRA-base        | -           | eoj      | -       / -    |          |           | update        |
+| KoELECTRA-Base               | -           | eoj      | -       / -    |          |           | update        |
 | bpe ELECTRA-base(128.1m)     | -           | eoj      | -       / -    |          |           | update        |
 
 
@@ -1171,7 +1171,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </p>
 </details>
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, monologg ELECTRA-base, bpe ELECTRA-base(128.1m) </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(128.1m) </b></summary>
 <p>
 
 - train
@@ -1180,7 +1180,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 
 * for clova2019
 
-** monologg ELECTRA-base
+** KoELECTRA-Base
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-discriminator
 $ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
@@ -1196,7 +1196,7 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 * for clova2019
 
-** monologg ELECTRA-base
+** KoELECTRA-Base
 
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
