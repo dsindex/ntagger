@@ -274,10 +274,10 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595 |           | threads=14, update/packed |
 
 ```
-GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0)
-CONDA   : conda pytorch=1.5.0
-Dynamic : conda pytorch=1.5.0, dynamic quantization
-default batch size, learning rate : 32, 1e-3
+* GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0)
+* CONDA   : conda pytorch=1.5.0
+* Dynamic : conda pytorch=1.5.0, dynamic quantization
+* default batch size, learning rate : 32, 1e-3
 ```
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
