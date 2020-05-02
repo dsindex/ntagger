@@ -211,17 +211,18 @@ $ python to-conll.py -g t > valid.txt
 
 ### Korean pretrained model
 
-##### Korean BERT and Glove are described [here](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+##### Korean GloVe, BERT, ELECTRA, ELMo
 
-- bpe : `pytorch.all.bpe.4.8m_step` (inhouse)
-- dha-bpe : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
-- dha : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
-- `kor.glove.300k.300d.txt`   (inhouse)
-
-##### Korean ELMo is described [here](https://github.com/dsindex/bilm-tf)
+- [GloVe, BERT, ELECTRA description](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+  - glove : `kor.glove.300k.300d.txt`   (inhouse)  
+  - bpe bert : `pytorch.all.bpe.4.8m_step` (inhouse)
+  - dha-bpe bert : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
+  - dha bert : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
+  - monologg electra : `koelectra-base-discriminator`
+  - bpe electra : `kor-electra-base-bpe-128-1m` (inhouse)
+- [ELMo description](https://github.com/dsindex/bilm-tf)
+  - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
-- `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
-
 <br>
 
 # CoNLL 2003 (English)
@@ -764,6 +765,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **86.68**   | eoj      | 16.2424 / -    |          |           | update        |
+| monologg ELECTRA-base        | -           | eoj      | -       / -    |          |           | update        |
+| bpe ELECTRA-base(128.1m)     | -           | eoj      | -       / -    |          |           | update        |
+
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (same as conlleval, micro F1)
 
@@ -1161,6 +1165,46 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
   *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph_space ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  94.08%; precision:  86.28%; recall:  85.85%; FB1:  86.06 
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=electra, enc_class=bilstm, monologg ELECTRA-base, bpe ELECTRA-base(128.1m) </b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+
+* for clova2019
+
+** monologg ELECTRA-base
+$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-discriminator
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
+
+
+** bpe ELECTRA-base(128.1m)
+$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-128-1m
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-128-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
+
+```
+
+- evaluation
+```
+
+* for clova2019
+
+** monologg ELECTRA-base
+
+$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+** bpe ELECTRA-base(128.1m)
+
+$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 ```
 
