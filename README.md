@@ -765,7 +765,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **86.68**   | eoj      | 16.2424 / -    |          |           | update        |
-| KoELECTRA-Base               | -           | eoj      | -       / -    |          |           | update        |
+| KoELECTRA-Base               | 85.90       | eoj      | 15.7373 / -    |          |           | update        |
 | bpe ELECTRA-base(128.1m)     | -           | eoj      | -       / -    |          |           | update        |
 
 
@@ -1200,6 +1200,11 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.8601332716652106, 9000
+INFO:__main__:[Elapsed Time] : 100 examples, 1667ms, 15.737373737373737ms on average
+accuracy:  94.17%; precision:  86.46%; recall:  85.36%; FB1:  85.90
+
 
 ** bpe ELECTRA-base(128.1m)
 
