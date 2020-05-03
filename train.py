@@ -365,7 +365,7 @@ def train(opt):
         else:
             local_worse_steps = 0
         logger.info('Scheduler: local_worse_steps / opt.lr_decay_steps = %d / %d' % (local_worse_steps, opt.lr_decay_steps))
-        if epoch_i > opt.warmup_steps and (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
+        if epoch_i > opt.warmup_epoch and (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
             scheduler.step()
         prev_eval_f1 = eval_f1
         # end: scheduling
@@ -386,7 +386,7 @@ def main():
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--lr_decay_rate', type=float, default=1.0)
     parser.add_argument('--lr_decay_steps', type=float, default=2, help="Number of decay epoch steps to be paitent")
-    parser.add_argument('--warmup_steps', type=int, default=4,  help="Number of warmup epoch steps")
+    parser.add_argument('--warmup_epoch', type=int, default=4,  help="Number of warmup epoch steps")
     parser.add_argument('--patience', default=7, type=int, help="Max number of epoch to be patient for early stopping.")
     parser.add_argument('--adam_epsilon', type=float, default=1e-8)
     parser.add_argument('--weight_decay', type=float, default=0.01)
