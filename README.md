@@ -1229,10 +1229,19 @@ INFO:__main__:[F1] : 0.8601332716652106, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 1667ms, 15.737373737373737ms on average
 accuracy:  94.17%; precision:  86.46%; recall:  85.36%; FB1:  85.90
 
+*** python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --batch_size=32 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=20
+
+
+
+
+
 ** bpe ELECTRA-base(128.1m)
 
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+
+*** insufficient training!
 
 ```
 
