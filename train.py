@@ -294,11 +294,26 @@ def prepare_model(config):
 def prepare_osw(config, model):
     opt = config['opt']
     optimizer = torch.optim.AdamW(model.parameters(), lr=opt.lr, eps=opt.adam_epsilon, weight_decay=opt.weight_decay)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.lr_decay_rate)
+    if opt.use_transformers_optimizer:
+        from transformers import AdamW, get_linear_schedule_with_warmup
+        num_training_steps_for_epoch = len(train_loader) // opt.gradient_accumulation_steps
+        num_training_steps = num_training_steps_for_epoch * opt.epoch
+        num_warmup_steps = num_training_steps_for_epoch * opt.warmup_epoch
+        no_decay = ['bias', 'LayerNorm.weight']
+        optimizer_grouped_parameters = [
+            {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
+             'weight_decay': opt.weight_decay},
+            {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+        ]
+        optimizer = AdamW(optimizer_grouped_parameters, lr=opt.lr, eps=opt.adam_epsilon)
+        scheduler = get_linear_schedule_with_warmup(optimizer,
+            num_warmup_steps=num_warmup_steps,
+            num_training_steps=num_training_steps)
     if opt.use_amp:
-        model, optimizer = amp.initialize(model, optimizer, opt_level=opt.opt_level)
+        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
     if opt.distributed:
         model = DDP(model, delay_allreduce=True)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.lr_decay_rate)
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
@@ -330,7 +345,7 @@ def train(opt):
     model = prepare_model(config)
 
     # create optimizer, scheduler, summary writer
-    optimizer, scheduler, writer = prepare_osw(config, model)
+    optimizer, scheduler, writer = prepare_osw(config, model, train_loader)
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
@@ -401,6 +416,7 @@ def main():
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
     parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
+    parser.add_argument('--use_transformers_optimizer', action='store_true', help="Use transformers AdamW, get_linear_schedule_with_warmup.")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
