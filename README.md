@@ -786,6 +786,30 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | KoBERT                | 84.23         | eoj      |
 | HanBert               | 84.84         | eoj      |
 
+```
+* note that F1 score from the 'seqeval' package for 'max_seq_len=50' might be similar with that for 'max_seq_len=180'. 
+  however, the final evaluation using 'conlleval.pl' should be different.
+
+  for example, with n_ctx=50. 
+    the F1 score from 'seqeval' is 0.8602. 
+    the F1 score from 'conlleval.pl is 0.8438.
+  --------------------------------------------------------------------------
+  '--bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50'
+  INFO:__main__:[F1] : 0.8602524268436113, 9000
+  INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
+  accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
+
+  '--bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT), n_ctx=180'
+  INFO:__main__:[F1] : 0.8677214324767633, 9000
+  INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
+  accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
+  --------------------------------------------------------------------------
+
+  this is due to the test.txt data has longer sequences than the 'n_ctx' size.
+  therefore, the evaluation results using 'seqeval' is not the final F1 score.
+  we recommend to use 'conlleval.pl' script for NER results.
+```
+
 #### clova2019_morph(morph-based)
 
 - ntagger, measured by conlleval.pl (micro F1)
@@ -1204,7 +1228,6 @@ $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8601332716652106, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 1667ms, 15.737373737373737ms on average
 accuracy:  94.17%; precision:  86.46%; recall:  85.36%; FB1:  85.90
-
 
 ** bpe ELECTRA-base(128.1m)
 
