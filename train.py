@@ -383,8 +383,8 @@ def train(opt):
         else:
             local_worse_steps = 0
         logger.info('Scheduler: local_worse_steps / opt.lr_decay_steps = %d / %d' % (local_worse_steps, opt.lr_decay_steps))
-        if not opt.use_transformers_optimizer and
-           epoch_i > opt.warmup_epoch and
+        if not opt.use_transformers_optimizer and \
+           epoch_i > opt.warmup_epoch and \
            (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
             scheduler.step()
         prev_eval_f1 = eval_f1
