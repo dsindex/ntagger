@@ -297,7 +297,7 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF             | **92.83**         | word, character, pos, chunk  | - / -            | Glove-100d                        |
 | BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
 
-- [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (same as micro F1)
+- [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same as conlleval? unknown!)
 
 |                                 | F1 (%) |
 | ------------------------------- | ------ |
@@ -769,7 +769,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe ELECTRA-base(128.1m)     | 53.69       | eoj      | -       / -    |          |           | update        |
 
 
-- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (same as conlleval, micro F1)
+- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
 
 | (update) max_seq_len=50  | F1 (%)        | Features |
 | ------------------------ | ------------- | -------- |
@@ -1229,8 +1229,12 @@ INFO:__main__:[F1] : 0.8601332716652106, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 1667ms, 15.737373737373737ms on average
 accuracy:  94.17%; precision:  86.46%; recall:  85.36%; FB1:  85.90
 
-*** python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --batch_size=32 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=20 , n_ctx=50
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 , n_ctx=50
+INFO:__main__:[F1] : 0.8647250807012538, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 286224ms, 31.79564396044005ms on average
+accuracy:  93.01%; precision:  85.94%; recall:  82.36%; FB1:  84.12
 
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
 
 
 
