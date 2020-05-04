@@ -766,7 +766,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **86.68**   | eoj      | 16.2424 / -    |          |           | update        |
 | KoELECTRA-Base               | 85.90       | eoj      | 15.7373 / -    |          |           | update        |
-| bpe ELECTRA-base(128.1m)     | -           | eoj      | -       / -    |          |           | update        |
+| bpe ELECTRA-base(128.1m)     | 53.69       | eoj      | -       / -    |          |           | update        |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (same as conlleval, micro F1)
@@ -1241,7 +1241,6 @@ $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-m
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.5375568222815499, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 880434ms, 97.82375819535504ms on average
 accuracy:  80.54%; precision:  57.12%; recall:  50.66%; FB1:  53.69
 
 *** insufficient training!
