@@ -96,6 +96,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
             optimizer.step()
+            if opt.use_transformers_optimizer: scheduler.step()
             optimizer.zero_grad()
         # back-propagation - end
         train_loss += loss.item()
@@ -382,8 +383,9 @@ def train(opt):
         else:
             local_worse_steps = 0
         logger.info('Scheduler: local_worse_steps / opt.lr_decay_steps = %d / %d' % (local_worse_steps, opt.lr_decay_steps))
-        if epoch_i > opt.warmup_epoch and (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
-            scheduler.step()
+        if not opt.use_transformers_optimizer:
+            if epoch_i > opt.warmup_epoch and (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
+                scheduler.step()
         prev_eval_f1 = eval_f1
         # end: scheduling
 
