@@ -291,7 +291,7 @@ def prepare_model(config):
     logger.info("[model prepared]")
     return model
 
-def prepare_osw(config, model):
+def prepare_osw(config, model, train_loader):
     opt = config['opt']
     optimizer = torch.optim.AdamW(model.parameters(), lr=opt.lr, eps=opt.adam_epsilon, weight_decay=opt.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.lr_decay_rate)
@@ -300,6 +300,8 @@ def prepare_osw(config, model):
         num_training_steps_for_epoch = len(train_loader) // opt.gradient_accumulation_steps
         num_training_steps = num_training_steps_for_epoch * opt.epoch
         num_warmup_steps = num_training_steps_for_epoch * opt.warmup_epoch
+        logger.info("(num_training_steps_for_epoch, num_training_steps, num_warmup_steps): ({}, {}, {})".\
+            format(num_training_steps_for_epoch, num_training_steps, num_warmup_steps))        
         no_decay = ['bias', 'LayerNorm.weight']
         optimizer_grouped_parameters = [
             {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
