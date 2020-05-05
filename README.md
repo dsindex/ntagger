@@ -688,9 +688,6 @@ INFO:__main__:[F1] : 0.9042280872098155, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 116181ms, 31.50203638338311ms on average
 accuracy:  98.04%; precision:  90.16%; recall:  90.69%; FB1:  90.42
 
-* --bert_model_name_or_path=./embeddings/electra-large-discriminator --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --epoch=40
-
-
 ```
 
 </p>
@@ -1010,6 +1007,10 @@ accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
 INFO:__main__:[F1] : 0.8602524268436113, 9000
 INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
 accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
+
+** --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --epoch=30 , without --use_crf (bpe BERT)
+
+
 
 
 * for clova2019_morph
