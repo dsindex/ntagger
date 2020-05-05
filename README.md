@@ -683,6 +683,10 @@ accuracy:  97.98%; precision:  90.47%; recall:  91.48%; FB1:  90.98
 INFO:__main__:[F1] : 0.91392938696645, 3684
 INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
 
+* --bert_model_name_or_path=./embeddings/electra-large-discriminator --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=40
+
+
+
 ```
 
 </p>
@@ -765,8 +769,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **86.68**   | eoj      | 16.2424 / -    |          |           | update        |
-| KoELECTRA-Base               | 85.90       | eoj      | 15.7373 / -    |          |           | update        |
-| bpe ELECTRA-base(128.1m)     | 53.69       | eoj      | -       / -    |          |           | update        |
+| KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
+| bpe ELECTRA-base(512.1m)     | -           | eoj      | -       / -    |          |           |               |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -806,7 +810,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
   --------------------------------------------------------------------------
 
   this is due to the test.txt data has longer sequences than the 'n_ctx' size.
-  therefore, the evaluation results using 'seqeval' is not the final F1 score.
+  therefore, the evaluation results using 'seqeval' are not the final F1 score.
   we recommend to use 'conlleval.pl' script for NER results.
 ```
 
@@ -1235,8 +1239,10 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 286224ms, 31.79564396044005ms on a
 accuracy:  93.01%; precision:  85.94%; recall:  82.36%; FB1:  84.12
 
 *** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
-
-
+INFO:__main__:[F1] : 0.8674485806561278, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 976734ms, 108.52672519168796ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1597ms, 15.16161616161616ms on average
+accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 
 
 ** bpe ELECTRA-base(128.1m)
@@ -1248,6 +1254,9 @@ INFO:__main__:[F1] : 0.5375568222815499, 9000
 accuracy:  80.54%; precision:  57.12%; recall:  50.66%; FB1:  53.69
 
 *** insufficient training!
+
+** bpe ELECTRA-base(512.1m)
+
 
 ```
 
