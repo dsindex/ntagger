@@ -274,7 +274,7 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595 |           | threads=14, update/packed |
 
 ```
-* GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0)
+* GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0), [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
 * CONDA   : conda pytorch=1.5.0
 * Dynamic : conda pytorch=1.5.0, dynamic quantization
 * default batch size, learning rate : 32, 1e-3
