@@ -1534,6 +1534,7 @@ token_eval micro F1: 0.8926606215608773
 
 # References
 
+- [Named Entity Recoginition](https://paperswithcode.com/task/named-entity-recognition-ner)
 - [transformers_examples](https://github.com/dsindex/transformers_examples)
 - [macro and micro precision/recall/f1 score](https://datascience.stackexchange.com/a/24051)
 - [RoBERTa](https://github.com/pytorch/fairseq/tree/master/examples/roberta)
