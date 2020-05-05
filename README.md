@@ -684,7 +684,11 @@ INFO:__main__:[F1] : 0.91392938696645, 3684
 INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
 
 * --bert_model_name_or_path=./embeddings/electra-large-discriminator --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=40
+INFO:__main__:[F1] : 0.9042280872098155, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 116181ms, 31.50203638338311ms on average
+accuracy:  98.04%; precision:  90.16%; recall:  90.69%; FB1:  90.42
 
+* --bert_model_name_or_path=./embeddings/electra-large-discriminator --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --epoch=40
 
 
 ```
@@ -987,25 +991,25 @@ INFO:__main__:[F1] : 0.8613367390378885, 9000
 INFO:__main__:[Elapsed Time] : 476814ms, 52.96955217246361ms on average
 accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
-  ** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
-  INFO:__main__:[F1] : 0.8646059046587216, 9000
-  INFO:__main__:[Elapsed Time] : 100 examples, 2224ms, 21.32323232323232ms on average
-  accuracy:  94.31%; precision:  85.92%; recall:  86.82%; FB1:  86.37 
+** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
+INFO:__main__:[F1] : 0.8646059046587216, 9000
+INFO:__main__:[Elapsed Time] : 100 examples, 2224ms, 21.32323232323232ms on average
+accuracy:  94.31%; precision:  85.92%; recall:  86.82%; FB1:  86.37 
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9 (bpe BERT CRF)
-  INFO:__main__:[F1] : 0.8643569376373161, 9000
-  INFO:__main__:[Elapsed Time] : 342154ms, 38.00722302478053ms on average
-  accuracy:  94.35%; precision:  85.90%; recall:  86.94%; FB1:  86.42
+** --bert_disable_lstm --lr_decay_rate=0.9 (bpe BERT CRF)
+INFO:__main__:[F1] : 0.8643569376373161, 9000
+INFO:__main__:[Elapsed Time] : 342154ms, 38.00722302478053ms on average
+accuracy:  94.35%; precision:  85.90%; recall:  86.94%; FB1:  86.42
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT)
-  INFO:__main__:[F1] : 0.8677214324767633, 9000
-  INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
-  accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
+** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT)
+INFO:__main__:[F1] : 0.8677214324767633, 9000
+INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
+accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50
-  INFO:__main__:[F1] : 0.8602524268436113, 9000
-  INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
-  accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
+** --bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50
+INFO:__main__:[F1] : 0.8602524268436113, 9000
+INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
+accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
 
 
 * for clova2019_morph
@@ -1405,29 +1409,29 @@ INFO:__main__:[Elapsed Time] : 927 examples, 37240ms, 40.076673866090715ms on av
 accuracy:  97.58%; precision:  86.59%; recall:  88.55%; FB1:  87.56
 token_eval micro F1: 0.9047362341162879
 
-  ** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
-  INFO:__main__:[F1] : 0.8800116635078, 927
-  INFO:__main__:[Elapsed Time] : 927 examples, 21444ms, 23.03887688984881ms on average
-  accuracy:  97.56%; precision:  87.38%; recall:  88.63%; FB1:  88.00
-  token_eval micro F1: 0.9024978600887091
+** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
+INFO:__main__:[F1] : 0.8800116635078, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 21444ms, 23.03887688984881ms on average
+accuracy:  97.56%; precision:  87.38%; recall:  88.63%; FB1:  88.00
+token_eval micro F1: 0.9024978600887091
 
-  ** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
-  INFO:__main__:[F1] : 0.8844425112367696, 927
-  INFO:__main__:[Elapsed Time] : 927 examples, 31752ms, 34.152267818574515ms on average
-  accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
-  token_eval micro F1: 0.9056049478160032
+** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
+INFO:__main__:[F1] : 0.8844425112367696, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 31752ms, 34.152267818574515ms on average
+accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
+token_eval micro F1: 0.9056049478160032
 
-  ** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
-  INFO:__main__:[F1] : 0.880439496891716, 927
-  INFO:__main__:[Elapsed Time] : 927 examples, 16635ms, 17.854211663066955ms on average
-  accuracy:  97.65%; precision:  86.70%; recall:  89.43%; FB1:  88.04
-  token_eval micro F1: 0.9064737125702409
+** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
+INFO:__main__:[F1] : 0.880439496891716, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 16635ms, 17.854211663066955ms on average
+accuracy:  97.65%; precision:  86.70%; recall:  89.43%; FB1:  88.04
+token_eval micro F1: 0.9064737125702409
 
-  ** --bert_remove_layers=8,9,10,11
-  INFO:__main__:[F1] : 0.8392018779342724, 927
-  INFO:__main__:[Elapsed Time] : 37666ms, 40.52051835853132ms on average
-  accuracy:  96.88%; precision:  83.99%; recall:  83.99%; FB1:  83.99
-  token_eval micro F1: 0.8754817902934005
+** --bert_remove_layers=8,9,10,11
+INFO:__main__:[F1] : 0.8392018779342724, 927
+INFO:__main__:[Elapsed Time] : 37666ms, 40.52051835853132ms on average
+accuracy:  96.88%; precision:  83.99%; recall:  83.99%; FB1:  83.99
+token_eval micro F1: 0.8754817902934005
 
 * dha(10m)
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
