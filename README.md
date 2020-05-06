@@ -769,7 +769,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM-CRF   | 86.11       | eoj      | 53.1818 / -    |          |           | update/packed |
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
-| bpe BERT(4.8m)               | **86.68**   | eoj      | 16.2424 / -    |          |           | update        |
+| bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
 | bpe ELECTRA-base(512.1m)     | -           | eoj      | -       / -    |          |           |               |
 
@@ -897,6 +897,10 @@ accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55
   *** evaluation eoj-by-eoj
   accuracy:  93.88%; precision:  86.11%; recall:  85.00%; FB1:  85.55
 
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
+
+
+
 * for clova2019_morph_space
 
 $ python evaluate.py --model_path=pytorch-model-glove-kor-clova-morph-space.pt --data_dir data/clova2019_morph_space --use_crf --use_char_cnn
@@ -1009,9 +1013,15 @@ INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
 accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
 
 ** --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --epoch=30 , without --use_crf (bpe BERT)
+INFO:__main__:[F1] : 0.863227606609181, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 889043ms, 98.78186465162796ms on average
+accuracy:  94.20%; precision:  85.18%; recall:  87.30%; FB1:  86.23
 
-
-
+** --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT)
+INFO:__main__:[F1] : 0.8722265771446098, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 952261ms, 105.80508945438382ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1714ms, 16.21212121212121ms on average
+accuracy:  94.63%; precision:  87.25%; recall:  87.01%; FB1:  87.13
 
 * for clova2019_morph
 
