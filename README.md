@@ -822,7 +822,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ------------- | -------------- | --------------------- | ----------- | ------------- |  
 | Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |               |
-| **Glove, BiLSTM-CRF**          | 85.55         | 85.55          | morph, character, pos | 25.0146 / - | update/packed |
+| **Glove, BiLSTM-CRF**          | 85.82         | 85.82          | morph, character, pos | 25.9623 / - | update2/packed |
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 84.95         | 85.25          | morph, pos            | 42.1063 / - | update/packed |
@@ -896,10 +896,13 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 225223ms, 25.014668296477385ms on 
 accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55
   *** evaluation eoj-by-eoj
   accuracy:  93.88%; precision:  86.11%; recall:  85.00%; FB1:  85.55
-
+  
 ** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
-
-
+INFO:__main__:[F1] : 0.8588128417407997, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 233760ms, 25.962329147683075ms on average
+accuracy:  94.36%; precision:  86.48%; recall:  85.17%; FB1:  85.82
+  *** evaluation eoj-by-eoj
+  accuracy:  94.01%; precision:  86.48%; recall:  85.17%; FB1:  85.82
 
 * for clova2019_morph_space
 
@@ -1070,6 +1073,9 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
   accuracy:  93.83%; precision:  83.31%; recall:  83.79%; FB1:  83.55
   *** evaluation eoj-by-eoj
   accuracy:  93.31%; precision:  83.78%; recall:  83.93%; FB1:  83.85 
+
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+
 
 * for clova2019_morph_space
 
@@ -1279,7 +1285,7 @@ accuracy:  80.54%; precision:  57.12%; recall:  50.66%; FB1:  53.69
 </details>
 
 <br>
-
+ 
 # KMOU NER 2019 (Korean)
 
 ### experiments summary
