@@ -1087,11 +1087,7 @@ accuracy:  94.48%; precision:  83.93%; recall:  85.11%; FB1:  84.51
   *** evaluation eoj-by-eoj
   accuracy:  94.03%; precision:  85.55%; recall:  85.55%; FB1:  85.55
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
-
-
-
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --batch_size=16 --lr=1e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=2e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
 
 
 
@@ -1372,6 +1368,12 @@ INFO:__main__:[F1] : 0.8593403342700785, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 25819ms, 27.7451403887689ms on average
 accuracy:  96.74%; precision:  86.56%; recall:  85.32%; FB1:  85.93
 token_eval micro F1: 0.8641512381845168
+
+* --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
+INFO:__main__:[F1] : 0.8589818607372732, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 23254ms, 24.571274298056156ms on average
+accuracy:  96.87%; precision:  85.57%; recall:  86.23%; FB1:  85.90
+token_eval micro F1: 0.8703660344962149
 
 ```
 
