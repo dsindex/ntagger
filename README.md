@@ -434,9 +434,10 @@ INFO:__main__:[F1] : 0.9054532577903682, 3684
 INFO:__main__:[Elapsed Time] : 100 examples, 1922ms, 18.232323232323232ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --batch_size=16 --lr=1e-5 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
-
-
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
+INFO:__main__:[F1] : 0.9049717912552891, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 68218ms, 18.403203909856096ms on average
+accuracy:  97.97%; precision:  90.12%; recall:  90.88%; FB1:  90.50
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf (BERT-base CRF)
 INFO:__main__:[F1] : 0.8961356880573526, 3684
@@ -1078,7 +1079,7 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
   *** evaluation eoj-by-eoj
   accuracy:  93.31%; precision:  83.78%; recall:  83.93%; FB1:  83.85 
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (dha BERT BiLSTM)
 INFO:__main__:[F1] : 0.8459056275447281, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 902977ms, 100.3300366707412ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1982ms, 18.92929292929293ms on average
@@ -1086,7 +1087,11 @@ accuracy:  94.48%; precision:  83.93%; recall:  85.11%; FB1:  84.51
   *** evaluation eoj-by-eoj
   accuracy:  94.03%; precision:  85.55%; recall:  85.55%; FB1:  85.55
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 --bert_disable_lstm , without --use_crf
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
+
+
+
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --batch_size=16 --lr=1e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
 
 
 
