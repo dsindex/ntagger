@@ -1458,6 +1458,10 @@ INFO:__main__:[Elapsed Time] : 927 examples, 31752ms, 34.152267818574515ms on av
 accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
 token_eval micro F1: 0.9056049478160032
 
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 (dha BERT CRF)
+
+
+
 ** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
 INFO:__main__:[F1] : 0.880439496891716, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 16635ms, 17.854211663066955ms on average
