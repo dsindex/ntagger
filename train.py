@@ -183,7 +183,9 @@ def evaluate(model, config, val_loader):
     print(ret['report'])
     return ret
 
-def save_model(model, opt, config):
+def save_model(config, model):
+    opt = config['opt']
+    optimizer = config['optimizer']
     checkpoint_path = opt.save_path
     with open(checkpoint_path, 'wb') as f:
         if opt.use_amp:
@@ -368,7 +370,7 @@ def train(opt):
             best_eval_f1 = eval_f1
             if opt.save_path:
                 logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
-                save_model(model, opt, config)
+                save_model(config, model)
                 # save finetuned bert model/config/tokenizer
                 if config['emb_class'] in ['bert', 'albert', 'roberta', 'bart', 'electra']:
                     if not os.path.exists(opt.bert_output_dir):

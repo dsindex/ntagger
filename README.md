@@ -434,6 +434,10 @@ INFO:__main__:[F1] : 0.9054532577903682, 3684
 INFO:__main__:[Elapsed Time] : 100 examples, 1922ms, 18.232323232323232ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
+* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --batch_size=32 --lr=5e-5 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
+
+
+
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf (BERT-base CRF)
 INFO:__main__:[F1] : 0.8961356880573526, 3684
 INFO:__main__:[Elapsed Time] : 135607ms, 36.68938365462938ms on average
@@ -826,7 +830,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
 | Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 84.95         | 85.25          | morph, pos            | 42.1063 / - | update/packed |
-| dha BERT(2.5m), BiLSTM         | 84.46         | 85.41          | morph, pos            | 21.1111 / - | update/packed |
+| dha BERT(2.5m), BiLSTM         | 84.51         | 85.55          | morph, pos            | 18.9292 / - | update2/packed |
 | dha BERT(2.5m), CRF            | 82.94         | 84.99          | morph, pos            | 46.2323 / - | update        |
 | dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | 15.1717 / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
@@ -1074,7 +1078,16 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
   *** evaluation eoj-by-eoj
   accuracy:  93.31%; precision:  83.78%; recall:  83.93%; FB1:  83.85 
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+INFO:__main__:[F1] : 0.8459056275447281, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 902977ms, 100.3300366707412ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1982ms, 18.92929292929293ms on average
+accuracy:  94.48%; precision:  83.93%; recall:  85.11%; FB1:  84.51
+  *** evaluation eoj-by-eoj
+  accuracy:  94.03%; precision:  85.55%; recall:  85.55%; FB1:  85.55
+
+** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 --bert_disable_lstm , without --use_crf
+
 
 
 * for clova2019_morph_space
