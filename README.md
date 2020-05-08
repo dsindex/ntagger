@@ -776,7 +776,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(512.1m)     | -           | eoj      | -       / -    |          |           |               |
+| bpe ELECTRA-base(512.1m)     | 81.16       | eoj      | -       / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1254,7 +1254,7 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 ** bpe ELECTRA-base(512.1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-1m
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm 
 
 ```
 
@@ -1289,7 +1289,14 @@ accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+INFO:__main__:[F1] : 0.8082048107838586, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 892844ms, 99.20446716301811ms on average
+accuracy:  92.17%; precision:  81.57%; recall:  79.91%; FB1:  80.73
 
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+INFO:__main__:[F1] : 0.8125454105110195, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 875703ms, 97.29969996666296ms on average
+accuracy:  92.26%; precision:  82.53%; recall:  79.85%; FB1:  81.16
 
 ```
 
