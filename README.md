@@ -1088,7 +1088,11 @@ accuracy:  94.48%; precision:  83.93%; recall:  85.11%; FB1:  84.51
   accuracy:  94.03%; precision:  85.55%; recall:  85.55%; FB1:  85.55
 
 ** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=2e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
-
+INFO:__main__:[F1] : 0.8135219179456316, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 887293ms, 98.58706522946994ms on average
+accuracy:  94.03%; precision:  79.90%; recall:  82.72%; FB1:  81.28
+  *** evaluation eoj-by-eoj
+  accuracy:  93.69%; precision:  84.50%; recall:  84.63%; FB1:  84.56
 
 
 * for clova2019_morph_space
@@ -1459,8 +1463,10 @@ accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
 token_eval micro F1: 0.9056049478160032
 
 ** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 (dha BERT CRF)
-
-
+INFO:__main__:[F1] : 0.8810802962102512, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 30447ms, 32.355291576673864ms on average
+accuracy:  97.54%; precision:  87.16%; recall:  89.10%; FB1:  88.12
+token_eval micro F1: 0.8997748622001397
 
 ** --bert_disable_lstm --lr_deacy_rate=0.9 , without --use_crf (dha BERT)
 INFO:__main__:[F1] : 0.880439496891716, 927
