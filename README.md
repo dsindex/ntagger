@@ -776,7 +776,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(512.1m)     | 81.16       | eoj      | -       / -    |          |           | update2       |
+| bpe ELECTRA-base(512.1m)     | 82.51       | eoj      | 15.1616 / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1293,10 +1293,16 @@ INFO:__main__:[F1] : 0.8082048107838586, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 892844ms, 99.20446716301811ms on average
 accuracy:  92.17%; precision:  81.57%; recall:  79.91%; FB1:  80.73
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.452k
 INFO:__main__:[F1] : 0.8125454105110195, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 875703ms, 97.29969996666296ms on average
 accuracy:  92.26%; precision:  82.53%; recall:  79.85%; FB1:  81.16
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.607k
+INFO:__main__:[F1] : 0.8259836191713831, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 877767ms, 97.52905878430937ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1604ms, 15.16161616161616ms on average
+accuracy:  92.80%; precision:  82.90%; recall:  82.12%; FB1:  82.51
 
 ```
 
