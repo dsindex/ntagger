@@ -1304,6 +1304,11 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 877767ms, 97.52905878430937ms on a
 INFO:__main__:[Elapsed Time] : 100 examples, 1604ms, 15.16161616161616ms on average
 accuracy:  92.80%; precision:  82.90%; recall:  82.12%; FB1:  82.51
 
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=1e-5 --epoch=30 , 512-1m.607k
+INFO:__main__:[F1] : 0.8225795485450095, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 870867ms, 96.71141237915324ms on average
+accuracy:  92.79%; precision:  82.07%; recall:  82.27%; FB1:  82.17
+
 ```
 
 </p>
