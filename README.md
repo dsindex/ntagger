@@ -1310,6 +1310,12 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 870867ms, 96.71141237915324ms on a
 accuracy:  92.79%; precision:  82.07%; recall:  82.27%; FB1:  82.17
 
 *** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.768k
+INFO:__main__:[F1] : 0.8247225868034841, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 883297ms, 98.14290476719636ms on average
+accuracy:  92.78%; precision:  82.52%; recall:  82.25%; FB1:  82.38
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.796k
+
 
 ```
 
