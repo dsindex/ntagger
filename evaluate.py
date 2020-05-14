@@ -26,7 +26,7 @@ def set_path(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    if config['emb_class'] in ['bert', 'albert', 'roberta', 'bart', 'electra']:
+    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     if config['emb_class'] == 'elmo':
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
@@ -54,14 +54,16 @@ def load_model(config, checkpoint):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
-    if config['emb_class'] in ['bert', 'albert', 'roberta', 'bart', 'electra']:
+    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
         from transformers import BertTokenizer, BertConfig, BertModel
+        from transformers import DistilBertTokenizer, DistilBertConfig, DistilBertModel
         from transformers import AlbertTokenizer, AlbertConfig, AlbertModel
         from transformers import RobertaConfig, RobertaTokenizer, RobertaModel
         from transformers import BartConfig, BartTokenizer, BartModel
         from transformers import ElectraConfig, ElectraTokenizer, ElectraModel
         MODEL_CLASSES = {
             "bert": (BertConfig, BertTokenizer, BertModel),
+            "distilbert": (DistilBertConfig, DistilBertTokenizer, DistilBertModel),
             "albert": (AlbertConfig, AlbertTokenizer, AlbertModel),
             "roberta": (RobertaConfig, RobertaTokenizer, RobertaModel),
             "bart": (BartConfig, BartTokenizer, BartModel),
@@ -142,7 +144,7 @@ def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if config['emb_class'] in ['bert', 'albert', 'roberta', 'bart', 'electra']:
+    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
         DatasetClass = CoNLLBertDataset
     if config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
