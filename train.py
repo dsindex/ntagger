@@ -228,15 +228,16 @@ def prepare_datasets(config):
 def get_bert_embed_layer_list(config, bert_model):
     opt = config['opt']
     embed_list = list(bert_model.embeddings.parameters())
+    # note that 'distilbert' has no encoder.layer, so don't use bert_remove_layers for distilbert.
     layer_list = bert_model.encoder.layer
     return embed_list, layer_list
 
 def reduce_bert_model(config, bert_model, bert_config):
     opt = config['opt']
-    embed_list, layer_list = get_bert_embed_layer_list(config, bert_model)
     remove_layers = opt.bert_remove_layers
     # drop layers
     if remove_layers is not "":
+        embed_list, layer_list = get_bert_embed_layer_list(config, bert_model)
         layer_indexes = [int(x) for x in remove_layers.split(",")]
         layer_indexes.sort(reverse=True)
         for layer_idx in layer_indexes:

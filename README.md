@@ -241,6 +241,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |         |           |                           |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |         |           |                           |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |         |           |                           |
+| DistilBERT, BiLSTM              | -            | -                    | -       / -        |         |           |                           |
 | BERT-base, BiLSTM-CRF           | 90.20        | word                 | 42.6464 / -        |         |           | update/packed             |
 | BERT-base, BiLSTM               | 90.55        | word                 | 18.2323 / -        |         |           | update/packed             |
 | BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           | update                    |
@@ -468,6 +469,10 @@ accuracy:  96.32%; precision:  80.82%; recall:  82.29%; FB1:  81.55
 INFO:__main__:[F1] : 0.6965218958370878, 3684
 INFO:__main__:[Elapsed Time] : 74261ms, 20.137659516698342ms on average
 accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
+
+* --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/distilbert-base-uncased --bert_do_lower_case
+
+
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embedding/spanbert_hf_base
@@ -776,7 +781,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(512.1m)     | 82.51       | eoj      | 15.1616 / -    |          |           | update2       |
+| bpe ELECTRA-base(512.1m)     | 83.35       | eoj      | 16.0909 / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1318,6 +1323,12 @@ accuracy:  92.78%; precision:  82.52%; recall:  82.25%; FB1:  82.38
 INFO:__main__:[F1] : 0.8167800757550363, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 880340ms, 97.81497944216024ms on average
 accuracy:  92.48%; precision:  80.37%; recall:  82.84%; FB1:  81.59
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=5e-5 --epoch=30 , 512-1m.1017k
+INFO:__main__:[F1] : 0.8343775538000544, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 862182ms, 95.79619957773086ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1702ms, 16.09090909090909ms on average
+accuracy:  93.16%; precision:  83.38%; recall:  83.31%; FB1:  83.35
 
 ```
 

@@ -504,7 +504,7 @@ class BertLSTMCRF(BaseModel):
         if self.bert_feature_based:
             # feature-based
             with torch.no_grad():
-                if 'bart' in self.config['emb_class']:
+                if self.config['emb_class'] in ['bart', 'distilbert']:
                     bert_outputs = self.bert_model(input_ids=x[0],
                                                    attention_mask=x[1])
                     # bart model's output(output_hidden_states == True)
@@ -556,7 +556,7 @@ class BertLSTMCRF(BaseModel):
         else:
             # fine-tuning
             # x[0], x[1], x[2] : [batch_size, seq_size]
-            if 'bart' in self.config['emb_class']:
+            if self.config['emb_class'] in ['bart', 'distilbert']:
                 bert_outputs = self.bert_model(input_ids=x[0],
                                                attention_mask=x[1])
                 embedded = bert_outputs[0]
