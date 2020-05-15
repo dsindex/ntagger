@@ -241,7 +241,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |         |           |                           |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |         |           |                           |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |         |           |                           |
-| DistilBERT, BiLSTM              | -            | -                    | -       / -        |         |           |                           |
+| DistilBERT, BiLSTM              | 89.50        | word                 | 13.4564 / -        | 56.1717 |           |                           |
 | BERT-base, BiLSTM-CRF           | 90.20        | word                 | 42.6464 / -        |         |           | update/packed             |
 | BERT-base, BiLSTM               | 90.55        | word                 | 18.2323 / -        |         |           | update/packed             |
 | BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           | update                    |
@@ -471,8 +471,9 @@ INFO:__main__:[Elapsed Time] : 74261ms, 20.137659516698342ms on average
 accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
 
 * --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/distilbert-base-uncased --bert_do_lower_case
-
-
+INFO:__main__:[F1] : 0.894963522897073, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 49652ms, 13.456421395601412ms on average
+accuracy:  97.80%; precision:  88.86%; recall:  90.14%; FB1:  89.50
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embedding/spanbert_hf_base
