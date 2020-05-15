@@ -278,7 +278,7 @@ $ python to-conll.py -g t > valid.txt
 * GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0), [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
 * CONDA   : conda pytorch=1.5.0
 * Dynamic : conda pytorch=1.5.0, dynamic quantization
-* default batch size, learning rate : 32, 1e-3
+* default batch size, learning rate, n_ctx(max_seq_length) : 32, 1e-3, 180
 ```
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
