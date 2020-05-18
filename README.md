@@ -3,7 +3,7 @@
 **reference pytorch code for named entity tagging.**
 
 - embedding
-  - word : Glove, BERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
+  - word : Glove, BERT, DistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
   - character : CNN
   - pos : lookup
 - encoding
@@ -283,8 +283,8 @@ $ python to-conll.py -g t > valid.txt
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                                     | F1 (%)            | Features                     | Elapsed time / example (ms, GPU / CPU) | Etc         |
-| ----------------------------------- | ----------------  | ---------------------------- | -------------------------------------- | ----------- |
+|                                     | F1 (%)            | Features                     | GPU / CPU        | Etc                               |
+| ----------------------------------- | ----------------  | ---------------------------- | ---------------- | --------------------------------- |
 | Glove, BiLSTM-CRF                   | 87.91             | word                         | - / -            |                                   |
 | Glove, BiLSTM-CRF                   | 89.20             | word, pos                    | 14.9682 / 5.0336 | LSTMBlockFusedCell(), threads=14  |
 | Glove, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
@@ -298,7 +298,7 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF             | **92.83**         | word, character, pos, chunk  | - / -            | Glove-100d                        |
 | BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
 
-- [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same as conlleval? unknown!)
+- [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same result by conlleval? Unknown!)
 
 |                                 | F1 (%) |
 | ------------------------------- | ------ |
@@ -1330,6 +1330,11 @@ INFO:__main__:[F1] : 0.8343775538000544, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 862182ms, 95.79619957773086ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1702ms, 16.09090909090909ms on average
 accuracy:  93.16%; precision:  83.38%; recall:  83.31%; FB1:  83.35
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=5e-5 --epoch=30 , 512-1m.1339k
+INFO:__main__:[F1] : 0.8325961850441435, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 874817ms, 97.19768863207022ms on average
+accuracy:  93.11%; precision:  83.46%; recall:  82.88%; FB1:  83.17
 
 ```
 
