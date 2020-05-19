@@ -1336,6 +1336,16 @@ INFO:__main__:[F1] : 0.8325961850441435, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 874817ms, 97.19768863207022ms on average
 accuracy:  93.11%; precision:  83.46%; recall:  82.88%; FB1:  83.17
 
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1339k
+INFO:__main__:[F1] : 0.8344323467770791, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 875415ms, 97.26414046005112ms on average
+accuracy:  93.12%; precision:  83.46%; recall:  83.25%; FB1:  83.35
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1426k
+INFO:__main__:[F1] : 0.8275850466031832, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 883752ms, 98.1936881875764ms on average
+accuracy:  92.93%; precision:  81.74%; recall:  83.62%; FB1:  82.67
+
 ```
 
 </p>
