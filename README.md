@@ -275,9 +275,9 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, Glove, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595 |           | threads=14, update/packed |
 
 ```
-* GPU/CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0), [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
-* CONDA   : conda pytorch=1.5.0
-* Dynamic : conda pytorch=1.5.0, dynamic quantization
+* GPU / CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0), [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
+* CONDA     : conda pytorch=1.5.0
+* Dynamic   : conda pytorch=1.5.0, --enable_dqm
 * default batch size, learning rate, n_ctx(max_seq_length) : 32, 1e-3, 180
 ```
 
@@ -782,7 +782,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(512.1m)     | 83.35       | eoj      | 16.0909 / -    |          |           | update2       |
+| bpe ELECTRA-base(512.1m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1345,6 +1345,12 @@ accuracy:  93.12%; precision:  83.46%; recall:  83.25%; FB1:  83.35
 INFO:__main__:[F1] : 0.8275850466031832, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 883752ms, 98.1936881875764ms on average
 accuracy:  92.93%; precision:  81.74%; recall:  83.62%; FB1:  82.67
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1519k
+INFO:__main__:[F1] : 0.8355495020005107, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 823656ms, 91.51561284587176ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1592ms, 14.97979797979798ms on average
+accuracy:  93.18%; precision:  83.50%; recall:  83.43%; FB1:  83.46
 
 ```
 
