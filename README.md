@@ -1647,6 +1647,19 @@ token_eval micro F1: 0.8926606215608773
 
 <br>
 
+# Citation
+
+```
+@misc{ntagger,
+  author = {dsindex},
+  title = {ntagger},
+  year = {2020},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/dsindex/ntagger}},
+}
+```
+
 # References
 
 - [Named Entity Recoginition](https://paperswithcode.com/task/named-entity-recognition-ner)
