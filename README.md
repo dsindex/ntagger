@@ -260,6 +260,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-large, BiLSTM-CRF          | 90.76        | word                 | 60.8039 / -        |         |           | BERT as feature-based, max([0:17]) embedding         |
 | BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 / -        |         |           | BERT as feature-based, mean([0:]) embedding          |
 | BERT-large, BiLSTM-CRF          | 90.62        | word                 | 66.6576 / -        |         |           | BERT as feature-based, DSA(4, 300)                   |
+| BERT-large-squad, BiLSTM        | 91.30        | word                 | 35.4401 / -        |         |           | update2/packed            |
 | SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 / -        |         |           |                           |
 | SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 / -        |         |           |                           |
 | ALBERT-base, BiLSTM             | 88.19        | word                 | 31.0868 / -        |         |           |                           |
@@ -475,13 +476,21 @@ INFO:__main__:[F1] : 0.894963522897073, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 49652ms, 13.456421395601412ms on average
 accuracy:  97.80%; precision:  88.86%; recall:  90.14%; FB1:  89.50
 
+* --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad
+INFO:__main__:[F1] : 0.9130013221683562, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 130683ms, 35.44013032853652ms on average
+accuracy:  98.29%; precision:  90.91%; recall:  91.70%; FB1:  91.30
+
+* --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+
+
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
-* --bert_model_name_or_path=./embedding/spanbert_hf_base
+* --bert_model_name_or_path=./embeddings/spanbert_hf_base
 INFO:__main__:[F1] : 0.9046450482033305, 3684
 INFO:__main__:[Elapsed Time] : 110977ms, 30.09910399131143ms on average
 accuracy:  98.02%; precision:  89.57%; recall:  91.38%; FB1:  90.46
 
-* --bert_model_name_or_path=./embedding/spanbert_hf_large
+* --bert_model_name_or_path=./embeddings/spanbert_hf_large
 INFO:__main__:[F1] : 0.9139340659340659, 3684
 INFO:__main__:[Elapsed Time] : 157069ms, 42.59598153679066ms on average
 accuracy:  98.23%; precision:  90.76%; recall:  92.03%; FB1:  91.39
