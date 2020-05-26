@@ -1306,62 +1306,21 @@ accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-INFO:__main__:[F1] : 0.8082048107838586, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 892844ms, 99.20446716301811ms on average
-accuracy:  92.17%; precision:  81.57%; recall:  79.91%; FB1:  80.73
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.452k
-INFO:__main__:[F1] : 0.8125454105110195, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 875703ms, 97.29969996666296ms on average
-accuracy:  92.26%; precision:  82.53%; recall:  79.85%; FB1:  81.16
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.607k
-INFO:__main__:[F1] : 0.8259836191713831, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 877767ms, 97.52905878430937ms on average
-INFO:__main__:[Elapsed Time] : 100 examples, 1604ms, 15.16161616161616ms on average
-accuracy:  92.80%; precision:  82.90%; recall:  82.12%; FB1:  82.51
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=1e-5 --epoch=30 , 512-1m.607k
-INFO:__main__:[F1] : 0.8225795485450095, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 870867ms, 96.71141237915324ms on average
-accuracy:  92.79%; precision:  82.07%; recall:  82.27%; FB1:  82.17
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.768k
-INFO:__main__:[F1] : 0.8247225868034841, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 883297ms, 98.14290476719636ms on average
-accuracy:  92.78%; precision:  82.52%; recall:  82.25%; FB1:  82.38
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.796k
-INFO:__main__:[F1] : 0.8167800757550363, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 880340ms, 97.81497944216024ms on average
-accuracy:  92.48%; precision:  80.37%; recall:  82.84%; FB1:  81.59
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=5e-5 --epoch=30 , 512-1m.1017k
-INFO:__main__:[F1] : 0.8343775538000544, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 862182ms, 95.79619957773086ms on average
-INFO:__main__:[Elapsed Time] : 100 examples, 1702ms, 16.09090909090909ms on average
-accuracy:  93.16%; precision:  83.38%; recall:  83.31%; FB1:  83.35
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=5e-5 --epoch=30 , 512-1m.1339k
-INFO:__main__:[F1] : 0.8325961850441435, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 874817ms, 97.19768863207022ms on average
-accuracy:  93.11%; precision:  83.46%; recall:  82.88%; FB1:  83.17
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1339k
-INFO:__main__:[F1] : 0.8344323467770791, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 875415ms, 97.26414046005112ms on average
-accuracy:  93.12%; precision:  83.46%; recall:  83.25%; FB1:  83.35
-
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1426k
-INFO:__main__:[F1] : 0.8275850466031832, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 883752ms, 98.1936881875764ms on average
-accuracy:  92.93%; precision:  81.74%; recall:  83.62%; FB1:  82.67
-
 *** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1519k
 INFO:__main__:[F1] : 0.8355495020005107, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 823656ms, 91.51561284587176ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1592ms, 14.97979797979798ms on average
 accuracy:  93.18%; precision:  83.50%; recall:  83.43%; FB1:  83.46
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1869k
+INFO:__main__:[F1] : 0.8283758262511804, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 868607ms, 96.51072341371264ms on average
+accuracy:  92.92%; precision:  82.00%; recall:  83.51%; FB1:  82.75
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1996k
+INFO:__main__:[F1] : 0.8279409045834244, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 858847ms, 95.42571396821869ms on average
+accuracy:  92.92%; precision:  81.70%; recall:  83.74%; FB1:  82.71
 
 ```
 
