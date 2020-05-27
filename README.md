@@ -1255,7 +1255,8 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </p>
 </details>
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(512.1m) </b></summary>
+
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(512.2m) </b></summary>
 <p>
 
 - train
@@ -1301,7 +1302,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1597ms, 15.16161616161616ms on aver
 accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 
 
-** bpe ELECTRA-base(512.1m)
+** bpe ELECTRA-base(512.2m)
 
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
@@ -1316,6 +1317,11 @@ accuracy:  93.18%; precision:  83.50%; recall:  83.43%; FB1:  83.46
 INFO:__main__:[F1] : 0.8283758262511804, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 868607ms, 96.51072341371264ms on average
 accuracy:  92.92%; precision:  82.00%; recall:  83.51%; FB1:  82.75
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-2m.2000k
+INFO:__main__:[F1] : 0.8286008583690987, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 912016ms, 101.3329258806534ms on average
+accuracy:  92.93%; precision:  83.50%; recall:  82.05%; FB1:  82.77
 
 ```
 
