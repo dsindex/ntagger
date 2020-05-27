@@ -219,7 +219,7 @@ $ python to-conll.py -g t > valid.txt
   - dha-bpe bert : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
   - dha bert : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
   - KoELECTRA-Base : `koelectra-base-discriminator`
-  - bpe electra : `kor-electra-base-bpe-512-1m` (inhouse)
+  - bpe electra : `kor-electra-base-bpe-512-2m` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
@@ -793,7 +793,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(512.1m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
+| bpe ELECTRA-base(512.2m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1270,8 +1270,8 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 
 ** bpe ELECTRA-base(512.1m)
-$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-1m
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm 
+$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-2m
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-2m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm 
 
 ```
 
@@ -1306,18 +1306,18 @@ accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1519k
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-2m.1519k
 INFO:__main__:[F1] : 0.8355495020005107, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 823656ms, 91.51561284587176ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1592ms, 14.97979797979798ms on average
 accuracy:  93.18%; precision:  83.50%; recall:  83.43%; FB1:  83.46
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1869k
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-2m.1869k
 INFO:__main__:[F1] : 0.8283758262511804, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 868607ms, 96.51072341371264ms on average
 accuracy:  92.92%; precision:  82.00%; recall:  83.51%; FB1:  82.75
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-1m.1996k
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-2m.1996k
 INFO:__main__:[F1] : 0.8279409045834244, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 858847ms, 95.42571396821869ms on average
 accuracy:  92.92%; precision:  81.70%; recall:  83.74%; FB1:  82.71
