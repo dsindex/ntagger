@@ -328,10 +328,10 @@ class GloveLSTMCRF(BaseModel):
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
+            return (logits, log_likelihood, prediction)
         else:
             prediction = self.crf.decode(logits)
-            return logits, prediction
+            return (logits, prediction)
 
 class GloveDensenetCRF(BaseModel):
     def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
@@ -422,10 +422,10 @@ class GloveDensenetCRF(BaseModel):
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
+            return (logits, log_likelihood, prediction)
         else:
             prediction = self.crf.decode(logits)
-            return logits, prediction
+            return (logits, prediction)
 
 class BertLSTMCRF(BaseModel):
     def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_pos=False, disable_lstm=False, feature_based=False):
@@ -569,7 +569,7 @@ class BertLSTMCRF(BaseModel):
         return embedded
 
     def forward(self, x, tags=None):
-        # x : [batch_size, seq_size]
+        # x[0,1,2] : [batch_size, seq_size]
         # tags : [batch_size, seq_size]
 
         mask = x[1].to(torch.uint8).to(self.device)
@@ -609,10 +609,10 @@ class BertLSTMCRF(BaseModel):
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
+            return (logits, log_likelihood, prediction)
         else:
             prediction = self.crf.decode(logits)
-            return logits, prediction
+            return (logits, prediction)
 
 class ElmoLSTMCRF(BaseModel):
     def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
@@ -721,8 +721,8 @@ class ElmoLSTMCRF(BaseModel):
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits, mask=mask)
             # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
+            return (logits, log_likelihood, prediction)
         else:
             prediction = self.crf.decode(logits)
-            return logits, prediction
+            return (logits, prediction)
 
