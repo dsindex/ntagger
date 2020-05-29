@@ -149,13 +149,13 @@ def evaluate(model, config, val_loader):
                 loss = criterion(logits.view(-1, model.label_size), y.view(-1))
             if preds is None:
                 if opt.use_crf:
-                    preds = prediction
+                    preds = to_numpy(prediction)
                 else:
                     preds = to_numpy(logits)
                 ys = to_numpy(y)
             else:
                 if opt.use_crf:
-                    preds = np.append(preds, prediction, axis=0)
+                    preds = np.append(preds, to_numpy(prediction), axis=0)
                 else:
                     preds = np.append(preds, to_numpy(logits), axis=0)
                 ys = np.append(ys, to_numpy(y), axis=0)
