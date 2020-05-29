@@ -25,7 +25,7 @@ class BaseModel(nn.Module):
 
     def load_embedding(self, input_path):
         weights_matrix = np.load(input_path)
-        weights_matrix = torch.tensor(weights_matrix)
+        weights_matrix = torch.as_tensor(weights_matrix)
         return weights_matrix
 
     def create_embedding_layer(self, vocab_dim, emb_dim, weights_matrix=None, non_trainable=True, padding_idx=0):
@@ -327,12 +327,12 @@ class GloveLSTMCRF(BaseModel):
         if tags is not None: # given golden ys(answer)
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             # prediction : [batch_size, seq_size]
             return logits, log_likelihood, prediction
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             return logits, prediction
 
 class GloveDensenetCRF(BaseModel):
@@ -423,12 +423,12 @@ class GloveDensenetCRF(BaseModel):
         if tags is not None: # given golden ys(answer)
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             # prediction : [batch_size, seq_size]
             return logits, log_likelihood, prediction
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             return logits, prediction
 
 class BertLSTMCRF(BaseModel):
@@ -612,12 +612,12 @@ class BertLSTMCRF(BaseModel):
         if tags is not None: # given golden ys(answer)
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             # prediction : [batch_size, seq_size]
             return logits, log_likelihood, prediction
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             return logits, prediction
 
 class ElmoLSTMCRF(BaseModel):
@@ -726,11 +726,11 @@ class ElmoLSTMCRF(BaseModel):
         if tags is not None: # given golden ys(answer)
             log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             # prediction : [batch_size, seq_size]
             return logits, log_likelihood, prediction
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.tensor(prediction, dtype=torch.long)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
             return logits, prediction
 
