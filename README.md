@@ -233,7 +233,8 @@ $ python to-conll.py -g t > valid.txt
 
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA   | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | -----------  | -------------------- | ------------------ | ------- | --------- | --------- | ------------------------- |
-| Glove, BiLSTM-CRF               | 88.64        | word, pos            | 26.5454 / -        | 16.9191 |           |           | threads=14, update/packed |
+| Glove, BiLSTM                   | 88.23        | word, pos            | 5.6217  / -        | 7.3838  | 3.6969    |           | threads=14, update2/packed |
+| Glove, BiLSTM                   | 88.94        | word, character, pos | 6.4108  / -        | 9.5858  | 8.5656    |           | threads=14, update2/packed |
 | **Glove, BiLSTM-CRF**           | 90.14        | word, character, pos | 26.2807 / -        | 21.7474 |           |           | threads=14, update/packed |
 | Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / -        | 22.5858 |           |           | threads=14, update        |
 | Glove, DenseNet-CRF             | 88.89        | word, character, pos | 28.0993 / -        | 25.2929 |           |           | threads=14  update        |
@@ -241,7 +242,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |         |           |           |                           |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |         |           |           |                           |
 | BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |         |           |           |                           |
-| DistilBERT, BiLSTM              | 89.50        | word                 | 13.4564 / -        | 56.1717 |           |           |                           |
+| DistilBERT, BiLSTM              | 89.50        | word                 | 13.4564 / -        | 56.1717 |           |           | update2/packed            |
 | BERT-base, BiLSTM-CRF           | 90.20        | word                 | 42.6464 / -        |         |           |           | update/packed             |
 | BERT-base, BiLSTM               | 90.55        | word                 | 18.2323 / -        |         |           |           | update/packed             |
 | BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |         |           |           | update                    |
@@ -343,6 +344,12 @@ accuracy:  97.60%; precision:  88.90%; recall:  88.39%; FB1:  88.64
 INFO:__main__:[F1] : 0.9013611454834718, 3684
 INFO:__main__:[Elapsed Time] : 96906ms, 26.280749389084985ms on average
 accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
+
+* --lr_decay_rate=0.9 , without --use_crf
+
+
+* --use_char_cnn --lr_decay_rate=0.9 , without --use_crf
+
 
 ```
 
