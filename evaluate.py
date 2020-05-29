@@ -90,6 +90,52 @@ def load_model(config, checkpoint):
     logger.info("[Loaded]")
     return model
 
+def convert_onnx(config, torch_model, x):
+    opt = config['opt']
+    import torch.onnx
+
+    if config['emb_class'] == 'glove':
+        input_names = ['token_ids', 'pos_ids', 'char_ids']
+        output_names = ['logits']
+        dynamic_axes = {'token_ids': {0: 'batch', 1: 'sequence'},
+                        'pos_ids':   {0: 'batch', 1: 'sequence'},
+                        'char_ids' : {0: 'batch', 1: 'sequence'},
+                        'logits':    {0: 'batch', 1: 'sequence'}}
+        if opt.use_crf:
+            output_names += ['prediction']
+            dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
+
+    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+        input_names = ['input_ids', 'input_mask', 'segment_ids', 'pos_ids']
+        output_names = ['logits']
+        dynamic_axes = {'input_ids':   {0: 'batch', 1: 'sequence'},
+                        'input_mask':  {0: 'batch', 1: 'sequence'},
+                        'segment_ids': {0: 'batch', 1: 'sequence'},
+                        'pos_ids':     {0: 'batch', 1: 'sequence'},
+                        'logits':      {0: 'batch', 1: 'sequence'}}
+        if opt.use_crf:
+            output_names += ['prediction']
+            dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
+        
+    with torch.no_grad():
+        torch.onnx.export(torch_model,               # model being run
+                          x,                         # model input (or a tuple for multiple inputs)
+                          opt.onnx_path,             # where to save the model (can be a file or file-like object)
+                          export_params=True,        # store the trained parameter weights inside the model file
+                          opset_version=11,          # the ONNX version to export the model to
+                          do_constant_folding=True,  # whether to execute constant folding for optimization
+                          verbose=True,
+                          input_names=input_names,   # the model's input names
+                          output_names=output_names, # the model's output names
+                          dynamic_axes=dynamic_axes) # variable length axes
+
+def check_onnx(config):
+    opt = config['opt']
+    import onnx
+    onnx_model = onnx.load(opt.onnx_path)
+    onnx.checker.check_model(onnx_model)
+    print(onnx.helper.printable_graph(onnx_model.graph))
+
 # ---------------------------------------------------------------------------- #
 # Evaluation
 # ---------------------------------------------------------------------------- #
@@ -170,6 +216,24 @@ def evaluate(opt):
     # prepare model and load parameters
     model = load_model(config, checkpoint)
     model.eval()
+
+    # convert to onnx format
+    if opt.convert_onnx:
+        (x, y) = next(iter(test_loader))
+        x = to_device(x, opt.device)
+        y = to_device(y, opt.device)
+        convert_onnx(config, model, x)
+        check_onnx(config)
+        logger.info("[ONNX model saved at {}".format(opt.onnx_path))
+        return
+
+    # load onnx model for using onnxruntime
+    if opt.enable_ort:
+        import onnxruntime as ort
+        sess_options = ort.SessionOptions()
+        sess_options.inter_op_num_threads = opt.num_threads
+        sess_options.intra_op_num_threads = opt.num_threads
+        ort_session = ort.InferenceSession(opt.onnx_path, sess_options=sess_options)
     
     # enable to use dynamic quantized model (pytorch>=1.3.0)
     if opt.enable_dqm and opt.device == 'cpu':
@@ -190,21 +254,45 @@ def evaluate(opt):
             start_time = time.time()
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
-            if opt.use_crf:
-                logits, prediction = model(x)
-            else:
-                logits = model(x)
-            if preds is None:
+
+            if opt.enable_ort:
+                x = to_numpy(x)
+                if config['emb_class'] == 'glove':
+                    if opt.use_char_cnn:
+                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                                      ort_session.get_inputs()[1].name: x[1],
+                                      ort_session.get_inputs()[2].name: x[2]}
+                    else:
+                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                                      ort_session.get_inputs()[1].name: x[1]}
+                if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+                    if config['emb_class'] in ['distilbert', 'bart']:
+                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                                      ort_session.get_inputs()[1].name: x[1],
+                                      ort_session.get_inputs()[3].name: x[3]}
+                    else:
+                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                                      ort_session.get_inputs()[1].name: x[1],
+                                      ort_session.get_inputs()[2].name: x[2],
+                                      ort_session.get_inputs()[3].name: x[3]}
                 if opt.use_crf:
-                    preds = prediction
+                    logits, prediction = ort_session.run(None, ort_inputs)
+                    prediction = to_device(torch.tensor(prediction), opt.device)
+                    logits = to_device(torch.tensor(logits), opt.device)
                 else:
-                    preds = to_numpy(logits)
+                    logits = ort_session.run(None, ort_inputs)[0]
+                    logits = to_device(torch.tensor(logits), opt.device)
+            else:
+                if opt.use_crf: logits, prediction = model(x)
+                else: logits = model(x)
+
+            if preds is None:
+                if opt.use_crf: preds = to_numpy(prediction)
+                else: preds = to_numpy(logits)
                 ys = to_numpy(y)
             else:
-                if opt.use_crf:
-                    preds = np.append(preds, prediction, axis=0)
-                else:
-                    preds = np.append(preds, to_numpy(logits), axis=0)
+                if opt.use_crf: preds = np.append(preds, to_numpy(prediction), axis=0)
+                else: preds = np.append(preds, to_numpy(logits), axis=0)
                 ys = np.append(ys, to_numpy(y), axis=0)
             cur_examples = y.size(0)
             total_examples += cur_examples
@@ -271,6 +359,12 @@ def main():
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
+    # for ONNX
+    parser.add_argument('--convert_onnx', action='store_true',
+                        help="Set this flag to convert to onnx format.")
+    parser.add_argument('--enable_ort', action='store_true',
+                        help="Set this flag to evaluate using onnxruntime.")
+    parser.add_argument('--onnx_path', type=str, default='pytorch-model.onnx')
     # for Quantization
     parser.add_argument('--enable_dqm', action='store_true',
                         help="Set this flag to use dynamic quantized model.")
