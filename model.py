@@ -284,10 +284,9 @@ class GloveLSTMCRF(BaseModel):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def forward(self, x, tags=None):
+    def forward(self, x):
         # x[0, 1] : [batch_size, seq_size]
         # x[2]    : [batch_size, seq_size, char_n_ctx]
-        # tags    : [batch_size, seq_size]
         token_ids = x[0]
         pos_ids = x[1]
 
@@ -324,16 +323,10 @@ class GloveLSTMCRF(BaseModel):
         logits = self.linear(lstm_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        if tags is not None: # given golden ys(answer)
-            log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
-        else:
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            return logits, prediction
+        prediction = self.crf.decode(logits)
+        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        # prediction : [batch_size, seq_size]
+        return logits, prediction
 
 class GloveDensenetCRF(BaseModel):
     def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
@@ -383,10 +376,9 @@ class GloveDensenetCRF(BaseModel):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def forward(self, x, tags=None):
+    def forward(self, x):
         # x[0, 1] : [batch_size, seq_size]
         # x[2]    : [batch_size, seq_size, char_n_ctx]
-        # tags    : [batch_size, seq_size]
         token_ids = x[0]
         pos_ids = x[1]
 
@@ -420,16 +412,10 @@ class GloveDensenetCRF(BaseModel):
         logits = self.linear(densenet_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        if tags is not None: # given golden ys(answer)
-            log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
-        else:
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            return logits, prediction
+        prediction = self.crf.decode(logits)
+        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        # prediction : [batch_size, seq_size]
+        return logits, prediction
 
 class BertLSTMCRF(BaseModel):
     def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_pos=False, disable_lstm=False, feature_based=False):
@@ -572,9 +558,8 @@ class BertLSTMCRF(BaseModel):
                 # embedded : [batch_size, seq_size, bert_hidden_size]
         return embedded
 
-    def forward(self, x, tags=None):
+    def forward(self, x):
         # x[0,1,2] : [batch_size, seq_size]
-        # tags : [batch_size, seq_size]
 
         mask = x[1].to(torch.uint8).to(self.device)
         # mask == attention_mask : [batch_size, seq_size]
@@ -609,16 +594,10 @@ class BertLSTMCRF(BaseModel):
         logits = self.linear(lstm_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        if tags is not None: # given golden ys(answer)
-            log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
-        else:
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            return logits, prediction
+        prediction = self.crf.decode(logits)
+        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        # prediction : [batch_size, seq_size]
+        return logits, prediction
 
 class ElmoLSTMCRF(BaseModel):
     def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
@@ -675,10 +654,9 @@ class ElmoLSTMCRF(BaseModel):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def forward(self, x, tags=None):
+    def forward(self, x):
         # x[0,1] : [batch_size, seq_size]
         # x[2]   : [batch_size, seq_size, max_characters_per_token]
-        # tags   : [batch_size, seq_size]
         token_ids = x[0]
         pos_ids = x[1]
         char_ids = x[2]
@@ -723,14 +701,8 @@ class ElmoLSTMCRF(BaseModel):
         logits = self.linear(lstm_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        if tags is not None: # given golden ys(answer)
-            log_likelihood = self.crf(logits, tags, mask=mask, reduction='mean')
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            # prediction : [batch_size, seq_size]
-            return logits, log_likelihood, prediction
-        else:
-            prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
-            return logits, prediction
+        prediction = self.crf.decode(logits)
+        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        # prediction : [batch_size, seq_size]
+        return logits, prediction
 

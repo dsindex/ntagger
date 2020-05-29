@@ -77,7 +77,9 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         x = to_device(x, opt.device)
         y = to_device(y, opt.device)
         if opt.use_crf:
-            logits, log_likelihood, prediction = model(x, tags=y)
+            logits, prediction = model(x)
+            mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
+            log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
             loss = -1 * log_likelihood
         else:
             logits = model(x)
@@ -142,7 +144,9 @@ def evaluate(model, config, val_loader):
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
             if opt.use_crf:
-                logits, log_likelihood, prediction = model(x, y)
+                logits, prediction = model(x)
+                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
+                log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
             else:
                 logits = model(x)
