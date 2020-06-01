@@ -27,20 +27,20 @@ class Tokenizer():
         tokens = sent.split()
         return tokens
 
-    def convert_tokens_to_ids(self, tokens):
+    def convert_tokens_to_ids(self, tokens, pad_sequence=True):
         ids = []
         vocab = self.vocab
         for token in tokens:
             if self.lowercase: token = token.lower()
             d = vocab[token] if token in vocab else self.unk_id
             ids.append(d)
-        # padding
-        padding_length = self.n_ctx - len(ids)
-        ids += [self.pad_id] * padding_length
+        if pad_sequence:
+            padding_length = self.n_ctx - len(ids)
+            ids += [self.pad_id] * padding_length
         ids = ids[:self.n_ctx]
         return ids
 
-    def convert_tokens_to_cids(self, tokens):
+    def convert_tokens_to_cids(self, tokens, pad_sequence=True):
         assert self.chars is not None
         ids = []
         vocab = self.chars
@@ -55,7 +55,8 @@ class Tokenizer():
             cids = cids[:self.char_n_ctx]
             ids.append(cids)
         # padding
-        padding_length = self.n_ctx - len(ids)
-        ids += [self.pad_id] * padding_length
+        if pad_sequence:
+            padding_length = self.n_ctx - len(ids)
+            ids += [self.pad_id] * padding_length
         ids = ids[:self.n_ctx]
         return ids
