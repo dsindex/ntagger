@@ -27,7 +27,14 @@ class Tokenizer():
         tokens = sent.split()
         return tokens
 
-    def convert_tokens_to_ids(self, tokens, pad_sequence=True):
+    def convert_tokens_to_ids(self, tokens, pad_sequence=True, min_seq_size=10):
+        """
+        Args:
+          pad_sequence, min_seq_size:
+            if pad_sequence is True, pad the sequence up to n_ctx(max_seq_size).
+            else do not pad basically. however, since the sequence size should be larger than min_seq_size.
+            we pad the sequence additionally.
+        """
         ids = []
         vocab = self.vocab
         for token in tokens:
@@ -36,11 +43,23 @@ class Tokenizer():
             ids.append(d)
         if pad_sequence:
             padding_length = self.n_ctx - len(ids)
-            ids += [self.pad_id] * padding_length
+            if padding_length > 0:
+                ids += [self.pad_id] * padding_length
+        else:
+            padding_length = min_seq_size - len(ids)
+            if padding_length > 0:
+                ids += [self.pad_id] * padding_length
         ids = ids[:self.n_ctx]
         return ids
 
-    def convert_tokens_to_cids(self, tokens, pad_sequence=True):
+    def convert_tokens_to_cids(self, tokens, pad_sequence=True, min_seq_size=10):
+        """
+        Args:
+          pad_sequence, min_seq_size:
+            if pad_sequence is True, pad the sequence up to n_ctx(max_seq_size).
+            else do not pad basically. however, since the sequence size should be larger than min_seq_size.
+            we pad the sequence additionally.
+        """
         assert self.chars is not None
         ids = []
         vocab = self.chars
@@ -57,6 +76,11 @@ class Tokenizer():
         # padding
         if pad_sequence:
             padding_length = self.n_ctx - len(ids)
-            ids += [self.pad_id] * padding_length
+            if padding_length > 0:
+                ids += [self.pad_id] * padding_length
+        else:
+            padding_length = min_seq_size - len(ids)
+            if padding_length > 0:
+                ids += [self.pad_id] * padding_length
         ids = ids[:self.n_ctx]
         return ids

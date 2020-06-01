@@ -64,7 +64,8 @@ class TextCNN(nn.Module):
         # x : [batch_size, emb_dim, seq_size]
         conved = [F.relu(conv(x)) for conv in self.convs]
         # conved : [ [batch_size, num_filters, *], [batch_size, num_filters, *], [batch_size, num_filters, *] ]
-        pooled = [F.max_pool1d(conv, int(conv.size(2))).squeeze(2) for conv in conved]
+        # for ONNX conversion, do not use F.max_pool1d(),
+        pooled = [torch.max(cv, dim=2)[0] for cv in conved]
         # pooled : [ [batch_size, num_filters], [batch_size, num_filters], [batch_size, num_filters] ]
         cat = torch.cat(pooled, dim = 1)
         # cat : [batch_size, len(kernel_sizes) * num_filters]

@@ -302,7 +302,7 @@ def evaluate(opt):
             if opt.num_examples != 0 and total_examples >= opt.num_examples:
                 logger.info("[Stop Evaluation] : up to the {} examples".format(total_examples))
                 break
-            duration_time = int((time.time()-start_time)*1000)
+            duration_time = float((time.time()-start_time)*1000)
             if i != 0: total_duration_time += duration_time
             '''
             logger.info("[Elapsed Time] : {}ms".format(duration_time))
