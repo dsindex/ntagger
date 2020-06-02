@@ -252,7 +252,7 @@ def preprocess_glove_or_elmo(config):
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
     poss, chars, labels = build_dict(path, config)
 
-    tokenizer = Tokenizer(vocab, config, chars=chars)
+    tokenizer = Tokenizer(vocab, config)
 
     # build data
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
@@ -282,9 +282,6 @@ def preprocess_glove_or_elmo(config):
 
     path = os.path.join(opt.data_dir, _POS_FILE)
     write_dict(poss, path)
-
-    path = os.path.join(opt.data_dir, _CHAR_FILE)
-    write_dict(chars, path)
 
     path = os.path.join(opt.data_dir, _LABEL_FILE)
     write_dict(labels, path)
