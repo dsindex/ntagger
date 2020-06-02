@@ -258,23 +258,20 @@ def evaluate(opt):
             if opt.enable_ort:
                 x = to_numpy(x)
                 if config['emb_class'] == 'glove':
+                    ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                                  ort_session.get_inputs()[1].name: x[1]}
                     if opt.use_char_cnn:
-                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
-                                      ort_session.get_inputs()[1].name: x[1],
-                                      ort_session.get_inputs()[2].name: x[2]}
-                    else:
-                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
-                                      ort_session.get_inputs()[1].name: x[1]}
+                        ort_inputs[ort_session.get_inputs()[2].name] = x[2]
                 if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
                     if config['emb_class'] in ['distilbert', 'bart']:
                         ort_inputs = {ort_session.get_inputs()[0].name: x[0],
-                                      ort_session.get_inputs()[1].name: x[1],
-                                      ort_session.get_inputs()[3].name: x[3]}
+                                      ort_session.get_inputs()[1].name: x[1]}
                     else:
                         ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                                       ort_session.get_inputs()[1].name: x[1],
-                                      ort_session.get_inputs()[2].name: x[2],
-                                      ort_session.get_inputs()[3].name: x[3]}
+                                      ort_session.get_inputs()[2].name: x[2]}
+                    if opt.bert_use_pos:
+                        ort_inputs[ort_session.get_inputs()[3].name] = x[3]
                 if opt.use_crf:
                     logits, prediction = ort_session.run(None, ort_inputs)
                     prediction = to_device(torch.tensor(prediction), opt.device)
@@ -297,7 +294,7 @@ def evaluate(opt):
             cur_examples = y.size(0)
             total_examples += cur_examples
             if i == 0: # first one may take longer time, so ignore in computing duration.
-                first_time = int((time.time()-first_time)*1000)
+                first_time = float((time.time()-first_time)*1000)
                 first_examples = cur_examples
             if opt.num_examples != 0 and total_examples >= opt.num_examples:
                 logger.info("[Stop Evaluation] : up to the {} examples".format(total_examples))
@@ -307,7 +304,7 @@ def evaluate(opt):
             '''
             logger.info("[Elapsed Time] : {}ms".format(duration_time))
             '''
-    whole_time = int((time.time()-whole_st_time)*1000)
+    whole_time = float((time.time()-whole_st_time)*1000)
     avg_time = (whole_time - first_time) / (total_examples - first_examples)
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
