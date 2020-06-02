@@ -1646,3 +1646,4 @@ token_eval micro F1: 0.8926606215608773
   - [ScalarMix](https://github.com/allenai/allennlp/blob/master/allennlp/modules/scalar_mix.py)
 - [Poor Man’s BERT: Smaller and Faster Transformer Models](https://arxiv.org/pdf/2004.03844v1.pdf)
   - https://github.com/hsajjad/transformers/blob/master/examples/run_glue.py
+- [(pytorch) advanced_tutorial](https://tutorials.pytorch.kr/beginner/nlp/advanced_tutorial.html)

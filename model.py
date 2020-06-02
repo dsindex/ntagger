@@ -491,7 +491,7 @@ class BertLSTMCRF(BaseModel):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def __compute_bert_embedding(self, x):
+    def _compute_bert_embedding(self, x):
         if self.bert_feature_based:
             # feature-based
             with torch.no_grad():
@@ -568,7 +568,7 @@ class BertLSTMCRF(BaseModel):
         # lengths : [batch_size]
 
         # 1. Embedding
-        bert_embed_out = self.__compute_bert_embedding(x)
+        bert_embed_out = self._compute_bert_embedding(x)
         # bert_embed_out : [batch_size, seq_size, *]
         pos_ids = x[3]
         pos_embed_out = self.embed_pos(pos_ids)
