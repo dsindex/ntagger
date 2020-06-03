@@ -1321,15 +1321,15 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 823656ms, 91.51561284587176ms on a
 INFO:__main__:[Elapsed Time] : 100 examples, 1592ms, 14.97979797979798ms on average
 accuracy:  93.18%; precision:  83.50%; recall:  83.43%; FB1:  83.46
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-2m.1869k
-INFO:__main__:[F1] : 0.8283758262511804, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 868607ms, 96.51072341371264ms on average
-accuracy:  92.92%; precision:  82.00%; recall:  83.51%; FB1:  82.75
-
 *** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30 , 512-2m.2000k
 INFO:__main__:[F1] : 0.8286008583690987, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 912016ms, 101.3329258806534ms on average
 accuracy:  92.93%; precision:  83.50%; recall:  82.05%; FB1:  82.77
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=1 --lr=8e-5 --epoch=30 --batch_size=64 , 3k-512-1m.560k
+INFO:__main__:[F1] : 0.7969718297770072, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 808555.4373264313ms, 89.83816755044485ms on average
+accuracy:  91.56%; precision:  80.28%; recall:  78.92%; FB1:  79.60
 
 ```
 

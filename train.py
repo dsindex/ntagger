@@ -92,7 +92,10 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             loss = loss / opt.gradient_accumulation_steps
         if opt.use_amp:
             with amp.scale_loss(loss, optimizer) as scaled_loss:
-                scaled_loss.backward()
+                try:
+                    scaled_loss.backward()
+                except Exception as e:
+                    print(e)
         else:
             loss.backward()
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
