@@ -213,11 +213,12 @@ $ python to-conll.py -g t > valid.txt
 
 ##### Korean GloVe, BERT, ELECTRA, ELMo
 
-- [GloVe, BERT, ELECTRA description](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+- [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - glove : `kor.glove.300k.300d.txt`   (inhouse)  
   - bpe bert : `pytorch.all.bpe.4.8m_step` (inhouse)
   - dha-bpe bert : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
   - dha bert : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
+  - distil bpe bert : `kor-distil-bpe-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-discriminator`
   - bpe electra : `kor-electra-base-bpe-512-2m` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
@@ -796,6 +797,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                              | F1 (%)      | Features | GPU / CPU      | CONDA    | Dynamic   | Etc           |
 | ---------------------------- | ------------| -------- | -------------- | -------- | --------- | ------------- |    
+| bpe DistilBERT(4.8m)         | -           | eoj      | -       / -    |          |           | update2       |
 | bpe BERT(4.8m), BiLSTM-CRF   | 86.11       | eoj      | 53.1818 / -    |          |           | update/packed |
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
@@ -1055,6 +1057,10 @@ INFO:__main__:[F1] : 0.8722265771446098, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 952261ms, 105.80508945438382ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1714ms, 16.21212121212121ms on average
 accuracy:  94.63%; precision:  87.25%; recall:  87.01%; FB1:  87.13
+
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+
+
 
 * for clova2019_morph
 
@@ -1326,10 +1332,12 @@ INFO:__main__:[F1] : 0.8286008583690987, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 912016ms, 101.3329258806534ms on average
 accuracy:  92.93%; precision:  83.50%; recall:  82.05%; FB1:  82.77
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=1 --lr=8e-5 --epoch=30 --batch_size=64 , 3k-512-1m.560k
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=1 --lr=8e-5 --epoch=30 --batch_size=64 , 30k-512-1m.560k
 INFO:__main__:[F1] : 0.7969718297770072, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 808555.4373264313ms, 89.83816755044485ms on average
 accuracy:  91.56%; precision:  80.28%; recall:  78.92%; FB1:  79.60
+
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=1 --lr=8e-5 --epoch=30 --batch_size=64 , 30k-512-1m.946k
 
 ```
 
