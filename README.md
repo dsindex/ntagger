@@ -803,7 +803,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
 | bpe DistilBERT(4.8m)         | -           | eoj      | -       / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(512.2m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
+| bpe ELECTRA-base(512-2m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1284,7 +1284,7 @@ $ python preprocess.py --config=configs/config-electra.json --data_dir data/clov
 $ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
 
-** bpe ELECTRA-base(512.1m)
+** bpe ELECTRA-base(512.1m, 30k-512-1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-2m
 $ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-512-2m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm 
 
@@ -1316,7 +1316,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1597ms, 15.16161616161616ms on aver
 accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 
 
-** bpe ELECTRA-base(512.2m)
+** bpe ELECTRA-base(512-2m, 30k-512-1m)
 
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
