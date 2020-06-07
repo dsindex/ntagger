@@ -797,11 +797,11 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                              | F1 (%)      | Features | GPU / CPU      | CONDA    | Dynamic   | Etc           |
 | ---------------------------- | ------------| -------- | -------------- | -------- | --------- | ------------- |    
-| bpe DistilBERT(4.8m)         | -           | eoj      | -       / -    |          |           | update2       |
 | bpe BERT(4.8m), BiLSTM-CRF   | 86.11       | eoj      | 53.1818 / -    |          |           | update/packed |
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
+| bpe DistilBERT(4.8m)         | -           | eoj      | -       / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
 | bpe ELECTRA-base(512.2m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
 
