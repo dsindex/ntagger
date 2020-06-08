@@ -801,7 +801,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
-| bpe DistilBERT(4.8m)         | -           | eoj      | -       / -    |          |           | update2       |
+| bpe DistilBERT(4.8m)         | 83.83       | eoj      | 9.5047  / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
 | bpe ELECTRA-base(512-2m)     | 83.46       | eoj      | 14.9797 / -    |          |           | update2       |
 
@@ -1059,7 +1059,10 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1714ms, 16.21212121212121ms on aver
 accuracy:  94.63%; precision:  87.25%; recall:  87.01%; FB1:  87.13
 
 ** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
-
+INFO:__main__:[F1] : 0.839234645240365, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 779697.2103118896ms, 86.63209823386273ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1032.3333740234375ms, 9.504722826408617ms on average
+accuracy:  93.42%; precision:  83.86%; recall:  83.81%; FB1:  83.83
 
 
 * for clova2019_morph
