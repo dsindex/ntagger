@@ -220,7 +220,7 @@ $ python to-conll.py -g t > valid.txt
   - dha bert : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
   - distil bpe bert : `kor-distil-bpe-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-discriminator`
-  - bpe electra : `kor-electra-base-bpe-512-2m` (inhouse)
+  - bpe electra : `kor-electra-base-bpe-512-2m`, `kor-electra-bpe-30k-512-1m` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
@@ -1270,7 +1270,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(512.2m) </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(512-2m, 30k-512-1m) </b></summary>
 <p>
 
 - train
