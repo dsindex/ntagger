@@ -1341,6 +1341,9 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 808555.4373264313ms, 89.8381675504
 accuracy:  91.56%; precision:  80.28%; recall:  78.92%; FB1:  79.60
 
 *** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=1 --lr=8e-5 --epoch=30 --batch_size=64 , 30k-512-1m.946k
+INFO:__main__:[F1] : 0.8271634451198688, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 809816.9622421265ms, 89.97852916995186ms on average
+accuracy:  92.91%; precision:  82.88%; recall:  82.35%; FB1:  82.61
 
 ```
 
