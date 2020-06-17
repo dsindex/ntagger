@@ -3,7 +3,7 @@
 **reference pytorch code for named entity tagging.**
 
 - embedding
-  - word : Glove, BERT, DistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
+  - word : GloVe, BERT, DistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
   - character : CNN
   - pos : lookup
 - encoding
@@ -25,7 +25,7 @@
 
 - pretrained embedding
   - glove
-    - [download Glove6B](http://nlp.stanford.edu/data/glove.6B.zip) and unzip to 'embeddings' dir
+    - [download GloVe6B](http://nlp.stanford.edu/data/glove.6B.zip) and unzip to 'embeddings' dir
     ```
     $ mkdir embeddings
     $ ls embeddings
@@ -234,11 +234,11 @@ $ python to-conll.py -g t > valid.txt
 
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | -----------  | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
-| Glove, BiLSTM                   | 88.23        | word, pos            | 5.6217  / -        | 7.3838   | 3.6969    |           | threads=14, update2/packed |
-| Glove, BiLSTM                   | 88.94        | word, character, pos | 6.4108  / -        | 9.5858   | 8.5656    |           | threads=14, update2/packed |
-| **Glove, BiLSTM-CRF**           | 90.14        | word, character, pos | 26.2807 / -        | 21.7474  |           |           | threads=14, update/packed |
-| Glove, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / -        | 22.5858  |           |           | threads=14, update        |
-| Glove, DenseNet-CRF             | 88.89        | word, character, pos | 28.0993 / -        | 25.2929  |           |           | threads=14  update        |
+| GloVe, BiLSTM                   | 88.23        | word, pos            | 5.6217  / -        | 7.3838   | 3.6969    |           | threads=14, update2/packed |
+| GloVe, BiLSTM                   | 88.94        | word, character, pos | 6.4108  / -        | 9.5858   | 8.5656    |           | threads=14, update2/packed |
+| **GloVe, BiLSTM-CRF**           | 90.14        | word, character, pos | 26.2807 / -        | 21.7474  |           |           | threads=14, update/packed |
+| GloVe, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / -        | 22.5858  |           |           | threads=14, update        |
+| GloVe, DenseNet-CRF             | 88.89        | word, character, pos | 28.0993 / -        | 25.2929  |           |           | threads=14  update        |
 | BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |          |           |           |                           |
 | BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |          |           |           |                           |
 | BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |          |           |           |                           |
@@ -274,8 +274,8 @@ $ python to-conll.py -g t > valid.txt
 | ELECTRA-large                   | 91.39        | word                 | 29.5734 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.78        | word, pos            | 74.1001 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93        | word, character, pos | 67.6931 / -        |          |           |           |                           |
-| ELMo, Glove, BiLSTM-CRF         | **92.63**    | word, pos            | 74.6521 / -        |          |           |           | update/packed             |
-| ELMo, Glove, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595  |           |           | threads=14, update/packed |
+| ELMo, GloVe, BiLSTM-CRF         | **92.63**    | word, pos            | 74.6521 / -        |          |           |           | update/packed             |
+| ELMo, GloVe, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595  |           |           | threads=14, update/packed |
 
 ```
 * GPU / CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0), [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
@@ -289,18 +289,18 @@ $ python to-conll.py -g t > valid.txt
 
 |                                     | F1 (%)            | Features                     | GPU / CPU        | Etc                               |
 | ----------------------------------- | ----------------  | ---------------------------- | ---------------- | --------------------------------- |
-| Glove, BiLSTM-CRF                   | 87.91             | word                         | - / -            |                                   |
-| Glove, BiLSTM-CRF                   | 89.20             | word, pos                    | 14.9682 / 5.0336 | LSTMBlockFusedCell(), threads=14  |
-| Glove, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
-| Glove, BiLSTM-CRF                   | 90.57             | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14            |
-| Glove, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |                                   |
+| GloVe, BiLSTM-CRF                   | 87.91             | word                         | - / -            |                                   |
+| GloVe, BiLSTM-CRF                   | 89.20             | word, pos                    | 14.9682 / 5.0336 | LSTMBlockFusedCell(), threads=14  |
+| GloVe, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
+| GloVe, BiLSTM-CRF                   | 90.57             | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14            |
+| GloVe, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |                                   |
 | BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based             |
-| BERT-large, Glove, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based             |
-| ELMo, Glove, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |                                   |
-| ELMo, Glove, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
-| ELMo, Glove, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |                                   |
-| ELMo, Glove, BiLSTM-CRF             | **92.83**         | word, character, pos, chunk  | - / -            | Glove-100d                        |
-| BERT-large, ELMo, Glove, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, Glove-100d |
+| BERT-large, GloVe, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based             |
+| ELMo, GloVe, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |                                   |
+| ELMo, GloVe, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
+| ELMo, GloVe, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |                                   |
+| ELMo, GloVe, BiLSTM-CRF             | **92.83**         | word, character, pos, chunk  | - / -            | GloVe-100d                        |
+| BERT-large, ELMo, GloVe, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, GloVe-100d |
 
 - [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same result by conlleval? Unknown!)
 
@@ -848,10 +848,10 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ------------- | -------------- | --------------------- | ----------- | ------------- |  
-| Glove, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |               |
-| **Glove, BiLSTM-CRF**          | 85.82         | 85.82          | morph, character, pos | 25.9623 / - | update2/packed |
-| Glove, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
-| Glove, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
+| GloVe, BiLSTM-CRF              | 84.29         | 84.29          | morph, pos            | 30.0968 / - |               |
+| **GloVe, BiLSTM-CRF**          | 85.82         | 85.82          | morph, character, pos | 25.9623 / - | update2/packed |
+| GloVe, DenseNet-CRF            | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
+| GloVe, DenseNet-CRF            | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 84.95         | 85.25          | morph, pos            | 42.1063 / - | update/packed |
 | dha BERT(2.5m), BiLSTM         | 84.51         | 85.55          | morph, pos            | 18.9292 / - | update2/packed |
 | dha BERT(2.5m), CRF            | 82.94         | 84.99          | morph, pos            | 46.2323 / - | update        |
@@ -861,16 +861,16 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | 86.62         | **86.63**      | morph, character, pos | 105.739 / - | update/packed |
+| ELMo, GloVe, BiLSTM-CRF        | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
+| ELMo, GloVe, BiLSTM-CRF        | 86.62         | **86.63**      | morph, character, pos | 105.739 / - | update/packed |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
 |                              | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | Etc        |
 | ---------------------------- | ------------- | -------------- | ----------------------| ---------- |
-| Glove, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |            |
+| GloVe, BiLSTM-CRF            | 85.51         | 85.51          | morph, character, pos |            |
 | dha BERT(2.5m), BiLSTM-CRF   | 81.25         | 81.39          | morph, pos            | BERT as feature-based |
-| ELMo, Glove, BiLSTM-CRF      | 86.75         | **86.75**          | morph, character, pos |            |
+| ELMo, GloVe, BiLSTM-CRF      | 86.75         | **86.75**          | morph, character, pos |            |
 
 #### clova2019_morph_space(morph-based + space as token)
 
@@ -878,9 +878,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                                | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ------------- | -------------- | --------------------- | ----------- | ------------- |  
-| Glove, BiLSTM-CRF              | 85.59         | 85.72          | morph, character, pos | 29.0723 / - | update/packed |
+| GloVe, BiLSTM-CRF              | 85.59         | 85.72          | morph, character, pos | 29.0723 / - | update/packed |
 | dha BERT(2.5m), BiLSTM-CRF     | 85.17         | 85.61          | morph, pos            | 43.7969 / - | update/packed |
-| ELMo, Glove, BiLSTM-CRF        | 85.95         | 86.06          | morph, character, pos | 113.177 / - | update/packed |
+| ELMo, GloVe, BiLSTM-CRF        | 85.95         | 86.06          | morph, character, pos | 113.177 / - | update/packed |
 
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
@@ -1280,7 +1280,6 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-discriminator
 $ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
-
 ** bpe ELECTRA-base(30k-512-1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
 $ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm 
@@ -1318,11 +1317,9 @@ accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=1 --lr=8e-5 --epoch=30 --batch_size=64 , 30k-512-1m.946k
-INFO:__main__:[F1] : 0.8271634451198688, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 809816.9622421265ms, 89.97852916995186ms on average
-INFO:__main__:[Elapsed Time] : 100 examples, 1700.1821994781494ms, 16.147117422084616ms on average
-accuracy:  92.91%; precision:  82.88%; recall:  82.35%; FB1:  82.61
+*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+
+
 
 ```
 
@@ -1339,10 +1336,10 @@ accuracy:  92.91%; precision:  82.88%; recall:  82.35%; FB1:  82.61
 
 |                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
-| Glove, BiLSTM-CRF              | 85.26 / 86.54          | morph, pos            | 23.0755 / - | update/packed |
-| **Glove, BiLSTM-CRF**          | 85.93 / 86.41          | morph, character, pos | 27.7451 / - | update/packed |
-| Glove, DenseNet-CRF            | 85.30 / 86.89          | morph, pos            | 24.0280 / - | update        |
-| Glove, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - | update        |
+| GloVe, BiLSTM-CRF              | 85.26 / 86.54          | morph, pos            | 23.0755 / - | update/packed |
+| **GloVe, BiLSTM-CRF**          | 85.93 / 86.41          | morph, character, pos | 27.7451 / - | update/packed |
+| GloVe, DenseNet-CRF            | 85.30 / 86.89          | morph, pos            | 24.0280 / - | update        |
+| GloVe, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - | update        |
 | dha BERT(2.5m), BiLSTM-CRF     | 87.56 / 90.47          | morph, pos            | 40.0766 / - | update/packed |
 | dha BERT(2.5m), BiLSTM         | 88.00 / 90.24          | morph, pos            | 23.0388 / - | update/packed |
 | dha BERT(2.5m), CRF            | **88.46** / 90.56      | morph, pos            | 34.1522 / - | update        |
@@ -1352,14 +1349,14 @@ accuracy:  92.91%; precision:  82.88%; recall:  82.35%; FB1:  82.61
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
-| ELMo, Glove, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | update/packed |
-| ELMo, Glove, BiLSTM-CRF        | 88.00 / 89.20          | morph, character, pos | 116.965 / - | update/packed |
+| ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | update/packed |
+| ELMo, GloVe, BiLSTM-CRF        | 88.00 / 89.20          | morph, character, pos | 116.965 / - | update/packed |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
 |                              | span / token F1 (%) | Features              |
 | ---------------------------- | ------------------- | --------------------- |
-| ELMo, Glove, BiLSTM-CRF      | **89.09** / 89.90   | morph, character, pos |
+| ELMo, GloVe, BiLSTM-CRF      | **89.09** / 89.90   | morph, character, pos |
 
 - [Pytorch-BERT-CRF-NER](https://github.com/eagle705/pytorch-bert-crf-ner), measured by sklearn.metrics (token-level F1)
 
