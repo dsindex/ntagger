@@ -365,7 +365,6 @@ def train(opt):
     early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
     local_worse_steps = 0
     prev_eval_f1 = -float('inf')
-    best_eval_loss = float('inf')
     best_eval_f1 = -float('inf')
     for epoch_i in range(opt.epoch):
         epoch_st_time = time.time()
