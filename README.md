@@ -801,9 +801,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | update/packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           | update        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           | update2       |
-| bpe DistilBERT(4.8m)         | 85.12       | eoj      | 9.3173  / -    |          |           | update2       |
+| bpe DistilBERT(4.8m)         | 85.30       | eoj      | 9.0702  / -    |          |           | update2       |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           | update2       |
-| bpe ELECTRA-base(30k-512-1m) | 82.61       | eoj      | 16.1471 / -    |          |           | update2       |
+| bpe ELECTRA-base(30k-512-1m) | 83.09       | eoj      | 15.8618 / -    |          |           | update2       |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1058,6 +1058,12 @@ INFO:__main__:[F1] : 0.852160598843144, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 820104.8340797424ms, 91.12164719606297ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1019.8376178741455ms, 9.317352314188023ms on average
 accuracy:  93.87%; precision:  85.10%; recall:  85.15%; FB1:  85.12
+
+INFO:__main__:[F1] : 0.85393906493859, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 816257.2820186615ms, 90.68703071211878ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 988.6960983276367ms, 9.070220619741113ms on average
+accuracy:  93.97%; precision:  85.03%; recall:  85.57%; FB1:  85.30
+
 
 * for clova2019_morph
 
@@ -1318,8 +1324,10 @@ $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-m
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 *** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
-
-
+INFO:__main__:[F1] : 0.8319372174358101, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 900059.1132640839ms, 100.0054818893197ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1674.2236614227295ms, 15.86188692035097ms on average
+accuracy:  93.08%; precision:  83.28%; recall:  82.90%; FB1:  83.09
 
 ```
 
