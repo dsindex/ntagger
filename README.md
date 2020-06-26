@@ -52,6 +52,22 @@
   
 ##### data/conll2003
 
+##### data/conll2003_truecase
+
+- [converting conll2003 data to its truecase](https://github.com/google-research/bert/issues/223#issuecomment-649619302) except test data.
+<details><summary>details</summary>
+<p>
+
+```
+$ cd data/conll2003_truecase
+$ python to-truecase.py --input_path ../conll2003/train.txt > train.txt
+$ python to-truecase.py --input_path ../conll2003/valid.txt > valid.txt
+$ cp -rf ../conll2003/test.txt test.txt
+```
+
+</p>
+</details>
+
 ### Naver NER 2019 (Korean)
 
 #### from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
@@ -322,9 +338,9 @@ $ python to-conll.py -g t > valid.txt
 - train
 ```
 * token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
-$ python preprocess.py
+$ python preprocess.py --data_dir=data/conll2003
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --use_crf
+$ python train.py --data_dir=data/conll2003 --use_crf
 
 * tensorboardX
 $ rm -rf runs
@@ -333,7 +349,7 @@ $ tensorboard --logdir runs/ --port ${port} --bind_all
 
 - evaluation
 ```
-$ python evaluate.py --use_crf
+$ python evaluate.py --data_dir=data/conll2003 --use_crf
 * seqeval.metrics supports IOB2(BIO) format, so FB1 from conlleval.pl should be similar value with.
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
@@ -364,14 +380,14 @@ accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
 - train
 ```
 * token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
-$ python preprocess.py --config=configs/config-densenet.json
+$ python preprocess.py --config=configs/config-densenet.json --data_dir=data/conll2003
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=configs/config-densenet.json --save_path=pytorch-model-densenet.pt --use_crf --warmup_epoch=13 --lr_decay_rate=0.8 --epoch=64
+$ python train.py --config=configs/config-densenet.json --data_dir=data/conll2003 --save_path=pytorch-model-densenet.pt --use_crf --warmup_epoch=13 --lr_decay_rate=0.8 --epoch=64
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-densenet.json --model_path=pytorch-model-densenet.pt --use_crf
+$ python evaluate.py --config=configs/config-densenet.json --data_dir=data/conll2003 --model_path=pytorch-model-densenet.pt --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8823112371499469, 3684
@@ -403,17 +419,17 @@ accuracy:  97.75%; precision:  89.17%; recall:  88.62%; FB1:  88.89
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-bert.json --bert_model_name_or_path=./embeddings/bert-large-cased
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-large-cased
 * --use_crf for adding crf layer
 * --bert_use_pos for adding Part-Of-Speech features
 * --bert_use_feature_based for feature-based
 * --bert_disable_lstm for removing lstm layer
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=1e-5 --epoch=10
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9131544214694237, 3684
@@ -588,13 +604,13 @@ accuracy:  97.80%; precision:  88.11%; recall:  90.12%; FB1:  89.10
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-albert.json --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_do_lower_case
-$ python train.py --config=configs/config-albert.json --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --lr_decay_rate=0.9 --bert_do_lower_case
+$ python preprocess.py --config=configs/config-albert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_do_lower_case
+$ python train.py --config=configs/config-albert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --lr_decay_rate=0.9 --bert_do_lower_case
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-albert.json --model_path=pytorch-model-albert.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-albert
+$ python evaluate.py --config=configs/config-albert.json --data_dir=data/conll2003 --model_path=pytorch-model-albert.pt --bert_output_dir=bert-checkpoint-albert
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8821014050091632, 3684
@@ -618,13 +634,13 @@ accuracy:  98.06%; precision:  89.51%; recall:  91.29%; FB1:  90.39
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-roberta.json --bert_model_name_or_path=./embeddings/roberta-large
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10
+$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/roberta-large
+$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=16 --lr=1e-5 --epoch=10
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-roberta.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-roberta
+$ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9119915848527349, 3684
@@ -667,13 +683,13 @@ INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-bart.json --bert_model_name_or_path=./embeddings/bart-large
-$ python train.py --config=configs/config-bart.json --save_path=pytorch-model-bart.pt --bert_model_name_or_path=./embeddings/bart-large --bert_output_dir=bert-checkpoint-bart --batch_size=32 --lr=1e-5 --epoch=10
+$ python preprocess.py --config=configs/config-bart.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bart-large
+$ python train.py --config=configs/config-bart.json --data_dir=data/conll2003 --save_path=pytorch-model-bart.pt --bert_model_name_or_path=./embeddings/bart-large --bert_output_dir=bert-checkpoint-bart --batch_size=32 --lr=1e-5 --epoch=10
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-bart.json --model_path=pytorch-model-bart.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-bart
+$ python evaluate.py --config=configs/config-bart.json --data_dir=data/conll2003 --model_path=pytorch-model-bart.pt --bert_output_dir=bert-checkpoint-bart
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9042961928047503, 3684
@@ -692,13 +708,13 @@ accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-electra.json --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_do_lower_case
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 --bert_do_lower_case
+$ python preprocess.py --config=configs/config-electra.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_do_lower_case
+$ python train.py --config=configs/config-electra.json --data_dir=data/conll2003 --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 --bert_do_lower_case
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-electra.pt --data_dir=data/conll2003 --bert_output_dir=bert-checkpoint-electra
+$ python evaluate.py --config=configs/config-electra.json --data_dir=data/conll2003 --model_path=pytorch-model-electra.pt --bert_output_dir=bert-checkpoint-electra
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9072818526019194, 3684
@@ -732,14 +748,14 @@ accuracy:  98.04%; precision:  90.16%; recall:  90.69%; FB1:  90.42
 ```
 * token_emb_dim in configs/config-elmo.json == 300 (ex, glove.6B.300d.txt )
 * elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
-$ python preprocess.py --config=configs/config-elmo.json --embedding_path=embeddings/glove.6B.300d.txt
+$ python preprocess.py --config=configs/config-elmo.json --data_dir=data/conll2003 --embedding_path=embeddings/glove.6B.300d.txt
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=configs/config-elmo.json --save_path=pytorch-model-elmo.pt --use_crf
+$ python train.py --config=configs/config-elmo.json --data_dir=data/conll2003 --save_path=pytorch-model-elmo.pt --use_crf
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-elmo.json --model_path=pytorch-model-elmo.pt --use_crf
+$ python evaluate.py --config=configs/config-elmo.json --data_dir=data/conll2003 --model_path=pytorch-model-elmo.pt --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9219494967331803, 3684
