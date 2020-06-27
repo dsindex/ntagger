@@ -265,7 +265,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-base, CRF                  | 89.98        |                   | word                 | 36.6893 / -        |          |           |           |                           |
 | BERT-base                       | 90.25        |                   | word                 | 16.6877 / -        | 96.9004  | 72.8225   | 75.3025   |                           |
 | BERT-base, BiLSTM               | 89.03        |                   | word                 | 24.9076 / -        |          |           |           | del 8,9,10,11, threads=14 |
-| BERT-large, BiLSTM              | 91.32        |                   | word                 | 40.3581 / -        |          |           |           | packed                    |
+| BERT-large, BiLSTM              | 91.32        | 91.89             | word                 | 40.3581 / -        |          |           |           | packed                    |
 | BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |          |           |           | del 12 ~ 23               |
 | BERT-large, BiLSTM              | 86.11        |                   | word                 | 49.3103 / -        |          |           |           | BERT as feature-based, initial embedding             |
 | BERT-large, BiLSTM-CRF          | 86.43        |                   | word                 | 63.1376 / -        |          |           |           | BERT as feature-based, initial embedding             |
@@ -450,9 +450,10 @@ INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 
-* --data_dir=data/conll2003_truecase --batch_size=32 --lr=2e-5 --epoch=30
-
-
+* --data_dir=data/conll2003_truecase 
+INFO:__main__:[F1] : 0.9188571428571428, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 120905.13277053833ms, 32.785276922556875ms on average
+accuracy:  98.36%; precision:  91.25%; recall:  92.53%; FB1:  91.89
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
@@ -513,6 +514,10 @@ accuracy:  98.29%; precision:  90.91%; recall:  91.70%; FB1:  91.30
 INFO:__main__:[F1] : 0.9175393822054034, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 131497ms, 35.661960358403476ms on average
 accuracy:  98.33%; precision:  91.22%; recall:  92.30%; FB1:  91.75
+
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+
+
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embeddings/spanbert_hf_base
