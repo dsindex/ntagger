@@ -278,7 +278,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-large, BiLSTM-CRF          | 90.76        |                   | word                 | 60.8039 / -        |          |           |           | BERT as feature-based, max([0:17]) embedding         |
 | BERT-large, BiLSTM-CRF          | 90.98        |                   | word                 | 58.9112 / -        |          |           |           | BERT as feature-based, mean([0:]) embedding          |
 | BERT-large, BiLSTM-CRF          | 90.62        |                   | word                 | 66.6576 / -        |          |           |           | BERT as feature-based, DSA(4, 300)                   |
-| BERT-large-squad, BiLSTM        | 91.75        |                   | word                 | 35.6619 / -        |          |           |           | packed                    |
+| BERT-large-squad, BiLSTM        | 91.75        | 92.17             | word                 | 35.6619 / -        |          |           |           | packed                    |
 | SpanBERT-base, BiLSTM           | 90.46        |                   | word                 | 30.0991 / -        |          |           |           |                           |
 | SpanBERT-large, BiLSTM          | 91.39        |                   | word                 | 42.5959 / -        |          |           |           |                           |
 | ALBERT-base, BiLSTM             | 88.19        |                   | word                 | 31.0868 / -        |          |           |           |                           |
@@ -516,8 +516,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 131497ms, 35.661960358403476ms on 
 accuracy:  98.33%; precision:  91.22%; recall:  92.30%; FB1:  91.75
 
 * --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
-
-
+INFO:__main__:[F1] : 0.9217421785995968, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 121090.73448181152ms, 32.83806317143229ms on average
+accuracy:  98.32%; precision:  91.25%; recall:  93.11%; FB1:  92.17
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embeddings/spanbert_hf_base
@@ -529,6 +530,10 @@ accuracy:  98.02%; precision:  89.57%; recall:  91.38%; FB1:  90.46
 INFO:__main__:[F1] : 0.9139340659340659, 3684
 INFO:__main__:[Elapsed Time] : 157069ms, 42.59598153679066ms on average
 accuracy:  98.23%; precision:  90.76%; recall:  92.03%; FB1:  91.39
+
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/spanbert_hf_large --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+
+
 
 * --bert_use_feature_based --epoch=64 --lr=1e-4 , modify model.py to use initial embedding
 INFO:__main__:[F1] : 0.8610818405338954, 3684
