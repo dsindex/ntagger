@@ -54,7 +54,7 @@
 
 ##### data/conll2003_truecase
 
-- [converting conll2003 data to its truecase](https://github.com/google-research/bert/issues/223#issuecomment-649619302) except test data.
+- [converting conll2003 data to its truecase](https://github.com/google-research/bert/issues/223#issuecomment-649619302)
 <details><summary>details</summary>
 <p>
 
@@ -62,7 +62,7 @@
 $ cd data/conll2003_truecase
 $ python to-truecase.py --input_path ../conll2003/train.txt > train.txt
 $ python to-truecase.py --input_path ../conll2003/valid.txt > valid.txt
-$ cp -rf ../conll2003/test.txt test.txt
+$ python to-truecase.py --input_path ../conll2003/test.txt > test.txt
 ```
 
 </p>
@@ -248,50 +248,50 @@ $ python to-conll.py -g t > valid.txt
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
-| ------------------------------- | -----------  | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
-| GloVe, BiLSTM                   | 88.23        | word, pos            | 5.6217  / -        | 7.3838   | 3.6969    |           | threads=14, packed        |
-| GloVe, BiLSTM                   | 88.94        | word, character, pos | 6.4108  / -        | 9.5858   | 8.5656    |           | threads=14, packed        |
-| **GloVe, BiLSTM-CRF**           | 90.14        | word, character, pos | 26.2807 / -        | 21.7474  |           |           | threads=14, packed        |
-| GloVe, DenseNet-CRF             | 88.23        | word, pos            | 24.7893 / -        | 22.5858  |           |           | threads=14                |
-| GloVe, DenseNet-CRF             | 88.89        | word, character, pos | 28.0993 / -        | 25.2929  |           |           | threads=14                |
-| BERT-tiny, BiLSTM               | 69.65        | word                 | 20.1376 / -        |          |           |           |                           |
-| BERT-mini, BiLSTM               | 81.55        | word                 | 21.4632 / -        |          |           |           |                           |
-| BERT-small, BiLSTM              | 86.35        | word                 | 22.6087 / -        |          |           |           |                           |
-| BERT-medium, BiLSTM             | 88.29        | word                 | 27.0486 / -        |          |           |           |                           |
-| DistilBERT, BiLSTM              | 89.50        | word                 | 13.4564 / -        | 58.9260  | 56.2819   | 47.8320   | packed                    |
-| BERT-base, BiLSTM-CRF           | 90.20        | word                 | 42.6464 / -        |          |           |           | packed                    |
-| BERT-base, BiLSTM               | 90.55        | word                 | 18.2323 / -        | 100.0505 | 79.1914   | 83.9590   | packed                    |
-| BERT-base, CRF                  | 89.98        | word                 | 36.6893 / -        |          |           |           |                           |
-| BERT-base                       | 90.25        | word                 | 16.6877 / -        | 96.9004  | 72.8225   | 75.3025   |                           |
-| BERT-base, BiLSTM               | 89.03        | word                 | 24.9076 / -        |          |           |           | del 8,9,10,11, threads=14 |
-| BERT-large, BiLSTM              | 91.32        | word                 | 40.3581 / -        |          |           |           | packed                    |
-| BERT-large, BiLSTM              | 89.10        | word                 | 33.1376 / -        |          |           |           | del 12 ~ 23               |
-| BERT-large, BiLSTM              | 86.11        | word                 | 49.3103 / -        |          |           |           | BERT as feature-based, initial embedding             |
-| BERT-large, BiLSTM-CRF          | 86.43        | word                 | 63.1376 / -        |          |           |           | BERT as feature-based, initial embedding             |
-| BERT-large, BiLSTM              | 89.72        | word                 | 47.9704 / -        |          |           |           | BERT as feature-based, initial+first+last embedding  |
-| BERT-large, BiLSTM-CRF          | 89.96        | word                 | 67.2041 / -        |          |           |           | BERT as feature-based, initial+first+last embedding  |
-| BERT-large, BiLSTM-CRF          | 89.67        | word                 | 68.7548 / -        |          |           |           | BERT as feature-based, last embedding                |
-| BERT-large, BiLSTM-CRF          | 90.64        | word                 | 63.9397 / -        |          |           |           | BERT as feature-based, [-4:] embedding               |
-| BERT-large, BiLSTM-CRF          | 90.52        | word                 | 70.8322 / -        |          |           |           | BERT as feature-based, mean([0:3] + [-4:]) embedding |
-| BERT-large, BiLSTM-CRF          | 90.81        | word                 | 68.6139 / -        |          |           |           | BERT as feature-based, mean([0:17]) embedding        |
-| BERT-large, BiLSTM-CRF          | 90.76        | word                 | 60.8039 / -        |          |           |           | BERT as feature-based, max([0:17]) embedding         |
-| BERT-large, BiLSTM-CRF          | 90.98        | word                 | 58.9112 / -        |          |           |           | BERT as feature-based, mean([0:]) embedding          |
-| BERT-large, BiLSTM-CRF          | 90.62        | word                 | 66.6576 / -        |          |           |           | BERT as feature-based, DSA(4, 300)                   |
-| BERT-large-squad, BiLSTM        | 91.75        | word                 | 35.6619 / -        |          |           |           | packed                    |
-| SpanBERT-base, BiLSTM           | 90.46        | word                 | 30.0991 / -        |          |           |           |                           |
-| SpanBERT-large, BiLSTM          | 91.39        | word                 | 42.5959 / -        |          |           |           |                           |
-| ALBERT-base, BiLSTM             | 88.19        | word                 | 31.0868 / -        |          |           |           |                           |
-| ALBERT-xxlarge, BiLSTM          | 90.39        | word                 | 107.778 / -        |          |           |           |                           |
-| RoBERTa-base, BiLSTM            | 90.03        | word                 | 19.2503 / -        |          |           |           |                           |
-| RoBERTa-large, BiLSTM           | 91.83        | word                 | 28.5525 / -        |          |           |           |                           |
-| BART-large, BiLSTM              | 90.43        | word                 | 53.3657 / -        |          |           |           |                           |
-| ELECTRA-base, BiLSTM            | 90.98        | word                 | 22.4132 / -        |          |           |           | packed                    |
-| ELECTRA-large                   | 91.39        | word                 | 29.5734 / -        |          |           |           |                           |
-| ELMo, BiLSTM-CRF                | 91.78        | word, pos            | 74.1001 / -        |          |           |           |                           |
-| ELMo, BiLSTM-CRF                | 91.93        | word, character, pos | 67.6931 / -        |          |           |           |                           |
-| ELMo, GloVe, BiLSTM-CRF         | **92.63**    | word, pos            | 74.6521 / -        |          |           |           | packed                    |
-| ELMo, GloVe, BiLSTM-CRF         | 92.03        | word, character, pos | 60.4667 / -        | 182.595  |           |           | threads=14, packed        |
+|                                 | F1 (%)       | (truecase) F1 (%) | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
+| ------------------------------- | ------------ | ----------------- | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
+| GloVe, BiLSTM                   | 88.23        |                   | word, pos            | 5.6217  / -        | 7.3838   | 3.6969    |           | threads=14, packed        |
+| GloVe, BiLSTM                   | 88.94        |                   | word, character, pos | 6.4108  / -        | 9.5858   | 8.5656    |           | threads=14, packed        |
+| **GloVe, BiLSTM-CRF**           | 90.14        | 90.26             | word, character, pos | 26.2807 / -        | 21.7474  |           |           | threads=14, packed        |
+| GloVe, DenseNet-CRF             | 88.23        |                   | word, pos            | 24.7893 / -        | 22.5858  |           |           | threads=14                |
+| GloVe, DenseNet-CRF             | 88.89        |                   | word, character, pos | 28.0993 / -        | 25.2929  |           |           | threads=14                |
+| BERT-tiny, BiLSTM               | 69.65        |                   | word                 | 20.1376 / -        |          |           |           |                           |
+| BERT-mini, BiLSTM               | 81.55        |                   | word                 | 21.4632 / -        |          |           |           |                           |
+| BERT-small, BiLSTM              | 86.35        |                   | word                 | 22.6087 / -        |          |           |           |                           |
+| BERT-medium, BiLSTM             | 88.29        |                   | word                 | 27.0486 / -        |          |           |           |                           |
+| DistilBERT, BiLSTM              | 89.50        |                   | word                 | 13.4564 / -        | 58.9260  | 56.2819   | 47.8320   | packed                    |
+| BERT-base, BiLSTM-CRF           | 90.20        |                   | word                 | 42.6464 / -        |          |           |           | packed                    |
+| BERT-base, BiLSTM               | 90.55        |                   | word                 | 18.2323 / -        | 100.0505 | 79.1914   | 83.9590   | packed                    |
+| BERT-base, CRF                  | 89.98        |                   | word                 | 36.6893 / -        |          |           |           |                           |
+| BERT-base                       | 90.25        |                   | word                 | 16.6877 / -        | 96.9004  | 72.8225   | 75.3025   |                           |
+| BERT-base, BiLSTM               | 89.03        |                   | word                 | 24.9076 / -        |          |           |           | del 8,9,10,11, threads=14 |
+| BERT-large, BiLSTM              | 91.32        |                   | word                 | 40.3581 / -        |          |           |           | packed                    |
+| BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |          |           |           | del 12 ~ 23               |
+| BERT-large, BiLSTM              | 86.11        |                   | word                 | 49.3103 / -        |          |           |           | BERT as feature-based, initial embedding             |
+| BERT-large, BiLSTM-CRF          | 86.43        |                   | word                 | 63.1376 / -        |          |           |           | BERT as feature-based, initial embedding             |
+| BERT-large, BiLSTM              | 89.72        |                   | word                 | 47.9704 / -        |          |           |           | BERT as feature-based, initial+first+last embedding  |
+| BERT-large, BiLSTM-CRF          | 89.96        |                   | word                 | 67.2041 / -        |          |           |           | BERT as feature-based, initial+first+last embedding  |
+| BERT-large, BiLSTM-CRF          | 89.67        |                   | word                 | 68.7548 / -        |          |           |           | BERT as feature-based, last embedding                |
+| BERT-large, BiLSTM-CRF          | 90.64        |                   | word                 | 63.9397 / -        |          |           |           | BERT as feature-based, [-4:] embedding               |
+| BERT-large, BiLSTM-CRF          | 90.52        |                   | word                 | 70.8322 / -        |          |           |           | BERT as feature-based, mean([0:3] + [-4:]) embedding |
+| BERT-large, BiLSTM-CRF          | 90.81        |                   | word                 | 68.6139 / -        |          |           |           | BERT as feature-based, mean([0:17]) embedding        |
+| BERT-large, BiLSTM-CRF          | 90.76        |                   | word                 | 60.8039 / -        |          |           |           | BERT as feature-based, max([0:17]) embedding         |
+| BERT-large, BiLSTM-CRF          | 90.98        |                   | word                 | 58.9112 / -        |          |           |           | BERT as feature-based, mean([0:]) embedding          |
+| BERT-large, BiLSTM-CRF          | 90.62        |                   | word                 | 66.6576 / -        |          |           |           | BERT as feature-based, DSA(4, 300)                   |
+| BERT-large-squad, BiLSTM        | 91.75        |                   | word                 | 35.6619 / -        |          |           |           | packed                    |
+| SpanBERT-base, BiLSTM           | 90.46        |                   | word                 | 30.0991 / -        |          |           |           |                           |
+| SpanBERT-large, BiLSTM          | 91.39        |                   | word                 | 42.5959 / -        |          |           |           |                           |
+| ALBERT-base, BiLSTM             | 88.19        |                   | word                 | 31.0868 / -        |          |           |           |                           |
+| ALBERT-xxlarge, BiLSTM          | 90.39        |                   | word                 | 107.778 / -        |          |           |           |                           |
+| RoBERTa-base, BiLSTM            | 90.03        |                   | word                 | 19.2503 / -        |          |           |           |                           |
+| RoBERTa-large, BiLSTM           | 91.83        |                   | word                 | 28.5525 / -        |          |           |           |                           |
+| BART-large, BiLSTM              | 90.43        |                   | word                 | 53.3657 / -        |          |           |           |                           |
+| ELECTRA-base, BiLSTM            | 90.98        |                   | word                 | 22.4132 / -        |          |           |           | packed                    |
+| ELECTRA-large                   | 91.39        |                   | word                 | 29.5734 / -        |          |           |           |                           |
+| ELMo, BiLSTM-CRF                | 91.78        |                   | word, pos            | 74.1001 / -        |          |           |           |                           |
+| ELMo, BiLSTM-CRF                | 91.93        |                   | word, character, pos | 67.6931 / -        |          |           |           |                           |
+| ELMo, GloVe, BiLSTM-CRF         | **92.63**    |                   | word, pos            | 74.6521 / -        |          |           |           | packed                    |
+| ELMo, GloVe, BiLSTM-CRF         | 92.03        |                   | word, character, pos | 60.4667 / -        | 182.595  |           |           | threads=14, packed        |
 
 ```
 * GPU / CPU : Elapsed time/example(ms), GPU / CPU(pip 1.2.0), [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
@@ -362,11 +362,10 @@ INFO:__main__:[F1] : 0.9013611454834718, 3684
 INFO:__main__:[Elapsed Time] : 96906ms, 26.280749389084985ms on average
 accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
 
-* --lr_decay_rate=0.9 , without --use_crf
-
-
-* --use_char_cnn --lr_decay_rate=0.9 , without --use_crf
-
+* --data_dir=data/conll2003_truecase --use_char_cnn --lr_decay_rate=0.9
+INFO:__main__:[F1] : 0.902609464838567, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 95198.03929328918ms, 25.81831880021024ms on average
+accuracy:  97.81%; precision:  90.19%; recall:  90.33%; FB1:  90.26
 
 ```
 
@@ -450,6 +449,10 @@ accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
 INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
+
+* --data_dir=data/conll2003_truecase --batch_size=32 --lr=2e-5 --epoch=30
+
+
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
