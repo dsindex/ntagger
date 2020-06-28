@@ -1027,7 +1027,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), dha BERT(2.5m)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT(4.8m), bpe BERT-large, dha BERT(2.5m)</b></summary>
 <p>
 
 - train
@@ -1094,6 +1094,10 @@ INFO:__main__:[F1] : 0.8722265771446098, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 952261ms, 105.80508945438382ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1714ms, 16.21212121212121ms on average
 accuracy:  94.63%; precision:  87.25%; recall:  87.01%; FB1:  87.13
+
+** --bert_model_name_or_path=./embeddings/pytorch.large.all.whitespace_bpe.7m_step --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=2e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
+
+
 
 ** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
 INFO:__main__:[F1] : 0.852160598843144, 9000
@@ -1189,7 +1193,7 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha BERT(10m)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha-bpe BERT-large, dha BERT(10m)</b></summary>
 <p>
 
 - train
@@ -1222,6 +1226,9 @@ accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
   *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
+
+*** --bert_model_name_or_path=./embeddings/pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
+
 
 ** dha
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
@@ -1397,7 +1404,7 @@ accuracy:  93.08%; precision:  83.28%; recall:  82.90%; FB1:  83.09
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
-| dha-bpe BERT-large, BiLSTM-CRF | -     / -              | morph, pos            | -       / - |               |
+| dha-bpe BERT-large, CRF        | -     / -              | morph, pos            | -       / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | packed        |
@@ -1571,7 +1578,7 @@ token_eval micro F1: 0.8735865242143024
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(4m), dha-bpe BERT-large</b></summary>
 <p>
 
 - train
@@ -1593,6 +1600,10 @@ INFO:__main__:[F1] : 0.8517251211861989, 927
 INFO:__main__:[Elapsed Time] : 36267ms, 39.018358531317496ms on average
 accuracy:  97.14%; precision:  82.79%; recall:  87.72%; FB1:  85.18
 token_eval micro F1: 0.8801729462631254
+
+* --bert_model_name_or_path=./embeddings/pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step --bert_disable_lstm --lr_decay_rate=0.9 --lr=1e-5 
+
+
 
 ```
 
