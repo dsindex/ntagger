@@ -280,11 +280,11 @@ $ python to-conll.py -g t > valid.txt
 | BERT-large, BiLSTM-CRF          | 90.62        |                   | word                 | 66.6576 / -        |          |           |           | BERT as feature-based, DSA(4, 300)                   |
 | BERT-large-squad, BiLSTM        | 91.75        | 92.17             | word                 | 35.6619 / -        |          |           |           | packed                    |
 | SpanBERT-base, BiLSTM           | 90.46        |                   | word                 | 30.0991 / -        |          |           |           |                           |
-| SpanBERT-large, BiLSTM          | 91.39        |                   | word                 | 42.5959 / -        |          |           |           |                           |
+| SpanBERT-large, BiLSTM          | 91.39        | 92.01             | word                 | 42.5959 / -        |          |           |           |                           |
 | ALBERT-base, BiLSTM             | 88.19        |                   | word                 | 31.0868 / -        |          |           |           |                           |
 | ALBERT-xxlarge, BiLSTM          | 90.39        |                   | word                 | 107.778 / -        |          |           |           |                           |
-| RoBERTa-base, BiLSTM            | 90.03        |                   | word                 | 19.2503 / -        |          |           |           |                           |
-| RoBERTa-large, BiLSTM           | 91.83        |                   | word                 | 28.5525 / -        |          |           |           |                           |
+| RoBERTa-base                    | 90.03        |                   | word                 | 19.2503 / -        |          |           |           |                           |
+| RoBERTa-large                   | 91.83        | 91.90             | word                 | 28.5525 / -        |          |           |           |                           |
 | BART-large, BiLSTM              | 90.43        |                   | word                 | 53.3657 / -        |          |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98        |                   | word                 | 22.4132 / -        |          |           |           | packed                    |
 | ELECTRA-large                   | 91.39        |                   | word                 | 29.5734 / -        |          |           |           |                           |
@@ -303,20 +303,20 @@ $ python to-conll.py -g t > valid.txt
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
-|                                     | F1 (%)            | Features                     | GPU / CPU        | Etc                               |
-| ----------------------------------- | ----------------  | ---------------------------- | ---------------- | --------------------------------- |
-| GloVe, BiLSTM-CRF                   | 87.91             | word                         | - / -            |                                   |
-| GloVe, BiLSTM-CRF                   | 89.20             | word, pos                    | 14.9682 / 5.0336 | LSTMBlockFusedCell(), threads=14  |
-| GloVe, BiLSTM-CRF                   | 90.06             | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
-| GloVe, BiLSTM-CRF                   | 90.57             | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14            |
-| GloVe, BiLSTM-CRF                   | 90.85             | word, character, pos, chunk  | - / -            |                                   |
-| BERT-large, BiLSTM-CRF              | 90.22             | word                         | - / -            | BERT as feature-based             |
-| BERT-large, GloVe, BiLSTM-CRF       | 91.83             | word                         | - / -            | BERT as feature-based             |
-| ELMo, GloVe, BiLSTM-CRF             | 91.78             | word, pos                    | - / -            |                                   |
-| ELMo, GloVe, BiLSTM-CRF             | 92.38             | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
-| ELMo, GloVe, BiLSTM-CRF             | 92.43             | word, character, pos, chunk  | - / -            |                                   |
-| ELMo, GloVe, BiLSTM-CRF             | **92.83**         | word, character, pos, chunk  | - / -            | GloVe-100d                        |
-| BERT-large, ELMo, GloVe, BiLSTM-CRF | 92.54             | word, character, pos         | - / -            | BERT as feature-based, GloVe-100d |
+|                                     | F1 (%)            | (truecase) F1 (%) | Features                     | GPU / CPU        | Etc                               |
+| ----------------------------------- | ----------------- | ----------------- | ---------------------------- | ---------------- | --------------------------------- |
+| GloVe, BiLSTM-CRF                   | 87.91             |                   | word                         | - / -            |                                   |
+| GloVe, BiLSTM-CRF                   | 89.20             |                   | word, pos                    | 14.9682 / 5.0336 | LSTMBlockFusedCell(), threads=14  |
+| GloVe, BiLSTM-CRF                   | 90.06             |                   | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
+| GloVe, BiLSTM-CRF                   | 90.57             |                   | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14            |
+| GloVe, BiLSTM-CRF                   | 90.85             |                   | word, character, pos, chunk  | - / -            |                                   |
+| BERT-large, BiLSTM-CRF              | 90.22             |                   | word                         | - / -            | BERT as feature-based             |
+| BERT-large, GloVe, BiLSTM-CRF       | 91.83             |                   | word                         | - / -            | BERT as feature-based             |
+| ELMo, GloVe, BiLSTM-CRF             | 91.78             |                   | word, pos                    | - / -            |                                   |
+| ELMo, GloVe, BiLSTM-CRF             | 92.38             |                   | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
+| ELMo, GloVe, BiLSTM-CRF             | 92.43             |                   | word, character, pos, chunk  | - / -            |                                   |
+| ELMo, GloVe, BiLSTM-CRF             | **92.83**         |                   | word, character, pos, chunk  | - / -            | GloVe-100d                        |
+| BERT-large, ELMo, GloVe, BiLSTM-CRF | 92.54             |                   | word, character, pos         | - / -            | BERT as feature-based, GloVe-100d |
 
 - [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same result by conlleval? Unknown!)
 
@@ -532,8 +532,9 @@ INFO:__main__:[Elapsed Time] : 157069ms, 42.59598153679066ms on average
 accuracy:  98.23%; precision:  90.76%; recall:  92.03%; FB1:  91.39
 
 * --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/spanbert_hf_large --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
-
-
+INFO:__main__:[F1] : 0.9201266713581985, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 116231.20188713074ms, 31.509835921387747ms on average
+accuracy:  98.35%; precision:  91.43%; recall:  92.60%; FB1:  92.01
 
 * --bert_use_feature_based --epoch=64 --lr=1e-4 , modify model.py to use initial embedding
 INFO:__main__:[F1] : 0.8610818405338954, 3684
@@ -680,6 +681,11 @@ INFO:__main__:[Elapsed Time] : 152493ms, 41.35270160195493ms on average
 INFO:__main__:[F1] : 0.914000175330937, 3684
 INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
 
+* --data_dir=data/conll2003_truecase --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+INFO:__main__:[F1] : 0.9190283400809718, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 112529.90531921387ms, 30.516853094295158ms on average
+accuracy:  98.30%; precision:  91.37%; recall:  92.44%; FB1:  91.90
+
 * --bert_model_name_or_path=./embeddings/roberta-base --bert_disable_lstm
 INFO:__main__:[F1] : 0.9002973587545915, 3684
 INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
@@ -784,6 +790,11 @@ accuracy:  98.35%; precision:  92.15%; recall:  92.32%; FB1:  92.23
 INFO:__main__:[F1] : 0.926332565964229, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 275097ms, 74.65218571816455ms on average
 accuracy:  98.45%; precision:  92.65%; recall:  92.62%; FB1:  92.63
+
+* --data_dir=data/conll2003_truecase --lr_decay_rate=0.9 --batch_size=64
+
+
+
 
 * --use_char_cnn
 INFO:__main__:[F1] : 0.9137136782423814, 3684
