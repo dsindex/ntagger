@@ -231,8 +231,8 @@ $ python to-conll.py -g t > valid.txt
 
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - glove : `kor.glove.300k.300d.txt`   (inhouse)  
-  - bpe bert : `pytorch.all.bpe.4.8m_step` (inhouse)
-  - dha-bpe bert : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step` (inhouse)
+  - bpe bert : `pytorch.all.bpe.4.8m_step`, `pytorch.large.all.whitespace_bpe.7m_step` (inhouse)
+  - dha-bpe bert : `pytorch.all.dha_s2.9.4_d2.9.27_bpe.4m_step`, `pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step` (inhouse)
   - dha bert : `pytorch.all.dha.2.5m_step`, `pytorch.all.dha_s2.9.4_d2.9.27.10m_step` (inhouse)
   - distil bpe bert : `kor-distil-bpe-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-discriminator`
@@ -841,6 +841,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(4.8m), BiLSTM       | 86.37       | eoj      | 21.3232 / -    |          |           | packed |
 | bpe BERT(4.8m), CRF          | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(4.8m)               | **87.13**   | eoj      | 16.2121 / -    |          |           |        |
+| bpe BERT-large               | -           | eoj      | -       / -    |          |           |        |
 | bpe DistilBERT(4.8m)         | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.09       | eoj      | 15.8618 / -    |          |           |        |
@@ -898,6 +899,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | 15.1717 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
+| dha-bpe BERT-large, BiLSTM-CRF | -             | -              | morph, pos            | -       / - |               |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
@@ -1395,6 +1397,7 @@ accuracy:  93.08%; precision:  83.28%; recall:  82.90%; FB1:  83.09
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
+| dha-bpe BERT-large, BiLSTM-CRF | -     / -              | morph, pos            | -       / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | packed        |
