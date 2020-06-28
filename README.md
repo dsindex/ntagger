@@ -290,7 +290,7 @@ $ python to-conll.py -g t > valid.txt
 | ELECTRA-large                   | 91.39        |                   | word                 | 29.5734 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.78        |                   | word, pos            | 74.1001 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93        |                   | word, character, pos | 67.6931 / -        |          |           |           |                           |
-| ELMo, GloVe, BiLSTM-CRF         | **92.63**    |                   | word, pos            | 74.6521 / -        |          |           |           | packed                    |
+| ELMo, GloVe, BiLSTM-CRF         | **92.63**    | 92.51             | word, pos            | 74.6521 / -        |          |           |           | packed                    |
 | ELMo, GloVe, BiLSTM-CRF         | 92.03        |                   | word, character, pos | 60.4667 / -        | 182.595  |           |           | threads=14, packed        |
 
 ```
@@ -315,7 +315,7 @@ $ python to-conll.py -g t > valid.txt
 | ELMo, GloVe, BiLSTM-CRF             | 91.78             |                   | word, pos                    | - / -            |                                   |
 | ELMo, GloVe, BiLSTM-CRF             | 92.38             |                   | word, character, pos         | 46.4205 / 295.28 | threads=14                        |
 | ELMo, GloVe, BiLSTM-CRF             | 92.43             |                   | word, character, pos, chunk  | - / -            |                                   |
-| ELMo, GloVe, BiLSTM-CRF             | **92.83**         |                   | word, character, pos, chunk  | - / -            | GloVe-100d                        |
+| ELMo, GloVe, BiLSTM-CRF             | **92.83**         | 92.10             | word, character, pos, chunk  | - / -            | GloVe-100d                        |
 | BERT-large, ELMo, GloVe, BiLSTM-CRF | 92.54             |                   | word, character, pos         | - / -            | BERT as feature-based, GloVe-100d |
 
 - [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same result by conlleval? Unknown!)
@@ -791,10 +791,10 @@ INFO:__main__:[F1] : 0.926332565964229, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 275097ms, 74.65218571816455ms on average
 accuracy:  98.45%; precision:  92.65%; recall:  92.62%; FB1:  92.63
 
-* --data_dir=data/conll2003_truecase --lr_decay_rate=0.9 --batch_size=64
-
-
-
+* --data_dir=data/conll2003_truecase --batch_size=64 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0
+INFO:__main__:[F1] : 0.9251124636147129, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 236348.47974777222ms, 64.13688945796157ms on average
+accuracy:  98.40%; precision:  92.18%; recall:  92.85%; FB1:  92.51
 
 * --use_char_cnn
 INFO:__main__:[F1] : 0.9137136782423814, 3684
