@@ -321,7 +321,7 @@ def evaluate(opt):
         "precision": precision_score(ys_lbs, preds_lbs),
         "recall": recall_score(ys_lbs, preds_lbs),
         "f1": f1_score(ys_lbs, preds_lbs),
-        "report": classification_report(ys_lbs, preds_lbs),
+        "report": classification_report(ys_lbs, preds_lbs, digits=4),
     }
     print(ret['report'])
     f1 = ret['f1']
