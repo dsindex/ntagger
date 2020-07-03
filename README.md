@@ -899,7 +899,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(2.5m)                 | 81.15         | 84.26          | morph, pos            | 15.1717 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
 | dha-bpe BERT(4m),  BiLSTM-CRF  | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
-| dha-bpe BERT-large, BiLSTM-CRF | -             | -              | morph, pos            | -       / - |               |
+| dha-bpe BERT-large, BiLSTM-CRF | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
 | dha BERT(10m),  BiLSTM-CRF     | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
 | ELMo, BiLSTM-CRF               | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF               | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
@@ -1229,8 +1229,12 @@ accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
-*** --bert_model_name_or_path=./embeddings/pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5
-
+*** --bert_model_name_or_path=./embeddings/pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
+INFO:__main__:[F1] : 0.8298886586824331, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
+accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
+  *** evaluation eoj-by-eoj
+  accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
 
 ** dha
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
@@ -1401,12 +1405,12 @@ accuracy:  93.08%; precision:  83.28%; recall:  82.90%; FB1:  83.09
 | GloVe, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 87.56 / 90.47          | morph, pos            | 40.0766 / - | packed        |
 | dha BERT(2.5m), BiLSTM         | 88.00 / 90.24          | morph, pos            | 23.0388 / - | packed        |
-| dha BERT(2.5m), CRF            | **88.46** / 90.56      | morph, pos            | 34.1522 / - |               |
+| dha BERT(2.5m), CRF            | 88.46 / 90.56          | morph, pos            | 34.1522 / - |               |
 | dha BERT(2.5m)                 | 88.04 / 90.64          | morph, pos            | 17.8542 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
-| dha-bpe BERT-large, CRF        | -     / -              | morph, pos            | -       / - |               |
+| dha-bpe BERT-large, CRF        | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | packed        |
@@ -1603,9 +1607,11 @@ INFO:__main__:[Elapsed Time] : 36267ms, 39.018358531317496ms on average
 accuracy:  97.14%; precision:  82.79%; recall:  87.72%; FB1:  85.18
 token_eval micro F1: 0.8801729462631254
 
-* --bert_model_name_or_path=./embeddings/pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step --bert_disable_lstm --lr_decay_rate=0.9 --lr=5e-5 
-
-
+* --bert_model_name_or_path=./embeddings/pytorch.large.all.dha_s2.9.4_d2.9.27_bpe.7m_step --bert_disable_lstm --lr_decay_rate=0.9 --lr=1e-5 
+INFO:__main__:[F1] : 0.8902403706921518, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 41991.15180969238ms, 45.16370275880554ms on average
+accuracy:  97.79%; precision:  87.80%; recall:  90.28%; FB1:  89.02
+token_eval micro F1: 0.9107763615295481
 
 ```
 
