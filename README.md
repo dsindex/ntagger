@@ -1412,7 +1412,7 @@ accuracy:  93.08%; precision:  83.28%; recall:  82.90%; FB1:  83.09
 | dha BERT(2.5m), CRF            | 88.46 / 90.56          | morph, pos            | 34.1522 / - |               |
 | dha BERT(2.5m)                 | 88.04 / 90.64          | morph, pos            | 17.8542 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF     | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
-| dha DistilBERT(2.5m), CRF      | -     / -              | morph, pos            | -       / - |               |
+| dha DistilBERT(2.5m), CRF      | 84.85 / 87.34          | morph, pos            | 27.4700 / - |               |
 | dha BERT(10m), BiLSTM-CRF      | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(4m), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | dha-bpe BERT-large, CRF        | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
@@ -1573,8 +1573,11 @@ INFO:__main__:[Elapsed Time] : 37666ms, 40.52051835853132ms on average
 accuracy:  96.88%; precision:  83.99%; recall:  83.99%; FB1:  83.99
 token_eval micro F1: 0.8754817902934005
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 --lr=1e-5
-
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 --lr=8e-5
+INFO:__main__:[F1] : 0.8477473562219324, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 25547.332048416138ms, 27.470011175579952ms on average
+accuracy:  96.96%; precision:  83.79%; recall:  85.93%; FB1:  84.85
+token_eval micro F1: 0.8734618063617366
 
 
 * dha(10m)
