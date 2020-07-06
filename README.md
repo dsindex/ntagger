@@ -898,7 +898,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(2.5m), CRF              | 82.94         | 84.99          | morph, pos            | 46.2323 / - |               |
 | dha BERT(2.5m)                   | 81.15         | 84.26          | morph, pos            | 15.1717 / - |               |
 | dha BERT(2.5m), BiLSTM-CRF       | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
-| dha DistilBERT(2.5m), BiLSTM-CRF | -             | -              | morph, pos            | -       / - |               |
+| dha DistilBERT(2.5m), CRF        | 79.88         | 82.27          | morph, pos            | 40.2669 / - |               |
+| dha DistilBERT(2.5m), LSTM       | -             | -              | morph, pos            | -       / - |               |
 | dha-bpe BERT(4m),  BiLSTM-CRF    | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
 | dha-bpe BERT-large, BiLSTM-CRF   | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
 | dha BERT(10m),  BiLSTM-CRF       | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
@@ -1177,7 +1178,15 @@ accuracy:  94.03%; precision:  79.90%; recall:  82.72%; FB1:  81.28
   *** evaluation eoj-by-eoj
   accuracy:  93.69%; precision:  84.50%; recall:  84.63%; FB1:  84.56
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30 
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_disable_lstm --lr=8e-5
+INFO:__main__:[F1] : 0.7994317797470066, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 331695.18399238586ms, 36.84263667049296ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4152.508020401001ms, 40.266978620278714ms on average
+accuracy:  93.10%; precision:  79.41%; recall:  80.35%; FB1:  79.88
+  *** evaluation eoj-by-eoj
+  accuracy:  92.69%; precision:  82.73%; recall:  81.82%; FB1:  82.27
+
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --lr=8e-5  , without --use_crf
 
 
 
