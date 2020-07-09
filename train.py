@@ -394,6 +394,7 @@ def train(opt):
            epoch_i > opt.warmup_epoch and \
            (local_worse_steps >= opt.lr_decay_steps or early_stopping.step() > opt.lr_decay_steps):
             scheduler.step()
+            local_worse_steps = 0
         prev_eval_f1 = eval_f1
         # end: scheduling
 
