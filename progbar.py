@@ -3,9 +3,9 @@ import time
 import logging
 import numpy as np
 
-'''
-code from https://github.com/guillaumegenthial/sequence_tagging/blob/master/model/general_utils.py
-'''
+# ------------------------------------------------------------------------------ #
+# code from https://github.com/guillaumegenthial/sequence_tagging/blob/master/model/general_utils.py
+# ------------------------------------------------------------------------------ #
 
 class Progbar(object):
     """Progbar class copied from keras (https://github.com/fchollet/keras/)
