@@ -10,8 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------- #
-# BERT
-#   reference
+# base code from
 #     https://github.com/huggingface/transformers/blob/master/examples/utils_ner.py
 # ---------------------------------------------------------------------------- #
 

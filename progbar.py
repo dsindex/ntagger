@@ -4,7 +4,7 @@ import logging
 import numpy as np
 
 '''
-source from https://github.com/guillaumegenthial/sequence_tagging/blob/master/model/general_utils.py
+code from https://github.com/guillaumegenthial/sequence_tagging/blob/master/model/general_utils.py
 '''
 
 class Progbar(object):

@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 '''
-source from http://forensics.tistory.com/29
+base source from http://forensics.tistory.com/29
 '''
 
 class EarlyStopping():
