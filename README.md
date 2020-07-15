@@ -320,16 +320,17 @@ $ python to-conll.py -g t > valid.txt
 
 - [CoNLL 2003(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-ner-on-conll-2003), measured by span-level F1 (micro F1, same result by conlleval? Unknown!)
 
-|                                 | F1 (%)   |
-| ------------------------------- | -------- |
-| CNN Large + fine-tune           | **93.5** |
-| GCDT + BERT-L                   | 93.47    |
-| LSTM-CRF+ELMo+BERT+Flair        | 93.38    |
-| Hierarchical + BERT             | 93.37    |
-| Flair embeddings + Pooling      | 93.18    |
-| BERT Large                      | 92.8     |
-| BERT Base                       | 92.4     |
-| BiLSTM-CRF+ELMo                 | 92.22    |
+|                                 | F1 (%)   | Etc                 |
+| ------------------------------- | -------- | ------------------- |
+| CNN Large + fine-tune           | **93.5** |                     |
+| biaffine-ner                    | **93.5** | https://www.aclweb.org/anthology/2020.acl-main.577.pdf |
+| GCDT + BERT-L                   | 93.47    |                     |
+| LSTM-CRF+ELMo+BERT+Flair        | 93.38    |                     |
+| Hierarchical + BERT             | 93.37    |                     |
+| Flair embeddings + Pooling      | 93.18    |                     |
+| BERT Large                      | 92.8     |                     |
+| BERT Base                       | 92.4     |                     |
+| BiLSTM-CRF+ELMo                 | 92.22    |                     |
 
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
