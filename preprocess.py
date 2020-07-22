@@ -318,23 +318,9 @@ def write_features(features, output_path):
 def preprocess_bert(config):
     opt = config['opt']
 
-    from transformers import BertTokenizer
-    from transformers import DistilBertTokenizer
-    from transformers import AlbertTokenizer
-    from transformers import RobertaTokenizer
-    from transformers import BartTokenizer
-    from transformers import ElectraTokenizer
-    TOKENIZER_CLASSES = {
-        "bert": BertTokenizer,
-        "distilbert": DistilBertTokenizer,
-        "albert": AlbertTokenizer,
-        "roberta": RobertaTokenizer,
-        "bart": BartTokenizer,
-        "electra": ElectraTokenizer,
-    }
-    Tokenizer = TOKENIZER_CLASSES[config['emb_class']]
+    from transformers import AutoTokenizer
 
-    tokenizer = Tokenizer.from_pretrained(opt.bert_model_name_or_path,
+    tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path,
                                           do_lower_case=opt.bert_do_lower_case)
     # build poss, chars, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
