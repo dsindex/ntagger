@@ -12,6 +12,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+from torch.cuda.amp import autocast, GradScaler
+import torch.autograd.profiler as profiler
 
 try:
     from torch.utils.tensorboard import SummaryWriter
@@ -42,6 +44,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     optimizer = config['optimizer']
     scheduler = config['scheduler']
     writer = config['writer']
+    scaler = config['scaler']
     pad_label_id = config['pad_label_id']
 
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
@@ -49,33 +52,64 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     prog = Progbar(target=n_batches)
     # train one epoch
     model.train()
-    optimizer.zero_grad()
     train_loss = 0.
     st_time = time.time()
     for local_step, (x,y) in enumerate(train_loader):
+        optimizer.zero_grad()
         global_step = (len(train_loader) * epoch_i) + local_step
         x = to_device(x, opt.device)
         y = to_device(y, opt.device)
         if opt.use_crf:
-            logits, prediction = model(x)
-            mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
-            log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
-            loss = -1 * log_likelihood
+            if opt.use_amp:
+                with autocast():
+                    logits, prediction = model(x)
+                    mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
+                    log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                    loss = -1 * log_likelihood
+            else:
+                if opt.use_profiler:
+                    with profiler.profile(profile_memory=True, record_shapes=True) as prof:
+                        logits, prediction = model(x)
+                    print(prof.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
+                else:
+                    logits, prediction = model(x)
+                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
+                log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                loss = -1 * log_likelihood
         else:
-            logits = model(x)
-            # reshape for computing loss
-            logits_view = logits.view(-1, model.label_size)
-            y_view = y.view(-1)
-            loss = criterion(logits_view, y_view)
+            if opt.use_amp:
+                with autocast():
+                    logits = model(x)
+                    # reshape for computing loss
+                    logits_view = logits.view(-1, model.label_size)
+                    y_view = y.view(-1)
+                    loss = criterion(logits_view, y_view)
+            else:
+                if opt.use_profiler:
+                    with profiler.profile(profile_memory=True, record_shapes=True) as prof:
+                        logits = model(x)
+                    print(prof.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
+                else:
+                    logits = model(x)
+                # reshape for computing loss
+                logits_view = logits.view(-1, model.label_size)
+                y_view = y.view(-1)
+                loss = criterion(logits_view, y_view)
         # back-propagation - begin
         if opt.gradient_accumulation_steps > 1:
             loss = loss / opt.gradient_accumulation_steps
-        loss.backward()
+        if opt.use_amp:
+            scaler.scale(loss).backward()
+        else:
+            loss.backward()
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
-            optimizer.step()
+            if opt.use_amp:
+                scaler.step(optimizer)
+                scaler.update()
+            else:
+                optimizer.step()
             if opt.use_transformers_optimizer: scheduler.step()
-            optimizer.zero_grad()
         # back-propagation - end
         train_loss += loss.item()
         if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
@@ -296,11 +330,12 @@ def train(opt):
     # prepare model
     model = prepare_model(config)
 
-    # create optimizer, scheduler, summary writer
+    # create optimizer, scheduler, summary writer, scaler
     optimizer, scheduler, writer = prepare_osw(config, model, train_loader)
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
+    config['scaler'] = GradScaler()
 
     # training
     early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
@@ -368,6 +403,8 @@ def main():
     parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     parser.add_argument('--use_transformers_optimizer', action='store_true', help="Use transformers AdamW, get_linear_schedule_with_warmup.")
+    parser.add_argument('--use_amp', action='store_true', help="Use automatic mixed precision.")
+    parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
