@@ -280,7 +280,7 @@ def prepare_model(config):
     logger.info("[model prepared]")
     return model
 
-def prepare_osw(config, model, train_loader):
+def prepare_osws(config, model, train_loader):
     opt = config['opt']
     optimizer = torch.optim.AdamW(model.parameters(), lr=opt.lr, eps=opt.adam_epsilon, weight_decay=opt.weight_decay)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.lr_decay_rate)
@@ -305,8 +305,9 @@ def prepare_osw(config, model, train_loader):
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
         writer = None
-    logger.info("[optimizer, scheduler, summary writer prepared]")
-    return optimizer, scheduler, writer
+    scaler = GradScaler()
+    logger.info("[optimizer, scheduler, summary writer, scaler prepared]")
+    return optimizer, scheduler, writer, scaler
 
 def train(opt):
     if torch.cuda.is_available():
@@ -331,11 +332,11 @@ def train(opt):
     model = prepare_model(config)
 
     # create optimizer, scheduler, summary writer, scaler
-    optimizer, scheduler, writer = prepare_osw(config, model, train_loader)
+    optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader)
     config['optimizer'] = optimizer
     config['scheduler'] = scheduler
     config['writer'] = writer
-    config['scaler'] = GradScaler()
+    config['scaler'] = scaler
 
     # training
     early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
