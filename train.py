@@ -12,14 +12,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-try:
-    from apex.parallel import DistributedDataParallel as DDP
-    from apex.fp16_utils import *
-    from apex import amp, optimizers
-    from apex.multi_tensor_apply import multi_tensor_applier
-    APEX_AVAILABLE = True
-except ImportError:
-    APEX_AVAILABLE = False
 
 try:
     from torch.utils.tensorboard import SummaryWriter
@@ -44,17 +36,6 @@ def set_seed(opt):
     torch.manual_seed(opt.seed)
     torch.cuda.manual_seed(opt.seed)
 
-def set_apex_and_distributed(opt):
-    if not APEX_AVAILABLE: opt.use_amp = False
-    opt.distributed = False
-    if 'WORLD_SIZE' in os.environ and opt.use_amp:
-        opt.world_size = int(os.environ['WORLD_SIZE'])
-        opt.distributed = int(os.environ['WORLD_SIZE']) > 1
-    if opt.distributed:
-        torch.cuda.set_device(opt.local_rank)
-        torch.distributed.init_process_group(backend='nccl', init_method='env://')
-        opt.word_size = torch.distributed.get_world_size()
-
 def train_epoch(model, config, train_loader, val_loader, epoch_i):
     opt = config['opt']
 
@@ -63,7 +44,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     writer = config['writer']
     pad_label_id = config['pad_label_id']
 
-    local_rank = opt.local_rank
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(train_loader)
     prog = Progbar(target=n_batches)
@@ -90,14 +70,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         # back-propagation - begin
         if opt.gradient_accumulation_steps > 1:
             loss = loss / opt.gradient_accumulation_steps
-        if opt.use_amp:
-            with amp.scale_loss(loss, optimizer) as scaled_loss:
-                try:
-                    scaled_loss.backward()
-                except Exception as e:
-                    print(e)
-        else:
-            loss.backward()
+        loss.backward()
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
             optimizer.step()
@@ -105,8 +78,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             optimizer.zero_grad()
         # back-propagation - end
         train_loss += loss.item()
-        if local_rank == 0 and writer:
-            writer.add_scalar('Loss/train', loss.item(), global_step)
+        if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
         curr_lr = scheduler.get_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
         prog.update(local_step+1,
                     [('global step', global_step),
@@ -122,13 +94,12 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     elapsed_time = (curr_time - st_time) / 60
     st_time = curr_time
     curr_lr = scheduler.get_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-    if local_rank == 0:
-        logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f}, valid loss {:10.6f}, valid f1 {:.4f}| lr :{:7.6f} | {:5.2f} min elapsed'.\
-                format(epoch_i, local_step+1, len(train_loader), train_loss, eval_loss, eval_f1, curr_lr, elapsed_time)) 
-        if writer:
-            writer.add_scalar('Loss/valid', eval_loss, global_step)
-            writer.add_scalar('F1/valid', eval_f1, global_step)
-            writer.add_scalar('LearningRate/train', curr_lr, global_step)
+    logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f}, valid loss {:10.6f}, valid f1 {:.4f}| lr :{:7.6f} | {:5.2f} min elapsed'.\
+            format(epoch_i, local_step+1, len(train_loader), train_loss, eval_loss, eval_f1, curr_lr, elapsed_time)) 
+    if writer:
+        writer.add_scalar('Loss/valid', eval_loss, global_step)
+        writer.add_scalar('F1/valid', eval_f1, global_step)
+        writer.add_scalar('LearningRate/train', curr_lr, global_step)
     return eval_loss, eval_f1
  
 def evaluate(model, config, val_loader):
@@ -191,14 +162,7 @@ def save_model(config, model):
     optimizer = config['optimizer']
     checkpoint_path = opt.save_path
     with open(checkpoint_path, 'wb') as f:
-        if opt.use_amp:
-            checkpoint = {
-                    'model': model.state_dict(),
-                    'optimizer': optimizer.state_dict(),
-                    'amp': amp.state_dict()
-                    }
-        else:
-            checkpoint = model.state_dict()
+        checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
 def set_path(config):
@@ -303,10 +267,6 @@ def prepare_osw(config, model, train_loader):
         scheduler = get_linear_schedule_with_warmup(optimizer,
             num_warmup_steps=num_warmup_steps,
             num_training_steps=num_training_steps)
-    if opt.use_amp:
-        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
-    if opt.distributed:
-        model = DDP(model, delay_allreduce=True)
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
@@ -318,9 +278,8 @@ def train(opt):
     if torch.cuda.is_available():
         logger.info("%s", torch.cuda.get_device_name(0))
 
-    # set seed, distributed setting, etc
+    # set seed, etc
     set_seed(opt)
-    set_apex_and_distributed(opt)
     torch.autograd.set_detect_anomaly(True)
 
     # set config
@@ -353,7 +312,7 @@ def train(opt):
         eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i)
         # early stopping
         if early_stopping.validate(eval_f1, measure='f1'): break
-        if opt.local_rank == 0 and eval_f1 > best_eval_f1:
+        if eval_f1 > best_eval_f1:
             best_eval_f1 = eval_f1
             if opt.save_path:
                 logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
@@ -389,7 +348,6 @@ def main():
     parser.add_argument('--label_filename', type=str, default='label.txt')
     parser.add_argument('--pos_filename', type=str, default='pos.txt')
     parser.add_argument('--device', type=str, default='cuda')
-    parser.add_argument('--use_amp', action='store_true')
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--eval_batch_size', type=int, default=128)
     parser.add_argument('--epoch', type=int, default=30)
@@ -404,8 +362,6 @@ def main():
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument('--max_grad_norm', default=1.0, type=float, help="Max gradient norm.")
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
-    parser.add_argument('--local_rank', default=0, type=int)
-    parser.add_argument('--world_size', default=1, type=int)
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
