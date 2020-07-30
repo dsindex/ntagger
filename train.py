@@ -54,19 +54,13 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
     model.train()
     train_loss = 0.
     st_time = time.time()
+    optimizer.zero_grad()
     for local_step, (x,y) in enumerate(train_loader):
-        optimizer.zero_grad()
         global_step = (len(train_loader) * epoch_i) + local_step
         x = to_device(x, opt.device)
         y = to_device(y, opt.device)
         if opt.use_crf:
-            if opt.use_amp:
-                with autocast():
-                    logits, prediction = model(x)
-                    mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
-                    log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
-                    loss = -1 * log_likelihood
-            else:
+            with autocast(enabled=opt.use_amp):
                 if opt.use_profiler:
                     with profiler.profile(profile_memory=True, record_shapes=True) as prof:
                         logits, prediction = model(x)
@@ -76,15 +70,10 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
                 mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
+                if opt.gradient_accumulation_steps > 1:
+                    loss = loss / opt.gradient_accumulation_steps
         else:
-            if opt.use_amp:
-                with autocast():
-                    logits = model(x)
-                    # reshape for computing loss
-                    logits_view = logits.view(-1, model.label_size)
-                    y_view = y.view(-1)
-                    loss = criterion(logits_view, y_view)
-            else:
+            with autocast(enabled=opt.use_amp):
                 if opt.use_profiler:
                     with profiler.profile(profile_memory=True, record_shapes=True) as prof:
                         logits = model(x)
@@ -95,20 +84,16 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
                 logits_view = logits.view(-1, model.label_size)
                 y_view = y.view(-1)
                 loss = criterion(logits_view, y_view)
+                if opt.gradient_accumulation_steps > 1:
+                    loss = loss / opt.gradient_accumulation_steps
         # back-propagation - begin
-        if opt.gradient_accumulation_steps > 1:
-            loss = loss / opt.gradient_accumulation_steps
-        if opt.use_amp:
-            scaler.scale(loss).backward()
-        else:
-            loss.backward()
+        scaler.scale(loss).backward()
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
+            scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
-            if opt.use_amp:
-                scaler.step(optimizer)
-                scaler.update()
-            else:
-                optimizer.step()
+            scaler.step(optimizer)
+            scaler.update()
+            optimizer.zero_grad()
             if opt.use_transformers_optimizer: scheduler.step()
         # back-propagation - end
         train_loss += loss.item()
