@@ -1363,7 +1363,7 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 ** bpe ELECTRA-base(30k-512-1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm 
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ```
 
@@ -1398,11 +1398,13 @@ accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 $ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
 INFO:__main__:[F1] : 0.8319372174358101, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 900059.1132640839ms, 100.0054818893197ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1674.2236614227295ms, 15.86188692035097ms on average
 accuracy:  93.08%; precision:  83.28%; recall:  82.90%; FB1:  83.09
+
+*** 2981k
+
 
 ```
 
