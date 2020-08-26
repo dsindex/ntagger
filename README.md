@@ -234,6 +234,7 @@ $ python to-conll.py -g t > valid.txt
   - bpe bert : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe` (inhouse)
   - dha-bpe bert : `kor-bert-base-dha_bpe`, `kor-bert-large-dha_bpe` (inhouse)
   - dha bert : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
+  - KcBERT : `kcbert-base`, `kcbert-large`
   - distil bpe bert : `kor-distil-bpe-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-discriminator`
   - bpe electra : `kor-electra-bpe-30k-512-1m` (inhouse)
@@ -843,6 +844,10 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | **87.13**   | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large               | 85.99       | eoj      | 30.7513 / -    |          |           |        |
+| KcBERT-base, BiLSTM          | -           | eoj      | -       / -    |          |           |        |
+| KcBERT-base, CRF             | -           | eoj      | -       / -    |          |           |        |
+| KcBERT-base,                 | -           | eoj      | -       / -    |          |           |        |
+| KcBERT-large,                | -           | eoj      | -       / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
@@ -1030,7 +1035,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT(v1), bpe BERT-large, dha BERT(v1)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT(v1), bpe BERT-large, KcBERT-base, KcBERT-large, dha BERT(v1)</b></summary>
 <p>
 
 - train
@@ -1114,6 +1119,17 @@ INFO:__main__:[F1] : 0.85393906493859, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 816257.2820186615ms, 90.68703071211878ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 988.6960983276367ms, 9.070220619741113ms on average
 accuracy:  93.97%; precision:  85.03%; recall:  85.57%; FB1:  85.30
+
+** --bert_model_name_or_path=./embeddings/kcbert-base --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
+
+
+** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , (KcBERT-base, CRF) 
+
+
+** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base) 
+
+
+** --bert_model_name_or_path=./embeddings/kcbert-large --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-large) 
 
 
 * for clova2019_morph
