@@ -844,9 +844,9 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | **87.13**   | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large               | 85.99       | eoj      | 30.7513 / -    |          |           |        |
-| KcBERT-base, BiLSTM          | -           | eoj      | -       / -    |          |           |        |
-| KcBERT-base, CRF             | -           | eoj      | -       / -    |          |           |        |
-| KcBERT-base,                 | -           | eoj      | -       / -    |          |           |        |
+| KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
+| KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
+| KcBERT-base,                 | 84.72       | eoj      | 13.3129 / -    |          |           |        |
 | KcBERT-large,                | -           | eoj      | -       / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
@@ -1121,13 +1121,22 @@ INFO:__main__:[Elapsed Time] : 100 examples, 988.6960983276367ms, 9.070220619741
 accuracy:  93.97%; precision:  85.03%; recall:  85.57%; FB1:  85.30
 
 ** --bert_model_name_or_path=./embeddings/kcbert-base --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
-
+INFO:__main__:[F1] : 0.8491746129396084, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 496907.4342250824ms, 55.207844985460014ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1583.3139419555664ms, 15.055304825908006ms on average
+accuracy:  93.68%; precision:  85.05%; recall:  84.47%; FB1:  84.76
 
 ** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , (KcBERT-base, CRF) 
-
+INFO:__main__:[F1] : 0.8333361605401095, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 305795.4549789429ms, 33.96846946311906ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 3287.224531173706ms, 31.801955868499448ms on average
+accuracy:  93.10%; precision:  83.13%; recall:  83.51%; FB1:  83.32
 
 ** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base) 
-
+INFO:__main__:[F1] : 0.848736197156657, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 463540.66610336304ms, 51.50017095600344ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1403.444528579712ms, 13.31293462502836ms on average
+accuracy:  93.75%; precision:  84.90%; recall:  84.54%; FB1:  84.72
 
 ** --bert_model_name_or_path=./embeddings/kcbert-large --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-large) 
 
