@@ -847,7 +847,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
 | KcBERT-base,                 | 84.72       | eoj      | 13.3129 / -    |          |           |        |
-| KcBERT-large,                | -           | eoj      | -       / -    |          |           |        |
+| KcBERT-large,                | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
@@ -1139,7 +1139,10 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1403.444528579712ms, 13.31293462502
 accuracy:  93.75%; precision:  84.90%; recall:  84.54%; FB1:  84.72
 
 ** --bert_model_name_or_path=./embeddings/kcbert-large --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-large) 
-
+INFO:__main__:[F1] : 0.8650133979621444, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 986830.237865448ms, 109.64403990732721ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 2811.2776279449463ms, 26.963908262927124ms on average
+accuracy:  94.31%; precision:  86.53%; recall:  86.16%; FB1:  86.34
 
 * for clova2019_morph
 
