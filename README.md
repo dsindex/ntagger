@@ -261,11 +261,12 @@ $ python to-conll.py -g t > valid.txt
 | BERT-small, BiLSTM              | 86.35        |                   | word                 | 22.6087 / -        |          |           |           |                           |
 | BERT-medium, BiLSTM             | 88.29        |                   | word                 | 27.0486 / -        |          |           |           |                           |
 | DistilBERT, BiLSTM              | 89.50        |                   | word                 | 13.4564 / -        | 58.9260  | 56.2819   | 47.8320   | packed                    |
-| BERT-base, BiLSTM-CRF           | 90.20        |                   | word                 | 42.6464 / -        |          |           |           | packed                    |
-| BERT-base, BiLSTM               | 90.55        |                   | word                 | 18.2323 / -        | 100.0505 | 79.1914   | 83.9590   | packed                    |
-| BERT-base, CRF                  | 89.98        |                   | word                 | 36.6893 / -        |          |           |           |                           |
-| BERT-base                       | 90.25        |                   | word                 | 16.6877 / -        | 96.9004  | 72.8225   | 75.3025   |                           |
-| BERT-base, BiLSTM               | 89.03        |                   | word                 | 24.9076 / -        |          |           |           | del 8,9,10,11, threads=14 |
+| BERT-base(uncased), BiLSTM-CRF  | 90.20        |                   | word                 | 42.6464 / -        |          |           |           | packed                    |
+| BERT-base(uncased), BiLSTM      | 90.55        |                   | word                 | 18.2323 / -        | 100.0505 | 79.1914   | 83.9590   | packed                    |
+| BERT-base(uncased), CRF         | 89.98        |                   | word                 | 36.6893 / -        |          |           |           |                           |
+| BERT-base(uncased)              | 90.25        |                   | word                 | 16.6877 / -        | 96.9004  | 72.8225   | 75.3025   |                           |
+| BERT-base(uncased), BiLSTM      | 89.03        |                   | word                 | 24.9076 / -        |          |           |           | del 8,9,10,11, threads=14 |
+| bert-base-NER(cased), BiLSTM    | 91.63        | 92.25             | word                 | 17.6680 / -        |          |           |           | packed                    |
 | BERT-large, BiLSTM              | 91.32        | 91.89             | word                 | 40.3581 / -        |          |           |           | packed                    |
 | BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |          |           |           | del 12 ~ 23               |
 | BERT-large, BiLSTM              | 86.11        |                   | word                 | 49.3103 / -        |          |           |           | BERT as feature-based, initial embedding             |
@@ -481,6 +482,17 @@ accuracy:  97.78%; precision:  89.24%; recall:  90.74%; FB1:  89.98
 INFO:__main__:[F1] : 0.9024668598015978, 3684
 INFO:__main__:[Elapsed Time] : 61914ms, 16.68775454792289ms on average
 accuracy:  98.01%; precision:  89.50%; recall:  91.01%; FB1:  90.25
+
+* https://huggingface.co/dslim/bert-base-NER
+* --bert_model_name_or_path=./embeddings/bert-base-NER --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20
+INFO:__main__:[F1] : 0.9163073132095397, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 65167.21606254578ms, 17.668077811708017ms on average
+accuracy:  98.34%; precision:  91.09%; recall:  92.17%; FB1:  91.63
+
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-base-NER --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20
+INFO:__main__:[F1] : 0.9224547212941797, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 66638.26131820679ms, 18.064501684967215ms on average
+accuracy:  98.38%; precision:  91.62%; recall:  92.88%; FB1:  92.25
 
 * --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 --bert_do_lower_case
 INFO:__main__:[F1] : 0.8829307140960977, 3684
