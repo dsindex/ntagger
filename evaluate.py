@@ -112,6 +112,34 @@ def convert_onnx(config, torch_model, x):
                           output_names=output_names,    # the model's output names
                           dynamic_axes=dynamic_axes)    # variable length axes
 
+# ------------------------------------------------------------------------------ #
+# source code from https://github.com/huggingface/transformers/blob/master/src/transformers/convert_graph_to_onnx.py#L374
+# ------------------------------------------------------------------------------ #
+def quantize_onnx(onnx_path, quantized_onnx_path):
+    """
+    Quantize the weights of the model from float32 to in8 to allow very efficient inference on modern CPU.
+    """
+    import onnx
+    from onnxruntime.quantization import QuantizationMode, quantize
+
+    onnx_model = onnx.load(onnx_path)
+
+    # Discussed with @yufenglee from ONNX runtime, this will be address in the next release of onnxruntime
+    print(
+        "As of onnxruntime 1.4.0, models larger than 2GB will fail to quantize due to protobuf constraint.\n"
+        "This limitation will be removed in the next release of onnxruntime."
+    )
+
+    quantized_model = quantize(
+        model=onnx_model,
+        quantization_mode=QuantizationMode.IntegerOps,
+        force_fusions=True,
+        symmetric_weight=True,
+    )
+
+    # Save model
+    onnx.save_model(quantized_model, quantized_onnx_path)
+
 def check_onnx(config):
     opt = config['opt']
     import onnx
@@ -208,6 +236,10 @@ def evaluate(opt):
         convert_onnx(config, model, x)
         check_onnx(config)
         logger.info("[ONNX model saved at {}".format(opt.onnx_path))
+        # quantize onnx
+        if opt.quantize_onnx:
+            quantize_onnx(opt.onnx_path, opt.quantized_onnx_path)
+            logger.info("[Quantized ONNX model saved at {}".format(opt.quantized_onnx_path))
         return
 
     # load onnx model for using onnxruntime
@@ -350,6 +382,9 @@ def main():
                         help="Set this flag to evaluate using onnxruntime.")
     parser.add_argument('--onnx_path', type=str, default='pytorch-model.onnx')
     parser.add_argument('--onnx_opset', default=11, type=int, help="ONNX opset version.")
+    parser.add_argument('--quantize_onnx', action='store_true',
+                        help="Set this flag to quantize ONNX.")
+    parser.add_argument('--quantized_onnx_path', type=str, default='pytorch-model.onnx-quantized')
     # for Quantization
     parser.add_argument('--enable_dqm', action='store_true',
                         help="Set this flag to use dynamic quantized model.")
