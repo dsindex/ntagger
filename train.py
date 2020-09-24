@@ -462,7 +462,7 @@ def main():
         global gopt
         gopt = opt
         study = optuna.create_study(direction='maximize')
-        study.optimize(hp_search, n_trials=opt.hp_trials, timeout=1800)
+        study.optimize(hp_search, n_trials=opt.hp_trials)
         df = study.trials_dataframe(attrs=('number', 'value', 'params', 'state'))
         print(df)
         logger.info("study.best_params : %s", study.best_params)
