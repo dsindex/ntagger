@@ -395,8 +395,18 @@ def hp_search(trial: optuna.Trial):
         config['writer'] = writer
         config['scaler'] = scaler
 
+        early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
+        best_eval_f1 = -float('inf')
         for epoch in range(epochs):
             eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch)
+
+            # early stopping
+            if early_stopping.validate(eval_f1, measure='f1'): break
+            if eval_f1 > best_eval_f1:
+                best_eval_f1 = eval_f1
+                early_stopping.reset(best_eval_f1)
+            early_stopping.status()
+
             trial.report(eval_f1, epoch)
             if trial.should_prune():
                 raise optuna.TrialPruned()
