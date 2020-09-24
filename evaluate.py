@@ -349,8 +349,9 @@ def evaluate(opt):
     logger.info("[Elapsed Time(total_duration_time, average)] : {}ms, {}ms".format(total_duration_time, total_duration_time/(total_examples-1)))
 
 # ---------------------------------------------------------------------------- #
-# Inference
+# Inference : not yet implemented
 # ---------------------------------------------------------------------------- #
+
 
 def main():
     parser = argparse.ArgumentParser()

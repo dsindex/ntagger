@@ -13,17 +13,22 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=1, batch_size=0):
+def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=1, batch_size=0, hp_search_bsz=None):
     opt = config['opt']
     dataset = DatasetClass(config, filepath)
+
     if sampling:
         sampler = RandomSampler(dataset)
     else:
         sampler = SequentialSampler(dataset)
     if hasattr(opt, 'distributed') and opt.distributed:
         sampler = DistributedSampler(dataset)
+
     bz = opt.batch_size
     if batch_size > 0: bz = batch_size
+    # for optuna
+    if hp_search_bsz: bz = hp_search_bsz
+
     loader = DataLoader(dataset, batch_size=bz, num_workers=num_workers, sampler=sampler, pin_memory=True)
     logger.info("[{} data loaded]".format(filepath))
     return loader
