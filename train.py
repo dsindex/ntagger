@@ -311,7 +311,7 @@ def train(opt):
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config)
 
-    with temp_seed(seed):
+    with temp_seed(opt.seed):
         # prepare model
         model = prepare_model(config)
 
