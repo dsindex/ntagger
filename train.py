@@ -377,10 +377,10 @@ def hp_search(trial: optuna.Trial):
     set_path(config)
 
     # set search spaces
-    lr = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
-    bsz = trial.suggest_categorical("batch_size", [32, 64, 128])
-    seed = trial.suggest_int("seed", 17, 42)
-    epochs = trial.suggest_int("epochs", 1, opt.epoch)
+    lr = trial.suggest_float('lr', 1e-5, 1e-3, log=True)
+    bsz = trial.suggest_categorical('batch_size', [32, 64, 128])
+    seed = trial.suggest_int('seed', 17, 42)
+    epochs = trial.suggest_int('epochs', 1, opt.epoch)
 
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config, hp_search_bsz=bsz)
