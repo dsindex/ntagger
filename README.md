@@ -312,6 +312,8 @@ $ python to-conll.py -g t > valid.txt
 | GloVe, BiLSTM-CRF                   | 90.06             |                   | word, character, pos         | 15.8913 / 5.7952 | LSTMBlockFusedCell(), threads=14  |
 | GloVe, BiLSTM-CRF                   | 90.57             |                   | word, character, pos         | 24.6356 / 7.0887 | LSTMCell(), threads=14            |
 | GloVe, BiLSTM-CRF                   | 90.85             |                   | word, character, pos, chunk  | - / -            |                                   |
+| GloVe, Transformer                  | 88.62             |                   | word, character, pos, chunk  | - / 8.6126       |                                   |
+| GloVe, Transformer-CRF              | 89.26             |                   | word, character, pos, chunk  | - / 16.528       |                                   |
 | BERT-large, BiLSTM-CRF              | 90.22             |                   | word                         | - / -            | BERT as feature-based             |
 | BERT-large, GloVe, BiLSTM-CRF       | 91.83             |                   | word                         | - / -            | BERT as feature-based             |
 | ELMo, GloVe, BiLSTM-CRF             | 91.78             |                   | word, pos                    | - / -            |                                   |
