@@ -230,14 +230,15 @@ $ python to-conll.py -g t > valid.txt
 ##### Korean GloVe, BERT, ELECTRA, ELMo
 
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-  - glove : `kor.glove.300k.300d.txt`   (inhouse)  
-  - bpe bert : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe` (inhouse)
-  - dha-bpe bert : `kor-bert-base-dha_bpe`, `kor-bert-large-dha_bpe` (inhouse)
-  - dha bert : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
+  - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
+  - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe` (inhouse)
+  - dha-bpe BERT : `kor-bert-base-dha_bpe`, `kor-bert-large-dha_bpe` (inhouse)
+  - dha BERT : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
-  - distil bpe bert : `kor-distil-bpe-bert.v1` (inhouse)
+  - distil bpe BERT : `kor-distil-bpe-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-discriminator`
-  - bpe electra : `kor-electra-bpe-30k-512-1m` (inhouse)
+  - ELECTRA-base : `kor-electra-bpe-30k-512-1m` (inhouse)
+  - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
@@ -868,6 +869,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
+| RoBERTa-base                 | 85.05       | eoj      | 15.7721 / -    |          |           |        |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1393,7 +1395,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(30k-512-1m) </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(30k-512-1m), RoBERTa-base </b></summary>
 <p>
 
 - train
@@ -1409,6 +1411,11 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 ** bpe ELECTRA-base(30k-512-1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
 $ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+
+** RoBERTa-base
+$ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 
+
 
 ```
 
@@ -1448,6 +1455,17 @@ INFO:__main__:[F1] : 0.8315271272776998, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 802838.2792472839ms, 89.20120188813432ms on averag
 INFO:__main__:[Elapsed Time] : 100 examples, 1822.8516578674316ms, 17.210632863670888ms on average
 accuracy:  93.06%; precision:  83.40%; recall:  82.69%; FB1:  83.05
+
+** RoBERTa-base
+
+$ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.8516379618745847, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 877249.1323947906ms, 97.46949836166318ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1692.3189163208008ms, 15.772190960970791ms on average
+accuracy:  93.86%; precision:  85.12%; recall:  84.98%; FB1:  85.05
+
 
 ```
 
