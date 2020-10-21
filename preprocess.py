@@ -376,10 +376,10 @@ def main():
 
     if config['emb_class'] == 'glove':
         preprocess_glove_or_elmo(config)
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
-        preprocess_bert(config)
-    if config['emb_class'] == 'elmo':
+    elif config['emb_class'] == 'elmo':
         preprocess_glove_or_elmo(config)
+    else:
+        preprocess_bert(config)
 
 
 if __name__ == '__main__':

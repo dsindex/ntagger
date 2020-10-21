@@ -24,12 +24,10 @@ logger = logging.getLogger(__name__)
 
 def set_path(config):
     opt = config['opt']
-    if config['emb_class'] == 'glove':
+    if config['emb_class'] in ['glove', 'elmo']:
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+    else:
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
-    if config['emb_class'] == 'elmo':
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
     opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
     opt.label_path = os.path.join(opt.data_dir, 'label.txt')
     opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
@@ -54,7 +52,12 @@ def load_model(config, checkpoint):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+    elif config['emb_class'] == 'elmo':
+        from allennlp.modules.elmo import Elmo
+        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
+        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
+                            emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
+    else:
         from transformers import AutoTokenizer, AutoConfig, AutoModel
         bert_config = AutoConfig.from_pretrained(opt.bert_output_dir)
         bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_output_dir)
@@ -63,11 +66,6 @@ def load_model(config, checkpoint):
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
-    if config['emb_class'] == 'elmo':
-        from allennlp.modules.elmo import Elmo
-        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
-        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
-                            emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     model.load_state_dict(checkpoint)
     model = model.to(opt.device)
     logger.info("[Loaded]")
@@ -77,7 +75,7 @@ def convert_onnx(config, torch_model, x):
     opt = config['opt']
     import torch.onnx
 
-    if config['emb_class'] == 'glove':
+    if config['emb_class'] in ['glove', 'elmo']:
         input_names = ['token_ids', 'pos_ids', 'char_ids']
         output_names = ['logits']
         dynamic_axes = {'token_ids': {0: 'batch', 1: 'sequence'},
@@ -87,8 +85,7 @@ def convert_onnx(config, torch_model, x):
         if opt.use_crf:
             output_names += ['prediction']
             dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
-
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+    else:
         input_names = ['input_ids', 'input_mask', 'segment_ids', 'pos_ids']
         output_names = ['logits']
         dynamic_axes = {'input_ids':   {0: 'batch', 1: 'sequence'},
@@ -201,10 +198,10 @@ def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
-        DatasetClass = CoNLLBertDataset
-    if config['emb_class'] == 'elmo':
+    elif config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
+    else:
+        DatasetClass = CoNLLBertDataset
     test_loader = prepare_dataset(config, opt.data_path, DatasetClass, sampling=False, num_workers=1)
     return test_loader
 
@@ -272,12 +269,12 @@ def evaluate(opt):
 
             if opt.enable_ort:
                 x = to_numpy(x)
-                if config['emb_class'] == 'glove':
+                if config['emb_class'] in ['glove', 'elmo']:
                     ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                                   ort_session.get_inputs()[1].name: x[1]}
                     if opt.use_char_cnn:
                         ort_inputs[ort_session.get_inputs()[2].name] = x[2]
-                if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+                else:
                     if config['emb_class'] in ['distilbert', 'bart']:
                         ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                                       ort_session.get_inputs()[1].name: x[1]}

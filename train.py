@@ -182,15 +182,12 @@ def save_model(config, model):
 
 def set_path(config):
     opt = config['opt']
-    if config['emb_class'] == 'glove':
+    if config['emb_class'] in ['glove', 'elmo']:
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+    else:
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.fs')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.fs')
-    if config['emb_class'] == 'elmo':
-        opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
-        opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
     opt.label_path = os.path.join(opt.data_dir, opt.label_filename)
     opt.pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     opt.embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
@@ -199,10 +196,10 @@ def prepare_datasets(config, hp_search_bsz=None):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
-        DatasetClass = CoNLLBertDataset
-    if config['emb_class'] == 'elmo':
+    elif config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
+    else:
+        DatasetClass = CoNLLBertDataset
     train_loader = prepare_dataset(config, opt.train_path, DatasetClass, sampling=True, num_workers=2, hp_search_bsz=hp_search_bsz)
     valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, sampling=False, num_workers=2, batch_size=opt.eval_batch_size)
     return train_loader, valid_loader
@@ -239,7 +236,12 @@ def prepare_model(config):
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
                                      emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
-    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+    elif config['emb_class'] == 'elmo':
+        from allennlp.modules.elmo import Elmo
+        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
+        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
+                            emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
+    else:
         from transformers import AutoTokenizer, AutoConfig, AutoModel
         bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path,
                                                    do_lower_case=opt.bert_do_lower_case)
@@ -251,11 +253,6 @@ def prepare_model(config):
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
-    if config['emb_class'] == 'elmo':
-        from allennlp.modules.elmo import Elmo
-        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
-        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
-                            emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     model.to(opt.device)
     print(model)
     logger.info("[model prepared]")
