@@ -864,8 +864,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT-large               | 85.99       | eoj      | 30.7513 / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
-| KcBERT-base,                 | 84.72       | eoj      | 13.3129 / -    |          |           |        |
-| KcBERT-large,                | 86.34       | eoj      | 26.9639 / -    |          |           |        |
+| KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
+| KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
