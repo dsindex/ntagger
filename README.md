@@ -869,7 +869,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
-| RoBERTa-base                 | 85.05       | eoj      | 15.7721 / -    |          |           |        |
+| RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
@@ -1461,11 +1461,10 @@ accuracy:  93.06%; precision:  83.40%; recall:  82.69%; FB1:  83.05
 $ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-INFO:__main__:[F1] : 0.8516379618745847, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 877249.1323947906ms, 97.46949836166318ms on average
-INFO:__main__:[Elapsed Time] : 100 examples, 1692.3189163208008ms, 15.772190960970791ms on average
-accuracy:  93.86%; precision:  85.12%; recall:  84.98%; FB1:  85.05
-
+INFO:__main__:[F1] : 0.8556474298866252, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 892125.4014968872ms, 99.12149309250948ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1671.3252067565918ms, 15.69863280864677ms on average
+accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 
 ```
 
