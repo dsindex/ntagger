@@ -192,7 +192,7 @@ def set_path(config):
     opt.pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     opt.embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
 
-def prepare_datasets(config, hp_search_optuna_bsz=None):
+def prepare_datasets(config, hp_search_bsz=None):
     opt = config['opt']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
@@ -200,7 +200,7 @@ def prepare_datasets(config, hp_search_optuna_bsz=None):
         DatasetClass = CoNLLElmoDataset
     else:
         DatasetClass = CoNLLBertDataset
-    train_loader = prepare_dataset(config, opt.train_path, DatasetClass, sampling=True, num_workers=2, hp_search_optuna_bsz=hp_search_optuna_bsz)
+    train_loader = prepare_dataset(config, opt.train_path, DatasetClass, sampling=True, num_workers=2, hp_search_bsz=hp_search_bsz)
     valid_loader = prepare_dataset(config, opt.valid_path, DatasetClass, sampling=False, num_workers=2, batch_size=opt.eval_batch_size)
     return train_loader, valid_loader
 
@@ -380,7 +380,7 @@ def hp_search_optuna(trial: optuna.Trial):
     epochs = trial.suggest_int('epochs', 1, opt.epoch)
 
     # prepare train, valid dataset
-    train_loader, valid_loader = prepare_datasets(config, hp_search_optuna_bsz=bsz)
+    train_loader, valid_loader = prepare_datasets(config, hp_search_bsz=bsz)
 
     with temp_seed(seed):
         # prepare model
