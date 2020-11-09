@@ -492,39 +492,26 @@ class BertLSTMCRF(BaseModel):
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def _compute_bert_embedding(self, x):
+        params = {
+            'input_ids': x[0],
+            'attention_mask': x[1],
+            'output_hidden_states': True,
+            'output_attentions': True,
+            'return_dict': True
+        }
+        if self.bert_model.config.model_type not in ['bart', 'distilbert']:
+            params['token_type_ids'] = None if self.bert_model.config.model_type in ['roberta'] else x[2] # RoBERTa don't use segment_ids
         if self.bert_feature_based:
             # feature-based
             with torch.no_grad():
-                if self.config['emb_class'] in ['bart', 'distilbert']:
-                    bert_outputs = self.bert_model(input_ids=x[0],
-                                                   attention_mask=x[1],
-                                                   output_hidden_states=True)
-                    # bart model's output(output_hidden_states == True)
-                    # [0] last decoder layer's output : [batch_size, seq_size, bert_hidden_size]
-                    # [1] all hidden states of decoder layer's
-                    # [2] last encoder layer's output : [seq_size, batch_size, bert_hidden_size]
-                    # [3] all hidden states of encoder layer's
-                    all_hidden_states = bert_outputs[1][0:]
-                elif 'electra' in self.config['emb_class']:
-                    bert_outputs = self.bert_model(input_ids=x[0],
-                                                   attention_mask=x[1],
-                                                   token_type_ids=x[2],
-                                                   output_hidden_states=True)
-                    # electra model's output
-                    # list of each layer's hidden states
-                    all_hidden_states = bert_outputs
+                bert_outputs = self.bert_model(**params)
+                if self.bert_model.config.model_type in ['bart']:
+                    all_hidden_states = bert_outputs.decoder_hidden_states
                 else:
-                    bert_outputs = self.bert_model(input_ids=x[0],
-                                                   attention_mask=x[1],
-                                                   token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2], # RoBERTa don't use segment_ids
-                                                   output_hidden_states=True)
-                    all_hidden_states = bert_outputs[2][0:]
-                    # last hidden states, pooled output,   initial embedding layer, 1 ~ last layer's hidden states
-                    # bert_outputs[0],    bert_outputs[1], bert_outputs[2][0],      bert_outputs[2][1:]
-
+                    all_hidden_states = bert_outputs.hidden_states
                 '''
                 # 1) last layer
-                embedded = bert_outputs[0]
+                embedded = bert_outputs.last_hidden_state
                 # embedded : [batch_size, seq_size, bert_hidden_size]
                 '''
                 '''
@@ -550,19 +537,10 @@ class BertLSTMCRF(BaseModel):
         else:
             # fine-tuning
             # x[0], x[1], x[2] : [batch_size, seq_size]
-            if self.config['emb_class'] in ['bart', 'distilbert']:
-                bert_outputs = self.bert_model(input_ids=x[0],
-                                               attention_mask=x[1],
-                                               output_hidden_states=True)
-                embedded = bert_outputs[0]
-            else:
-                bert_outputs = self.bert_model(input_ids=x[0],
-                                               attention_mask=x[1],
-                                               token_type_ids=None if self.config['emb_class'] in ['roberta'] else x[2], # RoBERTa don't use segment_ids
-                                               output_hidden_states=True)
-                embedded = bert_outputs[0]
-                # embedded : [batch_size, seq_size, bert_hidden_size]
-        return embedded
+            bert_outputs = self.bert_model(**params)
+            embedded = bert_outputs.last_hidden_state
+            # embedded : [batch_size, seq_size, bert_hidden_size]
+        return embedded, bert_outputs
 
     def forward(self, x):
         # x[0,1,2] : [batch_size, seq_size]
@@ -573,7 +551,7 @@ class BertLSTMCRF(BaseModel):
         # lengths : [batch_size]
 
         # 1. Embedding
-        bert_embed_out = self._compute_bert_embedding(x)
+        bert_embed_out, bert_outputs = self._compute_bert_embedding(x)
         # bert_embed_out : [batch_size, seq_size, *]
         pos_ids = x[3]
         pos_embed_out = self.embed_pos(pos_ids)
