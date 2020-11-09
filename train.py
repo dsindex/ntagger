@@ -243,8 +243,7 @@ def prepare_model(config):
                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
     else:
         from transformers import AutoTokenizer, AutoConfig, AutoModel
-        bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path,
-                                                   do_lower_case=opt.bert_do_lower_case)
+        bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
         bert_model = AutoModel.from_pretrained(opt.bert_model_name_or_path,
                                                from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
         bert_config = bert_model.config
@@ -443,8 +442,6 @@ def main():
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
-    parser.add_argument('--bert_do_lower_case', action='store_true',
-                        help="Set this flag if you are using an uncased model.")
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action='store_true',

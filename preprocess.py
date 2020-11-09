@@ -320,8 +320,7 @@ def preprocess_bert(config):
 
     from transformers import AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path,
-                                          do_lower_case=opt.bert_do_lower_case)
+    tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
     # build poss, chars, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
     poss, chars, labels = build_dict(path, config)
@@ -362,8 +361,6 @@ def main():
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
-    parser.add_argument("--bert_do_lower_case", action="store_true",
-                        help="Set this flag if you are using an uncased model.")
     opt = parser.parse_args()
 
     # set seed

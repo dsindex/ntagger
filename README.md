@@ -464,27 +464,27 @@ INFO:__main__:[F1] : 0.9188571428571428, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 120905.13277053833ms, 32.785276922556875ms on average
 accuracy:  98.36%; precision:  91.25%; recall:  92.53%; FB1:  91.89
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_crf (BERT-base BiLSTM-CRF)
+* --bert_model_name_or_path=./embedings/bert-base-uncased --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
 INFO:__main__:[Elapsed Time] : 100 examples, 4368ms, 42.64646464646464ms on average
 accuracy:  97.87%; precision:  89.52%; recall:  90.88%; FB1:  90.20
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case (BERT-base BiLSTM)
+* --bert_model_name_or_path=./embedings/bert-base-uncased (BERT-base BiLSTM)
 INFO:__main__:[F1] : 0.9054532577903682, 3684
 INFO:__main__:[Elapsed Time] : 100 examples, 1922ms, 18.232323232323232ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
+* --bert_model_name_or_path=./embedings/bert-base-uncased  --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
 INFO:__main__:[F1] : 0.9049717912552891, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 68218ms, 18.403203909856096ms on average
 accuracy:  97.97%; precision:  90.12%; recall:  90.88%; FB1:  90.50
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm --use_crf (BERT-base CRF)
+* --bert_model_name_or_path=./embedings/bert-base-uncased  --bert_disable_lstm --use_crf (BERT-base CRF)
 INFO:__main__:[F1] : 0.8961356880573526, 3684
 INFO:__main__:[Elapsed Time] : 135607ms, 36.68938365462938ms on average
 accuracy:  97.78%; precision:  89.24%; recall:  90.74%; FB1:  89.98
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_disable_lstm (BERT-base)
+* --bert_model_name_or_path=./embedings/bert-base-uncased  --bert_disable_lstm (BERT-base)
 INFO:__main__:[F1] : 0.9024668598015978, 3684
 INFO:__main__:[Elapsed Time] : 61914ms, 16.68775454792289ms on average
 accuracy:  98.01%; precision:  89.50%; recall:  91.01%; FB1:  90.25
@@ -500,27 +500,27 @@ INFO:__main__:[F1] : 0.9224547212941797, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 66638.26131820679ms, 18.064501684967215ms on average
 accuracy:  98.38%; precision:  91.62%; recall:  92.88%; FB1:  92.25
 
-* --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 --bert_do_lower_case
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 
 INFO:__main__:[F1] : 0.8829307140960977, 3684
 INFO:__main__:[Elapsed Time] : 99730ms, 27.048601683410265ms on average
 accuracy:  97.61%; precision:  88.25%; recall:  88.33%; FB1:  88.29
 
-* --bert_model_name_or_path=./embedings/pytorch.uncased_L-4_H-512_A-8 --bert_do_lower_case
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-4_H-512_A-8 
 INFO:__main__:[F1] : 0.8634692805881324, 3684
 INFO:__main__:[Elapsed Time] : 83385ms, 22.60874287265816ms on average
 accuracy:  97.23%; precision:  85.38%; recall:  87.34%; FB1:  86.35
 
-* --bert_model_name_or_path=./embedings/pytorch.uncased_L-4_H-256_A-4 --bert_do_lower_case
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-4_H-256_A-4 
 INFO:__main__:[F1] : 0.8155101324677603, 3684
 INFO:__main__:[Elapsed Time] : 79173ms, 21.463209340211783ms on average
 accuracy:  96.32%; precision:  80.82%; recall:  82.29%; FB1:  81.55
 
-* --bert_model_name_or_path=./embedings/pytorch.uncased_L-2_H-128_A-2 --bert_do_lower_case
+* --bert_model_name_or_path=./embedings/pytorch.uncased_L-2_H-128_A-2 
 INFO:__main__:[F1] : 0.6965218958370878, 3684
 INFO:__main__:[Elapsed Time] : 74261ms, 20.137659516698342ms on average
 accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
 
-* --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/distilbert-base-uncased --bert_do_lower_case
+* --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/distilbert-base-uncased 
 INFO:__main__:[F1] : 0.894963522897073, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 49652ms, 13.456421395601412ms on average
 accuracy:  97.80%; precision:  88.86%; recall:  90.14%; FB1:  89.50
@@ -616,7 +616,7 @@ INFO:__main__:[F1] : 0.8953335090957026, 3684
 INFO:__main__:[Elapsed Time] : 219016ms, 59.40619060548466ms on average
 accuracy:  97.94%; precision:  89.37%; recall:  90.19%; FB1:  89.78
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased --bert_do_lower_case --bert_remove_layers=8,9,10,11
+* --bert_model_name_or_path=./embedings/bert-base-uncased  --bert_remove_layers=8,9,10,11
 INFO:__main__:[F1] : 0.8902760682257781, 3684
 INFO:__main__:[Elapsed Time] : 91854ms, 24.907683953298942ms on average
 accuracy:  97.75%; precision:  88.42%; recall:  89.64%; FB1:  89.03
@@ -638,8 +638,8 @@ accuracy:  97.80%; precision:  88.11%; recall:  90.12%; FB1:  89.10
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-albert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_do_lower_case
-$ python train.py --config=configs/config-albert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --lr_decay_rate=0.9 --bert_do_lower_case
+$ python preprocess.py --config=configs/config-albert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/albert-base-v2 
+$ python train.py --config=configs/config-albert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --lr_decay_rate=0.9 
 ```
 
 - evaluation
@@ -747,8 +747,8 @@ accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-electra.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_do_lower_case
-$ python train.py --config=configs/config-electra.json --data_dir=data/conll2003 --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 --bert_do_lower_case
+$ python preprocess.py --config=configs/config-electra.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/electra-base-discriminator 
+$ python train.py --config=configs/config-electra.json --data_dir=data/conll2003 --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 
 ```
 
 - evaluation
