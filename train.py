@@ -222,7 +222,7 @@ def reduce_bert_model(config, bert_model, bert_config):
         for layer_idx in layer_indexes:
             if layer_idx < 0 or layer_idx >= bert_config.num_hidden_layers: continue
             del(layer_list[layer_idx])
-            logger.info("%s layer removed" % (layer_idx))
+            logger.info("[layer removed] : %s" % (layer_idx))
         if len(layer_indexes) > 0:
             bert_config.num_hidden_layers = len(layer_list)
 
@@ -469,9 +469,9 @@ def main():
         study.optimize(hp_search_optuna, n_trials=opt.hp_trials)
         df = study.trials_dataframe(attrs=('number', 'value', 'params', 'state'))
         print(df)
-        logger.info("study.best_params : %s", study.best_params)
-        logger.info("study.best_value : %s", study.best_value)
-        logger.info("study.best_trial : %s", study.best_trial) # for all, study.trials
+        logger.info("[study.best_params] : %s", study.best_params)
+        logger.info("[study.best_value] : %s", study.best_value)
+        logger.info("[study.best_trial] : %s", study.best_trial) # for all, study.trials
     else:
         train(opt)
  

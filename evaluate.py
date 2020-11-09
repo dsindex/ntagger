@@ -171,7 +171,7 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
         with open(pred_path, 'w', encoding='utf-8') as f:
             for i, bucket in enumerate(data):      # foreach sentence
                 if i >= ys.shape[0]:
-                    logger.info("Stop to write predictions: %s" % (i))
+                    logger.info("[Stop to write predictions] : %s" % (i))
                     break
                 # from preds
                 j_bucket = 0
@@ -232,11 +232,11 @@ def evaluate(opt):
         y = to_device(y, opt.device)
         convert_onnx(config, model, x)
         check_onnx(config)
-        logger.info("[ONNX model saved at {}".format(opt.onnx_path))
+        logger.info("[ONNX model saved] : {}".format(opt.onnx_path))
         # quantize onnx
         if opt.quantize_onnx:
             quantize_onnx(opt.onnx_path, opt.quantized_onnx_path)
-            logger.info("[Quantized ONNX model saved at {}".format(opt.quantized_onnx_path))
+            logger.info("[Quantized ONNX model saved] : {}".format(opt.quantized_onnx_path))
         return
 
     # load onnx model for using onnxruntime
