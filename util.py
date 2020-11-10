@@ -4,9 +4,10 @@ import os
 import pdb
 import json
 
-def load_config(opt):
+def load_config(opt, config_path=None):
     try:
-        with open(opt.config, 'r', encoding='utf-8') as f:
+        if not config_path: config_path = opt.config
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
     except Exception as e:
         config = dict()

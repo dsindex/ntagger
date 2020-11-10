@@ -172,10 +172,11 @@ def evaluate(model, config, val_loader):
     print(ret['report'])
     return ret
 
-def save_model(config, model):
+def save_model(config, model, save_path=None):
     opt = config['opt']
     optimizer = config['optimizer']
     checkpoint_path = opt.save_path
+    if save_path: checkpoint_path = save_path
     with open(checkpoint_path, 'wb') as f:
         checkpoint = model.state_dict()
         torch.save(checkpoint,f)
