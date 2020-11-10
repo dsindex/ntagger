@@ -364,7 +364,7 @@ def main():
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     # for BERT
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
-                        help="The output directory where the model predictions and checkpoints will be written.")
+                        help="The checkpoint directory of fine-tuned BERT model.")
     parser.add_argument('--bert_use_feature_based', action='store_true',
                         help="Use BERT as feature-based, default fine-tuning")
     parser.add_argument('--bert_disable_lstm', action='store_true',

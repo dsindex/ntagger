@@ -443,7 +443,7 @@ def main():
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
-                        help="The output directory where the model predictions and checkpoints will be written.")
+                        help="The output directory where the BERT model checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action='store_true',
                         help="Use BERT as feature-based, default fine-tuning")
     parser.add_argument('--bert_disable_lstm', action='store_true',
