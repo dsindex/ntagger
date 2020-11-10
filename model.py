@@ -491,7 +491,7 @@ class BertLSTMCRF(BaseModel):
         if self.use_crf:
             self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
-    def _compute_bert_embedding(self, x):
+    def _compute_bert_embedding(self, x, head_mask=None):
         params = {
             'input_ids': x[0],
             'attention_mask': x[1],
@@ -501,6 +501,8 @@ class BertLSTMCRF(BaseModel):
         }
         if self.bert_model.config.model_type not in ['bart', 'distilbert']:
             params['token_type_ids'] = None if self.bert_model.config.model_type in ['roberta'] else x[2] # RoBERTa don't use segment_ids
+        if head_mask:
+            params['head_mask'] = head_mask
         if self.bert_feature_based:
             # feature-based
             with torch.no_grad():
@@ -542,7 +544,7 @@ class BertLSTMCRF(BaseModel):
             # embedded : [batch_size, seq_size, bert_hidden_size]
         return embedded, bert_outputs
 
-    def forward(self, x):
+    def forward(self, x, head_mask=None):
         # x[0,1,2] : [batch_size, seq_size]
 
         mask = x[1].to(torch.uint8).to(self.device)
@@ -551,7 +553,7 @@ class BertLSTMCRF(BaseModel):
         # lengths : [batch_size]
 
         # 1. Embedding
-        bert_embed_out, bert_outputs = self._compute_bert_embedding(x)
+        bert_embed_out, bert_outputs = self._compute_bert_embedding(x, head_mask=head_mask)
         # bert_embed_out : [batch_size, seq_size, *]
         pos_ids = x[3]
         pos_embed_out = self.embed_pos(pos_ids)
