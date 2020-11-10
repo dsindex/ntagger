@@ -254,7 +254,7 @@ def prepare_model(config):
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
     model.to(opt.device)
-    print(model)
+    logger.info("[model] :\n{}".format(model.__str__()))
     logger.info("[model prepared]")
     return model
 
