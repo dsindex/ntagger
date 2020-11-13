@@ -92,6 +92,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
             optimizer.zero_grad()
             if opt.use_transformers_optimizer: scheduler.step()
             if opt.eval_and_save_steps > 0 and global_step % opt.eval_and_save_steps == 0:
+                # evaluate
                 eval_ret = evaluate(model, config, val_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
@@ -116,7 +117,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
                      ('lr', curr_lr)])
     train_loss = train_loss / n_batches
 
-    # evaluate
+    # evaluate at the end of epoch
     eval_ret = evaluate(model, config, val_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
