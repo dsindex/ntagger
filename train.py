@@ -96,6 +96,11 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
                 eval_ret = evaluate(model, config, val_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
+                curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
+                if writer:
+                    writer.add_scalar('Loss/valid', eval_loss, global_step)
+                    writer.add_scalar('F1/valid', eval_f1, global_step)
+                    writer.add_scalar('LearningRate/train', curr_lr, global_step)
                 if eval_f1 > best_eval_f1:
                     best_eval_f1 = eval_f1
                     if opt.save_path and not opt.hp_search_optuna:
