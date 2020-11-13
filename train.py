@@ -34,7 +34,7 @@ from datasets.metric import temp_seed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def train_epoch(model, config, train_loader, val_loader, epoch_i):
+def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     opt = config['opt']
 
     optimizer = config['optimizer']
@@ -91,6 +91,21 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
             scaler.update()
             optimizer.zero_grad()
             if opt.use_transformers_optimizer: scheduler.step()
+            if opt.eval_and_save_steps > 0 and global_step % opt.eval_and_save_steps == 0:
+                eval_ret = evaluate(model, config, val_loader)
+                eval_loss = eval_ret['loss']
+                eval_f1 = eval_ret['f1']
+                if eval_f1 > best_eval_f1:
+                    best_eval_f1 = eval_f1
+                    if opt.save_path and not opt.hp_search_optuna:
+                        logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
+                        save_model(config, model)
+                        # save finetuned bert model/config/tokenizer
+                        if config['emb_class'] not in ['glove', 'elmo']:
+                            if not os.path.exists(opt.bert_output_dir):
+                                os.makedirs(opt.bert_output_dir)
+                            model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
+                            model.bert_model.save_pretrained(opt.bert_output_dir)
         # back-propagation - end
         train_loss += loss.item()
         if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
@@ -115,7 +130,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i):
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
         writer.add_scalar('LearningRate/train', curr_lr, global_step)
-    return eval_loss, eval_f1
+    return eval_loss, eval_f1, best_eval_f1
  
 def evaluate(model, config, val_loader):
     model.eval()
@@ -326,16 +341,16 @@ def train(opt):
         best_eval_f1 = -float('inf')
         for epoch_i in range(opt.epoch):
             epoch_st_time = time.time()
-            eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i)
+            eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
             if eval_f1 > best_eval_f1:
                 best_eval_f1 = eval_f1
                 if opt.save_path:
-                    logger.info("[Best model saved] : {:10.6f}".format(best_eval_f1))
+                    logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
                     save_model(config, model)
                     # save finetuned bert model/config/tokenizer
-                    if config['emb_class'] in ['bert', 'distilbert', 'albert', 'roberta', 'bart', 'electra']:
+                    if config['emb_class'] not in ['glove', 'elmo']:
                         if not os.path.exists(opt.bert_output_dir):
                             os.makedirs(opt.bert_output_dir)
                         model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
@@ -395,7 +410,7 @@ def hp_search_optuna(trial: optuna.Trial):
         early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
         best_eval_f1 = -float('inf')
         for epoch in range(epochs):
-            eval_loss, eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch)
+            eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch, best_eval_f1)
 
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
@@ -421,6 +436,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--eval_batch_size', type=int, default=128)
     parser.add_argument('--epoch', type=int, default=30)
+    parser.add_argument('--eval_and_save_steps', type=int, default=500, help="Save checkpoint every X updates steps.")
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--lr_decay_rate', type=float, default=1.0, help="Disjoint with --use_transformers_optimizer")
     parser.add_argument('--lr_decay_steps', type=float, default=2, help="Number of decay epoch steps to be paitent. disjoint with --use_transformers_optimizer")
