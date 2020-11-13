@@ -236,7 +236,7 @@ $ python to-conll.py -g t > valid.txt
   - dha BERT : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
   - distil bpe BERT : `kor-distil-bpe-bert.v1` (inhouse)
-  - KoELECTRA-Base : `koelectra-base-discriminator`
+  - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
   - ELECTRA-base : `kor-electra-bpe-30k-512-1m` (inhouse)
   - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
@@ -862,14 +862,15 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(v1), BiLSTM-CRF     | 86.11       | eoj      | 53.1818 / -    |          |           | packed |
 | bpe BERT(v1), BiLSTM         | 86.37       | eoj      | 21.3232 / -    |          |           | packed |
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
-| bpe BERT(v1)                 | **87.13**   | eoj      | 16.2121 / -    |          |           |        |
+| bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large               | 85.99       | eoj      | 30.7513 / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
 | KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
-| KoELECTRA-Base               | 86.64       | eoj      | 15.1616 / -    |          |           |        |
+| KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
+| KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
 | RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 
@@ -881,10 +882,11 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | BiLSTM-CRF               | 74.57         | eoj      |
 | Bert-multilingual        | 84.20         | eoj      |
 | DistilKoBERT             | 84.13         | eoj      |
-| KoBERT                   | 86.11         | eoj      |
-| HanBert                  | **87.31**     | eoj      |
-| KoELECTRA-Base           | 86.87         | eoj      |
-| KoELECTRA-Base-v2        | 87.02         | eoj      |
+| KoBERT                   | 87.92         | eoj      |
+| HanBert                  | 87.70         | eoj      |
+| KoELECTRA-Base           | 87.18         | eoj      |
+| KoELECTRA-Base-v2        | 87.16         | eoj      |
+| KoELECTRA-Base-v3        | **88.11**     | eoj      |
 
 ```
 * note that F1 score from the 'seqeval' package for 'max_seq_len=50' might be similar with that for 'max_seq_len=180'. 
@@ -1407,8 +1409,8 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 * for clova2019
 
 ** KoELECTRA-Base
-$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-discriminator
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
+$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
 ** bpe ELECTRA-base(30k-512-1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
@@ -1445,6 +1447,12 @@ INFO:__main__:[F1] : 0.8674485806561278, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 976734ms, 108.52672519168796ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1597ms, 15.16161616161616ms on average
 accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
+
+*** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+INFO:__main__:[F1] : 0.8743705005576774, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 878765.2859687805ms, 97.64226169927423ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1558.605432510376ms, 14.81159528096517ms on average
+accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 
 
 ** bpe ELECTRA-base(30k-512-1m)
