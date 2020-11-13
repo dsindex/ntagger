@@ -346,7 +346,7 @@ def train(opt):
             if early_stopping.validate(eval_f1, measure='f1'): break
             if eval_f1 > best_eval_f1:
                 best_eval_f1 = eval_f1
-                if opt.save_path:
+                if opt.save_path and not opt.hp_search_optuna:
                     logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
                     save_model(config, model)
                     # save finetuned bert model/config/tokenizer
