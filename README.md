@@ -44,9 +44,9 @@
 
 <br>
 
-# Data
+# Data and Pretrained Model
 
-### CoNLL 2003 (English)
+## CoNLL 2003 (English)
 
 #### from [etagger](https://github.com/dsindex/etagger)
   
@@ -68,7 +68,7 @@ $ python to-truecase.py --input_path ../conll2003/test.txt > test.txt
 </p>
 </details>
 
-### Naver NER 2019 (Korean)
+## Naver NER 2019 (Korean)
 
 #### from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
 
@@ -182,7 +182,7 @@ _ _ - O
 
 ##### there is no test set. therefore, set valid.txt as test.txt.
 
-### KMOU NER 2019 (Korean)
+## KMOU NER 2019 (Korean)
 
 #### from [KMOU NER](https://github.com/kmounlp/NER)
 
@@ -225,7 +225,7 @@ $ python to-conll.py -g t > valid.txt
 
 - set valid.txt as test.txt
 
-### Korean pretrained model
+## Korean pretrained model
 
 ##### Korean GloVe, BERT, ELECTRA, ELMo
 
@@ -246,7 +246,7 @@ $ python to-conll.py -g t > valid.txt
 
 # CoNLL 2003 (English)
 
-### experiments summary
+## experiments summary
 
 - ntagger, measured by conlleval.pl (micro F1)
 
@@ -330,8 +330,10 @@ $ python to-conll.py -g t > valid.txt
 
 |                                 | F1 (%)   | Etc                 |
 | ------------------------------- | -------- | ------------------- |
-| CNN Large + fine-tune           | **93.5** |                     |
-| biaffine-ner                    | **93.5** | https://www.aclweb.org/anthology/2020.acl-main.577.pdf |
+| LUKE                            | **94.3** |                     |
+| ACE                             | 93.63    |                     |
+| CNN Large + fine-tune           | 93.5     |                     |
+| biaffine-ner                    | 93.5     |                     |
 | GCDT + BERT-L                   | 93.47    |                     |
 | LSTM-CRF+ELMo+BERT+Flair        | 93.38    |                     |
 | Hierarchical + BERT             | 93.37    |                     |
@@ -849,7 +851,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 # Naver NER 2019 (Korean)
 
-### experiments summary
+## experiments summary
 
 #### clova2019(eoj-based)
 
@@ -1475,7 +1477,7 @@ accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
  
 # KMOU NER 2019 (Korean)
 
-### experiments summary
+## experiments summary
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
