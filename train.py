@@ -49,6 +49,8 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     # train one epoch
     model.train()
     train_loss = 0.
+    avg_loss = 0.
+    best_eval_loss = float('inf')
     st_time = time.time()
     optimizer.zero_grad()
     for local_step, (x,y) in enumerate(train_loader):
@@ -96,6 +98,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
                 eval_ret = evaluate(model, config, val_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
+                if eval_loss < best_eval_loss: best_eval_loss = eval_loss
                 curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
                 if writer:
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
@@ -120,23 +123,38 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
                     [('global step', global_step),
                      ('train curr loss', loss.item()),
                      ('lr', curr_lr)])
-    train_loss = train_loss / n_batches
+    avg_loss = train_loss / n_batches
 
     # evaluate at the end of epoch
     eval_ret = evaluate(model, config, val_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
-    curr_time = time.time()
-    elapsed_time = (curr_time - st_time) / 60
-    st_time = curr_time
+    if eval_loss < best_eval_loss: best_eval_loss = eval_loss
     curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-    logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f}, valid loss {:10.6f}, valid f1 {:.4f}| lr :{:7.6f} | {:5.2f} min elapsed'.\
-            format(epoch_i, local_step+1, len(train_loader), train_loss, eval_loss, eval_f1, curr_lr, elapsed_time)) 
     if writer:
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
         writer.add_scalar('LearningRate/train', curr_lr, global_step)
-    return eval_loss, eval_f1, best_eval_f1
+    if eval_f1 > best_eval_f1:
+        best_eval_f1 = eval_f1
+        if opt.save_path and not opt.hp_search_optuna:
+            logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
+            save_model(config, model)
+            # save finetuned bert model/config/tokenizer
+            if config['emb_class'] not in ['glove', 'elmo']:
+                if not os.path.exists(opt.bert_output_dir):
+                    os.makedirs(opt.bert_output_dir)
+                model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
+                model.bert_model.save_pretrained(opt.bert_output_dir)
+
+    curr_time = time.time()
+    elapsed_time = (curr_time - st_time) / 60
+    st_time = curr_time
+    curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
+    logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f} | {:5.2f} min elapsed'.\
+            format(epoch_i, local_step+1, len(train_loader), avg_loss, elapsed_time)) 
+
+    return best_eval_loss, best_eval_f1, best_eval_f1
  
 def evaluate(model, config, val_loader):
     model.eval()
@@ -352,15 +370,6 @@ def train(opt):
             if early_stopping.validate(eval_f1, measure='f1'): break
             if eval_f1 > best_eval_f1:
                 best_eval_f1 = eval_f1
-                if opt.save_path and not opt.hp_search_optuna:
-                    logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
-                    save_model(config, model)
-                    # save finetuned bert model/config/tokenizer
-                    if config['emb_class'] not in ['glove', 'elmo']:
-                        if not os.path.exists(opt.bert_output_dir):
-                            os.makedirs(opt.bert_output_dir)
-                        model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
-                        model.bert_model.save_pretrained(opt.bert_output_dir)
                 early_stopping.reset(best_eval_f1)
             early_stopping.status()
             # begin: scheduling, apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch steps.
