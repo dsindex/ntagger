@@ -93,13 +93,13 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
             scaler.update()
             optimizer.zero_grad()
             if opt.use_transformers_optimizer: scheduler.step()
+            curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
             if opt.eval_and_save_steps > 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, val_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
                 if eval_loss < best_eval_loss: best_eval_loss = eval_loss
-                curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
                 if writer:
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
                     writer.add_scalar('F1/valid', eval_f1, global_step)
@@ -130,7 +130,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
     if eval_loss < best_eval_loss: best_eval_loss = eval_loss
-    curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
     if writer:
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
@@ -150,7 +149,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     curr_time = time.time()
     elapsed_time = (curr_time - st_time) / 60
     st_time = curr_time
-    curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
     logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f} | {:5.2f} min elapsed'.\
             format(epoch_i, local_step+1, len(train_loader), avg_loss, elapsed_time)) 
 
