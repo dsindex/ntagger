@@ -46,14 +46,15 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(train_loader)
     prog = Progbar(target=n_batches)
+
     # train one epoch
-    model.train()
     train_loss = 0.
     avg_loss = 0.
     best_eval_loss = float('inf')
     st_time = time.time()
     optimizer.zero_grad()
     for local_step, (x,y) in enumerate(train_loader):
+        model.train()
         global_step = (len(train_loader) * epoch_i) + local_step
         x = to_device(x, opt.device)
         y = to_device(y, opt.device)
@@ -155,7 +156,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     return best_eval_loss, best_eval_f1, best_eval_f1
  
 def evaluate(model, config, val_loader):
-    model.eval()
     opt = config['opt']
     pad_label_id = config['pad_label_id']
 
@@ -167,6 +167,7 @@ def evaluate(model, config, val_loader):
     ys    = None
     with torch.no_grad():
         for i, (x,y) in enumerate(val_loader):
+            model.eval()
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
             if opt.use_crf:
