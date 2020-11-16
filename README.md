@@ -235,7 +235,7 @@ $ python to-conll.py -g t > valid.txt
   - dha-bpe BERT : `kor-bert-base-dha_bpe`, `kor-bert-large-dha_bpe` (inhouse)
   - dha BERT : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
-  - distil bpe BERT : `kor-distil-bpe-bert.v1` (inhouse)
+  - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
   - ELECTRA-base : `kor-electra-bpe-30k-512-1m` (inhouse)
   - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
@@ -372,6 +372,10 @@ accuracy:  97.60%; precision:  88.90%; recall:  88.39%; FB1:  88.64
 INFO:__main__:[F1] : 0.9013611454834718, 3684
 INFO:__main__:[Elapsed Time] : 96906ms, 26.280749389084985ms on average
 accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
+
+INFO:__main__:[F1] : 0.8981972428419936, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 95621.84238433838ms, 25.92995391408613ms on average
+accuracy:  97.82%; precision:  89.66%; recall:  89.98%; FB1:  89.82
 
 * --data_dir=data/conll2003_truecase --use_char_cnn --lr_decay_rate=0.9
 INFO:__main__:[F1] : 0.902609464838567, 3684
@@ -869,6 +873,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
 | KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
+| wp  DistilBERT(v1)           | -           | eoj      | -       / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
 | bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
@@ -1142,6 +1147,9 @@ INFO:__main__:[F1] : 0.85393906493859, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 816257.2820186615ms, 90.68703071211878ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 988.6960983276367ms, 9.070220619741113ms on average
 accuracy:  93.97%; precision:  85.03%; recall:  85.57%; FB1:  85.30
+
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-wp-bert.v1 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+
 
 ** --bert_model_name_or_path=./embeddings/kcbert-base --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
 INFO:__main__:[F1] : 0.8491746129396084, 9000
