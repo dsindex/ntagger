@@ -100,7 +100,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
                 eval_ret = evaluate(model, config, val_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
-                if eval_loss < best_eval_loss: best_eval_loss = eval_loss
+                if best_eval_loss > eval_loss: best_eval_loss = eval_loss
                 if writer:
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
                     writer.add_scalar('F1/valid', eval_f1, global_step)
@@ -130,7 +130,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     eval_ret = evaluate(model, config, val_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
-    if eval_loss < best_eval_loss: best_eval_loss = eval_loss
+    if best_eval_loss > eval_loss: best_eval_loss = eval_loss
     if writer:
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
