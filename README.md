@@ -643,14 +643,15 @@ accuracy:  97.80%; precision:  88.11%; recall:  90.12%; FB1:  89.10
 
 - train
 ```
+* share config-bert.json
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-albert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/albert-base-v2 
-$ python train.py --config=configs/config-albert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/albert-base-v2 
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-albert.json --data_dir=data/conll2003 --model_path=pytorch-model-albert.pt --bert_output_dir=bert-checkpoint-albert
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-albert.pt --bert_output_dir=bert-checkpoint-albert
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8821014050091632, 3684
@@ -748,14 +749,15 @@ accuracy:  98.04%; precision:  89.21%; recall:  91.68%; FB1:  90.43
 
 - train
 ```
+* share config-bert.json
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-electra.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/electra-base-discriminator 
-$ python train.py --config=configs/config-electra.json --data_dir=data/conll2003 --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/electra-base-discriminator 
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-electra.pt --bert_model_name_or_path=./embeddings/electra-base-discriminator --bert_output_dir=bert-checkpoint-electra --batch_size=32 --lr=1e-5 --epoch=20 
 ```
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-electra.json --data_dir=data/conll2003 --model_path=pytorch-model-electra.pt --bert_output_dir=bert-checkpoint-electra
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-electra.pt --bert_output_dir=bert-checkpoint-electra
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.9072818526019194, 3684
@@ -1406,17 +1408,18 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 
 - train
 ```
+* share config-bert.json
 * n_ctx size should be less than 512
 
 * for clova2019
 
 ** KoELECTRA-Base
-$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
 ** bpe ELECTRA-base(30k-512-1m)
-$ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** RoBERTa-base
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
@@ -1432,7 +1435,7 @@ $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model
 
 ** KoELECTRA-Base
 
-$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 INFO:__main__:[F1] : 0.8601332716652106, 9000
@@ -1459,7 +1462,7 @@ accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 
 ** bpe ELECTRA-base(30k-512-1m)
 
-$ python evaluate.py --config=configs/config-electra.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 *** 2981k
