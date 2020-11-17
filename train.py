@@ -360,7 +360,6 @@ def train(opt):
         # training
         early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
         local_worse_epoch = 0
-        prev_eval_f1 = -float('inf')
         best_eval_f1 = -float('inf')
         for epoch_i in range(opt.epoch):
             epoch_st_time = time.time()
@@ -368,7 +367,6 @@ def train(opt):
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
             if eval_f1 == best_eval_f1:
-                best_eval_f1 = eval_f1
                 early_stopping.reset(best_eval_f1)
             early_stopping.status()
 
@@ -415,8 +413,7 @@ def hp_search_optuna(trial: optuna.Trial):
 
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
-            if eval_f1 > best_eval_f1:
-                best_eval_f1 = eval_f1
+            if eval_f1 == best_eval_f1:
                 early_stopping.reset(best_eval_f1)
             early_stopping.status()
 
