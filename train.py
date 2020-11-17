@@ -153,8 +153,21 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     curr_time = time.time()
     elapsed_time = (curr_time - st_time) / 60
     st_time = curr_time
-    logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f} | {:5.2f} min elapsed'.\
-            format(epoch_i, local_step+1, len(train_loader), avg_loss, elapsed_time)) 
+    logger.info('epoch: {:3d}, \
+            local_step/epoch_step: {:5d}/{:5d}, \
+            train loss: {:6.3f}, \
+            local_best_eval_loss: {:6.3f},\
+            local_best_eval_f1: {:6.3f},\
+            best_eval_f1: {:6.3f},\
+            {:5.2f} min elapsed'.\
+            format(epoch_i,
+                local_step+1,
+                len(train_loader),
+                avg_loss,
+                local_best_eval_loss,
+                local_best_eval_f1,
+                best_eval_f1,
+                elapsed_time)) 
 
     return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
