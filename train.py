@@ -50,7 +50,8 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     # train one epoch
     train_loss = 0.
     avg_loss = 0.
-    best_eval_loss = float('inf')
+    local_best_eval_loss = float('inf')
+    local_best_eval_f1 = 0
     st_time = time.time()
     optimizer.zero_grad()
     for local_step, (x,y) in enumerate(train_loader):
@@ -93,14 +94,15 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
             scaler.step(optimizer)
             scaler.update()
             optimizer.zero_grad()
-            if opt.use_transformers_optimizer: scheduler.step()
+            scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
             if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, val_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
-                if best_eval_loss > eval_loss: best_eval_loss = eval_loss
+                if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
+                if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
                 if writer:
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
                     writer.add_scalar('F1/valid', eval_f1, global_step)
@@ -130,7 +132,8 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     eval_ret = evaluate(model, config, val_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
-    if best_eval_loss > eval_loss: best_eval_loss = eval_loss
+    if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
+    if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
     if writer:
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
@@ -153,7 +156,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     logger.info('{:3d} epoch | {:5d}/{:5d} | train loss : {:10.6f} | {:5.2f} min elapsed'.\
             format(epoch_i, local_step+1, len(train_loader), avg_loss, elapsed_time)) 
 
-    return best_eval_loss, best_eval_f1, best_eval_f1
+    return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
 def evaluate(model, config, val_loader):
     opt = config['opt']
@@ -301,25 +304,22 @@ def prepare_osws(config, model, train_loader, hp_search_optuna_lr=None):
     lr = opt.lr
     # for optuna
     if hp_search_optuna_lr: lr = hp_search_optuna_lr
-    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, eps=opt.adam_epsilon, weight_decay=opt.weight_decay)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=opt.lr_decay_rate)
-    if opt.use_transformers_optimizer:
-        from transformers import AdamW, get_linear_schedule_with_warmup
-        num_training_steps_for_epoch = len(train_loader) // opt.gradient_accumulation_steps
-        num_training_steps = num_training_steps_for_epoch * opt.epoch
-        num_warmup_steps = num_training_steps_for_epoch * opt.warmup_epoch
-        logger.info("(num_training_steps_for_epoch, num_training_steps, num_warmup_steps): ({}, {}, {})".\
-            format(num_training_steps_for_epoch, num_training_steps, num_warmup_steps))        
-        no_decay = ['bias', 'LayerNorm.weight']
-        optimizer_grouped_parameters = [
-            {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-             'weight_decay': opt.weight_decay},
-            {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
-        ]
-        optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=opt.adam_epsilon)
-        scheduler = get_linear_schedule_with_warmup(optimizer,
-            num_warmup_steps=num_warmup_steps,
-            num_training_steps=num_training_steps)
+    from transformers import AdamW, get_linear_schedule_with_warmup
+    num_training_steps_for_epoch = len(train_loader) // opt.gradient_accumulation_steps
+    num_training_steps = num_training_steps_for_epoch * opt.epoch
+    num_warmup_steps = num_training_steps_for_epoch * opt.warmup_epoch
+    logger.info("(num_training_steps_for_epoch, num_training_steps, num_warmup_steps): ({}, {}, {})".\
+        format(num_training_steps_for_epoch, num_training_steps, num_warmup_steps))        
+    no_decay = ['bias', 'LayerNorm.weight']
+    optimizer_grouped_parameters = [
+        {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
+         'weight_decay': opt.weight_decay},
+        {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
+    ]
+    optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=opt.adam_epsilon)
+    scheduler = get_linear_schedule_with_warmup(optimizer,
+        num_warmup_steps=num_warmup_steps,
+        num_training_steps=num_training_steps)
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
@@ -367,23 +367,10 @@ def train(opt):
             eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
-            if eval_f1 > best_eval_f1:
+            if eval_f1 == best_eval_f1:
                 best_eval_f1 = eval_f1
                 early_stopping.reset(best_eval_f1)
             early_stopping.status()
-            # begin: scheduling, apply rate decay at the measure(ex, loss) getting worse for the number of deacy epoch steps.
-            if prev_eval_f1 >= eval_f1:
-                local_worse_epoch += 1
-            else:
-                local_worse_epoch = 0
-            logger.info('Scheduler: local_worse_epoch / opt.lr_decay_epoch = %d / %d' % (local_worse_epoch, opt.lr_decay_epoch))
-            if not opt.use_transformers_optimizer and \
-               epoch_i > opt.warmup_epoch and \
-               (local_worse_epoch >= opt.lr_decay_epoch or early_stopping.step() > opt.lr_decay_epoch):
-                scheduler.step()
-                local_worse_epoch = 0
-            prev_eval_f1 = eval_f1
-            # end: scheduling
 
 # for optuna, global for passing opt 
 gopt = None
@@ -452,9 +439,7 @@ def main():
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--eval_and_save_steps', type=int, default=500, help="Save checkpoint every X updates steps.")
     parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--lr_decay_rate', type=float, default=1.0, help="Disjoint with --use_transformers_optimizer")
-    parser.add_argument('--lr_decay_epoch', type=float, default=2, help="Number of decay epoch to be paitent. disjoint with --use_transformers_optimizer")
-    parser.add_argument('--warmup_epoch', type=int, default=4,  help="Number of warmup epoch steps")
+    parser.add_argument('--warmup_epoch', type=int, default=0,  help="Number of warmup epoch steps")
     parser.add_argument('--patience', default=7, type=int, help="Max number of epoch to be patient for early stopping.")
     parser.add_argument('--adam_epsilon', type=float, default=1e-8)
     parser.add_argument('--weight_decay', type=float, default=0.01)
@@ -467,7 +452,6 @@ def main():
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
     parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
-    parser.add_argument('--use_transformers_optimizer', action='store_true', help="Use transformers AdamW, get_linear_schedule_with_warmup.")
     parser.add_argument('--use_amp', action='store_true', help="Use automatic mixed precision.")
     parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     # for BERT

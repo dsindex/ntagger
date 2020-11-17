@@ -368,7 +368,7 @@ INFO:__main__:[F1] : 0.8864423333037378, 3684
 INFO:__main__:[Elapsed Time] : 97879ms, 26.54547922888949ms on average
 accuracy:  97.60%; precision:  88.90%; recall:  88.39%; FB1:  88.64
 
-* --use_char_cnn --lr_decay_rate=0.9
+* --use_char_cnn 
 INFO:__main__:[F1] : 0.9013611454834718, 3684
 INFO:__main__:[Elapsed Time] : 96906ms, 26.280749389084985ms on average
 accuracy:  97.93%; precision:  89.99%; recall:  90.28%; FB1:  90.14
@@ -377,7 +377,7 @@ INFO:__main__:[F1] : 0.8981972428419936, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 95621.84238433838ms, 25.92995391408613ms on average
 accuracy:  97.82%; precision:  89.66%; recall:  89.98%; FB1:  89.82
 
-* --data_dir=data/conll2003_truecase --use_char_cnn --lr_decay_rate=0.9
+* --data_dir=data/conll2003_truecase --use_char_cnn 
 INFO:__main__:[F1] : 0.902609464838567, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 95198.03929328918ms, 25.81831880021024ms on average
 accuracy:  97.81%; precision:  90.19%; recall:  90.33%; FB1:  90.26
@@ -396,7 +396,7 @@ accuracy:  97.81%; precision:  90.19%; recall:  90.33%; FB1:  90.26
 * token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json --data_dir=data/conll2003
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=configs/config-densenet.json --data_dir=data/conll2003 --save_path=pytorch-model-densenet.pt --use_crf --warmup_epoch=13 --lr_decay_rate=0.8 --epoch=64
+$ python train.py --config=configs/config-densenet.json --data_dir=data/conll2003 --save_path=pytorch-model-densenet.pt --use_crf --warmup_epoch=13 --epoch=64
 ```
 
 - evaluation
@@ -480,7 +480,7 @@ INFO:__main__:[F1] : 0.9054532577903682, 3684
 INFO:__main__:[Elapsed Time] : 100 examples, 1922ms, 18.232323232323232ms on average
 accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 
-* --bert_model_name_or_path=./embedings/bert-base-uncased  --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
+* --bert_model_name_or_path=./embedings/bert-base-uncased   --warmup_epoch=0 --weight_decay=0.0 --epoch=20 (BERT-base BiLSTM)
 INFO:__main__:[F1] : 0.9049717912552891, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 68218ms, 18.403203909856096ms on average
 accuracy:  97.97%; precision:  90.12%; recall:  90.88%; FB1:  90.50
@@ -496,12 +496,12 @@ INFO:__main__:[Elapsed Time] : 61914ms, 16.68775454792289ms on average
 accuracy:  98.01%; precision:  89.50%; recall:  91.01%; FB1:  90.25
 
 * https://huggingface.co/dslim/bert-base-NER
-* --bert_model_name_or_path=./embeddings/bert-base-NER --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20
+* --bert_model_name_or_path=./embeddings/bert-base-NER  --warmup_epoch=0 --weight_decay=0.0 --epoch=20
 INFO:__main__:[F1] : 0.9163073132095397, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 65167.21606254578ms, 17.668077811708017ms on average
 accuracy:  98.34%; precision:  91.09%; recall:  92.17%; FB1:  91.63
 
-* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-base-NER --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=20
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-base-NER  --warmup_epoch=0 --weight_decay=0.0 --epoch=20
 INFO:__main__:[F1] : 0.9224547212941797, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 66638.26131820679ms, 18.064501684967215ms on average
 accuracy:  98.38%; precision:  91.62%; recall:  92.88%; FB1:  92.25
@@ -536,12 +536,12 @@ INFO:__main__:[F1] : 0.9130013221683562, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 130683ms, 35.44013032853652ms on average
 accuracy:  98.29%; precision:  90.91%; recall:  91.70%; FB1:  91.30
 
-* --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+* --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad  --warmup_epoch=0 --weight_decay=0.0 --epoch=30
 INFO:__main__:[F1] : 0.9175393822054034, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 131497ms, 35.661960358403476ms on average
 accuracy:  98.33%; precision:  91.22%; recall:  92.30%; FB1:  91.75
 
-* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad  --warmup_epoch=0 --weight_decay=0.0 --epoch=30
 INFO:__main__:[F1] : 0.9217421785995968, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 121090.73448181152ms, 32.83806317143229ms on average
 accuracy:  98.32%; precision:  91.25%; recall:  93.11%; FB1:  92.17
@@ -557,7 +557,7 @@ INFO:__main__:[F1] : 0.9139340659340659, 3684
 INFO:__main__:[Elapsed Time] : 157069ms, 42.59598153679066ms on average
 accuracy:  98.23%; precision:  90.76%; recall:  92.03%; FB1:  91.39
 
-* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/spanbert_hf_large --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/spanbert_hf_large  --warmup_epoch=0 --weight_decay=0.0 --epoch=30
 INFO:__main__:[F1] : 0.9201266713581985, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 116231.20188713074ms, 31.509835921387747ms on average
 accuracy:  98.35%; precision:  91.43%; recall:  92.60%; FB1:  92.01
@@ -617,7 +617,7 @@ INFO:__main__:[F1] : 0.9036879808967896, 3684
 INFO:__main__:[Elapsed Time] : 245729ms, 66.65761607385284ms on average
 accuracy:  98.08%; precision:  90.78%; recall:  90.46%; FB1:  90.62
 
-* --bert_use_feature_based --use_crf --epoch=64 --lr=1e-3 --lr_decay_rate=0.9 , modify model.py to use DSA(2, 1024)
+* --bert_use_feature_based --use_crf --epoch=64 --lr=1e-3 , modify model.py to use DSA(2, 1024)
 INFO:__main__:[F1] : 0.8953335090957026, 3684
 INFO:__main__:[Elapsed Time] : 219016ms, 59.40619060548466ms on average
 accuracy:  97.94%; precision:  89.37%; recall:  90.19%; FB1:  89.78
@@ -645,7 +645,7 @@ accuracy:  97.80%; precision:  88.11%; recall:  90.12%; FB1:  89.10
 ```
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-albert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/albert-base-v2 
-$ python train.py --config=configs/config-albert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 --lr_decay_rate=0.9 
+$ python train.py --config=configs/config-albert.json --data_dir=data/conll2003 --save_path=pytorch-model-albert.pt --bert_model_name_or_path=./embeddings/albert-base-v2 --bert_output_dir=bert-checkpoint-albert --batch_size=32 --lr=1e-5 --epoch=64 
 ```
 
 - evaluation
@@ -699,15 +699,11 @@ INFO:__main__:[Elapsed Time] : 105306ms, 28.55253869128428ms on average
 INFO:__main__:[F1] : 0.9013054830287206, 3684
 INFO:__main__:[Elapsed Time] : 221208ms, 60.01221830029867ms on average
 
-* --lr_decay_rate=0.9
-INFO:__main__:[F1] : 0.9145419377527695, 3684
-INFO:__main__:[Elapsed Time] : 152493ms, 41.35270160195493ms on average
-
-* --lr_decay_rate=0.9 --bert_use_pos
+* --bert_use_pos
 INFO:__main__:[F1] : 0.914000175330937, 3684
 INFO:__main__:[Elapsed Time] : 153930ms, 41.748574531631824ms on average
 
-* --data_dir=data/conll2003_truecase --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+* --data_dir=data/conll2003_truecase --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --epoch=30
 INFO:__main__:[F1] : 0.9190283400809718, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 112529.90531921387ms, 30.516853094295158ms on average
 accuracy:  98.30%; precision:  91.37%; recall:  92.44%; FB1:  91.90
@@ -775,7 +771,7 @@ accuracy:  97.98%; precision:  90.47%; recall:  91.48%; FB1:  90.98
 INFO:__main__:[F1] : 0.91392938696645, 3684
 INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
 
-* --bert_model_name_or_path=./embeddings/electra-large-discriminator --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=40
+* --bert_model_name_or_path=./embeddings/electra-large-discriminator --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=40
 INFO:__main__:[F1] : 0.9042280872098155, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 116181ms, 31.50203638338311ms on average
 accuracy:  98.04%; precision:  90.16%; recall:  90.69%; FB1:  90.42
@@ -807,17 +803,12 @@ INFO:__main__:[F1] : 0.9219494967331803, 3684
 INFO:__main__:[Elapsed Time] : 239919ms, 65.12459283387622ms on average
 accuracy:  98.29%; precision:  91.95%; recall:  92.44%; FB1:  92.19
 
-* --lr_decay_rate=0.9
-INFO:__main__:[F1] : 0.922342119228728, 3684
-INFO:__main__:[Elapsed Time] : 294772ms, 79.98968232419223ms on average
-accuracy:  98.35%; precision:  92.15%; recall:  92.32%; FB1:  92.23
-
-* --lr_decay_rate=0.9 --batch_size=64
+* --batch_size=64
 INFO:__main__:[F1] : 0.926332565964229, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 275097ms, 74.65218571816455ms on average
 accuracy:  98.45%; precision:  92.65%; recall:  92.62%; FB1:  92.63
 
-* --data_dir=data/conll2003_truecase --batch_size=64 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0
+* --data_dir=data/conll2003_truecase --batch_size=64  --warmup_epoch=0 --weight_decay=0.0
 INFO:__main__:[F1] : 0.9251124636147129, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 236348.47974777222ms, 64.13688945796157ms on average
 accuracy:  98.40%; precision:  92.18%; recall:  92.85%; FB1:  92.51
@@ -827,22 +818,22 @@ INFO:__main__:[F1] : 0.9137136782423814, 3684
 INFO:__main__:[Elapsed Time] : 280253ms, 76.05566114580505ms on average
 accuracy:  98.15%; precision:  91.44%; recall:  91.31%; FB1:  91.37
 
-* --use_char_cnn --lr_decay_rate=0.9
+* --use_char_cnn 
 INFO:__main__:[F1] : 0.9196578181497487, 3684
 INFO:__main__:[Elapsed Time] : 291372ms, 79.06489275047515ms on average
 accuracy:  98.26%; precision:  91.62%; recall:  92.32%; FB1:  91.97
 
-* --use_char_cnn --lr_decay_rate=0.9 --batch_size=64
+* --use_char_cnn --batch_size=64
 INFO:__main__:[F1] : 0.9202508169213106, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 222863ms, 60.46673907140918ms on average
 accuracy:  98.32%; precision:  91.81%; recall:  92.25%; FB1:  92.03
 
-* --lr_decay_rate=0.9, modify model.py for disabling glove
+* modify model.py for disabling glove
 INFO:__main__:[F1] : 0.917751217352811, 3684
 INFO:__main__:[Elapsed Time] : 273089ms, 74.10019006244909ms on average
 accuracy:  98.27%; precision:  91.78%; recall:  91.77%; FB1:  91.78
 
-* --use_char_cnn --lr_decay_rate=0.9, modify model.py for disabling glove
+* --use_char_cnn , modify model.py for disabling glove
 INFO:__main__:[F1] : 0.9193262411347518, 3684
 INFO:__main__:[Elapsed Time] : 249467ms, 67.69318490361118ms on average
 accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
@@ -901,12 +892,12 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
     the F1 score from 'seqeval' is 0.8602. 
     the F1 score from 'conlleval.pl is 0.8438.
   --------------------------------------------------------------------------
-  '--bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50'
+  '--bert_disable_lstm ,  n_ctx=50'
   INFO:__main__:[F1] : 0.8602524268436113, 9000
   INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
   accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
 
-  '--bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT), n_ctx=180'
+  '--bert_disable_lstm , without --use_crf (bpe BERT), n_ctx=180'
   INFO:__main__:[F1] : 0.8677214324767633, 9000
   INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
   accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
@@ -1002,7 +993,7 @@ accuracy:  94.23%; precision:  86.11%; recall:  84.99%; FB1:  85.55
   *** evaluation eoj-by-eoj
   accuracy:  93.88%; precision:  86.11%; recall:  85.00%; FB1:  85.55
   
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
+**  --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
 INFO:__main__:[F1] : 0.8588128417407997, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 233760ms, 25.962329147683075ms on average
 accuracy:  94.36%; precision:  86.48%; recall:  85.17%; FB1:  85.82
@@ -1051,7 +1042,7 @@ accuracy:  93.42%; precision:  82.80%; recall:  84.10%; FB1:  83.44
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  92.96%; precision:  82.86%; recall:  84.13%; FB1:  83.49
 
-* --user_char_cnn --lr_decay_rate=0.9
+* --user_char_cnn 
 INFO:__main__:[F1] : 0.8402205267380136, 9000
 INFO:__main__:[Elapsed Time] : 255785ms, 28.405156128458717ms on average
 accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
@@ -1100,44 +1091,44 @@ INFO:__main__:[F1] : 0.8613367390378885, 9000
 INFO:__main__:[Elapsed Time] : 476814ms, 52.96955217246361ms on average
 accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
-** --lr_decay_rate=0.9 , without --use_crf (bpe BERT BiLSTM)
+** without --use_crf (bpe BERT BiLSTM)
 INFO:__main__:[F1] : 0.8646059046587216, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 2224ms, 21.32323232323232ms on average
 accuracy:  94.31%; precision:  85.92%; recall:  86.82%; FB1:  86.37 
 
-** --bert_disable_lstm --lr_decay_rate=0.9 (bpe BERT CRF)
+** --bert_disable_lstm (bpe BERT CRF)
 INFO:__main__:[F1] : 0.8643569376373161, 9000
 INFO:__main__:[Elapsed Time] : 342154ms, 38.00722302478053ms on average
 accuracy:  94.35%; precision:  85.90%; recall:  86.94%; FB1:  86.42
 
-** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (bpe BERT)
+** --bert_disable_lstm , without --use_crf (bpe BERT)
 INFO:__main__:[F1] : 0.8677214324767633, 9000
 INFO:__main__:[Elapsed Time] : 868094ms, 96.45471719079897ms on average
 accuracy:  94.47%; precision:  87.02%; recall:  86.33%; FB1:  86.68
 
-** --bert_disable_lstm --lr_decay_rate=0.9 ,  n_ctx=50
+** --bert_disable_lstm ,  n_ctx=50
 INFO:__main__:[F1] : 0.8602524268436113, 9000
 INFO:__main__:[Elapsed Time] : 192653ms, 21.39648849872208ms on average
 accuracy:  93.22%; precision:  85.55%; recall:  83.25%; FB1:  84.38
 
-** --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --epoch=30 , without --use_crf (bpe BERT)
+** --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --epoch=30 , without --use_crf (bpe BERT)
 INFO:__main__:[F1] : 0.863227606609181, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 889043ms, 98.78186465162796ms on average
 accuracy:  94.20%; precision:  85.18%; recall:  87.30%; FB1:  86.23
 
-** --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT)
+** --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT)
 INFO:__main__:[F1] : 0.8722265771446098, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 952261ms, 105.80508945438382ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1714ms, 16.21212121212121ms on average
 accuracy:  94.63%; precision:  87.25%; recall:  87.01%; FB1:  87.13
 
-** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
+** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
 INFO:__main__:[F1] : 0.8608467232968307, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.56598331838438ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
 accuracy:  94.13%; precision:  86.19%; recall:  85.79%; FB1:  85.99
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
 INFO:__main__:[F1] : 0.852160598843144, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 820104.8340797424ms, 91.12164719606297ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1019.8376178741455ms, 9.317352314188023ms on average
@@ -1148,28 +1139,28 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 816257.2820186615ms, 90.6870307121
 INFO:__main__:[Elapsed Time] : 100 examples, 988.6960983276367ms, 9.070220619741113ms on average
 accuracy:  93.97%; precision:  85.03%; recall:  85.57%; FB1:  85.30
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-wp-bert.v1 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-wp-bert.v1 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
 
 
-** --bert_model_name_or_path=./embeddings/kcbert-base --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
+** --bert_model_name_or_path=./embeddings/kcbert-base  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
 INFO:__main__:[F1] : 0.8491746129396084, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 496907.4342250824ms, 55.207844985460014ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1583.3139419555664ms, 15.055304825908006ms on average
 accuracy:  93.68%; precision:  85.05%; recall:  84.47%; FB1:  84.76
 
-** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , (KcBERT-base, CRF) 
+** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , (KcBERT-base, CRF) 
 INFO:__main__:[F1] : 0.8333361605401095, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 305795.4549789429ms, 33.96846946311906ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 3287.224531173706ms, 31.801955868499448ms on average
 accuracy:  93.10%; precision:  83.13%; recall:  83.51%; FB1:  83.32
 
-** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base) 
+** --bert_model_name_or_path=./embeddings/kcbert-base --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base) 
 INFO:__main__:[F1] : 0.848736197156657, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 463540.66610336304ms, 51.50017095600344ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1403.444528579712ms, 13.31293462502836ms on average
 accuracy:  93.75%; precision:  84.90%; recall:  84.54%; FB1:  84.72
 
-** --bert_model_name_or_path=./embeddings/kcbert-large --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-large) 
+** --bert_model_name_or_path=./embeddings/kcbert-large --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-large) 
 INFO:__main__:[F1] : 0.8650133979621444, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 986830.237865448ms, 109.64403990732721ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 2811.2776279449463ms, 26.963908262927124ms on average
@@ -1188,28 +1179,28 @@ accuracy:  94.30%; precision:  85.06%; recall:  84.84%; FB1:  84.95
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.86%; precision:  85.50%; recall:  84.99%; FB1:  85.25
 
-** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
+** without --use_crf (dha BERT BiLSTM)
 INFO:__main__:[F1] : 0.8453688900983027, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 2197ms, 21.11111111111111ms on average
 accuracy:  94.39%; precision:  84.43%; recall:  84.49%; FB1:  84.46
   *** evaluation eoj-by-eoj
   accuracy:  93.94%; precision:  85.90%; recall:  84.93%; FB1:  85.41 
 
-** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
+** --bert_disable_lstm (dha BERT CRF)
 INFO:__main__:[F1] : 0.8300803673938002, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 4709ms, 46.23232323232323ms on average
 accuracy:  94.18%; precision:  82.33%; recall:  83.57%; FB1:  82.94
   *** evaluation eoj-by-eoj
   accuracy:  93.84%; precision:  85.15%; recall:  84.83%; FB1:  84.99
 
-** --bert_disable_lstm --lr_decay_rate=0.9 , without --use_crf (dha BERT)
+** --bert_disable_lstm , without --use_crf (dha BERT)
 INFO:__main__:[F1] : 0.8122244286627849, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 1604ms, 15.171717171717171ms on average
 accuracy:  93.85%; precision:  80.28%; recall:  82.04%; FB1:  81.15
   *** evaluation eoj-by-eoj
   accuracy:  93.48%; precision:  84.92%; recall:  83.61%; FB1:  84.26
 
-** bert_outputs[2][-7], --lr_decay_rate=0.9
+** bert_outputs[2][-7] 
 INFO:__main__:[F1] : 0.8296454550078846, 9000
 INFO:__main__:[Elapsed Time] : 376186ms, 41.786642960328926ms on average
 accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
@@ -1223,7 +1214,7 @@ accuracy:  93.73%; precision:  82.62%; recall:  83.17%; FB1:  82.90
   *** evaluation eoj-by-eoj
   accuracy:  93.31%; precision:  83.78%; recall:  83.93%; FB1:  83.85 
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (dha BERT BiLSTM)
+**  --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (dha BERT BiLSTM)
 INFO:__main__:[F1] : 0.8459056275447281, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 902977ms, 100.3300366707412ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1982ms, 18.92929292929293ms on average
@@ -1231,14 +1222,14 @@ accuracy:  94.48%; precision:  83.93%; recall:  85.11%; FB1:  84.51
   *** evaluation eoj-by-eoj
   accuracy:  94.03%; precision:  85.55%; recall:  85.55%; FB1:  85.55
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=2e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
+**  --warmup_epoch=0 --weight_decay=0.0 --lr=2e-5 --epoch=30 --bert_disable_lstm , without --use_crf (dha BERT)
 INFO:__main__:[F1] : 0.8135219179456316, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 887293ms, 98.58706522946994ms on average
 accuracy:  94.03%; precision:  79.90%; recall:  82.72%; FB1:  81.28
   *** evaluation eoj-by-eoj
   accuracy:  93.69%; precision:  84.50%; recall:  84.63%; FB1:  84.56
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_disable_lstm --lr=8e-5
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1  --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_disable_lstm --lr=8e-5
 (1) epoch_0
 INFO:__main__:[F1] : 0.7994317797470066, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 331695.18399238586ms, 36.84263667049296ms on average
@@ -1247,7 +1238,7 @@ accuracy:  93.10%; precision:  79.41%; recall:  80.35%; FB1:  79.88
   *** evaluation eoj-by-eoj
   accuracy:  92.69%; precision:  82.73%; recall:  81.82%; FB1:  82.27
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --lr=8e-5  , without --use_crf
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1  --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --lr=8e-5  , without --use_crf
 (1) epoch_0
 INFO:__main__:[F1] : 0.8286240267526895, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 915342.8752422333ms, 101.70127953644766ms on average
@@ -1308,7 +1299,7 @@ accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
-*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
+*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
 INFO:__main__:[F1] : 0.8298886586824331, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
 accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
@@ -1422,11 +1413,11 @@ $ python train.py --config=configs/config-electra.json --save_path=pytorch-model
 
 ** bpe ELECTRA-base(30k-512-1m)
 $ python preprocess.py --config=configs/config-electra.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
-$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+$ python train.py --config=configs/config-electra.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** RoBERTa-base
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
 
 
 ```
@@ -1445,18 +1436,18 @@ INFO:__main__:[F1] : 0.8601332716652106, 9000
 INFO:__main__:[Elapsed Time] : 100 examples, 1667ms, 15.737373737373737ms on average
 accuracy:  94.17%; precision:  86.46%; recall:  85.36%; FB1:  85.90
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 , n_ctx=50
+***  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 , n_ctx=50
 INFO:__main__:[F1] : 0.8647250807012538, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 286224ms, 31.79564396044005ms on average
 accuracy:  93.01%; precision:  85.94%; recall:  82.36%; FB1:  84.12
 
-*** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+***  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
 INFO:__main__:[F1] : 0.8674485806561278, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 976734ms, 108.52672519168796ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1597ms, 15.16161616161616ms on average
 accuracy:  94.48%; precision:  86.52%; recall:  86.75%; FB1:  86.64
 
-*** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+*** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
 INFO:__main__:[F1] : 0.8743705005576774, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 878765.2859687805ms, 97.64226169927423ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1558.605432510376ms, 14.81159528096517ms on average
@@ -1563,7 +1554,7 @@ INFO:__main__:[Elapsed Time] : 927 examples, 25819ms, 27.7451403887689ms on aver
 accuracy:  96.74%; precision:  86.56%; recall:  85.32%; FB1:  85.93
 token_eval micro F1: 0.8641512381845168
 
-* --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
+*  --warmup_epoch=0 --weight_decay=0.0 --use_char_cnn
 INFO:__main__:[F1] : 0.8589818607372732, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 23254ms, 24.571274298056156ms on average
 accuracy:  96.87%; precision:  85.57%; recall:  86.23%; FB1:  85.90
@@ -1640,19 +1631,19 @@ INFO:__main__:[Elapsed Time] : 927 examples, 37240ms, 40.076673866090715ms on av
 accuracy:  97.58%; precision:  86.59%; recall:  88.55%; FB1:  87.56
 token_eval micro F1: 0.9047362341162879
 
-** --lr_decay_rate=0.9 , without --use_crf (dha BERT BiLSTM)
+** without --use_crf (dha BERT BiLSTM)
 INFO:__main__:[F1] : 0.8800116635078, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 21444ms, 23.03887688984881ms on average
 accuracy:  97.56%; precision:  87.38%; recall:  88.63%; FB1:  88.00
 token_eval micro F1: 0.9024978600887091
 
-** --bert_disable_lstm --lr_decay_rate=0.9 (dha BERT CRF)
+** --bert_disable_lstm (dha BERT CRF)
 INFO:__main__:[F1] : 0.8844425112367696, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 31752ms, 34.152267818574515ms on average
 accuracy:  97.64%; precision:  87.37%; recall:  89.57%; FB1:  88.46
 token_eval micro F1: 0.9056049478160032
 
-** --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 (dha BERT CRF)
+**  --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 (dha BERT CRF)
 INFO:__main__:[F1] : 0.8810802962102512, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 30447ms, 32.355291576673864ms on average
 accuracy:  97.54%; precision:  87.16%; recall:  89.10%; FB1:  88.12
@@ -1670,14 +1661,14 @@ INFO:__main__:[Elapsed Time] : 37666ms, 40.52051835853132ms on average
 accuracy:  96.88%; precision:  83.99%; recall:  83.99%; FB1:  83.99
 token_eval micro F1: 0.8754817902934005
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 --lr=8e-5
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1  --warmup_epoch=0 --weight_decay=0.0 --bert_disable_lstm --epoch=30 --lr=8e-5
 (1) epoch_0
 INFO:__main__:[F1] : 0.8477473562219324, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 25547.332048416138ms, 27.470011175579952ms on average
 accuracy:  96.96%; precision:  83.79%; recall:  85.93%; FB1:  84.85
 token_eval micro F1: 0.8734618063617366
 
-** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1 --use_transformers_optimizer --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --lr=8e-5
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-dha-bert.v1  --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --lr=8e-5
 (1) epoch_2
 INFO:__main__:[F1] : 0.8417381194593809, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 29921.59104347229ms, 32.176273945340846ms on average
@@ -1723,7 +1714,7 @@ INFO:__main__:[Elapsed Time] : 36267ms, 39.018358531317496ms on average
 accuracy:  97.14%; precision:  82.79%; recall:  87.72%; FB1:  85.18
 token_eval micro F1: 0.8801729462631254
 
-* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe --bert_disable_lstm --lr_decay_rate=0.9 --lr=1e-5 
+* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe --bert_disable_lstm --lr=1e-5 
 INFO:__main__:[F1] : 0.8902403706921518, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 41991.15180969238ms, 45.16370275880554ms on average
 accuracy:  97.79%; precision:  87.80%; recall:  90.28%; FB1:  89.02
@@ -1757,7 +1748,7 @@ INFO:__main__:[Elapsed Time] : 126180ms, 135.92548596112312ms on average
 accuracy:  97.30%; precision:  88.00%; recall:  88.08%; FB1:  88.04
 token_eval micro F1: 0.8880736809241336
 
-* --batch_size=64 --lr_decay_rate=0.9
+* --batch_size=64
 INFO:__main__:[F1] : 0.8809558502112778, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 118820ms, 127.98920086393089ms on average
 accuracy:  97.29%; precision:  87.42%; recall:  88.78%; FB1:  88.10
@@ -1769,19 +1760,19 @@ INFO:__main__:[Elapsed Time] : 125665ms, 135.366090712743ms on average
 accuracy:  97.33%; precision:  87.32%; recall:  87.78%; FB1:  87.55
 token_eval micro F1: 0.8897515527950312
 
-* --use_char_cnn --batch_size=64 --lr_decay_rate=0.9
+* --use_char_cnn --batch_size=64 
 INFO:__main__:[F1] : 0.8799648248571009, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 108596ms, 116.96544276457884ms on average
 accuracy:  97.37%; precision:  87.83%; recall:  88.16%; FB1:  88.00
 token_eval micro F1: 0.8920632495607668
 
-* --batch_size=64 --lr_decay_rate=0.9 , modify model.py for disabling glove
+* --batch_size=64 , modify model.py for disabling glove
 INFO:__main__:[F1] : 0.8822326125073057, 927
 INFO:__main__:[Elapsed Time] : 118884ms, 128.0291576673866ms on average
 accuracy:  97.35%; precision:  87.79%; recall:  88.66%; FB1:  88.22
 token_eval micro F1: 0.8905289052890529
 
-* --use_char_cnn --batch_size=64 --lr_decay_rate=0.9 , modify model.py for disabling glove
+* --use_char_cnn --batch_size=64 , modify model.py for disabling glove
 INFO:__main__:[F1] : 0.8825072886297376, 927
 INFO:__main__:[Elapsed Time] : 118407ms, 127.51403887688984ms on average
 accuracy:  97.43%; precision:  87.61%; recall:  88.90%; FB1:  88.25
