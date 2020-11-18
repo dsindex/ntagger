@@ -237,7 +237,7 @@ $ python to-conll.py -g t > valid.txt
   - KcBERT : `kcbert-base`, `kcbert-large`
   - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
-  - ELECTRA-base : `kor-electra-bpe-v1` (inhouse)
+  - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
   - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
@@ -869,7 +869,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | wp  DistilBERT(v1)           | 83.76       | eoj      | 13.7383 / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
-| bpe ELECTRA-base(v1)         | -           | eoj      | -       / -    |          |           |        |
+| bpe ELECTRA-base(v1)         | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 
 
@@ -1417,9 +1417,9 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
-** bpe ELECTRA-base(30k-512-1m)
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-v1
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+** bpe ELECTRA-base(v1)
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** RoBERTa-base
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
@@ -1460,16 +1460,16 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1558.605432510376ms, 14.81159528096
 accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 
 
-** bpe ELECTRA-base(30k-512-1m)
+** bpe ELECTRA-base(v1)
 
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-*** 2981k
-INFO:__main__:[F1] : 0.8315271272776998, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 802838.2792472839ms, 89.20120188813432ms on averag
-INFO:__main__:[Elapsed Time] : 100 examples, 1822.8516578674316ms, 17.210632863670888ms on average
-accuracy:  93.06%; precision:  83.40%; recall:  82.69%; FB1:  83.05
+INFO:__main__:[F1] : 0.8657965765827326, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 1025293.7350273132ms, 113.92257348446465ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1881.6356658935547ms, 18.044946169612384ms on average
+accuracy:  94.43%; precision:  86.76%; recall:  86.16%; FB1:  86.46
+
 
 ** RoBERTa-base
 
