@@ -237,7 +237,7 @@ $ python to-conll.py -g t > valid.txt
   - KcBERT : `kcbert-base`, `kcbert-large`
   - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
-  - ELECTRA-base : `kor-electra-bpe-30k-512-1m` (inhouse)
+  - ELECTRA-base : `kor-electra-bpe-v1` (inhouse)
   - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
 - [ELMo description](https://github.com/dsindex/bilm-tf)
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
@@ -869,7 +869,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | wp  DistilBERT(v1)           | 83.76       | eoj      | 13.7383 / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
-| bpe ELECTRA-base(30k-512-1m) | 83.05       | eoj      | 17.2106 / -    |          |           |        |
+| bpe ELECTRA-base(v1)         | -           | eoj      | -       / -    |          |           |        |
 | RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 
 
@@ -1403,7 +1403,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(30k-512-1m), RoBERTa-base </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(v1), RoBERTa-base </b></summary>
 <p>
 
 - train
@@ -1418,8 +1418,8 @@ $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova20
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/koelectra-base-v1-discriminator --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --bert_disable_lstm
 
 ** bpe ELECTRA-base(30k-512-1m)
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-30k-512-1m --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe-v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** RoBERTa-base
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
