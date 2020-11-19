@@ -21,8 +21,10 @@ except ImportError:
     pass
 import numpy as np
 import random
-from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
+import json
+from tqdm import tqdm
 
+from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 from util    import load_config, to_device, to_numpy
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
