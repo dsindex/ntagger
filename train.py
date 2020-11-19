@@ -26,7 +26,6 @@ from seqeval.metrics import precision_score, recall_score, f1_score, classificat
 from util    import load_config, to_device, to_numpy
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
-from progbar import Progbar # instead of tqdm
 from early_stopping import EarlyStopping
 import optuna
 from datasets.metric import temp_seed 
@@ -45,7 +44,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
 
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(train_loader)
-    prog = Progbar(target=n_batches)
 
     # train one epoch
     train_loss = 0.
@@ -54,7 +52,8 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     local_best_eval_f1 = 0
     st_time = time.time()
     optimizer.zero_grad()
-    for local_step, (x,y) in enumerate(train_loader):
+    epoch_iterator = tqdm(train_loader, total=len(train_loader), desc=f"Epoch {epoch_i}")
+    for local_step, (x,y) in enumerate(epoch_iterator):
         model.train()
         global_step = (len(train_loader) * epoch_i) + local_step
         x = to_device(x, opt.device)
@@ -96,6 +95,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
+            epoch_iterator.set_description(f"Epoch {epoch_i}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
             if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, val_loader)
@@ -121,11 +121,6 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
         # back-propagation - end
         train_loss += loss.item()
         if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
-        curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-        prog.update(local_step+1,
-                    [('global step', global_step),
-                     ('train curr loss', loss.item()),
-                     ('lr', curr_lr)])
     avg_loss = train_loss / n_batches
 
     # evaluate at the end of epoch
@@ -173,11 +168,11 @@ def evaluate(model, config, val_loader):
     eval_loss = 0.
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(val_loader)
-    prog = Progbar(target=n_batches)
     preds = None
     ys    = None
     with torch.no_grad():
-        for i, (x,y) in enumerate(val_loader):
+        iterator = tqdm(val_loader, total=len(val_loader), desc=f"Evaluate")
+        for i, (x,y) in enumerate(iterator):
             model.eval()
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
@@ -198,8 +193,6 @@ def evaluate(model, config, val_loader):
                 else: preds = np.append(preds, to_numpy(logits), axis=0)
                 ys = np.append(ys, to_numpy(y), axis=0)
             eval_loss += loss.item()
-            prog.update(i+1,
-                        [('eval curr loss', loss.item())])
     eval_loss = eval_loss / n_batches
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
