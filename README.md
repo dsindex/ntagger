@@ -866,7 +866,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
 | KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
-| wp  DistilBERT(v1)           | 83.76       | eoj      | 13.7383 / -    |          |           |        |
+| wp  DistilBERT(v1)           | 83.58       | eoj      | 9.0363  / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
 | bpe ELECTRA-base(v1)         | 86.46       | eoj      | 18.0449 / -    |          |           |        |
@@ -1142,10 +1142,10 @@ INFO:__main__:[Elapsed Time] : 100 examples, 988.6960983276367ms, 9.070220619741
 accuracy:  93.97%; precision:  85.03%; recall:  85.57%; FB1:  85.30
 
 ** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-wp-bert.v1 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
-INFO:__main__:[F1] : 0.8388468091566996, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 843154.6447277069ms, 93.68380886645487ms on average
-INFO:__main__:[Elapsed Time] : 100 examples, 1458.7290287017822ms, 13.73833357685744ms on average
-accuracy:  93.46%; precision:  83.00%; recall:  84.53%; FB1:  83.76
+INFO:__main__:[F1] : 0.837110673814209, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 776317.7247047424ms, 86.25762689668665ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 985.6209754943848ms, 9.036362773240215ms on average
+accuracy:  93.26%; precision:  83.29%; recall:  83.88%; FB1:  83.58
 
 ** --bert_model_name_or_path=./embeddings/kcbert-base  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
 INFO:__main__:[F1] : 0.8491746129396084, 9000
