@@ -255,6 +255,7 @@ $ python to-conll.py -g t > valid.txt
 | GloVe, BiLSTM                   | 88.23        |                   | word, pos            | 5.6217  / -        | 7.3838   | 3.6969    |           | threads=14, packed        |
 | GloVe, BiLSTM                   | 88.94        |                   | word, character, pos | 6.4108  / -        | 9.5858   | 8.5656    |           | threads=14, packed        |
 | **GloVe, BiLSTM-CRF**           | 90.14        | 90.26             | word, character, pos | 26.2807 / -        | 21.7474  |           |           | threads=14, packed        |
+| ConceptNet, BiLSTM-CRF          | 87.78        | -                 | word, character, pos | 25.8119 / -        | -        |           |           |                           |
 | GloVe, DenseNet-CRF             | 88.23        |                   | word, pos            | 24.7893 / -        | 22.5858  |           |           | threads=14                |
 | GloVe, DenseNet-CRF             | 88.89        |                   | word, character, pos | 28.0993 / -        | 25.2929  |           |           | threads=14                |
 | BERT-tiny, BiLSTM               | 69.65        |                   | word                 | 20.1376 / -        |          |           |           |                           |
@@ -381,6 +382,11 @@ accuracy:  97.82%; precision:  89.66%; recall:  89.98%; FB1:  89.82
 INFO:__main__:[F1] : 0.902609464838567, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 95198.03929328918ms, 25.81831880021024ms on average
 accuracy:  97.81%; precision:  90.19%; recall:  90.33%; FB1:  90.26
+
+* --use_char_cnn --embedding_path=./embeddings/numberbatch-en-19.08.txt (from https://github.com/commonsense/conceptnet-numberbatch)
+INFO:__main__:[F1] : 0.877781702578594, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 95196.46453857422ms, 25.811972386352142ms on average
+accuracy:  97.47%; precision:  87.56%; recall:  88.00%; FB1:  87.78
 
 ```
 
