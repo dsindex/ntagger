@@ -271,6 +271,7 @@ $ python to-conll.py -g t > valid.txt
 | BERT-base(uncased), BiLSTM      | 89.03        |                   | word                 | 24.9076 / -        |          |           |           | del 8,9,10,11, threads=14 |
 | bert-base-NER(cased), BiLSTM    | 91.63        | 92.25             | word                 | 17.6680 / -        |          |           |           | packed                    |
 | BERT-large, BiLSTM              | 91.32        | 91.89             | word                 | 40.3581 / -        |          |           |           | packed                    |
+| BERT-large                      | 91.25        |                   | word                 | 29.5740 / -        |          |           |           | packed                    |
 | BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |          |           |           | del 12 ~ 23               |
 | BERT-large, BiLSTM              | 86.11        |                   | word                 | 49.3103 / -        |          |           |           | BERT as feature-based, initial embedding             |
 | BERT-large, BiLSTM-CRF          | 86.43        |                   | word                 | 63.1376 / -        |          |           |           | BERT as feature-based, initial embedding             |
@@ -408,7 +409,7 @@ accuracy:  97.55%; precision:  87.79%; recall:  88.56%; FB1:  88.17
 * token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
 $ python preprocess.py --config=configs/config-densenet.json --data_dir=data/conll2003
 * --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
-$ python train.py --config=configs/config-densenet.json --data_dir=data/conll2003 --save_path=pytorch-model-densenet.pt --use_crf --warmup_epoch=13 --epoch=64
+$ python train.py --config=configs/config-densenet.json --data_dir=data/conll2003 --save_path=pytorch-model-densenet.pt --use_crf --epoch=64
 ```
 
 - evaluation
@@ -481,6 +482,11 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 INFO:__main__:[F1] : 0.9188571428571428, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 120905.13277053833ms, 32.785276922556875ms on average
 accuracy:  98.36%; precision:  91.25%; recall:  92.53%; FB1:  91.89
+
+* --bert_disable_lstm --batch_size=32
+INFO:__main__:[F1] : 0.9124989051414557, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 109073.38047027588ms, 29.574078060898998ms on average
+accuracy:  98.27%; precision:  90.29%; recall:  92.23%; FB1:  91.25
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
