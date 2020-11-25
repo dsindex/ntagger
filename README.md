@@ -231,8 +231,8 @@ $ python to-conll.py -g t > valid.txt
 
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
-  - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe` (inhouse)
-  - dha-bpe BERT : `kor-bert-base-dha_bpe`, `kor-bert-large-dha_bpe` (inhouse)
+  - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1` (inhouse)
+  - dha-bpe BERT : `kor-bert-base-dha_bpe.v1`, `kor-bert-large-dha_bpe.v1` (inhouse)
   - dha BERT : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
   - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
@@ -878,7 +878,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(v1), BiLSTM         | 86.37       | eoj      | 21.3232 / -    |          |           | packed |
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
-| bpe BERT-large               | 85.99       | eoj      | 30.7513 / -    |          |           |        |
+| bpe BERT-large(v1)           | 85.99       | eoj      | 30.7513 / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
@@ -932,26 +932,26 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                  | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
-| -------------------------------- | ------------- | -------------- | --------------------- | ----------- | ------------- |  
-| GloVe, BiLSTM-CRF                | 84.29         | 84.29          | morph, pos            | 30.0968 / - |               |
-| **GloVe, BiLSTM-CRF**            | 85.82         | 85.82          | morph, character, pos | 25.9623 / - | packed        |
-| GloVe, DenseNet-CRF              | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
-| GloVe, DenseNet-CRF              | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
-| dha BERT(v1), BiLSTM-CRF         | 84.95         | 85.25          | morph, pos            | 42.1063 / - | packed        |
-| dha BERT(v1), BiLSTM             | 84.51         | 85.55          | morph, pos            | 18.9292 / - | packed        |
-| dha BERT(v1), CRF                | 82.94         | 84.99          | morph, pos            | 46.2323 / - |               |
-| dha BERT(v1)                     | 81.15         | 84.26          | morph, pos            | 15.1717 / - |               |
-| dha BERT(v1), BiLSTM-CRF         | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
-| dha DistilBERT(v1), CRF          | 79.88         | 82.27          | morph, pos            | 40.2669 / - |               |
-| dha DistilBERT(v1), LSTM         | 82.79         | 83.71          | morph, pos            | 19.8174 / - |               |
-| dha-bpe BERT, BiLSTM-CRF         | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
-| dha-bpe BERT-large, BiLSTM-CRF   | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
-| dha BERT(v2),  BiLSTM-CRF        | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
-| ELMo, BiLSTM-CRF                 | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
-| ELMo, BiLSTM-CRF                 | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
-| ELMo, GloVe, BiLSTM-CRF          | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
-| ELMo, GloVe, BiLSTM-CRF          | 86.62         | **86.63**      | morph, character, pos | 105.739 / - | packed        |
+|                                    | m-by-m F1 (%) | e-by-e F1 (%)  | Features              | GPU / CPU   | Etc           |
+| ---------------------------------- | ------------- | -------------- | --------------------- | ----------- | ------------- |  
+| GloVe, BiLSTM-CRF                  | 84.29         | 84.29          | morph, pos            | 30.0968 / - |               |
+| **GloVe, BiLSTM-CRF**              | 85.82         | 85.82          | morph, character, pos | 25.9623 / - | packed        |
+| GloVe, DenseNet-CRF                | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
+| GloVe, DenseNet-CRF                | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
+| dha BERT(v1), BiLSTM-CRF           | 84.95         | 85.25          | morph, pos            | 42.1063 / - | packed        |
+| dha BERT(v1), BiLSTM               | 84.51         | 85.55          | morph, pos            | 18.9292 / - | packed        |
+| dha BERT(v1), CRF                  | 82.94         | 84.99          | morph, pos            | 46.2323 / - |               |
+| dha BERT(v1)                       | 81.15         | 84.26          | morph, pos            | 15.1717 / - |               |
+| dha BERT(v1), BiLSTM-CRF           | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
+| dha DistilBERT(v1), CRF            | 79.88         | 82.27          | morph, pos            | 40.2669 / - |               |
+| dha DistilBERT(v1), LSTM           | 82.79         | 83.71          | morph, pos            | 19.8174 / - |               |
+| dha-bpe BERT(v1), BiLSTM-CRF       | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
+| dha-bpe BERT-large(v1), BiLSTM-CRF | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
+| dha BERT(v2),  BiLSTM-CRF          | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
+| ELMo, BiLSTM-CRF                   | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
+| ELMo, BiLSTM-CRF                   | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
+| ELMo, GloVe, BiLSTM-CRF            | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
+| ELMo, GloVe, BiLSTM-CRF            | 86.62         | **86.63**      | morph, character, pos | 105.739 / - | packed        |
 
 - [etagger](https://github.com/dsindex/etagger), measured by conlleval (micro F1)
 
@@ -1142,7 +1142,7 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 952261ms, 105.80508945438382ms on 
 INFO:__main__:[Elapsed Time] : 100 examples, 1714ms, 16.21212121212121ms on average
 accuracy:  94.63%; precision:  87.25%; recall:  87.01%; FB1:  87.13
 
-** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
+** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v1 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
 INFO:__main__:[F1] : 0.8608467232968307, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.56598331838438ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
@@ -1288,7 +1288,7 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large, dha BERT(v2)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1), dha-bpe BERT-large(v1), dha BERT(v2)</b></summary>
 <p>
 
 - train
@@ -1298,8 +1298,8 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
 * for clova2019_morph
 
 ** dha-bpe
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
 
 ** dha
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v2
@@ -1322,7 +1322,7 @@ accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
 
-*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
+*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
 INFO:__main__:[F1] : 0.8298886586824331, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
 accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
@@ -1526,8 +1526,8 @@ accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 | dha DistilBERT(v1), BiLSTM-CRF | 84.20 / 86.94          | morph, pos            | 32.1762 / - |               |
 | dha DistilBERT(v1), CRF        | 84.85 / 87.34          | morph, pos            | 27.4700 / - |               |
 | dha BERT(v2), BiLSTM-CRF       | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
-| dha-bpe BERT, BiLSTM-CRF       | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
-| dha-bpe BERT-large, CRF        | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
+| dha-bpe BERT(v1), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
+| dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | packed        |
@@ -1715,15 +1715,15 @@ token_eval micro F1: 0.8735865242143024
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1), dha-bpe BERT-large(v1)</b></summary>
 <p>
 
 - train
 ```
 * n_ctx size should be less than 512
 
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos
 
 ```
 
@@ -1738,7 +1738,7 @@ INFO:__main__:[Elapsed Time] : 36267ms, 39.018358531317496ms on average
 accuracy:  97.14%; precision:  82.79%; recall:  87.72%; FB1:  85.18
 token_eval micro F1: 0.8801729462631254
 
-* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe --bert_disable_lstm --lr=1e-5 
+* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_disable_lstm --lr=1e-5 
 INFO:__main__:[F1] : 0.8902403706921518, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 41991.15180969238ms, 45.16370275880554ms on average
 accuracy:  97.79%; precision:  87.80%; recall:  90.28%; FB1:  89.02
