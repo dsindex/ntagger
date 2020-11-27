@@ -232,8 +232,8 @@ $ python to-conll.py -g t > valid.txt
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
   - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1` (inhouse)
-  - dha-bpe BERT : `kor-bert-base-dha_bpe.v1`, `kor-bert-base-dha_bpe.v3`, `kor-bert-large-dha_bpe.v1` (inhouse)
-  - dha BERT : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
+  - dha-bpe BERT : `kor-bert-base-dha_bpe.v1, v3`, `kor-bert-large-dha_bpe.v1, v3` (inhouse)
+  - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
   - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
   - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
@@ -1290,7 +1290,7 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1 ~ v3), dha-bpe BERT-large(v1), dha BERT(v2)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1 ~ v3), dha-bpe BERT-large(v1 ~ v3), dha BERT(v2)</b></summary>
 <p>
 
 - train
@@ -1337,6 +1337,9 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569
 accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
   **** evaluation eoj-by-eoj
   accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
+
+*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5 --patience=4
+
 
 ** dha
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
@@ -1536,7 +1539,9 @@ accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 | dha BERT(v1), BiLSTM-CRF       | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
 | dha BERT(v2), BiLSTM-CRF       | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(v1), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
+| dha-bpe BERT(v3), BiLSTM-CRF   | -     / -              | morph, pos            | -       / - |               |
 | dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
+| dha-bpe BERT-large(v3), CRF    | -     / -              | morph, pos            | -       / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - | packed        |
@@ -1724,7 +1729,7 @@ token_eval micro F1: 0.8735865242143024
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1), dha-bpe BERT-large(v1)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1 ~ v3), dha-bpe BERT-large(v1 ~ v3)</b></summary>
 <p>
 
 - train
@@ -1747,11 +1752,17 @@ INFO:__main__:[Elapsed Time] : 36267ms, 39.018358531317496ms on average
 accuracy:  97.14%; precision:  82.79%; recall:  87.72%; FB1:  85.18
 token_eval micro F1: 0.8801729462631254
 
+* --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4
+
+
 * --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_disable_lstm --lr=1e-5 
 INFO:__main__:[F1] : 0.8902403706921518, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 41991.15180969238ms, 45.16370275880554ms on average
 accuracy:  97.79%; precision:  87.80%; recall:  90.28%; FB1:  89.02
 token_eval micro F1: 0.9107763615295481
+
+* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3 --bert_disable_lstm --lr=1e-5 --warmup_epoch=0 --weight_decay=0.0 --patience=4
+
 
 ```
 
