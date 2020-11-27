@@ -948,6 +948,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(v2), BiLSTM-CRF           | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
 | dha-bpe BERT(v1), BiLSTM-CRF       | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF       | 85.14         | 85.94          | morph, pos            | 40.1359 / - |               |
+| dha-bpe BERT(v3), BiLSTM-CRF       | -             | -              | morph, pos            | 40.1359 / - | kor-bert-base-dha_bpe.v3.KMOU (fine-tuned) |
 | dha-bpe BERT-large(v1), BiLSTM-CRF | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
 | dha-bpe BERT-large(v3), BiLSTM-CRF | -             | -              | morph, pos            | -       / - |               |
 | ELMo, BiLSTM-CRF                   | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
@@ -1331,6 +1332,10 @@ accuracy:  94.60%; precision:  84.67%; recall:  85.61%; FB1:  85.14
   **** evaluation eoj-by-eoj
   accuracy:  94.22%; precision:  85.91%; recall:  85.98%; FB1:  85.94
 
+*** --bert_model_name_or_path=./bert-checkpoint-kor-kmou-morph --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4 , fine-tuned kor-bert-base-dha_bpe.v3 on KMOU data
+
+
+
 *** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
 INFO:__main__:[F1] : 0.8298886586824331, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
@@ -1541,7 +1546,7 @@ accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 | dha-bpe BERT(v1), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF   | 88.71 / 91.16          | morph, pos            | 40.5316 / - |               |
 | dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
-| dha-bpe BERT-large(v3), CRF    | -     / -              | morph, pos            | -       / - |               |
+| dha-bpe BERT-large(v3), CRF    | 88.62 / 91.17          | morph, pos            | 47.9219 / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - |               |
@@ -1764,8 +1769,11 @@ INFO:__main__:[Elapsed Time] : 927 examples, 41991.15180969238ms, 45.16370275880
 accuracy:  97.79%; precision:  87.80%; recall:  90.28%; FB1:  89.02
 token_eval micro F1: 0.9107763615295481
 
-* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3 --bert_disable_lstm --lr=5e-5 --warmup_epoch=0 --weight_decay=0.0 --patience=4
-
+* --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3 --bert_disable_lstm --lr=1e-5 --warmup_epoch=0 --weight_decay=0.0 --patience=4
+INFO:__main__:[F1] : 0.8860723030390322, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 44546.09036445618ms, 47.92198120389077ms on average
+accuracy:  97.81%; precision:  86.97%; recall:  90.34%; FB1:  88.62
+token_eval micro F1: 0.9117692189657818
 
 ```
 
