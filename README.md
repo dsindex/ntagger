@@ -232,7 +232,7 @@ $ python to-conll.py -g t > valid.txt
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
   - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1` (inhouse)
-  - dha-bpe BERT : `kor-bert-base-dha_bpe.v1`, `kor-bert-large-dha_bpe.v1` (inhouse)
+  - dha-bpe BERT : `kor-bert-base-dha_bpe.v1`, `kor-bert-base-dha_bpe.v3`, `kor-bert-large-dha_bpe.v1` (inhouse)
   - dha BERT : `kor-bert-base-dha.v1`, `kor-bert-base-dha.v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
   - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
@@ -938,16 +938,18 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | **GloVe, BiLSTM-CRF**              | 85.82         | 85.82          | morph, character, pos | 25.9623 / - | packed        |
 | GloVe, DenseNet-CRF                | 83.44         | 83.49          | morph, pos            | 25.8059 / - |               |
 | GloVe, DenseNet-CRF                | 83.96         | 83.98          | morph, character, pos | 28.4051 / - |               |
+| dha DistilBERT(v1), CRF            | 79.88         | 82.27          | morph, pos            | 40.2669 / - |               |
+| dha DistilBERT(v1), LSTM           | 82.79         | 83.71          | morph, pos            | 19.8174 / - |               |
 | dha BERT(v1), BiLSTM-CRF           | 84.95         | 85.25          | morph, pos            | 42.1063 / - | packed        |
 | dha BERT(v1), BiLSTM               | 84.51         | 85.55          | morph, pos            | 18.9292 / - | packed        |
 | dha BERT(v1), CRF                  | 82.94         | 84.99          | morph, pos            | 46.2323 / - |               |
 | dha BERT(v1)                       | 81.15         | 84.26          | morph, pos            | 15.1717 / - |               |
 | dha BERT(v1), BiLSTM-CRF           | 83.55         | 83.85          | morph, pos            | 46.0254 / - | del 8,9,10,11 |
-| dha DistilBERT(v1), CRF            | 79.88         | 82.27          | morph, pos            | 40.2669 / - |               |
-| dha DistilBERT(v1), LSTM           | 82.79         | 83.71          | morph, pos            | 19.8174 / - |               |
+| dha BERT(v2), BiLSTM-CRF           | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
 | dha-bpe BERT(v1), BiLSTM-CRF       | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
+| dha-bpe BERT(v3), BiLSTM-CRF       | 85.14         | 85.94          | morph, pos            | 40.1359 / - | packed        |
 | dha-bpe BERT-large(v1), BiLSTM-CRF | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
-| dha BERT(v2),  BiLSTM-CRF          | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
+| dha-bpe BERT-large(v3), BiLSTM-CRF | -             | -              | morph, pos            | -       / - | packed        |
 | ELMo, BiLSTM-CRF                   | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF                   | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
 | ELMo, GloVe, BiLSTM-CRF            | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
@@ -1288,7 +1290,7 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1), dha-bpe BERT-large(v1), dha BERT(v2)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1 ~ v3), dha-bpe BERT-large(v1), dha BERT(v2)</b></summary>
 <p>
 
 - train
@@ -1318,15 +1320,22 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.8295019157088124, 9000
 INFO:__main__:[Elapsed Time] : 382042ms, 42.434714968329814ms on average
 accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
-  *** evaluation eoj-by-eoj
+  **** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
+
+*** --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4
+INFO:__main__:[F1] : 0.852370233723154, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 361344.5198535919ms, 40.135946203859824ms on average
+accuracy:  94.60%; precision:  84.67%; recall:  85.61%; FB1:  85.14
+  **** evaluation eoj-by-eoj
+  accuracy:  94.22%; precision:  85.91%; recall:  85.98%; FB1:  85.94
 
 *** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
 INFO:__main__:[F1] : 0.8298886586824331, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
 accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
-  *** evaluation eoj-by-eoj
+  **** evaluation eoj-by-eoj
   accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
 
 ** dha
@@ -1336,7 +1345,7 @@ $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../.
 INFO:__main__:[F1] : 0.8336304521299173, 9000
 INFO:__main__:[Elapsed Time] : 400446ms, 44.48138682075786ms on average
 accuracy:  93.58%; precision:  83.12%; recall:  83.46%; FB1:  83.29
-  *** evaluation eoj-by-eoj
+  **** evaluation eoj-by-eoj
   $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.06%; precision:  83.55%; recall:  83.59%; FB1:  83.57
 
@@ -1518,13 +1527,13 @@ accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 | **GloVe, BiLSTM-CRF**          | 85.93 / 86.41          | morph, character, pos | 27.7451 / - | packed        |
 | GloVe, DenseNet-CRF            | 85.30 / 86.89          | morph, pos            | 24.0280 / - |               |
 | GloVe, DenseNet-CRF            | 85.91 / 86.38          | morph, character, pos | 22.7710 / - |               |
+| dha DistilBERT(v1), BiLSTM-CRF | 84.20 / 86.94          | morph, pos            | 32.1762 / - |               |
+| dha DistilBERT(v1), CRF        | 84.85 / 87.34          | morph, pos            | 27.4700 / - |               |
 | dha BERT(v1), BiLSTM-CRF       | 87.56 / 90.47          | morph, pos            | 40.0766 / - | packed        |
 | dha BERT(v1), BiLSTM           | 88.00 / 90.24          | morph, pos            | 23.0388 / - | packed        |
 | dha BERT(v1), CRF              | 88.46 / 90.56          | morph, pos            | 34.1522 / - |               |
 | dha BERT(v1)                   | 88.04 / 90.64          | morph, pos            | 17.8542 / - |               |
 | dha BERT(v1), BiLSTM-CRF       | 83.99 / 87.54          | morph, pos            | 40.5205 / - | del 8,9,10,11 |
-| dha DistilBERT(v1), BiLSTM-CRF | 84.20 / 86.94          | morph, pos            | 32.1762 / - |               |
-| dha DistilBERT(v1), CRF        | 84.85 / 87.34          | morph, pos            | 27.4700 / - |               |
 | dha BERT(v2), BiLSTM-CRF       | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(v1), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
