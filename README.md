@@ -231,7 +231,7 @@ $ python to-conll.py -g t > valid.txt
 
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
-  - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1` (inhouse)
+  - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1, v3` (inhouse)
   - dha-bpe BERT : `kor-bert-base-dha_bpe.v1, v3`, `kor-bert-large-dha_bpe.v1, v3` (inhouse)
   - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
   - KcBERT : `kcbert-base`, `kcbert-large`
@@ -874,17 +874,18 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                              | F1 (%)      | Features | GPU / CPU      | CONDA    | Dynamic   | Etc    |
 | ---------------------------- | ------------| -------- | -------------- | -------- | --------- | ------ |    
+| bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
+| wp  DistilBERT(v1)           | 84.45       | eoj      | 8.9646  / -    |          |           |        |
 | bpe BERT(v1), BiLSTM-CRF     | 86.11       | eoj      | 53.1818 / -    |          |           |        |
 | bpe BERT(v1), BiLSTM         | 86.37       | eoj      | 21.3232 / -    |          |           |        |
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large(v1)           | 85.99       | eoj      | 30.7513 / -    |          |           |        |
+| bpe BERT-large(v3)           | -           | eoj      | -       / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
 | KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
-| bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
-| wp  DistilBERT(v1)           | 84.45       | eoj      | 8.9646  / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
 | bpe ELECTRA-base(v1)         | 86.46       | eoj      | 18.0449 / -    |          |           |        |
@@ -948,7 +949,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha BERT(v2), BiLSTM-CRF           | 83.29         | 83.57          | morph, pos            | 44.4813 / - |               |
 | dha-bpe BERT(v1), BiLSTM-CRF       | 82.83         | 83.83          | morph, pos            | 42.4347 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF       | 85.14         | 85.94          | morph, pos            | 40.1359 / - |               |
-| dha-bpe BERT(v3), BiLSTM-CRF       | -             | -              | morph, pos            | 40.1359 / - | kor-bert-base-dha_bpe.v3.KMOU (fine-tuned) |
+| dha-bpe BERT(v3), BiLSTM-CRF       | 85.09         | 85.90          | morph, pos            | 39.4648 / - | kor-bert-base-dha_bpe.v3.KMOU (fine-tuned) |
 | dha-bpe BERT-large(v1), BiLSTM-CRF | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
 | dha-bpe BERT-large(v3), BiLSTM-CRF | -             | -              | morph, pos            | -       / - |               |
 | ELMo, BiLSTM-CRF                   | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
@@ -1077,7 +1078,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT(v1), bpe BERT-large, KcBERT-base, KcBERT-large, dha BERT(v1)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT, bpe BERT-large, KcBERT-base, KcBERT-large, dha BERT</b></summary>
 <p>
 
 - train
@@ -1150,6 +1151,9 @@ INFO:__main__:[F1] : 0.8608467232968307, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.56598331838438ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
 accuracy:  94.13%; precision:  86.19%; recall:  85.79%; FB1:  85.99
+
+** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v3 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
+
 
 ** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
 INFO:__main__:[F1] : 0.852160598843144, 9000
@@ -1291,7 +1295,7 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1 ~ v3), dha-bpe BERT-large(v1 ~ v3), dha BERT(v2)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large, dha BERT</b></summary>
 <p>
 
 - train
@@ -1333,8 +1337,11 @@ accuracy:  94.60%; precision:  84.67%; recall:  85.61%; FB1:  85.14
   accuracy:  94.22%; precision:  85.91%; recall:  85.98%; FB1:  85.94
 
 *** --bert_model_name_or_path=./bert-checkpoint-kor-kmou-morph --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4 , fine-tuned kor-bert-base-dha_bpe.v3 on KMOU data
-
-
+INFO:__main__:[F1] : 0.8519647696476965, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 355305.17292022705ms, 39.464807812406406ms on average
+accuracy:  94.58%; precision:  84.69%; recall:  85.50%; FB1:  85.09
+  **** evaluation eoj-by-eoj
+  accuracy:  94.21%; precision:  85.95%; recall:  85.86%; FB1:  85.90
 
 *** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
 INFO:__main__:[F1] : 0.8298886586824331, 9000
@@ -1343,7 +1350,7 @@ accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
   **** evaluation eoj-by-eoj
   accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
 
-*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5 --patience=4
+*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3  --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --patience=4
 
 
 ** dha
@@ -1438,7 +1445,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base(v1), RoBERTa-base </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base, RoBERTa-base </b></summary>
 <p>
 
 - train
@@ -1644,7 +1651,7 @@ token_eval micro F1: 0.8638321196460731
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha BERT(v1), dha BERT(v2)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha BERT</b></summary>
 <p>
 
 - train
@@ -1734,7 +1741,7 @@ token_eval micro F1: 0.8735865242143024
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT(v1 ~ v3), dha-bpe BERT-large(v1 ~ v3)</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large</b></summary>
 <p>
 
 - train
