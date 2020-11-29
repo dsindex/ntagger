@@ -1078,7 +1078,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT, bpe BERT-large, KcBERT-base, KcBERT-large, dha BERT</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT, bpe BERT-large, KcBERT-base, KcBERT-large</b></summary>
 <p>
 
 - train
@@ -1089,16 +1089,6 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-bert-base-bpe.v1
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-bert-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf
-
-* for clova2019_morph
-
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
-
-* for clova2019_morph_space
-
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph_space --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph-space.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph-space --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph_space --use_crf --bert_use_pos
 
 ```
 
@@ -1196,7 +1186,88 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 986830.237865448ms, 109.6440399073
 INFO:__main__:[Elapsed Time] : 100 examples, 2811.2776279449463ms, 26.963908262927124ms on average
 accuracy:  94.31%; precision:  86.53%; recall:  86.16%; FB1:  86.34
 
+```
+
+</p>
+</details>
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large, dha BERT</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+
 * for clova2019_morph
+
+** dha-bpe
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+
+** dha
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v2
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v2 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
+
+* for clova2019_morph_space
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph_space --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph-space.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph-space --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph_space --use_crf --bert_use_pos
+
+```
+
+- evaluation
+```
+* for clova2019_morph
+
+** dha-bpe
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.8295019157088124, 9000
+INFO:__main__:[Elapsed Time] : 382042ms, 42.434714968329814ms on average
+accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
+  **** evaluation eoj-by-eoj
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
+
+*** --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4
+INFO:__main__:[F1] : 0.852370233723154, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 361344.5198535919ms, 40.135946203859824ms on average
+accuracy:  94.60%; precision:  84.67%; recall:  85.61%; FB1:  85.14
+  **** evaluation eoj-by-eoj
+  accuracy:  94.22%; precision:  85.91%; recall:  85.98%; FB1:  85.94
+
+*** --bert_model_name_or_path=./bert-checkpoint-kor-kmou-morph --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4 , fine-tuned kor-bert-base-dha_bpe.v3 on KMOU data
+INFO:__main__:[F1] : 0.8519647696476965, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 355305.17292022705ms, 39.464807812406406ms on average
+accuracy:  94.58%; precision:  84.69%; recall:  85.50%; FB1:  85.09
+  **** evaluation eoj-by-eoj
+  accuracy:  94.21%; precision:  85.95%; recall:  85.86%; FB1:  85.90
+
+*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
+INFO:__main__:[F1] : 0.8298886586824331, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
+accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
+  **** evaluation eoj-by-eoj
+  accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
+
+*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3  --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --patience=4
+
+
+** dha
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
+$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.8336304521299173, 9000
+INFO:__main__:[Elapsed Time] : 400446ms, 44.48138682075786ms on average
+accuracy:  93.58%; precision:  83.12%; recall:  83.46%; FB1:  83.29
+  **** evaluation eoj-by-eoj
+  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
+  accuracy:  93.06%; precision:  83.55%; recall:  83.59%; FB1:  83.57
 
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
 $ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
@@ -1288,81 +1359,6 @@ accuracy:  95.51%; precision:  84.96%; recall:  85.38%; FB1:  85.17
   *** evaluation eoj-by-eoj
   $ cd data/clova2019_morph_space ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
   accuracy:  93.93%; precision:  85.52%; recall:  85.70%; FB1:  85.61
-
-```
-
-</p>
-</details>
-
-
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large, dha BERT</b></summary>
-<p>
-
-- train
-```
-* n_ctx size should be less than 512
-
-* for clova2019_morph
-
-** dha-bpe
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
-
-** dha
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019_morph --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v2
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-clova-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha.v2 --bert_output_dir=bert-checkpoint-kor-clova-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019_morph --use_crf --bert_use_pos
-
-```
-
-- evaluation
-```
-* for clova2019_morph
-
-** dha-bpe
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
-$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-INFO:__main__:[F1] : 0.8295019157088124, 9000
-INFO:__main__:[Elapsed Time] : 382042ms, 42.434714968329814ms on average
-accuracy:  93.77%; precision:  81.78%; recall:  83.91%; FB1:  82.83
-  **** evaluation eoj-by-eoj
-  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-  accuracy:  93.37%; precision:  83.34%; recall:  84.33%; FB1:  83.83
-
-*** --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4
-INFO:__main__:[F1] : 0.852370233723154, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 361344.5198535919ms, 40.135946203859824ms on average
-accuracy:  94.60%; precision:  84.67%; recall:  85.61%; FB1:  85.14
-  **** evaluation eoj-by-eoj
-  accuracy:  94.22%; precision:  85.91%; recall:  85.98%; FB1:  85.94
-
-*** --bert_model_name_or_path=./bert-checkpoint-kor-kmou-morph --batch_size=64 --warmup_epoch=0 --weight_decay=0.0 --patience=4 , fine-tuned kor-bert-base-dha_bpe.v3 on KMOU data
-INFO:__main__:[F1] : 0.8519647696476965, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 355305.17292022705ms, 39.464807812406406ms on average
-accuracy:  94.58%; precision:  84.69%; recall:  85.50%; FB1:  85.09
-  **** evaluation eoj-by-eoj
-  accuracy:  94.21%; precision:  85.95%; recall:  85.86%; FB1:  85.90
-
-*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1  --warmup_epoch=0 --weight_decay=0.0 --lr=1e-5
-INFO:__main__:[F1] : 0.8298886586824331, 9000
-INFO:__main__:[Elapsed Time] : 9000 examples, 483195.63341140747ms, 53.676061569842936ms on average
-accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
-  **** evaluation eoj-by-eoj
-  accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
-
-*** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3  --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --patience=4
-
-
-** dha
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
-$ cd data/clova2019_morph; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-INFO:__main__:[F1] : 0.8336304521299173, 9000
-INFO:__main__:[Elapsed Time] : 400446ms, 44.48138682075786ms on average
-accuracy:  93.58%; precision:  83.12%; recall:  83.46%; FB1:  83.29
-  **** evaluation eoj-by-eoj
-  $ cd data/clova2019_morph ; python to-eoj.py < test.txt.pred > test.txt.pred.eoj ; perl ../../etc/conlleval.pl < test.txt.pred.eoj ; cd ../..
-  accuracy:  93.06%; precision:  83.55%; recall:  83.59%; FB1:  83.57
 
 ```
 
