@@ -881,7 +881,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large(v1)           | 85.99       | eoj      | 30.7513 / -    |          |           |        |
-| bpe BERT-large(v3)           | -           | eoj      | -       / -    |          |           |        |
+| bpe BERT-large(v3)           | 85.89       | eoj      | 27.4264 / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
@@ -951,7 +951,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | dha-bpe BERT(v3), BiLSTM-CRF       | 85.14         | 85.94          | morph, pos            | 40.1359 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF       | 85.09         | 85.90          | morph, pos            | 39.4648 / - | kor-bert-base-dha_bpe.v3.KMOU (fine-tuned) |
 | dha-bpe BERT-large(v1), BiLSTM-CRF | 82.86         | 84.91          | morph, pos            | 53.6760 / - |               |
-| dha-bpe BERT-large(v3), BiLSTM-CRF | -             | -              | morph, pos            | -       / - |               |
+| dha-bpe BERT-large(v3), BiLSTM-CRF | 85.87         | 86.33          | morph, pos            | 50.7508 / - |               |
 | ELMo, BiLSTM-CRF                   | 85.64         | 85.66          | morph, pos            | 95.9868 / - |               |
 | ELMo, BiLSTM-CRF                   | 85.81         | 85.82          | morph, character, pos | 95.6196 / - |               |
 | ELMo, GloVe, BiLSTM-CRF            | 86.37         | 86.37          | morph, pos            | 82.7731 / - |               |
@@ -1142,8 +1142,11 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.565983318
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
 accuracy:  94.13%; precision:  86.19%; recall:  85.79%; FB1:  85.99
 
-** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v3 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf (bpe BERT-large) 
-
+** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v3 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=20 --patience=4 , without --use_crf (bpe BERT-large) 
+INFO:__main__:[F1] : 0.8601462833815275, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 1008693.4926509857ms, 112.0714406355684ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 2885.901689529419ms, 27.426498104827573ms on average
+accuracy:  94.15%; precision:  85.83%; recall:  85.96%; FB1:  85.89
 
 ** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/kor-distil-bpe-bert.v1 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
 INFO:__main__:[F1] : 0.852160598843144, 9000
@@ -1256,7 +1259,11 @@ accuracy:  94.17%; precision:  81.99%; recall:  83.75%; FB1:  82.86
   accuracy:  93.85%; precision:  84.97%; recall:  84.85%; FB1:  84.91
 
 *** --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v3  --warmup_epoch=0 --weight_decay=0.0 --lr=5e-5 --patience=4
-
+INFO:__main__:[F1] : 0.8597318852876293, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 456936.72800064087ms, 50.750845153406736ms on average
+accuracy:  94.66%; precision:  85.63%; recall:  86.11%; FB1:  85.87
+  **** evaluation eoj-by-eoj
+  accuracy:  94.30%; precision:  86.37%; recall:  86.30%; FB1:  86.33
 
 ** dha
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-clova-morph.pt --data_dir=data/clova2019_morph --bert_output_dir=bert-checkpoint-kor-clova-morph --use_crf --bert_use_pos
