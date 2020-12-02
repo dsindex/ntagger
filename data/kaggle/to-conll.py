@@ -32,10 +32,13 @@ def read_corpus(csv_data) :
                 sys.exit(1)
             word = row[1]
             tag  = row[2]
+            # FIXME, broken characters, ex) [,<85>,",",O], [<85>, :, -, O]
+            if tag == ',': word = ','
+            if tag == ':': word = '-'
             label = row[3]
-            etagged.append({'word': row[1],
-                            'tag': row[2],
-                            'label': row[3]})
+            etagged.append({'word': word,
+                            'tag': tag,
+                            'label': label})
         return etagged
 
     data = []
@@ -60,8 +63,10 @@ def read_corpus(csv_data) :
 
 """
 * download : https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus?select=ner_dataset.csv
+$ sed -e 's/5 storm/storm/' ner_dataset.csv > t ; mv t ner_dataset.csv
 $ iconv -f ISO-8859-1 -t UTF-8 ner_dataset.csv > ner_dataset.csv.utf
 $ python to-conll.py
+$ cp -rf valid.txt test.txt
 """
 
 if __name__ == '__main__':
@@ -69,7 +74,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, default='ner_dataset.csv.utf')
     parser.add_argument('--train', type=str, default='train.txt')
-    parser.add_argument('--dev', type=str, default='dev.txt')
+    parser.add_argument('--valid', type=str, default='valid.txt')
 
     opt = parser.parse_args()
     
@@ -79,7 +84,7 @@ if __name__ == '__main__':
 
     data = read_corpus(csv_data)
 
-    with open(opt.train, 'w') as ftrain, open(opt.dev, 'w') as fdev:
+    with open(opt.train, 'w') as ftrain, open(opt.valid, 'w') as fvalid:
         tot_num = len(data)
         train_num = tot_num * 0.9
         iterator = tqdm(data, desc='Writing')
@@ -94,4 +99,4 @@ if __name__ == '__main__':
             if seq < train_num:
                 ftrain.write(bulk)
             else:
-                fdev.write(bulk)
+                fvalid.write(bulk)

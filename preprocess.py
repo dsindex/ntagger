@@ -47,7 +47,11 @@ def build_dict(input_path, config):
             line = line.strip()
             if line == "": continue
             toks = line.split()
-            assert(len(toks) == 4)
+            try:
+                assert(len(toks) == 4)
+            except Exception as e:
+                logger.error(str(idx) + '\t' + line + '\t' + str(e))
+                sys.exit(1)
             word = toks[0]
             pos = toks[1]
             label = toks[-1]
@@ -145,7 +149,11 @@ def build_data(input_path, tokenizer):
                 bucket = []
             else:
                 entry = line.split()
-                assert(len(entry) == 4)
+                try:
+                    assert(len(entry) == 4)
+                except Exception as e:
+                    logger.error(str(idx) + '\t' + line + '\t' + str(e))
+                    sys.exit(1)
                 bucket.append(entry)
         if len(bucket) != 0:
             tokens = []
