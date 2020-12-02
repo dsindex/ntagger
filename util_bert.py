@@ -1,5 +1,6 @@
 from __future__ import absolute_import, division, print_function
 
+import sys
 import os
 import pdb
 
@@ -98,6 +99,7 @@ def convert_single_example_to_feature(example,
     tokens = []
     pos_ids = []
     label_ids = []
+
     for word, pos, label in zip(example.words, example.poss, example.labels):
         # word extension
         word_tokens = tokenizer.tokenize(word)
@@ -108,6 +110,19 @@ def convert_single_example_to_feature(example,
         # label extension: set pad_token_label_id
         label_id = label_map[label]
         label_ids.extend([label_id] + [pad_token_label_id] * (len(word_tokens) - 1))
+
+    if len(tokens) != len(pos_ids):
+        # tokenizer returns empty result, ex) [<96>, ;, -, O], [<94>, ``, -, O]
+        logger.info("guid: %s", example.guid)
+        logger.info("words: %s", " ".join([str(x) for x in example.words]))
+        logger.info('len(words): ' + str(len(example.words)))
+        logger.info("poss: %s", " ".join([str(x) for x in example.poss]))
+        logger.info('len(poss): ' + str(len(example.poss)))
+        logger.info("tokens: %s", " ".join([str(x) for x in tokens]))
+        logger.info('len(tokens): ' + str(len(tokens)))
+        logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
+        logger.info('len(pos_ids): ' + str(len(pos_ids)))
+        sys.exit(1)
 
     # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
     special_tokens_count = 3 if sep_token_extra else 2

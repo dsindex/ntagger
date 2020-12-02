@@ -32,9 +32,11 @@ def read_corpus(csv_data) :
                 sys.exit(1)
             word = row[1]
             tag  = row[2]
-            # FIXME, broken characters, ex) [,<85>,",",O], [<85>, :, -, O]
+            # FIXME, broken characters, ex) [,<85>,",",O], [<85>, :, -, O], [<96>, ;, -, O], [<94>, ``, -, O]
             if tag == ',': word = ','
             if tag == ':': word = '-'
+            if tag == ';': word = ';'
+            if tag == '``': word = '``'
             label = row[3]
             etagged.append({'word': word,
                             'tag': tag,

@@ -901,6 +901,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | GloVe, BiLSTM-CRF               | 85.67        | word, pos            | 23.7084 / -        |          |           |           |                           |
 | GloVe, BiLSTM-CRF               | -            | word, character, pos | - / -              |          |           |           |                           |
 | BERT-base(cased), BiLSTM        | -            | word                 | - / -              | -        | -         | -         |                           |
+| BERT-large, BiLSTM              | -            | word                 | - / -              |          |           |           |                           |
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
 <p>
@@ -944,12 +945,11 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --sav
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/kaggle --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint
 $ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-
 * --bert_use_pos
-
 
 * --bert_disable_lstm
 
+* --bert_model_name_or_path=./embeddings/bert-base-cased
 
 ```
 
