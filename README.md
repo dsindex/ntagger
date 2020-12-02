@@ -68,6 +68,31 @@ $ python to-truecase.py --input_path ../conll2003/test.txt > test.txt
 </p>
 </details>
 
+
+## Kaggle NER (English)
+
+### from [entity-annotated-corpus](https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus)
+
+#### data/kaggle
+
+- converting to CoNLL data format.
+<details><summary>details</summary>
+<p>
+
+```
+* download : https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus?select=ner_dataset.csv
+* remove illegal characters
+$ sed -e 's/5 storm/storm/' ner_dataset.csv > t ; mv t ner_dataset.csv
+$ iconv -f ISO-8859-1 -t UTF-8 ner_dataset.csv > ner_dataset.csv.utf
+
+$ python to-conll.py
+$ cp -rf valid.txt test.txt
+```
+
+</p>
+</details>
+
+
 ## Naver NER 2019 (Korean)
 
 #### from [HanBert-NER](https://github.com/monologg/HanBert-NER)    
@@ -863,6 +888,72 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 </details>
 
 <br>
+
+
+# Kaggle NER  (English)
+
+## experiments summary
+
+- ntagger, measured by conlleval.pl (micro F1)
+
+|                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
+| ------------------------------- | ------------ | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
+| GloVe, BiLSTM-CRF               | -            | word, pos            | - / -              |          |           |           |                           |
+| GloVe, BiLSTM-CRF               | -            | word, character, pos | - / -              |          |           |           |                           |
+| BERT-base(cased), BiLSTM        | -            | word                 | - / -              | -        | -         | -         |                           |
+
+<details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
+$ python preprocess.py --data_dir=data/kaggle
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
+$ python train.py --data_dir=data/kaggle --use_crf
+```
+
+- evaluation
+```
+$ python evaluate.py --data_dir=data/kaggle --use_crf
+$ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+
+
+* --use_char_cnn 
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=bert, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/kaggle --bert_model_name_or_path=./embeddings/bert-large-cased
+$ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/kaggle --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint
+$ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+
+* --bert_use_pos
+
+* --bert_disable_lstm
+
+
+```
+
+</p>
+</details>
+
+
 
 # Naver NER 2019 (Korean)
 
