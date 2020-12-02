@@ -61,14 +61,6 @@ def read_corpus(csv_data) :
         data.append(etagged)
     return data
 
-"""
-* download : https://www.kaggle.com/abhinavwalia95/entity-annotated-corpus?select=ner_dataset.csv
-$ sed -e 's/5 storm/storm/' ner_dataset.csv > t ; mv t ner_dataset.csv
-$ iconv -f ISO-8859-1 -t UTF-8 ner_dataset.csv > ner_dataset.csv.utf
-$ python to-conll.py
-$ cp -rf valid.txt test.txt
-"""
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
