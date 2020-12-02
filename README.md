@@ -898,7 +898,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | ------------ | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
-| GloVe, BiLSTM-CRF               | -            | word, pos            | - / -              |          |           |           |                           |
+| GloVe, BiLSTM-CRF               | 85.67        | word, pos            | 23.7084 / -        |          |           |           |                           |
 | GloVe, BiLSTM-CRF               | -            | word, character, pos | - / -              |          |           |           |                           |
 | BERT-base(cased), BiLSTM        | -            | word                 | - / -              | -        | -         | -         |                           |
 
@@ -917,10 +917,12 @@ $ python train.py --data_dir=data/kaggle --use_crf
 ```
 $ python evaluate.py --data_dir=data/kaggle --use_crf
 $ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-
+INFO:__main__:[F1] : 0.8567375886524823, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 113756.6728591919ms, 23.708498821091442ms on average
+accuracy:  97.38%; precision:  85.79%; recall:  85.56%; FB1:  85.67
 
 * --use_char_cnn 
+
 
 ```
 
@@ -944,6 +946,7 @@ $ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 
 * --bert_use_pos
+
 
 * --bert_disable_lstm
 
