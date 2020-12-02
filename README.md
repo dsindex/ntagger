@@ -17,6 +17,8 @@
 
 <br>
 
+
+
 # Requirements
 
 - python >= 3.6
@@ -43,6 +45,8 @@
   ```
 
 <br>
+
+
 
 # Data and Pretrained Model
 
@@ -268,6 +272,9 @@ $ python to-conll.py -g t > valid.txt
   - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
 <br>
+
+
+
 
 # CoNLL 2003 (English)
 
@@ -890,6 +897,8 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 <br>
 
 
+
+
 # Kaggle NER  (English)
 
 ## experiments summary
@@ -955,6 +964,7 @@ $ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
 </p>
 </details>
+
 
 
 
@@ -1626,7 +1636,10 @@ accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 </details>
 
 <br>
- 
+
+
+
+
 # KMOU NER 2019 (Korean)
 
 ## experiments summary
