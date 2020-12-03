@@ -48,7 +48,7 @@
 
 
 
-# Data and Pretrained Model
+# Data
 
 ## CoNLL 2003 (English)
 
@@ -254,9 +254,14 @@ $ python to-conll.py -g t > valid.txt
 
 - set valid.txt as test.txt
 
-## Korean pretrained model
+<br>
 
-##### Korean GloVe, BERT, ELECTRA, ELMo
+
+
+
+# Korean Pretrained Model
+
+### Korean GloVe, BERT, DistilBERT, ELECTRA, RoBERTa, ELMo
 
 - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
   - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
@@ -909,7 +914,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | ------------------------------- | ------------ | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM-CRF               | 85.67        | word, pos            | 23.7084 / -        |          |           |           |                           |
 | GloVe, BiLSTM-CRF               | -            | word, character, pos | - / -              |          |           |           |                           |
-| BERT-base(cased), BiLSTM        | -            | word                 | - / -              | -        | -         | -         |                           |
+| BERT-base(cased), BiLSTM        | 84.43        | word                 | 39.0914 / -        | -        | -         | -         |                           |
 | BERT-large, BiLSTM              | -            | word                 | - / -              |          |           |           |                           |
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
@@ -946,7 +951,7 @@ accuracy:  97.38%; precision:  85.79%; recall:  85.56%; FB1:  85.67
 ```
 * n_ctx size should be less than 512
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/kaggle --bert_model_name_or_path=./embeddings/bert-large-cased
-$ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10
+$ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=20 --warmup_epoch=0 --weight_decay=0.0 --patience=4
 ```
 
 - evaluation
@@ -954,11 +959,14 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --sav
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/kaggle --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint
 $ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+
 * --bert_use_pos
 
 * --bert_disable_lstm
 
-* --bert_model_name_or_path=./embeddings/bert-base-cased
+* --bert_model_name_or_path=./embeddings/bert-base-cased --lr=5e-5
+INFO:__main__:[F1] : 0.8443369254453487, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 187503.9415359497ms, 39.09142493803799ms on average
 
 ```
 
