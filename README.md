@@ -259,7 +259,7 @@ $ python to-conll.py -g t > valid.txt
 
 
 
-# Korean Pretrained Model
+# Korean pretrained models
 
 ### Korean GloVe, BERT, DistilBERT, ELECTRA, RoBERTa, ELMo
 
