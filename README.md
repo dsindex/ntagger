@@ -916,7 +916,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | GloVe, BiLSTM-CRF               | 85.78        | word, character, pos | 24.2101 / -        |          |           |           |                           |
 | BERT-base(cased), BiLSTM        | 84.43        | word                 | 39.0914 / -        | -        | -         | -         |                           |
 | BERT-base(cased), BiLSTM-CRF    | 84.62        | word, pos            | 37.7312 / -        | -        | -         | -         |                           |
-| BERT-large-squad, BiLSTM        | -            | word                 | - / -              |          |           |           |                           |
+| BERT-large-squad, BiLSTM-CRF    | -            | word, pos            | - / -              |          |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 85.48        | word, pos            | 80.5333 / -        | -        |           |           |                           |
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
