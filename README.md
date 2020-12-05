@@ -209,8 +209,6 @@ _ _ - O
 </details>
 
 
-##### there is no test set. therefore, set valid.txt as test.txt.
-
 ## KMOU NER 2019 (Korean)
 
 #### from [KMOU NER](https://github.com/kmounlp/NER)
@@ -247,12 +245,11 @@ _ _ - O
 
 $ python correction.py -g valid.raw > t
 $ python to-conll.py -g t > valid.txt
+$ cp -rf valid.txt test.txt
 ```
 
 </p>
 </details>
-
-- set valid.txt as test.txt
 
 <br>
 
