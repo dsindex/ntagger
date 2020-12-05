@@ -916,7 +916,7 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 | GloVe, BiLSTM-CRF               | 85.78        | word, character, pos | 24.2101 / -        |          |           |           |                           |
 | BERT-base(cased), BiLSTM        | 84.43        | word                 | 39.0914 / -        | -        | -         | -         |                           |
 | BERT-base(cased), BiLSTM-CRF    | 84.62        | word, pos            | 37.7312 / -        | -        | -         | -         |                           |
-| BERT-large-squad, BiLSTM-CRF    | -            | word, pos            | - / -              |          |           |           |                           |
+| BERT-large-squad, BiLSTM-CRF    | 84.78        | word, pos            | 53.3669 / -        |          |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 85.48        | word, pos            | 80.5333 / -        | -        |           |           |                           |
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
@@ -977,7 +977,9 @@ INFO:__main__:[Elapsed Time] : 4795 examples, 181019.96636390686ms, 37.731241672
 accuracy:  97.31%; precision:  84.11%; recall:  85.13%; FB1:  84.62
 
 * --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --bert_use_pos --use_crf
-
+INFO:__main__:[F1] : 0.8475636619966518, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 256007.39908218384ms, 53.3669921921152ms on average
+accuracy:  97.30%; precision:  84.40%; recall:  85.16%; FB1:  84.78
 
 ```
 
