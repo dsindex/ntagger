@@ -913,9 +913,11 @@ accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | ------------ | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM-CRF               | 85.67        | word, pos            | 23.7084 / -        |          |           |           |                           |
-| GloVe, BiLSTM-CRF               | -            | word, character, pos | - / -              |          |           |           |                           |
+| GloVe, BiLSTM-CRF               | 85.78        | word, character, pos | 24.2101 / -        |          |           |           |                           |
 | BERT-base(cased), BiLSTM        | 84.43        | word                 | 39.0914 / -        | -        | -         | -         |                           |
-| BERT-large, BiLSTM              | -            | word                 | - / -              |          |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | 84.62        | word, pos            | 37.7312 / -        | -        | -         | -         |                           |
+| BERT-large-squad, BiLSTM        | -            | word                 | - / -              |          |           |           |                           |
+| ELMo, GloVe, BiLSTM-CRF         | 85.48        | word, pos            | 80.5333 / -        | -        |           |           |                           |
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
 <p>
@@ -937,7 +939,9 @@ INFO:__main__:[Elapsed Time] : 4795 examples, 113756.6728591919ms, 23.7084988210
 accuracy:  97.38%; precision:  85.79%; recall:  85.56%; FB1:  85.67
 
 * --use_char_cnn 
-
+INFO:__main__:[F1] : 0.8578012141622723, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 116158.74361991882ms, 24.210153393910534ms on average
+accuracy:  97.38%; precision:  85.87%; recall:  85.69%; FB1:  85.78
 
 ```
 
@@ -950,8 +954,8 @@ accuracy:  97.38%; precision:  85.79%; recall:  85.56%; FB1:  85.67
 - train
 ```
 * n_ctx size should be less than 512
-$ python preprocess.py --config=configs/config-bert.json --data_dir=data/kaggle --bert_model_name_or_path=./embeddings/bert-large-cased
-$ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=20 --warmup_epoch=0 --weight_decay=0.0 --patience=4
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/kaggle --bert_model_name_or_path=./embeddings/bert-base-cased
+$ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --warmup_epoch=0 --weight_decay=0.0 --patience=4
 ```
 
 - evaluation
@@ -959,14 +963,46 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/kaggle --sav
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/kaggle --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint
 $ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-
-* --bert_use_pos
-
-* --bert_disable_lstm
-
-* --bert_model_name_or_path=./embeddings/bert-base-cased --lr=5e-5
 INFO:__main__:[F1] : 0.8443369254453487, 4795
 INFO:__main__:[Elapsed Time] : 4795 examples, 187503.9415359497ms, 39.09142493803799ms on average
+
+* {'lr': 5.2929204434436896e-05, 'batch_size': 32, 'seed': 27, 'epochs': 15} by optuna
+INFO:__main__:[F1] : 0.840452206044077, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 185833.47272872925ms, 38.74066833858944ms on average
+accuracy:  97.17%; precision:  83.52%; recall:  84.58%; FB1:  84.05
+
+* --bert_use_pos --use_crf
+INFO:__main__:[F1] : 0.8459812590735118, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 181019.96636390686ms, 37.73124167259703ms on average
+accuracy:  97.31%; precision:  84.11%; recall:  85.13%; FB1:  84.62
+
+* --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad --bert_use_pos --use_crf
+
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=elmo, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* token_emb_dim in configs/config-elmo.json == 300 (ex, glove.6B.300d.txt )
+* elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
+$ python preprocess.py --config=configs/config-elmo.json --data_dir=data/kaggle --embedding_path=embeddings/glove.6B.300d.txt
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
+$ python train.py --config=configs/config-elmo.json --data_dir=data/kaggle --save_path=pytorch-model-elmo.pt --batch_size=64 --use_crf
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-elmo.json --data_dir=data/kaggle --model_path=pytorch-model-elmo.pt --use_crf
+$ cd data/kaggle; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.8547622213358151, 4795
+INFO:__main__:[Elapsed Time] : 4795 examples, 386233.2103252411ms, 80.53337483292677ms on average
+accuracy:  97.35%; precision:  85.58%; recall:  85.37%; FB1:  85.48
 
 ```
 
