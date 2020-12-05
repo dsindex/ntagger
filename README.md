@@ -25,25 +25,6 @@
 
 - pip install -r requirements.txt
 
-- pretrained embedding
-  - glove
-    - [download GloVe6B](http://nlp.stanford.edu/data/glove.6B.zip) and unzip to 'embeddings' dir
-    ```
-    $ mkdir embeddings
-    $ ls embeddings
-    glove.6B.zip
-    $ unzip glove.6B.zip 
-    ```
-  - BERT, ALBERT, RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
-  - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
-    - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
-  - ELMo([allennlp](https://github.com/allenai/allennlp))
-  ```
-  $ cd embeddings
-  $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5
-  $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
-  ```
-
 <br>
 
 
@@ -256,22 +237,40 @@ $ cp -rf valid.txt test.txt
 
 
 
-# Korean pretrained models
+# Pretrained models
 
-### Korean GloVe, BERT, DistilBERT, ELECTRA, RoBERTa, ELMo
+- English
+  - glove
+    - [download GloVe6B](http://nlp.stanford.edu/data/glove.6B.zip) and unzip to 'embeddings' dir
+    ```
+    $ mkdir embeddings
+    $ ls embeddings
+    glove.6B.zip
+    $ unzip glove.6B.zip 
+    ```
+  - BERT, ALBERT, RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
+    - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
+  - ELMo([allennlp](https://github.com/allenai/allennlp))
+  ```
+  $ cd embeddings
+  $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5
+  $ curl -OL https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway_5.5B/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json
+  ```
 
-- [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
-  - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
-  - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1, v3` (inhouse)
-  - dha-bpe BERT : `kor-bert-base-dha_bpe.v1, v3`, `kor-bert-large-dha_bpe.v1, v3` (inhouse)
-  - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
-  - KcBERT : `kcbert-base`, `kcbert-large`
-  - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
-  - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
-  - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
-  - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
-- [ELMo description](https://github.com/dsindex/bilm-tf)
-  - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
+- Korean
+  - [description of Korean GloVe, BERT, DistilBERT, ELECTRA](https://github.com/dsindex/iclassifier/blob/master/KOR_EXPERIMENTS.md)
+    - GloVe : `kor.glove.300k.300d.txt`   (inhouse)  
+    - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1, v3` (inhouse)
+    - dha-bpe BERT : `kor-bert-base-dha_bpe.v1, v3`, `kor-bert-large-dha_bpe.v1, v3` (inhouse)
+    - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
+    - KcBERT : `kcbert-base`, `kcbert-large`
+    - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
+    - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
+    - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
+    - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
+  - [ELMo description](https://github.com/dsindex/bilm-tf)
+    - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
 <br>
 
