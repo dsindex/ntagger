@@ -1,4 +1,4 @@
-torch>=1.6.0
+torch
 tqdm
 tensorboardX
 seqeval
