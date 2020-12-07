@@ -77,6 +77,23 @@ $ cp -rf valid.txt test.txt
 </p>
 </details>
 
+## GUM (English)
+
+### from [entity-recognition-datasets](https://github.com/juand-r/entity-recognition-datasets)
+
+#### data/gum
+
+- converting to CoNLL data format.
+<details><summary>details</summary>
+<p>
+
+```
+$ python to-conll.py
+```
+
+</p>
+</details>
+
 
 ## Naver NER 2019 (Korean)
 
@@ -1008,6 +1025,94 @@ accuracy:  97.35%; precision:  85.58%; recall:  85.37%; FB1:  85.48
 </details>
 
 <br>
+
+
+
+
+# GUM (English)
+
+## experiments summary
+
+- ntagger, measured by conlleval.pl (micro F1)
+
+|                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
+| ------------------------------- | ------------ | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
+| GloVe, BiLSTM-CRF               | -            | word, character      | -       / -        |          |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | -            | word                 | -       / -        | -        | -         | -         |                           |
+| BERT-large-squad, BiLSTM-CRF    | -            | word                 | -       / -        |          |           |           |                           |
+| ELMo, GloVe, BiLSTM-CRF         | -            | word                 | -       / -        | -        |           |           |                           |
+
+<details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* token_emb_dim in configs/config-glove.json == 300 (ex, glove.6B.300d.txt )
+$ python preprocess.py --data_dir=data/gum
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
+$ python train.py --data_dir=data/gum --use_crf --use_char_cnn
+```
+
+- evaluation
+```
+$ python evaluate.py --data_dir=data/gum --use_crf --use_char_cnn
+$ cd data/gum; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=bert, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/gum --bert_model_name_or_path=./embeddings/bert-base-cased
+$ python train.py --config=configs/config-bert.json --data_dir=data/gum --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=5e-5 --epoch=20 --warmup_epoch=0 --weight_decay=0.0 --patience=4 --use_crf
+
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/gum --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf
+$ cd data/gum; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+
+* --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=elmo, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* token_emb_dim in configs/config-elmo.json == 300 (ex, glove.6B.300d.txt )
+* elmo_emb_dim  in configs/config-elmo.json == 1024 (ex, elmo_2x4096_512_2048cnn_2xhighway_5.5B_* )
+$ python preprocess.py --config=configs/config-elmo.json --data_dir=data/gum --embedding_path=embeddings/glove.6B.300d.txt
+* --use_crf for adding crf layer, --embedding_trainable for fine-tuning pretrained word embedding
+$ python train.py --config=configs/config-elmo.json --data_dir=data/gum --save_path=pytorch-model-elmo.pt --batch_size=64 --use_crf
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-elmo.json --data_dir=data/gum --model_path=pytorch-model-elmo.pt --use_crf
+$ cd data/gum; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+```
+
+</p>
+</details>
+
+<br>
+
+
 
 
 # Naver NER 2019 (Korean)
