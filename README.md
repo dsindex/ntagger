@@ -88,7 +88,8 @@ $ cp -rf valid.txt test.txt
 <p>
 
 ```
-$ python to-conll.py
+* remove '*-object', '*-abstract'
+$ python to-conll.py --input_train=gum-train.conll --inpu_test=gum-test.conll --train=train.txt --valid=valid.txt --test=test.txt
 ```
 
 </p>
@@ -1037,10 +1038,10 @@ accuracy:  97.35%; precision:  85.58%; recall:  85.37%; FB1:  85.48
 
 |                                 | F1 (%)       | Features             | GPU / CPU          | CONDA    | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | ------------ | -------------------- | ------------------ | -------- | --------- | --------- | ------------------------- |
-| GloVe, BiLSTM-CRF               | -            | word, character      | -       / -        |          |           |           |                           |
-| BERT-base(cased), BiLSTM-CRF    | -            | word                 | -       / -        | -        | -         | -         |                           |
-| BERT-large-squad, BiLSTM-CRF    | -            | word                 | -       / -        |          |           |           |                           |
-| ELMo, GloVe, BiLSTM-CRF         | -            | word                 | -       / -        | -        |           |           |                           |
+| GloVe, BiLSTM-CRF               | 53.70        | word, character      | 24.3435 / -        |          |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | 63.13        | word                 | 40.3382 / -        | -        | -         | -         |                           |
+| BERT-large-squad, BiLSTM-CRF    | 62.76        | word                 | 63.1012 / -        |          |           |           |                           |
+| ELMo, GloVe, BiLSTM-CRF         | 61.46        | word                 | 79.0402 / -        | -        |           |           |                           |
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
 <p>
@@ -1057,7 +1058,9 @@ $ python train.py --data_dir=data/gum --use_crf --use_char_cnn
 ```
 $ python evaluate.py --data_dir=data/gum --use_crf --use_char_cnn
 $ cd data/gum; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
+INFO:__main__:[F1] : 0.5370499419279907, 1000
+INFO:__main__:[Elapsed Time] : 1000 examples, 24429.93712425232ms, 24.343522103341133ms on average
+accuracy:  79.30%; precision:  55.47%; recall:  52.05%; FB1:  53.70
 
 ```
 
@@ -1080,8 +1083,15 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/gum --save_p
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/gum --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf
 $ cd data/gum; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+* {'lr': 5.8243506260824845e-05, 'batch_size': 32, 'seed': 42, 'epochs': 18} by optuna
+INFO:__main__:[F1] : 0.6304728546409808, 1000
+INFO:__main__:[Elapsed Time] : 1000 examples, 40466.28999710083ms, 40.33822578949494ms on average
+accuracy:  83.86%; precision:  61.51%; recall:  64.84%; FB1:  63.13
 
 * --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad
+INFO:__main__:[F1] : 0.6267972494269639, 1000
+INFO:__main__:[Elapsed Time] : 1000 examples, 63216.368436813354ms, 63.10122626441139ms on average
+accuracy:  82.62%; precision:  58.48%; recall:  67.72%; FB1:  62.76
 
 ```
 
@@ -1104,6 +1114,9 @@ $ python train.py --config=configs/config-elmo.json --data_dir=data/gum --save_p
 ```
 $ python evaluate.py --config=configs/config-elmo.json --data_dir=data/gum --model_path=pytorch-model-elmo.pt --use_crf
 $ cd data/gum; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.6145741878841089, 1000
+INFO:__main__:[Elapsed Time] : 1000 examples, 79157.54914283752ms, 79.0402540812144ms on average
+accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 
 ```
 
