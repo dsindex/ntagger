@@ -314,7 +314,7 @@ class GloveLSTMCRF(BaseModel):
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
-        # TODO : pytorch bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
+        # FIXME : pytorch 1.7.0 bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
         packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths.cpu(), batch_first=True, enforce_sorted=False)
         lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
         lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
@@ -568,7 +568,7 @@ class BertLSTMCRF(BaseModel):
 
         # 2. LSTM
         if not self.disable_lstm:
-            # TODO : pytorch bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
+            # FIXME : pytorch 1.7.0 bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
             packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths.cpu(), batch_first=True, enforce_sorted=False)
             lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
             lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
@@ -679,7 +679,7 @@ class ElmoLSTMCRF(BaseModel):
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
-        # TODO : pytorch bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
+        # FIXME : pytorch 1.7.0 bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
         packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths.cpu(), batch_first=True, enforce_sorted=False)
         lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
         lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
