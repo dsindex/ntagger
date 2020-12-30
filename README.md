@@ -1152,8 +1152,8 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KcBERT-base                  | 84.72       | eoj      | 13.3129 / -    |          |           |        |
 | KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
-| KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
-| LM-KOR-ELECTRA               | -           | eoj      | -       / -    |          |           |        |
+| KoELECTRA-Base-v3            | 87.31       | eoj      | 14.8115 / -    |          |           |        |
+| LM-KOR-ELECTRA               | **87.39**   | eoj      | 17.1545 / -    |          |           |        |
 | bpe ELECTRA-base(v1)         | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 
@@ -1778,7 +1778,10 @@ accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 ** LM-KOR-ELECTRA
 
 *** --bert_model_name_or_path='kykim/electra-kor-base'  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
-
+INFO:__main__:[F1] : 0.8750042550294449, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 848208.4937095642ms, 94.24447772211201ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1798.86794090271ms, 17.15457800662879ms on average
+accuracy:  94.75%; precision:  87.38%; recall:  87.39%; FB1:  87.39
 
 
 ** bpe ELECTRA-base(v1)
