@@ -283,8 +283,9 @@ $ cp -rf valid.txt test.txt
     - dha-bpe BERT : `kor-bert-base-dha_bpe.v1, v3`, `kor-bert-large-dha_bpe.v1, v3` (inhouse)
     - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
     - KcBERT : `kcbert-base`, `kcbert-large`
-    - distil BERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
+    - DistilBERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
     - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
+    - LM-KOR-ELECTRA : `electra-kor-base`
     - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
     - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
   - [ELMo description](https://github.com/dsindex/bilm-tf)
@@ -1152,11 +1153,12 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KcBERT-large                 | 86.34       | eoj      | 26.9639 / -    |          |           |        |
 | KoELECTRA-Base-v1            | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3            | **87.31**   | eoj      | 14.8115 / -    |          |           |        |
+| LM-KOR-ELECTRA               | -           | eoj      | -       / -    |          |           |        |
 | bpe ELECTRA-base(v1)         | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 
 
-- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), measured by seqeval (micro F1)
+- [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), [LM-kor](https://github.com/kiyoungkim1/LM-kor) measured by seqeval (micro F1)
 
 | (update) max_seq_len=50  | F1 (%)        | Features |
 | ------------------------ | ------------- | -------- |
@@ -1168,6 +1170,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base           | 87.18         | eoj      |
 | KoELECTRA-Base-v2        | 87.16         | eoj      |
 | KoELECTRA-Base-v3        | **88.11**     | eoj      |
+| LM-KOR-ELECTRA           | 87.14         | eoj      |
 
 ```
 * note that F1 score from the 'seqeval' package for 'max_seq_len=50' might be similar with that for 'max_seq_len=180'. 
@@ -1712,7 +1715,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, bpe ELECTRA-base, RoBERTa-base </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, LM-KOR-ELECTRA, bpe ELECTRA-base, RoBERTa-base </b></summary>
 <p>
 
 - train
@@ -1729,6 +1732,10 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 ** bpe ELECTRA-base(v1)
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+
+** LM-KOR-ELECTRA
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path='kykim/electra-kor-base'
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path='kykim/electra-kor-base' --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** RoBERTa-base
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
@@ -1767,6 +1774,11 @@ INFO:__main__:[F1] : 0.8743705005576774, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 878765.2859687805ms, 97.64226169927423ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1558.605432510376ms, 14.81159528096517ms on average
 accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
+
+** LM-KOR-ELECTRA
+
+*** --bert_model_name_or_path='kykim/electra-kor-base'  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+
 
 
 ** bpe ELECTRA-base(v1)
