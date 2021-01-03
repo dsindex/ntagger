@@ -316,6 +316,7 @@ $ cp -rf valid.txt test.txt
 | BERT-small, BiLSTM              | 86.35        |                   | word                 | 22.6087 / -        |          |           |           |                           |
 | BERT-medium, BiLSTM             | 88.29        |                   | word                 | 27.0486 / -        |          |           |           |                           |
 | DistilBERT, BiLSTM              | 89.50        |                   | word                 | 13.4564 / -        | 58.9260  | 56.2819   | 47.8320   |                           |
+| MiniLM, BiLSTM                  | 90.55        |                   | word                 | 17.7890 / -        | -        | -         | -         |                           |
 | BERT-base(uncased), BiLSTM-CRF  | 90.20        |                   | word                 | 42.6464 / -        |          |           |           |                           |
 | BERT-base(uncased), BiLSTM      | 90.55        |                   | word                 | 18.2323 / -        | 100.0505 | 79.1914   | 83.9590   |                           |
 | BERT-base(uncased), CRF         | 89.98        |                   | word                 | 36.6893 / -        |          |           |           |                           |
@@ -600,6 +601,16 @@ accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
 INFO:__main__:[F1] : 0.894963522897073, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 49652ms, 13.456421395601412ms on average
 accuracy:  97.80%; precision:  88.86%; recall:  90.14%; FB1:  89.50
+
+* --config=configs/config-bert.json --bert_model_name_or_path=./embeddings/MiniLM-L12-H384-uncased
+INFO:__main__:[F1] : 0.900193627882415, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 67914.6056175232ms, 18.416685349844798ms on average
+accuracy:  97.92%; precision:  89.50%; recall:  90.55%; FB1:  90.02
+
+* --config=configs/config-bert.json --bert_model_name_or_path=./embeddings/MiniLM-L12-H384-uncased --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+INFO:__main__:[F1] : 0.9055271057743245, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 65600.49557685852ms, 17.789026203927158ms on average
+accuracy:  98.05%; precision:  90.31%; recall:  90.79%; FB1:  90.55
 
 * --bert_model_name_or_path=./embeddings/bert-large-cased-whole-word-masking-finetuned-squad
 INFO:__main__:[F1] : 0.9130013221683562, 3684
@@ -1734,8 +1745,8 @@ $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova20
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** LM-KOR-ELECTRA
-$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path='kykim/electra-kor-base'
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path='kykim/electra-kor-base' --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/electra-kor-base
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/electra-kor-base --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** RoBERTa-base
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
@@ -1777,7 +1788,7 @@ accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 
 ** LM-KOR-ELECTRA
 
-*** --bert_model_name_or_path='kykim/electra-kor-base'  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
+*** --bert_model_name_or_path=./embeddings/electra-kor-base  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
 INFO:__main__:[F1] : 0.8750042550294449, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 848208.4937095642ms, 94.24447772211201ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1798.86794090271ms, 17.15457800662879ms on average
