@@ -1378,7 +1378,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT, bpe BERT-large, bpe DistilBERT, mDistilBERT, KcBERT-base, KcBERT-large</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, eoj-based</b></summary>
 <p>
 
 - train
@@ -1498,7 +1498,7 @@ accuracy:  94.31%; precision:  86.53%; recall:  86.16%; FB1:  86.34
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large, dha BERT</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, morph-based</b></summary>
 <p>
 
 - train
@@ -1751,7 +1751,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, LM-KOR-ELECTRA, bpe ELECTRA-base, RoBERTa-base, XLM-RoBERTa-base, XLM-RoBERTa-large </b></summary>
+<details><summary><b>emb_class=electra/roberta, enc_class=bilstm </b></summary>
 <p>
 
 - train
@@ -1988,7 +1988,7 @@ token_eval micro F1: 0.8638321196460731
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha BERT</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, morph-based [1]</b></summary>
 <p>
 
 - train
@@ -2078,7 +2078,7 @@ token_eval micro F1: 0.8735865242143024
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, dha-bpe BERT, dha-bpe BERT-large</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, morph-based [2]</b></summary>
 <p>
 
 - train
