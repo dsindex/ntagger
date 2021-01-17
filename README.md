@@ -347,8 +347,8 @@ $ cp -rf valid.txt test.txt
 | ALBERT-xxlarge, BiLSTM          | 90.39        |                   | word                 | 107.778 / -        |          |           |           |                           |
 | RoBERTa-base                    | 90.03        |                   | word                 | 19.2503 / -        |          |           |           |                           |
 | RoBERTa-large                   | 91.83        | 91.90             | word                 | 28.5525 / -        |          |           |           |                           |
-| XLM-RoBERTa-base                | -            |                   | word                 | -       / -        |          |           |           |                           |
-| XLM-RoBERTa-large               | **92.75**    |                   | word                 | 27.9144 / -        |          |           |           |                           |
+| XLM-RoBERTa-base                | 91.18        |                   | word                 | 15.9806 / -        |          |           |           |                           |
+| XLM-RoBERTa-large               | **92.75**    | **92.89**         | word                 | 27.9144 / -        |          |           |           |                           |
 | BART-large, BiLSTM              | 90.43        |                   | word                 | 53.3657 / -        |          |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98        |                   | word                 | 22.4132 / -        |          |           |           |                           |
 | ELECTRA-large                   | 91.39        |                   | word                 | 29.5734 / -        |          |           |           |                           |
@@ -783,6 +783,7 @@ INFO:__main__:[Elapsed Time] : 147221ms, 39.92967689383654ms on average
 
 * --bert_disable_lstm
 INFO:__main__:[F1] : 0.9183817062445031, 3684
+F
 INFO:__main__:[Elapsed Time] : 105306ms, 28.55253869128428ms on average
 
 * --use_crf
@@ -803,7 +804,10 @@ INFO:__main__:[F1] : 0.9002973587545915, 3684
 INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
 
 * --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_disable_lstm
-
+INFO:__main__:[F1] : 0.9118162692847126, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 67974.00379180908ms, 18.429700557285116ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1696.9754695892334ms, 15.980621781012024ms on average
+accuracy:  98.16%; precision:  90.30%; recall:  92.09%; FB1:  91.18
 
 * --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
 INFO:__main__:[F1] : 0.927465220054248, 3684
@@ -811,8 +815,11 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 111304.85033988953ms, 30.184716852
 INFO:__main__:[Elapsed Time] : 100 examples, 2893.0163383483887ms, 27.91449758741591ms on average
 accuracy:  98.47%; precision:  91.68%; recall:  93.84%; FB1:  92.75
 
-* --bert_model_name_or_path=./embeddings/xlm-roberta-large --data_dir=data/conll2003_truecase --bert_disable_lstm --bert_disable_lstm
-
+* --bert_model_name_or_path=./embeddings/xlm-roberta-large --data_dir=data/conll2003_truecase --bert_disable_lstm
+INFO:__main__:[F1] : 0.928909952606635, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 112505.32031059265ms, 30.506469942518073ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 2932.1699142456055ms, 28.066835018119427ms on average
+accuracy:  98.48%; precision:  92.10%; recall:  93.70%; FB1:  92.89
 ```
 
 </p>
