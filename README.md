@@ -3,7 +3,7 @@
 **reference pytorch code for named entity tagging.**
 
 - embedding
-  - word : GloVe, BERT, DistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, BART, ELECTRA, ELMo
+  - word : GloVe, BERT, DistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA, ELMo
   - character : CNN
   - pos : lookup
 - encoding
@@ -266,7 +266,7 @@ $ cp -rf valid.txt test.txt
     glove.6B.zip
     $ unzip glove.6B.zip 
     ```
-  - BERT, ALBERT, RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  - BERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
     - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
@@ -344,12 +344,14 @@ $ cp -rf valid.txt test.txt
 | ALBERT-xxlarge, BiLSTM          | 90.39        |                   | word                 | 107.778 / -        |          |           |           |                           |
 | RoBERTa-base                    | 90.03        |                   | word                 | 19.2503 / -        |          |           |           |                           |
 | RoBERTa-large                   | 91.83        | 91.90             | word                 | 28.5525 / -        |          |           |           |                           |
+| XLM-RoBERTa-base                | -            |                   | word                 | -       / -        |          |           |           |                           |
+| XLM-RoBERTa-large               | **92.75**    |                   | word                 | 27.9144 / -        |          |           |           |                           |
 | BART-large, BiLSTM              | 90.43        |                   | word                 | 53.3657 / -        |          |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98        |                   | word                 | 22.4132 / -        |          |           |           |                           |
 | ELECTRA-large                   | 91.39        |                   | word                 | 29.5734 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.78        |                   | word, pos            | 74.1001 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93        |                   | word, character, pos | 67.6931 / -        |          |           |           |                           |
-| ELMo, GloVe, BiLSTM-CRF         | **92.63**    | 92.51             | word, pos            | 74.6521 / -        |          |           |           |                           |
+| ELMo, GloVe, BiLSTM-CRF         | 92.63        | 92.51             | word, pos            | 74.6521 / -        |          |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.03        |                   | word, character, pos | 60.4667 / -        | 182.595  |           |           | threads=14                |
 
 ```
@@ -794,6 +796,17 @@ accuracy:  98.30%; precision:  91.37%; recall:  92.44%; FB1:  91.90
 INFO:__main__:[F1] : 0.9002973587545915, 3684
 INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
 
+* --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_disable_lstm
+
+
+* --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
+INFO:__main__:[F1] : 0.927465220054248, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 111304.85033988953ms, 30.18471685208091ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 2893.0163383483887ms, 27.91449758741591ms on average
+accuracy:  98.47%; precision:  91.68%; recall:  93.84%; FB1:  92.75
+
+* --bert_model_name_or_path=./embeddings/xlm-roberta-large --data_dir=data/conll2003_truecase --bert_disable_lstm --bert_disable_lstm
+
 ```
 
 </p>
@@ -1167,6 +1180,8 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | LM-KOR-ELECTRA               | **87.39**   | eoj      | 17.1545 / -    |          |           |        |
 | bpe ELECTRA-base(v1)         | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | RoBERTa-base                 | 85.45       | eoj      | 15.6986 / -    |          |           |        |
+| XLM-RoBERTa-base             | 86.84       | eoj      | 18.1326 / -    |          |           |        |
+| XLM-RoBERTa-large            | 87.01       | eoj      | 35.9521 / -    |          |           |        |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), [LM-kor](https://github.com/kiyoungkim1/LM-kor) measured by seqeval (micro F1)
@@ -1726,7 +1741,7 @@ accuracy:  95.51%; precision:  86.16%; recall:  85.74%; FB1:  85.95
 </details>
 
 
-<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, LM-KOR-ELECTRA, bpe ELECTRA-base, RoBERTa-base </b></summary>
+<details><summary><b>emb_class=electra, enc_class=bilstm, KoELECTRA-Base, LM-KOR-ELECTRA, bpe ELECTRA-base, RoBERTa-base, XLM-RoBERTa-base, XLM-RoBERTa-large </b></summary>
 <p>
 
 - train
@@ -1752,6 +1767,9 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
 
+** XLM-RoBERTa-base, XLM-RoBERTa-large
+$ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/xlm-roberta-base
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
 
 ```
 
@@ -1816,6 +1834,19 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 892125.4014968872ms, 99.1214930925
 INFO:__main__:[Elapsed Time] : 100 examples, 1671.3252067565918ms, 15.69863280864677ms on average
 accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 
+** XLM-RoBERTa-base, XLM-RoBERTa-large
+$ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.8699418515423837, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 847419.8191165924ms, 94.15775130147178ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1889.4524574279785ms, 18.13263122481529ms on average
+accuracy:  94.51%; precision:  86.95%; recall:  86.72%; FB1:  86.84
+
+*** --bert_model_name_or_path=./embeddings/xlm-roberta-large
+INFO:__main__:[F1] : 0.8716396592474196, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 958549.7736930847ms, 106.50296955191304ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 3725.3706455230713ms, 35.952108074920346ms on average
+accuracy:  94.48%; precision:  86.88%; recall:  87.14%; FB1:  87.01
 ```
 
 </p>
