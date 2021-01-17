@@ -3,7 +3,7 @@
 **reference pytorch code for named entity tagging.**
 
 - embedding
-  - word : GloVe, BERT, DistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA, ELMo
+  - word : GloVe, BERT, DistilBERT, mDistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA, ELMo
   - character : CNN
   - pos : lookup
 - encoding
@@ -266,7 +266,7 @@ $ cp -rf valid.txt test.txt
     glove.6B.zip
     $ unzip glove.6B.zip 
     ```
-  - BERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  - BERT, DistilBERT, mDistilBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
     - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
@@ -284,10 +284,12 @@ $ cp -rf valid.txt test.txt
     - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
     - KcBERT : `kcbert-base`, `kcbert-large`
     - DistilBERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
+    - mDistilBERT : `distilbert-base-multilingual-cased`
     - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
     - LM-KOR-ELECTRA : `electra-kor-base`
     - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
     - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
+    - XLM-RoBERTa : `xlm-roberta-base`, `xlm-roberta-large`
   - [ELMo description](https://github.com/dsindex/bilm-tf)
     - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
@@ -316,6 +318,7 @@ $ cp -rf valid.txt test.txt
 | BERT-small, BiLSTM              | 86.35        |                   | word                 | 22.6087 / -        |          |           |           |                           |
 | BERT-medium, BiLSTM             | 88.29        |                   | word                 | 27.0486 / -        |          |           |           |                           |
 | DistilBERT, BiLSTM              | 89.50        |                   | word                 | 13.4564 / -        | 58.9260  | 56.2819   | 47.8320   |                           |
+| mDistilBERT, BiLSTM             | -            |                   | word                 | -       / -        | -        | -         | -         |                           |
 | MiniLM, BiLSTM                  | 90.55        |                   | word                 | 17.7890 / -        | -        | -         | -         |                           |
 | BERT-base(uncased), BiLSTM-CRF  | 90.20        |                   | word                 | 42.6464 / -        |          |           |           |                           |
 | BERT-base(uncased), BiLSTM      | 90.55        |                   | word                 | 18.2323 / -        | 100.0505 | 79.1914   | 83.9590   |                           |
@@ -603,6 +606,9 @@ accuracy:  94.12%; precision:  70.92%; recall:  68.43%; FB1:  69.65
 INFO:__main__:[F1] : 0.894963522897073, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 49652ms, 13.456421395601412ms on average
 accuracy:  97.80%; precision:  88.86%; recall:  90.14%; FB1:  89.50
+
+* --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/distilbert-base-multilingual-cased 
+
 
 * --config=configs/config-bert.json --bert_model_name_or_path=./embeddings/MiniLM-L12-H384-uncased
 INFO:__main__:[F1] : 0.900193627882415, 3684
@@ -1165,6 +1171,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | ---------------------------- | ------------| -------- | -------------- | -------- | --------- | ------ |    
 | bpe DistilBERT(v1)           | 85.30       | eoj      | 9.0702  / -    |          |           |        |
 | wp  DistilBERT(v1)           | 84.45       | eoj      | 8.9646  / -    |          |           |        |
+| mDistilBERT                  | -           | eoj      | -       / -    |          |           |        |
 | bpe BERT(v1), BiLSTM-CRF     | 86.11       | eoj      | 53.1818 / -    |          |           |        |
 | bpe BERT(v1), BiLSTM         | 86.37       | eoj      | 21.3232 / -    |          |           |        |
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
@@ -1371,7 +1378,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 </details>
 
 
-<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT, bpe BERT-large, KcBERT-base, KcBERT-large</b></summary>
+<details><summary><b>emb_class=bert, enc_class=bilstm, bpe BERT, bpe BERT-large, bpe DistilBERT, mDistilBERT, KcBERT-base, KcBERT-large</b></summary>
 <p>
 
 - train
@@ -1457,6 +1464,9 @@ INFO:__main__:[F1] : 0.8458054118245821, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 783889.6675109863ms, 87.09866535082064ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 975.9259223937988ms, 8.9646927034012ms on average
 accuracy:  93.55%; precision:  84.16%; recall:  84.75%; FB1:  84.45
+
+** --config=configs/config-distilbert.json --bert_model_name_or_path=./embeddings/distilbert-case-multilingual-cased --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 , without --use_crf
+
 
 ** --bert_model_name_or_path=./embeddings/kcbert-base  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 , --without --use_crf (KcBERT-base, BiLSTM) 
 INFO:__main__:[F1] : 0.8491746129396084, 9000
