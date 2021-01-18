@@ -3,7 +3,7 @@
 **reference pytorch code for named entity tagging.**
 
 - embedding
-  - word : GloVe, BERT, DistilBERT, mDistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA, ELMo
+  - word : GloVe, BERT, DistilBERT, mDistilBERT, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA, DeBERTa, ELMo
   - character : CNN
   - pos : lookup
 - encoding
@@ -266,7 +266,7 @@ $ cp -rf valid.txt test.txt
     glove.6B.zip
     $ unzip glove.6B.zip 
     ```
-  - BERT, DistilBERT, mDistilBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA(huggingface's [transformers](https://github.com/huggingface/transformers.git))
+  - BERT-like models(huggingface's [transformers](https://github.com/huggingface/transformers.git))
   - [SpanBERT](https://github.com/facebookresearch/SpanBERT/blob/master/README.md)
     - pretrained SpanBERT models are compatible with huggingface's BERT modele except `'bert.pooler.dense.weight', 'bert.pooler.dense.bias'`.
   - ELMo([allennlp](https://github.com/allenai/allennlp))
@@ -352,6 +352,8 @@ $ cp -rf valid.txt test.txt
 | BART-large, BiLSTM              | 90.43        |                   | word                 | 53.3657 / -        |          |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98        |                   | word                 | 22.4132 / -        |          |           |           |                           |
 | ELECTRA-large                   | 91.39        |                   | word                 | 29.5734 / -        |          |           |           |                           |
+| DeBERTa-base                    | 90.41        |                   | word                 | 28.6874 / -        |          |           |           |                           |
+| DeBERTa-large                   | 91.45        |                   | word                 | 53.9249 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.78        |                   | word, pos            | 74.1001 / -        |          |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93        |                   | word, character, pos | 67.6931 / -        |          |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63        | 92.51             | word, pos            | 74.6521 / -        |          |           |           |                           |
@@ -886,6 +888,38 @@ INFO:__main__:[Elapsed Time] : 109367ms, 29.573445560684224ms on average
 INFO:__main__:[F1] : 0.9042280872098155, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 116181ms, 31.50203638338311ms on average
 accuracy:  98.04%; precision:  90.16%; recall:  90.69%; FB1:  90.42
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=deberta, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* share config-bert.json
+* n_ctx size should be less than 512
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-base
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-base --bert_output_dir=bert-checkpoint-deberta --batch_size=32 --lr=1e-5 --epoch=20 --bert_disable_lstm
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_disable_lstm
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+INFO:__main__:[F1] : 0.9040613161835961, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 114359.83681678772ms, 31.012554386210383ms on average
+accuracy:  98.10%; precision:  89.97%; recall:  90.85%; FB1:  90.41
+INFO:__main__:[Elapsed Time] : 100 examples, 2987.0100021362305ms, 28.687477111816406ms on average
+
+* --bert_model_name_or_path=./embeddings/deberta-large --batch_size=16 --gradient_accumulation_steps=2
+INFO:__main__:[F1] : 0.9144771645212484, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 206926.0606765747ms, 56.128300501864594ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 5544.259309768677ms, 53.92497717732131ms on average
+accuracy:  98.32%; precision:  91.08%; recall:  91.82%; FB1:  91.45
 
 ```
 
