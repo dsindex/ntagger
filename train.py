@@ -88,12 +88,18 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
                 if opt.gradient_accumulation_steps > 1:
                     loss = loss / opt.gradient_accumulation_steps
         # back-propagation - begin
-        scaler.scale(loss).backward()
+        if opt.device == 'cpu':
+            loss.backward()
+        else:
+            scaler.scale(loss).backward()
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
-            scaler.unscale_(optimizer)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
-            scaler.step(optimizer)
-            scaler.update()
+            if opt.device == 'cpu':
+                optimizer.step()
+            else:
+                scaler.unscale_(optimizer)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
+                scaler.step(optimizer)
+                scaler.update()
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
