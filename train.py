@@ -277,6 +277,15 @@ def reduce_bert_model(config, bert_model, bert_config):
         if len(layer_indexes) > 0:
             bert_config.num_hidden_layers = len(layer_list)
 
+def load_checkpoint(config):
+    opt = config['opt']
+    if opt.device == 'cpu':
+        checkpoint = torch.load(opt.restore_path, map_location=lambda storage, loc: storage)
+    else:
+        checkpoint = torch.load(opt.restore_path)
+    logger.info("[Loading checkpoint done]")
+    return checkpoint
+
 def prepare_model(config):
     opt = config['opt']
     emb_non_trainable = not opt.embedding_trainable
@@ -303,6 +312,9 @@ def prepare_model(config):
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
+    if opt.restore_path:
+        checkpoint = load_checkpoint(config)
+        model.load_state_dict(checkpoint)
     model.to(opt.device)
     logger.info("[model] :\n{}".format(model.__str__()))
     logger.info("[model prepared]")
@@ -453,6 +465,7 @@ def main():
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument('--max_grad_norm', default=1.0, type=float, help="Max gradient norm.")
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
+    parser.add_argument('--restore_path', type=str, default='')
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
