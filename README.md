@@ -341,6 +341,7 @@ $ cp -rf valid.txt test.txt
 | BERT-large, BiLSTM-CRF          | 90.98        |                   | word                 | 58.9112 / -        |           |           | BERT as feature-based, mean([0:]) embedding          |
 | BERT-large, BiLSTM-CRF          | 90.62        |                   | word                 | 66.6576 / -        |           |           | BERT as feature-based, DSA(4, 300)                   |
 | BERT-large-squad, BiLSTM        | 91.75        | 92.17             | word                 | 35.6619 / -        |           |           |                           |
+| BERT-large-conll03, BiLSTM      | 91.87        | -                 | word                 | 32.2211 / -        |           |           |                           |
 | SpanBERT-base, BiLSTM           | 90.46        |                   | word                 | 30.0991 / -        |           |           |                           |
 | SpanBERT-large, BiLSTM          | 91.39        | 92.01             | word                 | 42.5959 / -        |           |           |                           |
 | ALBERT-base, BiLSTM             | 88.19        |                   | word                 | 31.0868 / -        |           |           |                           |
@@ -637,6 +638,14 @@ accuracy:  98.33%; precision:  91.22%; recall:  92.30%; FB1:  91.75
 INFO:__main__:[F1] : 0.9217421785995968, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 121090.73448181152ms, 32.83806317143229ms on average
 accuracy:  98.32%; precision:  91.25%; recall:  93.11%; FB1:  92.17
+
+* --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+INFO:__main__:[F1] : 0.9187279151943464, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 118809.88335609436ms, 32.22117830546304ms on average
+accuracy:  98.44%; precision:  91.68%; recall:  92.07%; FB1:  91.87
+
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embeddings/spanbert_hf_base
