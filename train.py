@@ -169,12 +169,14 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
 
     return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
-def evaluate(model, config, val_loader):
+def evaluate(model, config, val_loader, eval_device=None):
     opt = config['opt']
+    device = opt.device
+    if eval_device != None: device = eval_device
     pad_label_id = config['pad_label_id']
 
     eval_loss = 0.
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
     n_batches = len(val_loader)
     preds = None
     ys    = None
@@ -182,11 +184,11 @@ def evaluate(model, config, val_loader):
         iterator = tqdm(val_loader, total=len(val_loader), desc=f"Evaluate")
         for i, (x,y) in enumerate(iterator):
             model.eval()
-            x = to_device(x, opt.device)
-            y = to_device(y, opt.device)
+            x = to_device(x, device)
+            y = to_device(y, device)
             if opt.use_crf:
                 logits, prediction = model(x)
-                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
+                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(device)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
             else:
