@@ -341,7 +341,8 @@ $ cp -rf valid.txt test.txt
 | BERT-large, BiLSTM-CRF          | 90.98        |                   | word                 | 58.9112 / -        |           |           | BERT as feature-based, mean([0:]) embedding          |
 | BERT-large, BiLSTM-CRF          | 90.62        |                   | word                 | 66.6576 / -        |           |           | BERT as feature-based, DSA(4, 300)                   |
 | BERT-large-squad, BiLSTM        | 91.75        | 92.17             | word                 | 35.6619 / -        |           |           |                           |
-| BERT-large-conll03, BiLSTM      | 91.87        | -                 | word                 | 32.2211 / -        |           |           |                           |
+| BERT-large-conll03, BiLSTM      | 91.87        | 92.40             | word                 | 32.2211 / -        |           |           |                           |
+| BERT-large-conll03              | 91.63        | 92.24             | word                 | 29.8476 / -        |           |           |                           |
 | SpanBERT-base, BiLSTM           | 90.46        |                   | word                 | 30.0991 / -        |           |           |                           |
 | SpanBERT-large, BiLSTM          | 91.39        | 92.01             | word                 | 42.5959 / -        |           |           |                           |
 | ALBERT-base, BiLSTM             | 88.19        |                   | word                 | 31.0868 / -        |           |           |                           |
@@ -645,7 +646,19 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 118809.88335609436ms, 32.221178305
 accuracy:  98.44%; precision:  91.68%; recall:  92.07%; FB1:  91.87
 
 * --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30
+INFO:__main__:[F1] : 0.9239971850809289, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 114439.17107582092ms, 31.03302174406857ms on average
+accuracy:  98.44%; precision:  91.82%; recall:  92.99%; FB1:  92.40
 
+* --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_disable_lstm
+INFO:__main__:[F1] : 0.9163143058491896, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 109043.2801246643ms, 29.56439605265443ms on average
+accuracy:  98.35%; precision:  91.18%; recall:  92.09%; FB1:  91.63
+
+* --data_dir=data/conll2003_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_disable_lstm
+INFO:__main__:[F1] : 0.9224137931034484, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 110067.8985118866ms, 29.847684645827556ms on average
+accuracy:  98.41%; precision:  91.66%; recall:  92.83%; FB1:  92.24
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embeddings/spanbert_hf_base
