@@ -245,7 +245,7 @@ def set_path(config):
     opt.pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     opt.embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
 
-def prepare_datasets(config, hp_search_bsz=None, train_path=None, valid_path=None, valid_sampling=False):
+def prepare_datasets(config, hp_search_bsz=None, train_path=None, valid_path=None):
     opt = config['opt']
     default_train_path = opt.train_path
     default_valid_path = opt.valid_path
@@ -266,7 +266,7 @@ def prepare_datasets(config, hp_search_bsz=None, train_path=None, valid_path=Non
     valid_loader = prepare_dataset(config,
             default_valid_path,
             DatasetClass,
-            sampling=valid_sampling,
+            sampling=False,
             num_workers=2,
             batch_size=opt.eval_batch_size)
     return train_loader, valid_loader
