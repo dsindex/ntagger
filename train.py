@@ -336,11 +336,15 @@ def prepare_model(config):
     logger.info("[model prepared]")
     return model
 
-def prepare_osws(config, model, train_loader, hp_search_optuna_lr=None):
+def prepare_osws(config, model, train_loader, hp_search_optuna_lr=None, weight_decay=None):
     opt = config['opt']
+
     lr = opt.lr
     # for optuna
     if hp_search_optuna_lr: lr = hp_search_optuna_lr
+    default_weight_decay = opt.weight_decay
+    if weight_decay: default_weight_decay = weight_decay
+
     from transformers import AdamW, get_linear_schedule_with_warmup
     num_training_steps_for_epoch = len(train_loader) // opt.gradient_accumulation_steps
     num_training_steps = num_training_steps_for_epoch * opt.epoch
@@ -350,7 +354,7 @@ def prepare_osws(config, model, train_loader, hp_search_optuna_lr=None):
     no_decay = ['bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
         {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
-         'weight_decay': opt.weight_decay},
+         'weight_decay': default_weight_decay},
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=lr, eps=opt.adam_epsilon)
@@ -362,7 +366,7 @@ def prepare_osws(config, model, train_loader, hp_search_optuna_lr=None):
     except:
         writer = None
     scaler = GradScaler()
-    logger.info("[optimizer, scheduler, summary writer, scaler prepared]")
+    logger.info("[Creating optimizer, scheduler, summary writer, scaler]")
     return optimizer, scheduler, writer, scaler
 
 def train(opt):
