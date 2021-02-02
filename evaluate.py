@@ -291,9 +291,12 @@ def evaluate(opt):
                 else:
                     logits = ort_session.run(None, ort_inputs)[0]
                     logits = to_device(torch.tensor(logits), opt.device)
+                    logits = torch.softmax(logits, dim=-1)
             else:
                 if opt.use_crf: logits, prediction = model(x)
-                else: logits = model(x)
+                else:
+                    logits = model(x)
+                    logits = torch.softmax(logits, dim=-1)
 
             if preds is None:
                 if opt.use_crf: preds = to_numpy(prediction)

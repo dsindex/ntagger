@@ -194,6 +194,8 @@ def evaluate(model, config, val_loader, eval_device=None):
             else:
                 logits = model(x)
                 loss = criterion(logits.view(-1, model.label_size), y.view(-1))
+                # softmax after computing cross entropy loss
+                logits = torch.softmax(logits, dim=-1)
             if preds is None:
                 if opt.use_crf: preds = to_numpy(prediction)
                 else: preds = to_numpy(logits)
