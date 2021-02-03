@@ -15,7 +15,7 @@ import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 
 from tqdm import tqdm
-from util import load_config, to_device, to_numpy
+from util import load_checkpoint, load_config, to_device, to_numpy
 from model import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 
@@ -33,15 +33,6 @@ def set_path(config):
     opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
     opt.test_path = os.path.join(opt.data_dir, 'test.txt')
     opt.vocab_path = os.path.join(opt.data_dir, 'vocab.txt')
-
-def load_checkpoint(config):
-    opt = config['opt']
-    if opt.device == 'cpu':
-        checkpoint = torch.load(opt.model_path, map_location=lambda storage, loc: storage)
-    else:
-        checkpoint = torch.load(opt.model_path)
-    logger.info("[Loading checkpoint done]")
-    return checkpoint
 
 def load_model(config, checkpoint):
     opt = config['opt']
@@ -219,7 +210,7 @@ def evaluate(opt):
     test_loader = prepare_datasets(config)
  
     # load pytorch model checkpoint
-    checkpoint = load_checkpoint(config)
+    checkpoint = load_checkpoint(opt.model_path, device=opt.device)
 
     # prepare model and load parameters
     model = load_model(config, checkpoint)
