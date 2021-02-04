@@ -35,7 +35,7 @@ from datasets.metric import temp_seed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
+def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
     opt = config['opt']
 
     optimizer = config['optimizer']
@@ -106,7 +106,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
             epoch_iterator.set_description(f"Epoch {epoch_i}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
             if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
-                eval_ret = evaluate(model, config, val_loader)
+                eval_ret = evaluate(model, config, valid_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
                 if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
@@ -132,7 +132,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
     avg_loss = train_loss / n_batches
 
     # evaluate at the end of epoch
-    eval_ret = evaluate(model, config, val_loader)
+    eval_ret = evaluate(model, config, valid_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
     if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
@@ -169,7 +169,7 @@ def train_epoch(model, config, train_loader, val_loader, epoch_i, best_eval_f1):
 
     return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
-def evaluate(model, config, val_loader, eval_device=None):
+def evaluate(model, config, valid_loader, eval_device=None):
     opt = config['opt']
     device = opt.device
     if eval_device != None: device = eval_device
@@ -177,11 +177,11 @@ def evaluate(model, config, val_loader, eval_device=None):
 
     eval_loss = 0.
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
-    n_batches = len(val_loader)
+    n_batches = len(valid_loader)
     preds = None
     ys    = None
     with torch.no_grad():
-        iterator = tqdm(val_loader, total=len(val_loader), desc=f"Evaluate")
+        iterator = tqdm(valid_loader, total=len(valid_loader), desc=f"Evaluate")
         for i, (x,y) in enumerate(iterator):
             model.eval()
             x = to_device(x, device)
