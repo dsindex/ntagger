@@ -38,14 +38,28 @@ logger = logging.getLogger(__name__)
 def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
     opt = config['opt']
 
-    optimizer = config['optimizer']
-    scheduler = config['scheduler']
+    optimizer = None
+    scheduler = None
+    optimizer_1st = config['optimizer']
+    scheduler_1st = config['scheduler']
+    optimizer_2nd = config['optimizer_2nd']
+    scheduler_2nd = config['scheduler_2nd']
     writer = config['writer']
     scaler = config['scaler']
     pad_label_id = config['pad_label_id']
 
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(train_loader)
+
+    optimizer = optimizer_1st
+    scheduler = scheduler_1st
+    freeze_bert = False
+    if opt.bert_freezing_epoch > 0:
+        # apply second optimizer/scheduler during freezing epochs
+        if epoch_i < opt.bert_freezing_epoch:
+            optimizer = optimizer_2nd
+            scheduler = scheduler_2nd
+            freeze_bert = True
 
     # train one epoch
     train_loss = 0.
@@ -67,7 +81,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                         logits, prediction = model(x)
                     print(prof.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
                 else:
-                    logits, prediction = model(x)
+                    if config['emb_class'] not in ['glove', 'elmo']:
+                        logits, prediction = model(x, freeze_bert=freeze_bert)
+                    else:
+                        logits, prediction = model(x)
                 mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
@@ -80,7 +97,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                         logits = model(x)
                     print(prof.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
                 else:
-                    logits = model(x)
+                    if config['emb_class'] not in ['glove', 'elmo']:
+                        logits = model(x, freeze_bert=freeze_bert)
+                    else:
+                        logits = model(x)
                 # reshape for computing loss
                 logits_view = logits.view(-1, model.label_size)
                 y_view = y.view(-1)
@@ -385,8 +405,12 @@ def train(opt):
 
         # create optimizer, scheduler, summary writer, scaler
         optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader)
+        # create secondary optimizer, scheduler
+        optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
+        config['optimizer_2nd'] = optimizer_2nd
+        config['scheduler_2nd'] = scheduler_2nd
         config['writer'] = writer
         config['scaler'] = scaler
 
@@ -434,8 +458,12 @@ def hp_search_optuna(trial: optuna.Trial):
         model = prepare_model(config)
         # create optimizer, scheduler, summary writer, scaler
         optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, lr=lr)
+        # create secondary optimizer, scheduler
+        optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
+        config['optimizer_2nd'] = optimizer_2nd
+        config['scheduler_2nd'] = scheduler_2nd
         config['writer'] = writer
         config['scaler'] = scaler
 
@@ -469,7 +497,7 @@ def main():
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--eval_and_save_steps', type=int, default=500, help="Save checkpoint every X updates steps.")
     parser.add_argument('--lr', type=float, default=1e-3)
-    parser.add_argument('--warmup_epoch', type=int, default=0,  help="Number of warmup epoch steps")
+    parser.add_argument('--warmup_epoch', type=int, default=0,  help="Number of warmup epoch")
     parser.add_argument('--patience', default=7, type=int, help="Max number of epoch to be patient for early stopping.")
     parser.add_argument('--adam_epsilon', type=float, default=1e-8)
     parser.add_argument('--weight_decay', type=float, default=0.01)
@@ -497,6 +525,10 @@ def main():
     parser.add_argument('--bert_use_pos', action='store_true', help="Add Part-Of-Speech features")
     parser.add_argument('--bert_remove_layers', type=str, default='',
                         help="Specify layer numbers to remove during finetuning e.g. 8,9,10,11 to remove last 4 layers from BERT base(12 layers)")
+    parser.add_argument('--bert_freezing_epoch', default=0, type=int,
+                        help="Number of freezing epoch for BERT.")
+    parser.add_argument('--bert_lr_during_freezing', type=float, default=1e-3,
+                        help="The learning rate during freezing BERT.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')

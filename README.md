@@ -322,6 +322,7 @@ $ cp -rf valid.txt test.txt
 | MiniLM, BiLSTM                  | 90.55        |                   | word                 | 17.7890 / -        | -         | -         |                           |
 | BERT-base(uncased), BiLSTM-CRF  | 90.20        |                   | word                 | 42.6464 / -        |           |           |                           |
 | BERT-base(uncased), BiLSTM      | 90.55        |                   | word                 | 18.2323 / -        | 79.1914   | 83.9590   |                           |
+| BERT-base(uncased), BiLSTM      | 90.60        |                   | word                 | 22.7757 / -        | -         | -         | freezing BERT during some epochs |
 | BERT-base(uncased), CRF         | 89.98        |                   | word                 | 36.6893 / -        |           |           |                           |
 | BERT-base(uncased)              | 90.25        |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   |                           |
 | BERT-base(uncased), BiLSTM      | 89.03        |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14 |
@@ -563,6 +564,16 @@ accuracy:  98.00%; precision:  90.55%; recall:  90.55%; FB1:  90.55
 INFO:__main__:[F1] : 0.9049717912552891, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 68218ms, 18.403203909856096ms on average
 accuracy:  97.97%; precision:  90.12%; recall:  90.88%; FB1:  90.50
+
+* --bert_model_name_or_path=./embedings/bert-base-uncased --batch_size=32 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
+INFO:__main__:[F1] : 0.906032584764421, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 84019.82283592224ms, 22.77578745657356ms on average
+accuracy:  98.07%; precision:  90.13%; recall:  91.08%; FB1:  90.60
+
+* --bert_model_name_or_path=./embedings/bert-base-uncased --batch_size=32 --epoch=20 --bert_freezing_epoch=7 --bert_lr_during_freezing=1e-3
+INFO:__main__:[F1] : 0.9056670497745558, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 79642.83394813538ms, 21.5918773741234ms on average
+accuracy:  98.06%; precision:  90.45%; recall:  90.69%; FB1:  90.57
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased  --bert_disable_lstm --use_crf (BERT-base CRF)
 INFO:__main__:[F1] : 0.8961356880573526, 3684

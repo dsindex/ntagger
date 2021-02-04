@@ -545,7 +545,7 @@ class BertLSTMCRF(BaseModel):
             # embedded : [batch_size, seq_size, bert_hidden_size]
         return embedded, bert_outputs
 
-    def forward(self, x, head_mask=None):
+    def forward(self, x, head_mask=None, freeze_bert=False):
         # x[0,1,2] : [batch_size, seq_size]
 
         mask = x[1].to(torch.uint8).to(self.device)
@@ -554,7 +554,12 @@ class BertLSTMCRF(BaseModel):
         # lengths : [batch_size]
 
         # 1. Embedding
-        bert_embed_out, bert_outputs = self._compute_bert_embedding(x, head_mask=head_mask)
+        if freeze_bert:
+            # freeze_bert is the runtime option which has the same effect to the static option `feature_based`.
+            with torch.no_grad():
+                bert_embed_out, bert_outputs = self._compute_bert_embedding(x, head_mask=head_mask)
+        else:
+            bert_embed_out, bert_outputs = self._compute_bert_embedding(x, head_mask=head_mask)
         # bert_embed_out : [batch_size, seq_size, *]
         pos_ids = x[3]
         pos_embed_out = self.embed_pos(pos_ids)
