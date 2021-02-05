@@ -47,10 +47,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     writer = config['writer']
     scaler = config['scaler']
     pad_label_id = config['pad_label_id']
-
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
-    n_batches = len(train_loader)
-
     optimizer = optimizer_1st
     scheduler = scheduler_1st
     freeze_bert = False
@@ -60,6 +56,9 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             optimizer = optimizer_2nd
             scheduler = scheduler_2nd
             freeze_bert = True
+
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
+    n_batches = len(train_loader)
 
     # train one epoch
     train_loss = 0.
