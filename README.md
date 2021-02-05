@@ -327,6 +327,10 @@ $ cp -rf valid.txt test.txt
 | BERT-base(uncased)              | 90.25        |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   |                           |
 | BERT-base(uncased), BiLSTM      | 89.03        |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14 |
 | bert-base-NER(cased), BiLSTM    | 91.63        | 92.25             | word                 | 17.6680 / -        |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | -            | -                 | word                 | -       / -        |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | 91.55        | -                 | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM        | 90.20        | -                 | word                 | 21.5844 / -        |           |           |                           |
+| BERT-base(cased), BiLSTM        | 90.99        | -                 | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-large, BiLSTM              | 91.32        | 91.89             | word                 | 40.3581 / -        |           |           |                           |
 | BERT-large                      | 91.25        |                   | word                 | 29.5740 / -        |           |           |                           |
 | BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23               |
@@ -595,6 +599,24 @@ accuracy:  98.34%; precision:  91.09%; recall:  92.17%; FB1:  91.63
 INFO:__main__:[F1] : 0.9224547212941797, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 66638.26131820679ms, 18.064501684967215ms on average
 accuracy:  98.38%; precision:  91.62%; recall:  92.88%; FB1:  92.25
+
+* --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --use_crf
+
+
+* --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf
+INFO:__main__:[F1] : 0.9135758963967932, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 155832.32188224792ms, 42.27091953413272ms on average
+accuracy:  98.21%; precision:  91.30%; recall:  91.80%; FB1:  91.55
+
+* --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
+INFO:__main__:[F1] : 0.9020433219328247, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 79621.61326408386ms, 21.58440276070066ms on average
+accuracy:  98.00%; precision:  89.37%; recall:  91.06%; FB1:  90.20
+
+* --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
+INFO:__main__:[F1] : 0.9098765432098764, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 80155.51614761353ms, 21.732826838828675ms on average
+accuracy:  98.24%; precision:  90.64%; recall:  91.34%; FB1:  90.99
 
 * --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 
 INFO:__main__:[F1] : 0.8829307140960977, 3684
