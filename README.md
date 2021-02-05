@@ -327,7 +327,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(uncased)              | 90.25        |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   |                           |
 | BERT-base(uncased), BiLSTM      | 89.03        |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14 |
 | bert-base-NER(cased), BiLSTM    | 91.63        | 92.25             | word                 | 17.6680 / -        |           |           |                           |
-| BERT-base(cased), BiLSTM-CRF    | -            | -                 | word                 | -       / -        |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | 90.17        | -                 | word                 | 43.4804 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM-CRF    | 91.55        | -                 | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20        | -                 | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99        | -                 | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
@@ -601,7 +601,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 66638.26131820679ms, 18.0645016849
 accuracy:  98.38%; precision:  91.62%; recall:  92.88%; FB1:  92.25
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --use_crf
-
+INFO:__main__:[F1] : 0.8986090455778146, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 160266.587972641ms, 43.480443009338465ms on average
+accuracy:  97.95%; precision:  89.42%; recall:  90.93%; FB1:  90.17
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf
 INFO:__main__:[F1] : 0.9135758963967932, 3684
