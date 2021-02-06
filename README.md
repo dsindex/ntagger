@@ -1560,7 +1560,7 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.565983318
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
 accuracy:  94.13%; precision:  86.19%; recall:  85.79%; FB1:  85.99
 
-**  --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v1 --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 , without --use_crf
+**  --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v1 --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-4 , without --use_crf
 
 
 ** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v3 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=20 --patience=4 , without --use_crf (bpe BERT-large) 
