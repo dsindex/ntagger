@@ -331,7 +331,10 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.55        | -                 | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20        | -                 | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99        | -                 | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
+| BERT-large, BiLSTM+CRF          | 90.78        | -                 | word                 | 59.3982 / -        |           |           |                           |
+| BERT-large, BiLSTM+CRF          | 92.02        | -                 | word                 | 52.8894 / -        |           |           | freezing BERT during some epochs |
 | BERT-large, BiLSTM              | 91.32        | 91.89             | word                 | 40.3581 / -        |           |           |                           |
+| BERT-large, BiLSTM              |              |                   | word                 |         / -        |           |           | freezing BERT during some epochs |
 | BERT-large                      | 91.25        |                   | word                 | 29.5740 / -        |           |           |                           |
 | BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23               |
 | BERT-large, BiLSTM              | 86.11        |                   | word                 | 49.3103 / -        |           |           | BERT as feature-based, initial embedding             |
@@ -529,6 +532,9 @@ INFO:__main__:[F1] : 0.9131544214694237, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 148789ms, 40.358131957643224ms on average
 accuracy:  98.27%; precision:  90.76%; recall:  91.87%; FB1:  91.32
 
+* --batch_size=32 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+
+
 * --batch_size=32
 INFO:__main__:[F1] : 0.9118733509234828, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 141879ms, 38.48330165625848ms on average
@@ -543,6 +549,11 @@ accuracy:  98.24%; precision:  90.30%; recall:  91.94%; FB1:  91.11
 INFO:__main__:[F1] : 0.9058430130235833, 3684
 INFO:__main__:[Elapsed Time] : 218823ms, 59.398208469055376ms on average
 accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
+
+* --batch_size=32 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --use_crf
+INFO:__main__:[F1] : 0.9178914019185074, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 194960.72125434875ms, 52.88945214113333ms on average
+accuracy:  98.31%; precision:  91.70%; recall:  92.33%; FB1:  92.02
 
 * --data_dir=data/conll2003_truecase 
 INFO:__main__:[F1] : 0.9188571428571428, 3684
@@ -1276,6 +1287,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large(v1)           | 85.99       | eoj      | 30.7513 / -    |          |           |        |
+| bpe BERT-large(v1), BiLSTM   | -           | eoj      | -       / -    |          |           | freezing BERT during some epochs |
 | bpe BERT-large(v3)           | 85.89       | eoj      | 27.4264 / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
@@ -1540,6 +1552,9 @@ INFO:__main__:[F1] : 0.8608467232968307, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.56598331838438ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
 accuracy:  94.13%; precision:  86.19%; recall:  85.79%; FB1:  85.99
+
+**  --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v1 --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 , without --use_crf
+
 
 ** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v3 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=20 --patience=4 , without --use_crf (bpe BERT-large) 
 INFO:__main__:[F1] : 0.8601462833815275, 9000
