@@ -112,12 +112,6 @@ def quantize_onnx(onnx_path, quantized_onnx_path):
 
     onnx_model = onnx.load(onnx_path)
 
-    # Discussed with @yufenglee from ONNX runtime, this will be address in the next release of onnxruntime
-    print(
-        "As of onnxruntime 1.4.0, models larger than 2GB will fail to quantize due to protobuf constraint.\n"
-        "This limitation will be removed in the next release of onnxruntime."
-    )
-
     quantized_model = quantize(
         model=onnx_model,
         quantization_mode=QuantizationMode.IntegerOps,
