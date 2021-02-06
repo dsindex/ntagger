@@ -334,7 +334,7 @@ $ cp -rf valid.txt test.txt
 | BERT-large, BiLSTM+CRF          | 90.78        | -                 | word                 | 59.3982 / -        |           |           |                           |
 | BERT-large, BiLSTM+CRF          | 92.02        | -                 | word                 | 52.8894 / -        |           |           | freezing BERT during some epochs |
 | BERT-large, BiLSTM              | 91.32        | 91.89             | word                 | 40.3581 / -        |           |           |                           |
-| BERT-large, BiLSTM              |              |                   | word                 |         / -        |           |           | freezing BERT during some epochs |
+| BERT-large, BiLSTM              | 91.57        |                   | word                 | 35.2808 / -        |           |           | freezing BERT during some epochs |
 | BERT-large                      | 91.25        |                   | word                 | 29.5740 / -        |           |           |                           |
 | BERT-large, BiLSTM              | 89.10        |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23               |
 | BERT-large, BiLSTM              | 86.11        |                   | word                 | 49.3103 / -        |           |           | BERT as feature-based, initial embedding             |
@@ -533,7 +533,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 148789ms, 40.358131957643224ms on 
 accuracy:  98.27%; precision:  90.76%; recall:  91.87%; FB1:  91.32
 
 * --batch_size=32 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
-
+INFO:__main__:[F1] : 0.9156838584756204, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 130123.88586997986ms, 35.28089417150219ms on average
+accuracy:  98.33%; precision:  91.04%; recall:  92.10%; FB1:  91.57
 
 * --batch_size=32
 INFO:__main__:[F1] : 0.9118733509234828, 3684
@@ -554,6 +556,9 @@ accuracy:  98.12%; precision:  90.44%; recall:  91.13%; FB1:  90.78
 INFO:__main__:[F1] : 0.9178914019185074, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 194960.72125434875ms, 52.88945214113333ms on average
 accuracy:  98.31%; precision:  91.70%; recall:  92.33%; FB1:  92.02
+
+* --data_dir=data/conll2003_truecase --batch_size=32 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --use_crf
+
 
 * --data_dir=data/conll2003_truecase 
 INFO:__main__:[F1] : 0.9188571428571428, 3684
