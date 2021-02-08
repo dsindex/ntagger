@@ -1294,7 +1294,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
 | bpe BERT-large(v1)           | 85.99       | eoj      | 30.7513 / -    |          |           |        |
-| bpe BERT-large(v1), BiLSTM   | -           | eoj      | -       / -    |          |           | freezing BERT during some epochs |
+| bpe BERT-large(v1), BiLSTM   | 85.82       | eoj      | 32.0083 / -    |          |           | freezing BERT during some epochs |
 | bpe BERT-large(v3)           | 85.89       | eoj      | 27.4264 / -    |          |           |        |
 | KcBERT-base, BiLSTM          | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF             | 83.32       | eoj      | 31.8019 / -    |          |           |        |
@@ -1560,8 +1560,11 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 1040116.376876831ms, 115.565983318
 INFO:__main__:[Elapsed Time] : 100 examples, 3212.3892307281494ms, 30.75131984672161ms on average
 accuracy:  94.13%; precision:  86.19%; recall:  85.79%; FB1:  85.99
 
-**  --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v1 --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=30 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-4 , without --use_crf
-
+**  --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v1 --warmup_epoch=0 --weight_decay=0.0 --lr=1e-6 --epoch=30 --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 , without --use_crf
+INFO:__main__:[F1] : 0.8591666808561358, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 984067.9261684418ms, 109.33762731148357ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 3314.924716949463ms, 32.00836855955798ms on average
+accuracy:  94.17%; precision:  85.87%; recall:  85.77%; FB1:  85.82
 
 ** --bert_model_name_or_path=./embeddings/kor-bert-large-bpe.v3 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --lr=8e-5 --gradient_accumulation_steps=2 --epoch=20 --patience=4 , without --use_crf (bpe BERT-large) 
 INFO:__main__:[F1] : 0.8601462833815275, 9000
