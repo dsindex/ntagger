@@ -33,13 +33,15 @@
 
 ## CoNLL 2003 (English)
 
-#### from [etagger](https://github.com/dsindex/etagger)
+#### from [etagger](https://github.com/dsindex/etagger), [CrossWeigh](https://github.com/ZihanWangKi/CrossWeigh)
   
 ##### data/conll2003
 
-##### data/conll2003_truecase
+##### data/conll++
 
-- [converting conll2003 data to its truecase](https://github.com/google-research/bert/issues/223#issuecomment-649619302)
+##### data/conll2003_truecase, data/conll++_truecase
+
+- [converting conll2003, conll++ data to its truecase](https://github.com/google-research/bert/issues/223#issuecomment-649619302)
 <details><summary>details</summary>
 <p>
 
@@ -48,10 +50,13 @@ $ cd data/conll2003_truecase
 $ python to-truecase.py --input_path ../conll2003/train.txt > train.txt
 $ python to-truecase.py --input_path ../conll2003/valid.txt > valid.txt
 $ python to-truecase.py --input_path ../conll2003/test.txt > test.txt
+
+* same work for data/conll++
 ```
 
 </p>
 </details>
+
 
 
 ## Kaggle NER (English)
@@ -76,6 +81,7 @@ $ cp -rf valid.txt test.txt
 
 </p>
 </details>
+
 
 ## GUM (English)
 
@@ -308,7 +314,7 @@ $ cp -rf valid.txt test.txt
 | ------------------------------- | ------------ | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23        |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
 | GloVe, BiLSTM                   | 88.94        |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
-| **GloVe, BiLSTM-CRF**           | 90.14        | 90.26             | word, character, pos | 26.2807 / -        |           |           | threads=14                |
+| **GloVe, BiLSTM-CRF**           | 90.14 /      | 90.26 /           | word, character, pos | 26.2807 / -        |           |           | threads=14                |
 | ConceptNet, BiLSTM-CRF          | 87.78        |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17        |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
 | GloVe, DenseNet-CRF             | 88.23        |                   | word, pos            | 24.7893 / -        |           |           | threads=14                |
@@ -370,9 +376,11 @@ $ cp -rf valid.txt test.txt
 | ELMo, GloVe, BiLSTM-CRF         | 92.03        |                   | word, character, pos | 60.4667 / -        |           |           | threads=14                |
 
 ```
-* GPU / CPU : Elapsed time/example(ms), GPU / CPU, [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
-* ONNX      : --enable_ort 
-* Dynamic   : --enable_dqm
+* GPU / CPU     : Elapsed time/example(ms), GPU / CPU, [Tesla V100 1 GPU, Intel(R) Xeon(R) Gold 5120 CPU @ 2.20GHz, 2 CPU, 14CORES/1CPU, HyperThreading]
+* F1            : conll2003 / conll++
+* (truecase) F1 : conll2003_truecase / conll++_truecase
+* ONNX          : --enable_ort 
+* Dynamic       : --enable_dqm
 * default batch size, learning rate, n_ctx(max_seq_length) : 32, 1e-3, 180
 ```
 
@@ -413,6 +421,14 @@ $ cp -rf valid.txt test.txt
 | BERT Large                      | 92.8     |                     |
 | BERT Base                       | 92.4     |                     |
 | BiLSTM-CRF+ELMo                 | 92.22    |                     |
+
+- [CoNLL++(English) leaderboard](https://paperswithcode.com/sota/named-entity-recognition-on-conll), measured by span-level F1(micro F1, same result by conlleval? unknown!)
+
+|                                 | F1 (%)    | Etc                 |
+| ------------------------------- | --------- | ------------------- |
+| CrossWeigh + Pooled Flair       | **94.28** |                     |
+| ELMo                            | 93.42     |                     |
+| BLSTM-CNN-CRF                   | 91.87     |                     |
 
 
 <details><summary><b>emb_class=glove, enc_class=bilstm</b></summary>
@@ -463,6 +479,9 @@ accuracy:  97.47%; precision:  87.56%; recall:  88.00%; FB1:  87.78
 INFO:__main__:[F1] : 0.8817204301075269, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 86105.42750358582ms, 23.34824522455005ms on average
 accuracy:  97.55%; precision:  87.79%; recall:  88.56%; FB1:  88.17
+
+* --data_dir=data/conll++ --use_char_cnn
+
 
 ```
 
