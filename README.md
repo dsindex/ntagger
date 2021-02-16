@@ -39,6 +39,12 @@
 
 ##### data/conll++
 
+- since CoNLL++/test.txt has incorrect chunk tags, combine it with original CoNLL2003/test.txt
+```
+$ python combine.py --conll2003 ../conll2003/test.txt --conllpp test.txt > t
+$ mv t test.txt
+```
+
 ##### data/conll2003_truecase, data/conll++_truecase
 
 - [converting conll2003, conll++ data to its truecase](https://github.com/google-research/bert/issues/223#issuecomment-649619302)
