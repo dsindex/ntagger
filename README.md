@@ -364,8 +364,8 @@ $ cp -rf valid.txt test.txt
 | RoBERTa-base                    | 90.03             |                   | word                 | 19.2503 / -        |           |           |                           |
 | RoBERTa-large                   | 91.83             | 91.90             | word                 | 28.5525 / -        |           |           |                           |
 | XLM-RoBERTa-base                | 91.18             |                   | word                 | 15.9806 / -        |           |           |                           |
-| XLM-RoBERTa-large               | **92.75** /       | **92.89** /       | word                 | 27.9144 / -        |           |           |                           |
-| XLM-RoBERTa-large, BiLSTM       |           /       |           /       | word                 |         / -        |           |           | freezing BERT during some epochs |
+| XLM-RoBERTa-large               | **92.75** / 93.95 | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
+| XLM-RoBERTa-large, BiLSTM       | -         / 93.75 | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
@@ -943,16 +943,24 @@ INFO:__main__:[Elapsed Time] : 100 examples, 2932.1699142456055ms, 28.0668350181
 accuracy:  98.48%; precision:  92.10%; recall:  93.70%; FB1:  92.89
 
 * --data_dir=data/conll++ --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
+INFO:__main__:[F1] : 0.9394968224949942, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 123247.82752990723ms, 33.42233563841862ms on average
+accuracy:  98.69%; precision:  93.28%; recall:  94.63%; FB1:  93.95
 
-
-* --data_dir=data/conll++_truecase --bert_model_name_or_path=./embeddings/xlm-roberta-large --data_dir=data/conll2003_truecase --bert_disable_lstm
-
+* --data_dir=data/conll++_truecase --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
+INFO:__main__:[F1] : 0.941063308849248, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 121127.03013420105ms, 32.838388593695974ms on average
+accuracy:  98.75%; precision:  93.84%; recall:  94.37%; FB1:  94.11
 
 * --data_dir=data/conll++ --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
+INFO:__main__:[F1] : 0.9374890867819102, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 127180.99355697632ms, 34.48944825890464ms on average
+accuracy:  98.69%; precision:  93.34%; recall:  94.16%; FB1:  93.75
 
-
-* --data_dir=data/conll++_truecase --bert_model_name_or_path=./embeddings/xlm-roberta-large --data_dir=data/conll2003_truecase --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
-
+* --data_dir=data/conll++_truecase --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
+INFO:__main__:[F1] : 0.9381488266596877, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 127575.44207572937ms, 34.58970893571922ms on average
+accuracy:  98.65%; precision:  93.33%; recall:  94.30%; FB1:  93.81
 
 ```
 
