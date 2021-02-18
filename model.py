@@ -652,8 +652,7 @@ class BertLSTMCRF(BaseModel):
             key = query
             value = query
             key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
-            #attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
-            attn_output, attn_output_weights = self.mha(query, key, value)
+            attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
             # mha_out : [batch_size, seq_size, self.mha_dim]
