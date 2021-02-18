@@ -321,7 +321,7 @@ $ cp -rf valid.txt test.txt
 | ------------------------------- | ----------------- | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
-| GloVe, BiLSTM-MHA               | -                 |                   | word, character, pos | -       / -        | -         |           |                           |
+| GloVe, BiLSTM-MHA               | 89.22             |                   | word, character, pos | 6.7317  / -        | -         |           |                           |
 | **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        |           |           | threads=14                |
 | ConceptNet, BiLSTM-CRF          | 87.78             |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17             |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
@@ -501,7 +501,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 91913.47312927246ms, 24.9271387643
 accuracy:  98.01%; precision:  91.08%; recall:  90.44%; FB1:  90.76
 
 * --use_char_cnn --use_mha , without --use_crf
-
+INFO:__main__:[F1] : 0.8921939628619202, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 24890.32483100891ms, 6.731786515574853ms on average
+accuracy:  97.87%; precision:  88.70%; recall:  89.75%; FB1:  89.22
 
 ```
 
