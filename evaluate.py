@@ -55,7 +55,8 @@ def load_model(config, checkpoint):
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
-                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm,
+                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
+                           disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     model.load_state_dict(checkpoint)
     model = model.to(opt.device)
@@ -350,6 +351,7 @@ def main():
     parser.add_argument('--num_examples', default=0, type=int, help="Number of examples to evaluate, 0 means all of them.")
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
+    parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     # for BERT
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The checkpoint directory of fine-tuned BERT model.")

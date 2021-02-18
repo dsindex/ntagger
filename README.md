@@ -11,6 +11,7 @@
   - DenseNet
     - [Dynamic Self-Attention: Computing Attention over Words Dynamically for Sentence Embedding](https://arxiv.org/pdf/1808.07383.pdf)
     - a slightly modified DenseNet for longer dependency.
+  - Multi-Head Attention
 - decoding
   - Softmax, CRF
 - related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
@@ -320,6 +321,7 @@ $ cp -rf valid.txt test.txt
 | ------------------------------- | ----------------- | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
+| GloVe, BiLSTM-MHA               | -                 |                   | word, character, pos | -       / -        | -         |           |                           |
 | **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        |           |           | threads=14                |
 | ConceptNet, BiLSTM-CRF          | 87.78             |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17             |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
@@ -343,6 +345,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.55             |                   | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-MHA    | 90.86             |                   | word                 | 21.8061 / -        |           |           | freezing BERT during some epochs |
 | BERT-large, BiLSTM+CRF          | 90.78             |                   | word                 | 59.3982 / -        |           |           |                           |
 | BERT-large, BiLSTM+CRF          | 92.02             | 91.96             | word                 | 54.4254 / -        |           |           | freezing BERT during some epochs |
 | BERT-large, BiLSTM              | 91.32             | 91.89             | word                 | 40.3581 / -        |           |           |                           |
@@ -496,6 +499,9 @@ accuracy:  98.04%; precision:  91.30%; recall:  90.55%; FB1:  90.92
 INFO:__main__:[F1] : 0.9076029567053854, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 91913.47312927246ms, 24.927138764347486ms on average
 accuracy:  98.01%; precision:  91.08%; recall:  90.44%; FB1:  90.76
+
+* --use_char_cnn --use_mha , without --use_crf
+
 
 ```
 
@@ -680,6 +686,11 @@ accuracy:  98.00%; precision:  89.37%; recall:  91.06%; FB1:  90.20
 INFO:__main__:[F1] : 0.9098765432098764, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 80155.51614761353ms, 21.732826838828675ms on average
 accuracy:  98.24%; precision:  90.64%; recall:  91.34%; FB1:  90.99
+
+* --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_mha
+INFO:__main__:[F1] : 0.9085628795212533, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 80426.75638198853ms, 21.806142655786147ms on average
+accuracy:  98.21%; precision:  90.32%; recall:  91.40%; FB1:  90.86
 
 * --bert_model_name_or_path=./embedings/pytorch.uncased_L-8_H-512_A-8 
 INFO:__main__:[F1] : 0.8829307140960977, 3684

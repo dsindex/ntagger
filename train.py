@@ -339,7 +339,9 @@ def prepare_model(config):
         reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
-                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, disable_lstm=opt.bert_disable_lstm, feature_based=opt.bert_use_feature_based)
+                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
+                           disable_lstm=opt.bert_disable_lstm,
+                           feature_based=opt.bert_use_feature_based)
     if opt.restore_path:
         checkpoint = load_checkpoint(opt.restore_path, device=opt.device)
         model.load_state_dict(checkpoint)
@@ -508,8 +510,9 @@ def main():
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
-    parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable")
-    parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
+    parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable.")
+    parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features.")
+    parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     parser.add_argument('--use_amp', action='store_true', help="Use automatic mixed precision.")
     parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     # for BERT

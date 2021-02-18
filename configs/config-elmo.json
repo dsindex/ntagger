@@ -22,6 +22,7 @@
     "lstm_hidden_dim": 200,
     "lstm_num_layers": 2,
     "lstm_dropout": 0.0,
+    "mha_num_attentions": 8,
     "pad_label": "<pad>",
     "pad_label_id": 0,
     "default_label": "O"

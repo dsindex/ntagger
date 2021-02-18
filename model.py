@@ -235,7 +235,7 @@ class CharCNN(BaseModel):
         return charcnn_out
 
 class GloveLSTMCRF(BaseModel):
-    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
+    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False, use_mha=False):
         super().__init__(config=config)
 
         self.config = config
@@ -247,6 +247,8 @@ class GloveLSTMCRF(BaseModel):
         lstm_dropout = config['lstm_dropout']
         self.use_char_cnn = use_char_cnn
         self.use_crf = use_crf
+        self.use_mha = use_mha
+        mha_num_attentions = config['mha_num_attentions']
 
         # glove embedding layer
         weights_matrix = super().load_embedding(embedding_path)
@@ -273,13 +275,20 @@ class GloveLSTMCRF(BaseModel):
                             dropout=lstm_dropout,
                             bidirectional=True,
                             batch_first=True)
+        self.lstm_dim = lstm_hidden_dim*2
 
         self.dropout = nn.Dropout(config['dropout'])
+
+        # Multi-Head Attention layer
+        self.mha_dim = self.lstm_dim
+        if self.use_mha:
+            self.mha = nn.MultiheadAttention(self.lstm_dim, num_heads=mha_num_attentions)
+            # self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
         self.labels = super().load_dict(label_path)
         self.label_size = len(self.labels)
-        self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
+        self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -318,11 +327,31 @@ class GloveLSTMCRF(BaseModel):
         packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths.cpu(), batch_first=True, enforce_sorted=False)
         lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
         lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
-        # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
+        # lstm_out : [batch_size, seq_size, self.lstm_dim == lstm_hidden_dim*2]
         lstm_out = self.dropout(lstm_out)
 
-        # 3. Output
-        logits = self.linear(lstm_out)
+        # 3. MHA
+        if self.use_mha:
+            # reference : https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html
+            #             https://discuss.pytorch.org/t/how-to-add-padding-mask-to-nn-transformerencoder-module/63390/3
+            query = lstm_out.permute(1, 0, 2)
+            # query : [seq_size, batch_size, self.lstm_dim]
+            key = query
+            value = query
+            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
+            # attn_output : [seq_size, batch_size, self.mha_dim]
+            mha_out = attn_output.permute(1, 0, 2)
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+            # residual, layernorm, dropout
+            # mha_out = self.layernorm_mha(mha_out + lstm_out)
+            mha_out = self.dropout(mha_out)
+        else:
+            mha_out = lstm_out
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+
+        # 4. Output
+        logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         prediction = self.crf.decode(logits)
@@ -331,7 +360,7 @@ class GloveLSTMCRF(BaseModel):
         return logits, prediction
 
 class GloveDensenetCRF(BaseModel):
-    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
+    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False, use_mha=False):
         super().__init__(config=config)
 
         self.config = config
@@ -340,6 +369,8 @@ class GloveDensenetCRF(BaseModel):
         pos_emb_dim = config['pos_emb_dim']
         self.use_crf = use_crf
         self.use_char_cnn = use_char_cnn
+        self.use_mha = use_mha
+        mha_num_attentions = config['mha_num_attentions']
 
         # glove embedding layer
         weights_matrix = super().load_embedding(embedding_path)
@@ -369,10 +400,15 @@ class GloveDensenetCRF(BaseModel):
 
         self.dropout = nn.Dropout(config['dropout'])
 
+        # Multi-Head Attention layer
+        self.mha_dim = self.densenet.last_dim
+        if self.use_mha:
+            self.mha = nn.MultiheadAttention(self.densenet.last_dim, num_heads=mha_num_attentions)
+
         # projection layer
         self.labels = super().load_dict(label_path)
         self.label_size = len(self.labels)
-        self.linear = nn.Linear(last_num_filters, self.label_size)
+        self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -406,12 +442,30 @@ class GloveDensenetCRF(BaseModel):
 
         # 2. DenseNet
         densenet_out = self.densenet(embed_out, mask)
-        # densenet_out : [batch_size, seq_size, last_num_filters]
+        # densenet_out : [batch_size, seq_size, self.densenet.last_dim == last_num_filters]
         densenet_out = self.layernorm_densenet(densenet_out)
         densenet_out = self.dropout(densenet_out)
 
-        # 3. Output
-        logits = self.linear(densenet_out)
+        # 3. MHA
+        if self.use_mha:
+            # reference : https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html
+            #             https://discuss.pytorch.org/t/how-to-add-padding-mask-to-nn-transformerencoder-module/63390/3
+            query = densenet_out.permute(1, 0, 2)
+            # query : [seq_size, batch_size, self.densenet.last_dim]
+            key = query
+            value = query
+            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
+            # attn_output : [seq_size, batch_size, self.mha_dim]
+            mha_out = attn_output.permute(1, 0, 2)
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+            mha_out = self.dropout(mha_out)
+        else:
+            mha_out = lstm_out
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+
+        # 4. Output
+        logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         prediction = self.crf.decode(logits)
@@ -420,7 +474,7 @@ class GloveDensenetCRF(BaseModel):
         return logits, prediction
 
 class BertLSTMCRF(BaseModel):
-    def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_pos=False, disable_lstm=False, feature_based=False):
+    def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_pos=False, use_mha=False, disable_lstm=False, feature_based=False):
         super().__init__(config=config)
 
         self.config = config
@@ -432,6 +486,8 @@ class BertLSTMCRF(BaseModel):
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
         self.use_pos = use_pos
+        self.use_mha = use_mha
+        mha_num_attentions = config['mha_num_attentions']
         self.disable_lstm = disable_lstm
 
         # bert embedding layer
@@ -464,12 +520,13 @@ class BertLSTMCRF(BaseModel):
         self.pos_vocab_size = len(self.poss)
         padding_idx = config['pad_pos_id']
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
-
-        # BiLSTM layer
         if self.use_pos:
             emb_dim = bert_emb_dim + pos_emb_dim
         else:
             emb_dim = bert_emb_dim
+
+        # BiLSTM layer
+        self.lstm_dim = emb_dim
         if not self.disable_lstm:
             self.lstm = nn.LSTM(input_size=emb_dim,
                                 hidden_size=lstm_hidden_dim,
@@ -477,16 +534,19 @@ class BertLSTMCRF(BaseModel):
                                 dropout=lstm_dropout,
                                 bidirectional=True,
                                 batch_first=True)
+            self.lstm_dim = lstm_hidden_dim*2
 
         self.dropout = nn.Dropout(config['dropout'])
+
+        # Multi-Head Attention layer
+        self.mha_dim = self.lstm_dim 
+        if self.use_mha:
+            self.mha = nn.MultiheadAttention(self.lstm_dim, num_heads=mha_num_attentions)
 
         # projection layer
         self.labels = super().load_dict(label_path)
         self.label_size = len(self.labels)
-        if not self.disable_lstm:
-            self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
-        else:
-            self.linear = nn.Linear(emb_dim, self.label_size)
+        self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -577,14 +637,33 @@ class BertLSTMCRF(BaseModel):
             packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths.cpu(), batch_first=True, enforce_sorted=False)
             lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
             lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
-            # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
+            # lstm_out : [batch_size, seq_size, self.lstm_dim == lstm_hidden_dim*2]
             lstm_out = self.dropout(lstm_out)
         else:
             lstm_out = embed_out
-            # lstm_out : [batch_size, seq_size, emb_dim]
+            # lstm_out : [batch_size, seq_size, self.lstm_dim == emb_dim]
 
-        # 3. Output
-        logits = self.linear(lstm_out)
+        # 3. MHA
+        if self.use_mha:
+            # reference : https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html
+            #             https://discuss.pytorch.org/t/how-to-add-padding-mask-to-nn-transformerencoder-module/63390/3
+            query = lstm_out.permute(1, 0, 2)
+            # query : [seq_size, batch_size, self.lstm_dim]
+            key = query
+            value = query
+            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            #attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
+            attn_output, attn_output_weights = self.mha(query, key, value)
+            # attn_output : [seq_size, batch_size, self.mha_dim]
+            mha_out = attn_output.permute(1, 0, 2)
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+            mha_out = self.dropout(mha_out)
+        else:
+            mha_out = lstm_out
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+
+        # 4. Output
+        logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         prediction = self.crf.decode(logits)
@@ -593,7 +672,7 @@ class BertLSTMCRF(BaseModel):
         return logits, prediction
 
 class ElmoLSTMCRF(BaseModel):
-    def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False):
+    def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False, use_mha=False):
         super().__init__(config=config)
 
         self.config = config
@@ -606,6 +685,8 @@ class ElmoLSTMCRF(BaseModel):
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
         self.use_char_cnn = use_char_cnn
+        self.use_mha = use_mha
+        mha_num_attentions = config['mha_num_attentions']
 
         # elmo embedding
         self.elmo_model = elmo_model
@@ -635,13 +716,19 @@ class ElmoLSTMCRF(BaseModel):
                             dropout=lstm_dropout,
                             bidirectional=True,
                             batch_first=True)
+        self.lstm_dim = lstm_hidden_dim*2
 
         self.dropout = nn.Dropout(config['dropout'])
+
+        # Multi-Head Attention layer
+        self.mha_dim = self.lstm_dim
+        if self.use_mha:
+            self.mha = nn.MultiheadAttention(self.lstm_dim, num_heads=mha_num_attentions)
 
         # projection layer
         self.labels = super().load_dict(label_path)
         self.label_size = len(self.labels)
-        self.linear = nn.Linear(lstm_hidden_dim*2, self.label_size)
+        self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -691,8 +778,26 @@ class ElmoLSTMCRF(BaseModel):
         # lstm_out : [batch_size, seq_size, lstm_hidden_dim*2]
         lstm_out = self.dropout(lstm_out)
 
-        # 3. Output
-        logits = self.linear(lstm_out)
+        # 3. MHA
+        if self.use_mha:
+            # reference : https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html
+            #             https://discuss.pytorch.org/t/how-to-add-padding-mask-to-nn-transformerencoder-module/63390/3
+            query = lstm_out.permute(1, 0, 2)
+            # query : [seq_size, batch_size, self.lstm_dim]
+            key = query
+            value = query
+            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
+            # attn_output : [seq_size, batch_size, self.mha_dim]
+            mha_out = attn_output.permute(1, 0, 2)
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+            mha_out = self.dropout(mha_out)
+        else:
+            mha_out = lstm_out
+            # mha_out : [batch_size, seq_size, self.mha_dim]
+
+        # 4. Output
+        logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         prediction = self.crf.decode(logits)
