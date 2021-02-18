@@ -283,7 +283,7 @@ class GloveLSTMCRF(BaseModel):
         self.mha_dim = self.lstm_dim
         if self.use_mha:
             self.mha = nn.MultiheadAttention(self.lstm_dim, num_heads=mha_num_attentions)
-            # self.layernorm_mha = nn.LayerNorm(self.mha_dim)
+            self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
         self.labels = super().load_dict(label_path)
@@ -344,7 +344,7 @@ class GloveLSTMCRF(BaseModel):
             mha_out = attn_output.permute(1, 0, 2)
             # mha_out : [batch_size, seq_size, self.mha_dim]
             # residual, layernorm, dropout
-            # mha_out = self.layernorm_mha(mha_out + lstm_out)
+            mha_out = self.layernorm_mha(mha_out + lstm_out)
             mha_out = self.dropout(mha_out)
         else:
             mha_out = lstm_out
@@ -404,6 +404,7 @@ class GloveDensenetCRF(BaseModel):
         self.mha_dim = self.densenet.last_dim
         if self.use_mha:
             self.mha = nn.MultiheadAttention(self.densenet.last_dim, num_heads=mha_num_attentions)
+            self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
         self.labels = super().load_dict(label_path)
@@ -459,6 +460,8 @@ class GloveDensenetCRF(BaseModel):
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
             # mha_out : [batch_size, seq_size, self.mha_dim]
+            # residual, layernorm, dropout
+            mha_out = self.layernorm_mha(mha_out + densenet_out)
             mha_out = self.dropout(mha_out)
         else:
             mha_out = lstm_out
@@ -542,6 +545,7 @@ class BertLSTMCRF(BaseModel):
         self.mha_dim = self.lstm_dim 
         if self.use_mha:
             self.mha = nn.MultiheadAttention(self.lstm_dim, num_heads=mha_num_attentions)
+            self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
         self.labels = super().load_dict(label_path)
@@ -656,6 +660,8 @@ class BertLSTMCRF(BaseModel):
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
             # mha_out : [batch_size, seq_size, self.mha_dim]
+            # residual, layernorm, dropout
+            mha_out = self.layernorm_mha(mha_out + lstm_out)
             mha_out = self.dropout(mha_out)
         else:
             mha_out = lstm_out
@@ -723,6 +729,7 @@ class ElmoLSTMCRF(BaseModel):
         self.mha_dim = self.lstm_dim
         if self.use_mha:
             self.mha = nn.MultiheadAttention(self.lstm_dim, num_heads=mha_num_attentions)
+            self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
         self.labels = super().load_dict(label_path)
@@ -790,6 +797,8 @@ class ElmoLSTMCRF(BaseModel):
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
             # mha_out : [batch_size, seq_size, self.mha_dim]
+            # residual, layernorm, dropout
+            mha_out = self.layernorm_mha(mha_out + lstm_out)
             mha_out = self.dropout(mha_out)
         else:
             mha_out = lstm_out
