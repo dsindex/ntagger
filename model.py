@@ -338,7 +338,7 @@ class GloveLSTMCRF(BaseModel):
             # query : [seq_size, batch_size, self.lstm_dim]
             key = query
             value = query
-            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            key_padding_mask = mask.ne(1) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
             attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
@@ -454,7 +454,7 @@ class GloveDensenetCRF(BaseModel):
             # query : [seq_size, batch_size, self.densenet.last_dim]
             key = query
             value = query
-            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            key_padding_mask = mask.ne(1) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
             attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
@@ -651,7 +651,7 @@ class BertLSTMCRF(BaseModel):
             # query : [seq_size, batch_size, self.lstm_dim]
             key = query
             value = query
-            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            key_padding_mask = mask.ne(1) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
             attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
@@ -785,7 +785,7 @@ class ElmoLSTMCRF(BaseModel):
             # query : [seq_size, batch_size, self.lstm_dim]
             key = query
             value = query
-            key_padding_mask = mask.ne(0) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
+            key_padding_mask = mask.ne(1) # attention_mask => mask = [[1, 1, ..., 0, ...]] => [[False, False, ..., True, ...]]
             attn_output, attn_output_weights = self.mha(query, key, value, key_padding_mask=key_padding_mask)
             # attn_output : [seq_size, batch_size, self.mha_dim]
             mha_out = attn_output.permute(1, 0, 2)
