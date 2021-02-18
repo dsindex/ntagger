@@ -321,24 +321,25 @@ $ cp -rf valid.txt test.txt
 | ------------------------------- | ----------------- | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
-| GloVe, BiLSTM-MHA               | 89.22             |                   | word, character, pos | 6.7317  / -        | -         |           |                           |
-| **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        |           |           | threads=14                |
+| GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        | -         |           |                           |
+| **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 87.78             |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17             |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
-| GloVe, DenseNet-CRF             | 88.23             |                   | word, pos            | 24.7893 / -        |           |           | threads=14                |
-| GloVe, DenseNet-CRF             | 88.89             |                   | word, character, pos | 28.0993 / -        |           |           | threads=14                |
+| GloVe, DenseNet-CRF             | 88.23             |                   | word, pos            | 24.7893 / -        |           |           |                           |
+| GloVe, DenseNet-CRF             | 88.89             |                   | word, character, pos | 28.0993 / -        |           |           |                           |
+| GloVe, DenseNet-MHA             | -                 |                   | word, character, pos | -       / -        |           |           |                           |
 | BERT-tiny, BiLSTM               | 69.65             |                   | word                 | 20.1376 / -        |           |           |                           |
 | BERT-mini, BiLSTM               | 81.55             |                   | word                 | 21.4632 / -        |           |           |                           |
 | BERT-small, BiLSTM              | 86.35             |                   | word                 | 22.6087 / -        |           |           |                           |
 | BERT-medium, BiLSTM             | 88.29             |                   | word                 | 27.0486 / -        |           |           |                           |
-| DistilBERT, BiLSTM              | 89.50             |                   | word                 | 13.4564 / -        | 56.2819   | 47.8320   |                           |
+| DistilBERT, BiLSTM              | 89.50             |                   | word                 | 13.4564 / -        | 56.2819   | 47.8320   | threads=14                |
 | mDistilBERT, BiLSTM             | 90.21             |                   | word                 | 13.4910 / -        |           |           |                           |
 | MiniLM, BiLSTM                  | 90.55             |                   | word                 | 17.7890 / -        |           |           |                           |
 | BERT-base(uncased), BiLSTM-CRF  | 90.20             |                   | word                 | 42.6464 / -        |           |           |                           |
-| BERT-base(uncased), BiLSTM      | 90.55             |                   | word                 | 18.2323 / -        | 79.1914   | 83.9590   |                           |
+| BERT-base(uncased), BiLSTM      | 90.55             |                   | word                 | 18.2323 / -        | 79.1914   | 83.9590   | threads=14                |
 | BERT-base(uncased), BiLSTM      | 90.60             |                   | word                 | 22.7757 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(uncased), CRF         | 89.98             |                   | word                 | 36.6893 / -        |           |           |                           |
-| BERT-base(uncased)              | 90.25             |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   |                           |
+| BERT-base(uncased)              | 90.25             |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   | threads=14                |
 | BERT-base(uncased), BiLSTM      | 89.03             |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14 |
 | bert-base-NER(cased), BiLSTM    | 91.63 / 92.71     | 92.25 / 93.16     | word                 | 17.6680 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase |
 | BERT-base(cased), BiLSTM-CRF    | 90.17             |                   | word                 | 43.4804 / -        |           |           |                           |
@@ -501,9 +502,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 91913.47312927246ms, 24.9271387643
 accuracy:  98.01%; precision:  91.08%; recall:  90.44%; FB1:  90.76
 
 * --use_char_cnn --use_mha , without --use_crf
-INFO:__main__:[F1] : 0.8921939628619202, 3684
-INFO:__main__:[Elapsed Time] : 3684 examples, 24890.32483100891ms, 6.731786515574853ms on average
-accuracy:  97.87%; precision:  88.70%; recall:  89.75%; FB1:  89.22
+INFO:__main__:[F1] : 0.899894254494184, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 28661.02647781372ms, 7.751333820344053ms on average
+accuracy:  97.96%; precision:  89.58%; recall:  90.40%; FB1:  89.99
 
 ```
 
@@ -543,6 +544,8 @@ accuracy:  97.60%; precision:  88.06%; recall:  88.90%; FB1:  88.48
 INFO:__main__:[F1] : 0.8889086226800461, 3684
 INFO:__main__:[Elapsed Time] : 103641ms, 28.099375509095847ms on average
 accuracy:  97.75%; precision:  89.17%; recall:  88.62%; FB1:  88.89
+
+* --use_char_cnn --use_mha , without --use_crf
 
 ```
 
