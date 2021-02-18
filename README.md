@@ -361,7 +361,7 @@ $ cp -rf valid.txt test.txt
 | BERT-large, BiLSTM-CRF          | 90.98             |                   | word                 | 58.9112 / -        |           |           | BERT as feature-based, mean([0:]) embedding          |
 | BERT-large, BiLSTM-CRF          | 90.62             |                   | word                 | 66.6576 / -        |           |           | BERT as feature-based, DSA(4, 300)                   |
 | BERT-large-squad, BiLSTM        | 91.75             | 92.17             | word                 | 35.6619 / -        |           |           |                           |
-| BERT-large-conll03, BiLSTM      | 91.87 /           | 92.40 /           | word                 | 32.2211 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase |
+| BERT-large-conll03, BiLSTM      | 91.87 / 92.62     | 92.40 / 93.36     | word                 | 32.2211 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase |
 | BERT-large-conll03              | 91.63             | 92.24             | word                 | 29.8476 / -        |           |           |                           |
 | SpanBERT-base, BiLSTM           | 90.46             |                   | word                 | 30.0991 / -        |           |           |                           |
 | SpanBERT-large, BiLSTM          | 91.39             | 92.01             | word                 | 42.5959 / -        |           |           |                           |
@@ -379,7 +379,7 @@ $ cp -rf valid.txt test.txt
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
-| ELMo, GloVe, BiLSTM-CRF         | 92.63             | 92.51             | word, pos            | 74.6521 / -        |           |           |                           |
+| ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.03             |                   | word, character, pos | 60.4667 / -        |           |           | threads=14                |
 
 ```
@@ -757,10 +757,14 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 110067.8985118866ms, 29.8476846458
 accuracy:  98.41%; precision:  91.66%; recall:  92.83%; FB1:  92.24
 
 * --data_dir=data/conll++ --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
-
+INFO:__main__:[F1] : 0.926168632590651, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 132705.81126213074ms, 35.98520220410329ms on average
+accuracy:  98.52%; precision:  92.29%; recall:  92.95%; FB1:  92.62
 
 * --data_dir=data/conll++_truecase --bert_model_name_or_path=./embeddings/bert-large-cased-finetuned-conll03-english --warmup_epoch=0 --weight_decay=0.0 --epoch=30 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
-
+INFO:__main__:[F1] : 0.9336480461578809, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 132453.9577960968ms, 35.92103879930143ms on average
+accuracy:  98.63%; precision:  93.08%; recall:  93.65%; FB1:  93.36
 
 * for using SpanBERT embedding, just replace pretrained BERT model to SpanBERT.
 * --bert_model_name_or_path=./embeddings/spanbert_hf_base
@@ -1126,6 +1130,17 @@ accuracy:  98.27%; precision:  91.78%; recall:  91.77%; FB1:  91.78
 INFO:__main__:[F1] : 0.9193262411347518, 3684
 INFO:__main__:[Elapsed Time] : 249467ms, 67.69318490361118ms on average
 accuracy:  98.31%; precision:  92.06%; recall:  91.80%; FB1:  91.93
+
+* --data_dir=data/conll++ --batch_size=64
+INFO:__main__:[F1] : 0.9349278930706999, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 240186.9957447052ms, 65.17468371405538ms on average
+accuracy:  98.59%; precision:  93.76%; recall:  93.23%; FB1:  93.49
+
+* --data_dir=data/conll++_truecase --batch_size=64
+INFO:__main__:[F1] : 0.9368402533427164, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 245365.75412750244ms, 66.58202281892866ms on average
+accuracy:  98.64%; precision:  93.98%; recall:  93.39%; FB1:  93.68
+
 ```
 
 </p>
