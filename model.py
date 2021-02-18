@@ -464,7 +464,7 @@ class GloveDensenetCRF(BaseModel):
             mha_out = self.layernorm_mha(mha_out + densenet_out)
             mha_out = self.dropout(mha_out)
         else:
-            mha_out = lstm_out
+            mha_out = densenet_out
             # mha_out : [batch_size, seq_size, self.mha_dim]
 
         # 4. Output

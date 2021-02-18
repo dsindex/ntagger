@@ -39,15 +39,18 @@ def load_model(config, checkpoint):
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
-                                 emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
+                                 emb_non_trainable=True, use_crf=opt.use_crf,
+                                 use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
-                                     emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
+                                     emb_non_trainable=True, use_crf=opt.use_crf,
+                                     use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
     elif config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
-                            emb_non_trainable=True, use_crf=opt.use_crf, use_char_cnn=opt.use_char_cnn)
+                            emb_non_trainable=True, use_crf=opt.use_crf,
+                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
     else:
         from transformers import AutoTokenizer, AutoConfig, AutoModel
         bert_config = AutoConfig.from_pretrained(opt.bert_output_dir)
