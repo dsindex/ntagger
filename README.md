@@ -322,12 +322,14 @@ $ cp -rf valid.txt test.txt
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
 | GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        | -         |           |                           |
+| GloVe, BiLSTM-MHA-CRF           | 90.48             |                   | word, character, pos | 25.8200 / -        | -         |           |                           |
 | **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 87.78             |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17             |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
 | GloVe, DenseNet-CRF             | 88.23             |                   | word, pos            | 24.7893 / -        |           |           |                           |
 | GloVe, DenseNet-CRF             | 88.89             |                   | word, character, pos | 28.0993 / -        |           |           |                           |
-| GloVe, DenseNet-MHA             | -                 |                   | word, character, pos | -       / -        |           |           |                           |
+| GloVe, DenseNet-MHA             | 88.47             |                   | word, character, pos | 7.9668  / -        |           |           |                           |
+| GloVe, DenseNet-MHA-CRF         | 88.58             |                   | word, character, pos | 26.2287 / -        |           |           |                           |
 | BERT-tiny, BiLSTM               | 69.65             |                   | word                 | 20.1376 / -        |           |           |                           |
 | BERT-mini, BiLSTM               | 81.55             |                   | word                 | 21.4632 / -        |           |           |                           |
 | BERT-small, BiLSTM              | 86.35             |                   | word                 | 22.6087 / -        |           |           |                           |
@@ -506,6 +508,11 @@ INFO:__main__:[F1] : 0.899894254494184, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 28661.02647781372ms, 7.751333820344053ms on average
 accuracy:  97.96%; precision:  89.58%; recall:  90.40%; FB1:  89.99
 
+* --use_char_cnn --use_mha
+INFO:__main__:[F1] : 0.9047997878546804, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 95233.61730575562ms, 25.82004158968774ms on average
+accuracy:  97.97%; precision:  90.34%; recall:  90.62%; FB1:  90.48
+
 ```
 
 </p>
@@ -546,6 +553,14 @@ INFO:__main__:[Elapsed Time] : 103641ms, 28.099375509095847ms on average
 accuracy:  97.75%; precision:  89.17%; recall:  88.62%; FB1:  88.89
 
 * --use_char_cnn --use_mha , without --use_crf
+INFO:__main__:[F1] : 0.8846794703148294, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 29449.145555496216ms, 7.9668397460655775ms on average
+accuracy:  97.75%; precision:  87.65%; recall:  89.31%; FB1:  88.47
+
+* --use_char_cnn --use_mha
+INFO:__main__:[F1] : 0.8857545839210157, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 96725.40020942688ms, 26.228771176054657ms on average
+accuracy:  97.62%; precision:  88.20%; recall:  88.95%; FB1:  88.58
 
 ```
 
