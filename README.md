@@ -703,7 +703,7 @@ accuracy:  98.21%; precision:  91.30%; recall:  91.80%; FB1:  91.55
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_sub_label
 # evaluate
-$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_sub_label
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf
 INFO:__main__:[F1] : 0.9128322882628279, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 146032.53650665283ms, 39.613566708053355ms on average
 accuracy:  98.26%; precision:  91.59%; recall:  91.61%; FB1:  91.60
