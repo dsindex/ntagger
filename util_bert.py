@@ -80,7 +80,8 @@ def read_examples_from_file(file_path, mode='train'):
 
     return examples
 
-def convert_single_example_to_feature(example,
+def convert_single_example_to_feature(config,
+                                      example,
                                       pos_map,
                                       label_map,
                                       max_seq_length,
@@ -96,6 +97,7 @@ def convert_single_example_to_feature(example,
                                       sequence_a_segment_id=0,
                                       ex_index=-1):
 
+    opt = config['opt']
     tokens = []
     pos_ids = []
     label_ids = []
@@ -109,7 +111,21 @@ def convert_single_example_to_feature(example,
         pos_ids.extend([pos_id] + [pos_id] * (len(word_tokens) - 1))
         # label extension: set pad_token_label_id
         label_id = label_map[label]
-        label_ids.extend([label_id] + [pad_token_label_id] * (len(word_tokens) - 1))
+        if opt.bert_use_sub_label:
+            if label == config['default_label']:
+                # ex) 'round', '##er' -> 1/'O', 1/'O'
+                sub_token_label = label
+                sub_token_label_id = label_map[sub_token_label]
+                label_ids.extend([label_id] + [sub_token_label_id] * (len(word_tokens) - 1))
+            else:
+                # ex) 'BR', '##US', '##SE', '##LS' -> 6/'B-LOC', 9/'I-LOC', 9/'I-LOC', 9/'I-LOC'
+                sub_token_label = label
+                prefix, suffix = label.split('-', maxsplit=1)
+                if prefix == 'B': sub_token_label = 'I-' + suffix
+                sub_token_label_id = label_map[sub_token_label]
+                label_ids.extend([label_id] + [sub_token_label_id] * (len(word_tokens) - 1))
+        else:
+            label_ids.extend([label_id] + [pad_token_label_id] * (len(word_tokens) - 1))
 
     if len(tokens) != len(pos_ids):
         # tokenizer returns empty result, ex) [<96>, ;, -, O], [<94>, ``, -, O]
@@ -187,7 +203,8 @@ def convert_single_example_to_feature(example,
                             label_ids=label_ids)
     return feature
 
-def convert_examples_to_features(examples,
+def convert_examples_to_features(config,
+                                 examples,
                                  pos_map,
                                  label_map,
                                  max_seq_length,
@@ -209,7 +226,8 @@ def convert_examples_to_features(examples,
             logger.info("Writing example %d of %d", ex_index, len(examples))
         '''
 
-        feature = convert_single_example_to_feature(example,
+        feature = convert_single_example_to_feature(config,
+                                                    example,
                                                     pos_map,
                                                     label_map,
                                                     max_seq_length,

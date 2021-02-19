@@ -137,7 +137,11 @@ def check_onnx(config):
 # Evaluation
 # ---------------------------------------------------------------------------- #
 
-def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
+def write_prediction(config, model, ys, preds, labels):
+    opt = config['opt']
+    pad_label_id = config['pad_label_id']
+    default_label = config['default_label']
+
     # load test data
     tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
     with open(opt.test_path, 'r', encoding='utf-8') as f:
@@ -162,23 +166,24 @@ def write_prediction(opt, ys, preds, labels, pad_label_id, default_label):
                 if i >= ys.shape[0]:
                     logger.info("[Stop to write predictions] : %s" % (i))
                     break
-                # from preds
-                j_bucket = 0
-                for j in range(ys.shape[1]):       # foreach token
-                    pred_label = default_label
-                    if ys[i][j] != pad_label_id:
-                        pred_label = labels[preds[i][j]]
-                        entry = bucket[j_bucket]
-                        entry.append(pred_label)
-                        f.write(' '.join(entry) + '\n')
-                        j_bucket += 1
-                # remained
-                for j, entry in enumerate(bucket): # foreach remained token
-                    if j < j_bucket: continue
-                    pred_label = default_label
+                use_subtoken = False
+                ys_idx = 0
+                if config['emb_class'] not in ['glove', 'elmo']:
+                    use_subtoken = True
+                    ys_idx = 1 # account '[CLS]' 
+                for j, entry in enumerate(bucket): # foreach token
                     entry = bucket[j]
+                    pred_label = default_label
+                    if ys_idx < ys.shape[1]:
+                        pred_label = labels[preds[i][ys_idx]]
                     entry.append(pred_label)
                     f.write(' '.join(entry) + '\n')
+                    if use_subtoken:
+                        word = entry[0]
+                        word_tokens = model.bert_tokenizer.tokenize(word)
+                        ys_idx += len(word_tokens)
+                    else:
+                        ys_idx += 1
                 f.write('\n')
     except Exception as e:
         logger.warn(str(e))
@@ -330,8 +335,7 @@ def evaluate(opt):
     print(ret['report'])
     f1 = ret['f1']
     # write predicted labels to file
-    default_label = config['default_label']
-    write_prediction(opt, ys, preds, labels, pad_label_id, default_label)
+    write_prediction(config, model, ys, preds, labels)
 
     logger.info("[F1] : {}, {}".format(f1, total_examples))
     logger.info("[Elapsed Time] : {} examples, {}ms, {}ms on average".format(total_examples, whole_time, avg_time))

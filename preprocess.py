@@ -304,7 +304,7 @@ def build_features(input_path, tokenizer, poss, labels, config, mode='train'):
 
     logger.info("[Creating features from file] %s", input_path)
     examples = read_examples_from_file(input_path, mode=mode)
-    features = convert_examples_to_features(examples, poss, labels, config['n_ctx'], tokenizer,
+    features = convert_examples_to_features(config, examples, poss, labels, config['n_ctx'], tokenizer,
                                             cls_token=tokenizer.cls_token,
                                             cls_token_segment_id=0,
                                             sep_token=tokenizer.sep_token,
@@ -369,6 +369,8 @@ def main():
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
+    parser.add_argument('--bert_use_sub_label', action='store_true',
+                        help="Set this flag to use sub label instead of using pad label for sub tokens.")
     opt = parser.parse_args()
 
     # set seed
