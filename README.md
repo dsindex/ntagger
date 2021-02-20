@@ -321,9 +321,9 @@ $ cp -rf valid.txt test.txt
 | ------------------------------- | ----------------- | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
-| GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        | -         |           |                           |
-| GloVe, BiLSTM-MHA-CRF           | 90.48             |                   | word, character, pos | 25.8200 / -        | -         |           |                           |
-| **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        |           |           |                           |
+| GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        |           |           |                           |
+| GloVe, BiLSTM-MHA-CRF           | 90.48             |                   | word, character, pos | 25.8200 / -        |           |           |                           |
+| **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        | FAIL      |           |                           |
 | ConceptNet, BiLSTM-CRF          | 87.78             |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17             |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
 | GloVe, DenseNet-CRF             | 88.23             |                   | word, pos            | 24.7893 / -        |           |           |                           |
@@ -347,6 +347,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 90.17             |                   | word                 | 43.4804 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM-CRF    | 91.55             |                   | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 91.60             |                   | word                 | 39.6135 / -        |           |           | using sub token label, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
@@ -698,15 +699,28 @@ INFO:__main__:[F1] : 0.9135758963967932, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 155832.32188224792ms, 42.27091953413272ms on average
 accuracy:  98.21%; precision:  91.30%; recall:  91.80%; FB1:  91.55
 
-# using sub token label 
+# using sub token label, --bert_use_sub_label
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_sub_label
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.9128322882628279, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 146032.53650665283ms, 39.613566708053355ms on average
 accuracy:  98.26%; precision:  91.59%; recall:  91.61%; FB1:  91.60
+
+# slicing logits to remain first token's of word's before applying crf, --bert_use_crf_slice 
+# preprocessing
+$ python preprocess.py --config=configs/config-distilbert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/distilbert-base-uncased
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_crf_slice
+# evaluate
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_crf_slice
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.913277459197177, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 151587.14032173157ms, 41.12043155459907ms on average
+accuracy:  98.26%; precision:  91.01%; recall:  91.64%; FB1:  91.33
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
 INFO:__main__:[F1] : 0.9020433219328247, 3684

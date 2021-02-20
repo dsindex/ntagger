@@ -23,12 +23,13 @@ class InputExample(object):
         self.labels = labels
 
 class InputFeature(object):
-    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, label_ids):
+    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, label_ids, word2token_idx):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
         self.pos_ids = pos_ids
         self.label_ids = label_ids
+        self.word2token_idx = word2token_idx
 
 def read_examples_from_file(file_path, mode='train'):
     guid_index = 1
@@ -96,16 +97,38 @@ def convert_single_example_to_feature(config,
                                       pad_token_segment_id=0,
                                       sequence_a_segment_id=0,
                                       ex_index=-1):
+    """
+    convention in BERT:
+    for single sequence:
+      word      : the dog is hairy
+      word_idx  : 0   1   2  3
+      ------------------------------------------------------------------
+      tokens:        [CLS] the dog is ha ##iry . [SEP] <pad> <pad> <pad> ...
+      token_idx:       0   1   2   3  4  5     6   7     8     9     10  ...
+      input_ids:       x   x   x   x  x  x     x   x     0     0     0   ...
+      segment_ids:     0   0   0   0  0  0     0   0     0     0     0   ...
+      input_mask:      1   1   1   1  1  1     1   1     0     0     0   ...
+      label_ids:       0   1   1   1  1  0     1   0     0     0     0   ...
+      ------------------------------------------------------------------
+      idx              0   1   2   3
+      word2token_idx:  1   2   3   4  0  0  0 ...  
+      word2token_idx[idx] = token_idx
+    """
 
     opt = config['opt']
     tokens = []
     pos_ids = []
     label_ids = []
+    word2token_idx = []
+    token_idx = 1 # consider first sub-token is '[CLS]'
 
     for word, pos, label in zip(example.words, example.poss, example.labels):
         # word extension
         word_tokens = tokenizer.tokenize(word)
         tokens.extend(word_tokens)
+        # build word2token_idx, save the first token's idx of sub-tokens for the word.
+        word2token_idx.append(token_idx)
+        token_idx += len(word_tokens)
         # pos extension: set same pos_id
         pos_id = pos_map[pos]
         pos_ids.extend([pos_id] + [pos_id] * (len(word_tokens) - 1))
@@ -147,13 +170,6 @@ def convert_single_example_to_feature(config,
         pos_ids = pos_ids[:(max_seq_length - special_tokens_count)]
         label_ids = label_ids[:(max_seq_length - special_tokens_count)]
 
-    # convention in BERT:
-    # for single sequences:
-    #  tokens:     [CLS] the dog is hairy . [SEP]
-    #  input_ids:    x   x   x   x  x     x   x   0  0  0 ...
-    #  segment_ids:  0   0   0   0  0     0   0   0  0  0 ...
-    #  input_mask:   1   1   1   1  1     1   1   0  0  0 ...
-
     tokens += [sep_token]
     pos_ids += [pad_token_pos_id]
     label_ids += [pad_token_label_id]
@@ -179,12 +195,15 @@ def convert_single_example_to_feature(config,
     segment_ids += ([pad_token_segment_id] * padding_length)
     pos_ids += ([pad_token_pos_id] * padding_length)
     label_ids += ([pad_token_label_id] * padding_length)
+    padding_length_for_word2token_idx = max_seq_length - len(word2token_idx)
+    word2token_idx += ([0] * padding_length_for_word2token_idx)
 
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
     assert len(pos_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
+    assert len(word2token_idx) == max_seq_length
 
     if ex_index != -1 and ex_index < 5:
         logger.info("*** Example ***")
@@ -195,12 +214,14 @@ def convert_single_example_to_feature(config,
         logger.info("segment_ids: %s", " ".join([str(x) for x in segment_ids]))
         logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
         logger.info("label_ids: %s", " ".join([str(x) for x in label_ids]))
+        logger.info("word2token_idx: %s", " ".join([str(x) for x in word2token_idx]))
 
     feature = InputFeature(input_ids=input_ids,
                             input_mask=input_mask,
                             segment_ids=segment_ids,
                             pos_ids=pos_ids,
-                            label_ids=label_ids)
+                            label_ids=label_ids,
+                            word2token_idx=word2token_idx)
     return feature
 
 def convert_examples_to_features(config,

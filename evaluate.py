@@ -58,7 +58,7 @@ def load_model(config, checkpoint):
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
-                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
+                           use_crf=opt.use_crf, use_crf_slice=opt.bert_use_crf_slice, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     model.load_state_dict(checkpoint)
@@ -170,7 +170,10 @@ def write_prediction(config, model, ys, preds, labels):
                 ys_idx = 0
                 if config['emb_class'] not in ['glove', 'elmo']:
                     use_subtoken = True
-                    ys_idx = 1 # account '[CLS]' 
+                    ys_idx = 1 # account '[CLS]'
+                if opt.bert_use_crf_slice:
+                    use_subtoken = False
+                    ys_idx = 0
                 for j, entry in enumerate(bucket): # foreach token
                     entry = bucket[j]
                     pred_label = default_label
@@ -221,6 +224,7 @@ def evaluate(opt):
 
     # convert to onnx format
     if opt.convert_onnx:
+        # FIXME not working for --use_crf
         (x, y) = next(iter(test_loader))
         x = to_device(x, opt.device)
         y = to_device(y, opt.device)
@@ -260,7 +264,12 @@ def evaluate(opt):
             start_time = time.time()
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
-
+            if opt.use_crf and opt.bert_use_crf_slice:
+                # slice y to remain first token's of word's
+                word2token_idx = x[4]
+                mask = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).to(opt.device)
+                y = y.gather(1, word2token_idx)
+                y *= mask
             if opt.enable_ort:
                 x = to_numpy(x)
                 if config['emb_class'] in ['glove', 'elmo']:
@@ -279,6 +288,7 @@ def evaluate(opt):
                     if opt.bert_use_pos:
                         ort_inputs[ort_session.get_inputs()[3].name] = x[3]
                 if opt.use_crf:
+                    # FIXME not working for --use_crf
                     logits, prediction = ort_session.run(None, ort_inputs)
                     prediction = to_device(torch.tensor(prediction), opt.device)
                     logits = to_device(torch.tensor(logits), opt.device)
@@ -287,7 +297,8 @@ def evaluate(opt):
                     logits = to_device(torch.tensor(logits), opt.device)
                     logits = torch.softmax(logits, dim=-1)
             else:
-                if opt.use_crf: logits, prediction = model(x)
+                if opt.use_crf:
+                    logits, prediction = model(x)
                 else:
                     logits = model(x)
                     logits = torch.softmax(logits, dim=-1)
@@ -367,6 +378,8 @@ def main():
     parser.add_argument('--bert_disable_lstm', action='store_true',
                         help="Disable lstm layer")
     parser.add_argument('--bert_use_pos', action='store_true', help="Add Part-Of-Speech features")
+    parser.add_argument('--bert_use_crf_slice', action='store_true',
+                        help="Set this flag to slice logits before applying crf layer.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')

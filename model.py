@@ -477,7 +477,7 @@ class GloveDensenetCRF(BaseModel):
         return logits, prediction
 
 class BertLSTMCRF(BaseModel):
-    def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_pos=False, use_mha=False, disable_lstm=False, feature_based=False):
+    def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_crf_slice=False, use_pos=False, use_mha=False, disable_lstm=False, feature_based=False):
         super().__init__(config=config)
 
         self.config = config
@@ -488,6 +488,7 @@ class BertLSTMCRF(BaseModel):
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
+        self.use_crf_slice = use_crf_slice
         self.use_pos = use_pos
         self.use_mha = use_mha
         mha_num_attentions = config['mha_num_attentions']
@@ -671,6 +672,15 @@ class BertLSTMCRF(BaseModel):
         logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
+        if self.use_crf and self.use_crf_slice:
+            word2token_idx = x[4]
+            mask_word2token_idx = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).unsqueeze(-1).to(self.device)
+            # slice logits to remain first token's of word's before applying crf.
+            # solution from https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
+            offset = torch.arange(0, logits.size(0) * logits.size(1), logits.size(1)).to(self.device)
+            index = word2token_idx + offset.unsqueeze(1)
+            logits = logits.reshape(-1, logits.shape[-1])[index]
+            logits *= mask_word2token_idx
         prediction = self.crf.decode(logits)
         prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]

@@ -75,6 +75,13 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         y = to_device(y, opt.device)
         if opt.use_crf:
             with autocast(enabled=opt.use_amp):
+                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
+                if opt.bert_use_crf_slice:
+                    # slice y to remain first token's of word's.
+                    word2token_idx = x[4]
+                    mask = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).to(opt.device)
+                    y = y.gather(1, word2token_idx)
+                    y *= mask
                 if opt.use_profiler:
                     with profiler.profile(profile_memory=True, record_shapes=True) as prof:
                         logits, prediction = model(x)
@@ -84,7 +91,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                         logits, prediction = model(x, freeze_bert=freeze_bert)
                     else:
                         logits, prediction = model(x)
-                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(opt.device)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
                 if opt.gradient_accumulation_steps > 1:
@@ -205,9 +211,15 @@ def evaluate(model, config, valid_loader, eval_device=None):
             model.eval()
             x = to_device(x, device)
             y = to_device(y, device)
+            mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(device)
+            if opt.bert_use_crf_slice:
+                # slice y to remain first token's of word's.
+                word2token_idx = x[4]
+                mask = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).to(opt.device)
+                y = y.gather(1, word2token_idx)
+                y *= mask
             if opt.use_crf:
                 logits, prediction = model(x)
-                mask = torch.sign(torch.abs(x[0])).to(torch.uint8).to(device)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
             else:
@@ -342,7 +354,7 @@ def prepare_model(config):
         reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
-                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
+                           use_crf=opt.use_crf, use_crf_slice=opt.bert_use_crf_slice, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     if opt.restore_path:
@@ -534,6 +546,8 @@ def main():
                         help="Number of freezing epoch for BERT.")
     parser.add_argument('--bert_lr_during_freezing', type=float, default=1e-3,
                         help="The learning rate during freezing BERT.")
+    parser.add_argument('--bert_use_crf_slice', action='store_true',
+                        help="Set this flag to slice logits before applying crf layer.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
