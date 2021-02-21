@@ -196,7 +196,7 @@ def convert_single_example_to_feature(config,
     pos_ids += ([pad_token_pos_id] * padding_length)
     label_ids += ([pad_token_label_id] * padding_length)
     padding_length_for_word2token_idx = max_seq_length - len(word2token_idx)
-    word2token_idx += ([0] * padding_length_for_word2token_idx)
+    word2token_idx += ([0] * padding_length_for_word2token_idx) # padding means the first token embedding will be used as dummy.
 
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
