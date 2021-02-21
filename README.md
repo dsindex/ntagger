@@ -377,7 +377,11 @@ $ cp -rf valid.txt test.txt
 | ALBERT-xxlarge, BiLSTM          | 90.39             |                   | word                 | 107.778 / -        |           |           |                           |
 | RoBERTa-base                    | 90.03             |                   | word                 | 19.2503 / -        |           |           |                           |
 | RoBERTa-large                   | 91.83             | 91.90             | word                 | 28.5525 / -        |           |           |                           |
-| XLM-RoBERTa-base                | 91.18             |                   | word                 | 15.9806 / -        |           |           |                           |
+| XLM-RoBERTa-base                | 91.20             |                   | word                 | 18.9604 / -        |           |           |                           |
+| XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | using sub token label, freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | slice logits, freezing BERT during some epochs |
 | XLM-RoBERTa-large               | **92.75** / 93.95 | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
 | XLM-RoBERTa-large, BiLSTM       | -         / 93.75 | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
@@ -990,11 +994,27 @@ accuracy:  98.30%; precision:  91.37%; recall:  92.44%; FB1:  91.90
 INFO:__main__:[F1] : 0.9002973587545915, 3684
 INFO:__main__:[Elapsed Time] : 71015ms, 19.25033939723052ms on average
 
-* --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_disable_lstm
-INFO:__main__:[F1] : 0.9118162692847126, 3684
-INFO:__main__:[Elapsed Time] : 3684 examples, 67974.00379180908ms, 18.429700557285116ms on average
-INFO:__main__:[Elapsed Time] : 100 examples, 1696.9754695892334ms, 15.980621781012024ms on average
-accuracy:  98.16%; precision:  90.30%; recall:  92.09%; FB1:  91.18
+* --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_disable_lstm --batch_size=32 --epoch=30 --patience=4
+INFO:__main__:[F1] : 0.912046393111326, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 69937.09135055542ms, 18.960459090560924ms on average
+accuracy:  98.21%; precision:  90.53%; recall:  91.89%; FB1:  91.20
+
+* --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+INFO:__main__:[F1] : 0.9081166549543219, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 79163.73658180237ms, 21.466715388281205ms on average
+accuracy:  98.15%; precision:  90.12%; recall:  91.52%; FB1:  90.81
+
+* --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+INFO:__main__:[F1] : 0.9111501316944689, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 145396.85487747192ms, 39.44182609560177ms on average
+accuracy:  98.17%; precision:  90.37%; recall:  91.87%; FB1:  91.12
+
+# using sub token label, --bert_use_sub_label
+* --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+
+
+* --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_use_crf_slice --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+
 
 * --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
 INFO:__main__:[F1] : 0.927465220054248, 3684
@@ -1431,6 +1451,9 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | wp  DistilBERT(v1)           | 84.45       | eoj      | 8.9646  / -    |          |           |        |
 | mDistilBERT                  | 83.89       | eoj      | 9.2205  / -    |          |           |        |
 | bpe BERT(v1), BiLSTM-CRF     | 86.11       | eoj      | 53.1818 / -    |          |           |        |
+| bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | using sub token label, freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | slice logits, freezing BERT during some epochs |
 | bpe BERT(v1), BiLSTM         | 86.37       | eoj      | 21.3232 / -    |          |           |        |
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
@@ -1663,6 +1686,15 @@ $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8613367390378885, 9000
 INFO:__main__:[Elapsed Time] : 476814ms, 52.96955217246361ms on average
 accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
+
+** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+
+# using sub token label, --bert_use_sub_label
+** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+
+
+** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+
 
 ** without --use_crf (bpe BERT BiLSTM)
 INFO:__main__:[F1] : 0.8646059046587216, 9000
