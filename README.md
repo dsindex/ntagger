@@ -1021,8 +1021,7 @@ accuracy:  98.28%; precision:  91.24%; recall:  92.35%; FB1:  91.79
 $ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-base
 # train
 $ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5  --epoch=30 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_crf_slice
-something goes wrong!!
-/pytorch/aten/src/ATen/native/cuda/ScatterGatherKernel.cu:115: operator(): block: [18,0,0], thread: [56,0,0] Assertion `idx_dim >= 0 && idx_dim < index_size && "index out of bounds"` failed.
+
 
 
 * --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
@@ -1703,7 +1702,6 @@ accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
 ** slicing logits
 *** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
-
 
 ** without --use_crf (bpe BERT BiLSTM)
 INFO:__main__:[F1] : 0.8646059046587216, 9000
