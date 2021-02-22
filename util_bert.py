@@ -129,8 +129,8 @@ def convert_single_example_to_feature(config,
         # build word2token_idx, save the first token's idx of sub-tokens for the word.
         # token_idx must be less than max_seq_length.
         if token_idx < max_seq_length:
-          word2token_idx.append(token_idx)
-          token_idx += len(word_tokens)
+            word2token_idx.append(token_idx)
+            token_idx += len(word_tokens)
         # pos extension: set same pos_id
         pos_id = pos_map[pos]
         pos_ids.extend([pos_id] + [pos_id] * (len(word_tokens) - 1))
