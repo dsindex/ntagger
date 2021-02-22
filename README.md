@@ -380,8 +380,8 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base                | 91.20             |                   | word                 | 18.9604 / -        |           |           |                           |
 | XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | using sub token label, freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | slice logits, freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | slicing logits, freezing BERT during some epochs |
 | XLM-RoBERTa-large               | **92.75** / 93.95 | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
 | XLM-RoBERTa-large, BiLSTM       | -         / 93.75 | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
@@ -703,10 +703,11 @@ INFO:__main__:[F1] : 0.9135758963967932, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 155832.32188224792ms, 42.27091953413272ms on average
 accuracy:  98.21%; precision:  91.30%; recall:  91.80%; FB1:  91.55
 
-# using sub token label, --bert_use_sub_label
-* --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf
+* using sub token label, --bert_use_sub_label
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_sub_label
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
@@ -714,9 +715,9 @@ INFO:__main__:[F1] : 0.9128322882628279, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 146032.53650665283ms, 39.613566708053355ms on average
 accuracy:  98.26%; precision:  91.59%; recall:  91.61%; FB1:  91.60
 
-# slicing logits to remain first token's of word's before applying crf, --bert_use_crf_slice 
+* slicing logits to remain first token's of word's before applying crf, --bert_use_crf_slice 
 # preprocessing
-$ python preprocess.py --config=configs/config-distilbert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/distilbert-base-uncased
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased
 # train
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_crf_slice
 # evaluate
@@ -1009,11 +1010,19 @@ INFO:__main__:[F1] : 0.9111501316944689, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 145396.85487747192ms, 39.44182609560177ms on average
 accuracy:  98.17%; precision:  90.37%; recall:  91.87%; FB1:  91.12
 
-# using sub token label, --bert_use_sub_label
-* --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+* using sub token label, --bert_use_sub_label
+** --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+INFO:__main__:[F1] : 0.9172601776136463, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 158769.8678970337ms, 43.06626947813632ms on average
+accuracy:  98.28%; precision:  91.24%; recall:  92.35%; FB1:  91.79
 
-
-* --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_use_crf_slice --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+* slicing logits, --bert_use_crf_slice
+# preprocessing
+$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-base
+# train
+$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5  --epoch=30 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_crf_slice
+something goes wrong!!
+/pytorch/aten/src/ATen/native/cuda/ScatterGatherKernel.cu:115: operator(): block: [18,0,0], thread: [56,0,0] Assertion `idx_dim >= 0 && idx_dim < index_size && "index out of bounds"` failed.
 
 
 * --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
@@ -1453,7 +1462,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | bpe BERT(v1), BiLSTM-CRF     | 86.11       | eoj      | 53.1818 / -    |          |           |        |
 | bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | freezing BERT during some epochs |
 | bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | using sub token label, freezing BERT during some epochs |
-| bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | slice logits, freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | slicing logits, freezing BERT during some epochs |
 | bpe BERT(v1), BiLSTM         | 86.37       | eoj      | 21.3232 / -    |          |           |        |
 | bpe BERT(v1), CRF            | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                 | 87.13       | eoj      | 16.2121 / -    |          |           |        |
@@ -1689,11 +1698,11 @@ accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
 ** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
 
-# using sub token label, --bert_use_sub_label
-** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+** using sub token label, --bert_use_sub_label
+*** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
 
-
-** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+** slicing logits
+*** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
 
 
 ** without --use_crf (bpe BERT BiLSTM)
