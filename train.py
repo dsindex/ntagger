@@ -75,7 +75,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         y = to_device(y, opt.device)
         if opt.use_crf:
             with autocast(enabled=opt.use_amp):
-                mask = x[1].to(torch.uint8)
+                mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
                 if opt.bert_use_crf_slice:
                     # slice y to remain first token's of word's.
                     word2token_idx = x[4]
@@ -211,7 +211,7 @@ def evaluate(model, config, valid_loader, eval_device=None):
             model.eval()
             x = to_device(x, device)
             y = to_device(y, device)
-            mask = x[1].to(torch.uint8)
+            mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
             if opt.bert_use_crf_slice:
                 # slice y to remain first token's of word's.
                 word2token_idx = x[4]
