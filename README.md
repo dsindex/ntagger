@@ -381,7 +381,7 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | slicing logits, freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs |
 | XLM-RoBERTa-large               | **92.75** / 93.95 | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
 | XLM-RoBERTa-large, BiLSTM       | -         / 93.75 | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
@@ -1011,18 +1011,19 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 145396.85487747192ms, 39.441826095
 accuracy:  98.17%; precision:  90.37%; recall:  91.87%; FB1:  91.12
 
 * using sub token label, --bert_use_sub_label
-** --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
+# preprocessing
+$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_use_sub_label
+# --bert_model_name_or_path=./embeddings/xlm-roberta-base --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --batch_size=32 --epoch=30 --patience=4
 INFO:__main__:[F1] : 0.9172601776136463, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 158769.8678970337ms, 43.06626947813632ms on average
 accuracy:  98.28%; precision:  91.24%; recall:  92.35%; FB1:  91.79
 
 * slicing logits, --bert_use_crf_slice
-# preprocessing
-$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-base
 # train
 $ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5  --epoch=30 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_crf_slice
-
-
+INFO:__main__:[F1] : 0.911604155661208, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 145113.0769252777ms, 39.364287298463005ms on average
+accuracy:  98.20%; precision:  90.67%; recall:  91.66%; FB1:  91.16
 
 * --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
 INFO:__main__:[F1] : 0.927465220054248, 3684
@@ -1702,6 +1703,7 @@ accuracy:  94.15%; precision:  86.24%; recall:  85.99%; FB1:  86.11
 
 ** slicing logits
 *** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3
+
 
 ** without --use_crf (bpe BERT BiLSTM)
 INFO:__main__:[F1] : 0.8646059046587216, 9000

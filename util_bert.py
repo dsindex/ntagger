@@ -101,15 +101,15 @@ def convert_single_example_to_feature(config,
     convention in BERT:
     for single sequence:
       word      : the dog is hairy
-      word_idx  : 0   1   2  3
-      ------------------------------------------------------------------
-      tokens:        [CLS] the dog is ha ##iry . [SEP] <pad> <pad> <pad> ...
-      token_idx:       0   1   2   3  4  5     6   7     8     9     10  ...
-      input_ids:       x   x   x   x  x  x     x   x     0     0     0   ...
-      segment_ids:     0   0   0   0  0  0     0   0     0     0     0   ...
-      input_mask:      1   1   1   1  1  1     1   1     0     0     0   ...
-      label_ids:       0   1   1   1  1  0     1   0     0     0     0   ...
-      ------------------------------------------------------------------
+      word_idx  : 0   1   2  3                                                | params
+      ----------------------------------------------------------------------- | -------------- |
+      tokens:        [CLS] the dog is ha ##iry . [SEP] <pad> <pad> <pad> ...  |                |
+      token_idx:       0   1   2   3  4  5     6   7     8     9     10  ...  |                |
+      input_ids:       x   x   x   x  x  x     x   x     0     0     0   ...  | input_ids      |
+      segment_ids:     0   0   0   0  0  0     0   0     0     0     0   ...  | token_type_ids |
+      input_mask:      1   1   1   1  1  1     1   1     0     0     0   ...  | attention_mask |
+      label_ids:       0   1   1   1  1  0     1   0     0     0     0   ...  |                |
+      ----------------------------------------------------------------------- |                |
       idx              0   1   2   3
       word2token_idx:  1   2   3   4  0  0  0 ...  
       word2token_idx[idx] = token_idx
