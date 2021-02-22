@@ -38,7 +38,8 @@ tensor([[0, 1, 2, 3],
 '''
 
 # reshape source to 2D
-print(source.reshape(-1, source.shape[-1]))
+reshaped_source = source.reshape(-1, source.shape[-1])
+print(reshaped_source)
 '''
 tensor([[ 0.2413, -0.6667,  0.2621],
         [-0.4216,  0.3722, -1.2258],
@@ -53,8 +54,7 @@ tensor([[ 0.2413, -0.6667,  0.2621],
 '''
 
 # index slicing, 2D -> 3D
-source = source.reshape(-1, source.shape[-1])[index]
-
+source = reshaped_source[index]
 print(source)
 '''
 tensor([[[ 0.2413, -0.6667,  0.2621],
