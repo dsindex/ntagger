@@ -1462,7 +1462,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | bpe BERT(v1), BiLSTM-CRF       | 86.34       | eoj      | 46.9389 / -    |          |           |        |
 | bpe BERT(v1), BiLSTM-CRF       | 87.17       | eoj      | 39.1787 / -    |          |           | freezing BERT during some epochs |
 | bpe BERT(v1), BiLSTM-CRF       | 86.99       | eoj      | 39.0575 / -    |          |           | using sub token label, freezing BERT during some epochs |
-| bpe BERT(v1), BiLSTM-CRF       | **87.46**   | eoj      | 39.6914 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF       | 87.46       | eoj      | 39.6914 / -    |          |           | slicing logits, freezing BERT during some epochs |
 | bpe BERT(v1), BiLSTM           | 86.37       | eoj      | 21.3232 / -    |          |           |        |
 | bpe BERT(v1), CRF              | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                   | 87.13       | eoj      | 16.2121 / -    |          |           |        |
@@ -1477,7 +1477,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v3              | 87.31       | eoj      | 14.8115 / -    |          |           |        |
 | KoELECTRA-Base-v3, BiLSTM-CRF  | -           | eoj      | -       / -    |          |           | freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF  | -           | eoj      | -       / -    |          |           | using sub token label, freezing BERT during some epochs |
-| KoELECTRA-Base-v3, BiLSTM-CRF  | -           | eoj      | -       / -    |          |           | slicing logits, freezing BERT during some epochs |
+| KoELECTRA-Base-v3, BiLSTM-CRF  | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs |
 | LM-KOR-ELECTRA                 | 87.39       | eoj      | 17.1545 / -    |          |           |        |
 | bpe ELECTRA-base(v1)           | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | RoBERTa-base                   | 85.45       | eoj      | 15.6986 / -    |          |           |        |
@@ -2146,7 +2146,10 @@ accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 
 *** slicing logits
 **** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
-
+INFO:__main__:[F1] : 0.8827849438546868, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 398727.7433872223ms, 44.294040061882015ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4092.3564434051514ms, 40.08559265522042ms on average
+accuracy:  94.92%; precision:  88.19%; recall:  88.07%; FB1:  88.13
 
 ** LM-KOR-ELECTRA
 
