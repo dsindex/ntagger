@@ -1476,7 +1476,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v1              | 86.64       | eoj      | 15.1616 / -    |          |           |        |
 | KoELECTRA-Base-v3              | 87.31       | eoj      | 14.8115 / -    |          |           |        |
 | KoELECTRA-Base-v3, BiLSTM-CRF  | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
-| KoELECTRA-Base-v3, BiLSTM-CRF  | -           | eoj      | -       / -    |          |           | using sub token label, freezing BERT during some epochs |
+| KoELECTRA-Base-v3, BiLSTM-CRF  | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF  | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs |
 | LM-KOR-ELECTRA                 | 87.39       | eoj      | 17.1545 / -    |          |           |        |
 | LM-KOR-ELECTRA, BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | slicing logits, freezing BERT during some epochs |
@@ -2146,7 +2146,10 @@ accuracy:  94.84%; precision:  87.78%; recall:  87.73%; FB1:  87.76
 
 *** using sub token label, --bert_use_sub_label
 **** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
-
+INFO:__main__:[F1] : 0.874318247875669, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 375233.0663204193ms, 41.67938974250991ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4068.805932998657ms, 39.803909532951586ms on average
+accuracy:  94.70%; precision:  87.71%; recall:  86.93%; FB1:  87.32
 
 *** slicing logits
 **** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
