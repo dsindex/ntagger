@@ -1,4 +1,6 @@
+# ------------------------------------------------------------------------------ #
 # source from https://github.com/wangleiofficial/label-smoothing-pytorch
+# ------------------------------------------------------------------------------ #
 
 import torch.nn as nn
 import torch.nn.functional as F
