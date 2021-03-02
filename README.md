@@ -323,7 +323,7 @@ $ cp -rf valid.txt test.txt
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
 | GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        |           |           |                           |
 | GloVe, BiLSTM-MHA-CRF           | 90.48             |                   | word, character, pos | 25.8200 / -        |           |           |                           |
-| GloVe, BiLSTM-MHA-CRF           | -                 |                   | word, character, pos | -       / -        |           |           | LabelSmoothingCrossEntropy |
+| GloVe, BiLSTM-MHA-CRF           | 90.42             |                   | word, character, pos | 30.1932 / -        |           |           | LabelSmoothingCrossEntropy |
 | **GloVe, BiLSTM-CRF**           | 90.14 / 90.92     | 90.26 / 90.76     | word, character, pos | 26.2807 / -        | FAIL      |           |                           |
 | ConceptNet, BiLSTM-CRF          | 87.78             |                   | word, character, pos | 25.8119 / -        |           |           |                           |
 | ConceptNet, BiLSTM-CRF          | 88.17             |                   | word, character, pos | 23.3482 / -        |           |           | optuna                    |
@@ -521,6 +521,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 95233.61730575562ms, 25.8200415896
 accuracy:  97.97%; precision:  90.34%; recall:  90.62%; FB1:  90.48
 
 * --use_char_cnn --use_mha --criterion=LabelSmoothingCrossEntropy
+INFO:__main__:[F1] : 0.9042186256301407, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 111375.56338310242ms, 30.19321803129985ms on average
+accuracy:  97.96%; precision:  90.33%; recall:  90.51%; FB1:  90.42
 
 ```
 
