@@ -57,7 +57,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             scheduler = scheduler_2nd
             freeze_bert = True
 
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
+    if opt.criterion == 'LabelSmoothingCrossEntropy':
+        criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum').to(opt.device)
+    else:
+        criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
     n_batches = len(train_loader)
 
     # train one epoch
@@ -530,6 +533,7 @@ def main():
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     parser.add_argument('--use_amp', action='store_true', help="Use automatic mixed precision.")
     parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
+    parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
