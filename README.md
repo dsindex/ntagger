@@ -303,6 +303,7 @@ $ cp -rf valid.txt test.txt
     - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
     - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
     - XLM-RoBERTa : `xlm-roberta-base`, `xlm-roberta-large`
+    - Funnel-base : `funnel-kor-base`
   - [ELMo description](https://github.com/dsindex/bilm-tf)
     - `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_weights.hdf5`, `kor_elmo_2x4096_512_2048cnn_2xhighway_1000k_options.json` (inhouse)
   
@@ -1490,6 +1491,8 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | RoBERTa-base                   | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base               | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large              | 87.01       | eoj      | 35.9521 / -    |          |           |        |
+| Funnel-base                    | -           | eoj      | -       / -    |          |           |        |
+| Funnel-base, BiLSTM-CRF        | -           | eoj      | -       / -    |          |           | slicing logits, freezing BERT during some epochs |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), [LM-kor](https://github.com/kiyoungkim1/LM-kor) measured by seqeval (micro F1)
@@ -2111,6 +2114,10 @@ $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/xlm-roberta-base
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
 
+** Funnel-base
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/funnel-kor-base
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/funnel-kor-base --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
+
 ```
 
 - evaluation
@@ -2201,6 +2208,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1671.3252067565918ms, 15.6986328086
 accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
 
 ** XLM-RoBERTa-base, XLM-RoBERTa-large
+
 $ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8699418515423837, 9000
@@ -2213,6 +2221,18 @@ INFO:__main__:[F1] : 0.8716396592474196, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 958549.7736930847ms, 106.50296955191304ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 3725.3706455230713ms, 35.952108074920346ms on average
 accuracy:  94.48%; precision:  86.88%; recall:  87.14%; FB1:  87.01
+
+
+** Funnel-base
+
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+*** slicing logits
+*** --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+
+
+
 ```
 
 </p>
