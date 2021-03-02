@@ -1485,7 +1485,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v3, BiLSTM-CRF  | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF  | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs |
 | LM-KOR-ELECTRA                 | 87.39       | eoj      | 17.1545 / -    |          |           |        |
-| LM-KOR-ELECTRA, BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | slicing logits, freezing BERT during some epochs |
+| LM-KOR-ELECTRA, BiLSTM-CRF     | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs |
 | bpe ELECTRA-base(v1)           | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | RoBERTa-base                   | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base               | 86.84       | eoj      | 18.1326 / -    |          |           |        |
@@ -2174,7 +2174,10 @@ accuracy:  94.75%; precision:  87.38%; recall:  87.39%; FB1:  87.39
 
 *** slicing logits
 *** --bert_model_name_or_path=./embeddings/electra-kor-base  --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
-
+INFO:__main__:[F1] : 0.8761777503683147, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 372020.70689201355ms, 41.32575471608662ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4059.163808822632ms, 39.72473770681054ms on average
+accuracy:  94.72%; precision:  88.04%; recall:  86.94%; FB1:  87.49
 
 ** bpe ELECTRA-base(v1)
 
