@@ -1507,7 +1507,8 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base           | 87.18         | eoj      |
 | KoELECTRA-Base-v2        | 87.16         | eoj      |
 | KoELECTRA-Base-v3        | **88.11**     | eoj      |
-| LM-KOR-ELECTRA           | 87.14         | eoj      |
+| electra-kor-base         | 87.14         | eoj      |
+| funnel-kor-base          | 88.02         | eoj      |
 
 ```
 * note that F1 score from the 'seqeval' package for 'max_seq_len=50' might be similar with that for 'max_seq_len=180'. 
