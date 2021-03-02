@@ -29,6 +29,7 @@ from util    import load_checkpoint, load_config, to_device, to_numpy
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from early_stopping import EarlyStopping
+from label_smoothing import LabelSmoothingCrossEntropy
 import optuna
 from datasets.metric import temp_seed 
 
