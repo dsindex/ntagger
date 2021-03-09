@@ -4,6 +4,7 @@ import sys
 import os
 import pdb
 
+from allennlp.modules.elmo import batch_to_ids
 from tqdm import tqdm
 
 import logging
@@ -23,11 +24,12 @@ class InputExample(object):
         self.labels = labels
 
 class InputFeature(object):
-    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, label_ids, word2token_idx):
+    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, char_ids, label_ids, word2token_idx):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
         self.pos_ids = pos_ids
+        self.char_ids = char_ids
         self.label_ids = label_ids
         self.word2token_idx = word2token_idx
 
@@ -110,17 +112,23 @@ def convert_single_example_to_feature(config,
       input_mask:      1   1   1   1  1  1     1   1     0     0     0   ...  | attention_mask |
       label_ids:       0   1   1   1  1  0     1   0     0     0     0   ...  |                |
       ----------------------------------------------------------------------- |                |
+      pos_ids:         0   10  2   ...
+      char_ids:        [0,..., 0] [259, ..., 261] ...
+      -----------------------------------------------------------------------
       idx              0   1   2   3
       word2token_idx:  1   2   3   4  0  0  0 ...  
       word2token_idx[idx] = token_idx
+      -----------------------------------------------------------------------
     """
 
     opt = config['opt']
     tokens = []
     pos_ids = []
+    char_ids = []
     label_ids = []
     word2token_idx = []
     token_idx = 1 # consider first sub-token is '[CLS]'
+    pad_char_ids = [config['pad_token_id']] * config['char_n_ctx']
 
     for word, pos, label in zip(example.words, example.poss, example.labels):
         # word extension
@@ -134,6 +142,9 @@ def convert_single_example_to_feature(config,
         # pos extension: set same pos_id
         pos_id = pos_map[pos]
         pos_ids.extend([pos_id] + [pos_id] * (len(word_tokens) - 1))
+        # char extension
+        c_ids = batch_to_ids([word_tokens])[0].detach().cpu().numpy().tolist()
+        char_ids.extend(c_ids)
         # label extension: set pad_token_label_id
         label_id = label_map[label]
         if opt.bert_use_sub_label:
@@ -163,6 +174,8 @@ def convert_single_example_to_feature(config,
         logger.info('len(tokens): ' + str(len(tokens)))
         logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
         logger.info('len(pos_ids): ' + str(len(pos_ids)))
+        logger.info("char_ids: %s", " ".join([str(x) for x in char_ids]))
+        logger.info('len(char_ids): ' + str(len(char_ids)))
         sys.exit(1)
 
     # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
@@ -170,21 +183,25 @@ def convert_single_example_to_feature(config,
     if len(tokens) > max_seq_length - special_tokens_count:
         tokens = tokens[:(max_seq_length - special_tokens_count)]
         pos_ids = pos_ids[:(max_seq_length - special_tokens_count)]
+        char_ids = char_ids[:(max_seq_length - special_tokens_count)]
         label_ids = label_ids[:(max_seq_length - special_tokens_count)]
 
     tokens += [sep_token]
     pos_ids += [pad_token_pos_id]
+    char_ids += [pad_char_ids]
     label_ids += [pad_token_label_id]
     if sep_token_extra:
         # roberta uses an extra separator b/w pairs of sentences
         tokens += [sep_token]
         pos_ids += [pad_token_pos_id]
+        char_ids += [pad_char_ids]
         label_ids += [pad_token_label_id]
     segment_ids = [sequence_a_segment_id] * len(tokens)
 
     tokens = [cls_token] + tokens
     segment_ids = [cls_token_segment_id] + segment_ids
     pos_ids = [pad_token_pos_id] + pos_ids
+    char_ids = [pad_char_ids] + char_ids
     label_ids = [pad_token_label_id] + label_ids
 
     input_ids = tokenizer.convert_tokens_to_ids(tokens)
@@ -196,6 +213,7 @@ def convert_single_example_to_feature(config,
     input_mask += ([0] * padding_length)
     segment_ids += ([pad_token_segment_id] * padding_length)
     pos_ids += ([pad_token_pos_id] * padding_length)
+    char_ids += ([pad_char_ids] * padding_length)
     label_ids += ([pad_token_label_id] * padding_length)
     padding_length_for_word2token_idx = max_seq_length - len(word2token_idx)
     word2token_idx += ([0] * padding_length_for_word2token_idx) # padding means the first token embedding will be used as dummy.
@@ -204,6 +222,7 @@ def convert_single_example_to_feature(config,
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
     assert len(pos_ids) == max_seq_length
+    assert len(char_ids) == max_seq_length
     assert len(label_ids) == max_seq_length
     assert len(word2token_idx) == max_seq_length
 
@@ -215,6 +234,7 @@ def convert_single_example_to_feature(config,
         logger.info("input_mask: %s", " ".join([str(x) for x in input_mask]))
         logger.info("segment_ids: %s", " ".join([str(x) for x in segment_ids]))
         logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
+        logger.info("char_ids: %s ...", " ".join([str(x) for x in char_ids][:3]))
         logger.info("label_ids: %s", " ".join([str(x) for x in label_ids]))
         logger.info("word2token_idx: %s", " ".join([str(x) for x in word2token_idx]))
 
@@ -222,6 +242,7 @@ def convert_single_example_to_feature(config,
                             input_mask=input_mask,
                             segment_ids=segment_ids,
                             pos_ids=pos_ids,
+                            char_ids=char_ids,
                             label_ids=label_ids,
                             word2token_idx=word2token_idx)
     return feature

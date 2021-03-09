@@ -58,7 +58,8 @@ def load_model(config, checkpoint):
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
-                           use_crf=opt.use_crf, use_crf_slice=opt.bert_use_crf_slice, use_pos=opt.bert_use_pos, use_mha=opt.use_mha,
+                           use_crf=opt.use_crf, use_crf_slice=opt.bert_use_crf_slice, use_pos=opt.bert_use_pos,
+                           use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     model.load_state_dict(checkpoint)
@@ -266,7 +267,7 @@ def evaluate(opt):
             y = to_device(y, opt.device)
             if opt.use_crf and opt.bert_use_crf_slice:
                 # slice y to remain first token's of word's
-                word2token_idx = x[4]
+                word2token_idx = x[5]
                 mask = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).to(opt.device)
                 y = y.gather(1, word2token_idx)
                 y *= mask

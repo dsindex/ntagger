@@ -235,7 +235,15 @@ class CharCNN(BaseModel):
         return charcnn_out
 
 class GloveLSTMCRF(BaseModel):
-    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False, use_mha=False):
+    def __init__(self,
+            config,
+            embedding_path,
+            label_path,
+            pos_path,
+            emb_non_trainable=True,
+            use_crf=False,
+            use_char_cnn=False,
+            use_mha=False):
         super().__init__(config=config)
 
         self.config = config
@@ -360,7 +368,15 @@ class GloveLSTMCRF(BaseModel):
         return logits, prediction
 
 class GloveDensenetCRF(BaseModel):
-    def __init__(self, config, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False, use_mha=False):
+    def __init__(self,
+            config,
+            embedding_path,
+            label_path,
+            pos_path,
+            emb_non_trainable=True,
+            use_crf=False,
+            use_char_cnn=False,
+            use_mha=False):
         super().__init__(config=config)
 
         self.config = config
@@ -477,7 +493,20 @@ class GloveDensenetCRF(BaseModel):
         return logits, prediction
 
 class BertLSTMCRF(BaseModel):
-    def __init__(self, config, bert_config, bert_model, bert_tokenizer, label_path, pos_path, use_crf=False, use_crf_slice=False, use_pos=False, use_mha=False, disable_lstm=False, feature_based=False):
+    def __init__(self,
+            config,
+            bert_config,
+            bert_model,
+            bert_tokenizer,
+            label_path,
+            pos_path,
+            use_crf=False,
+            use_crf_slice=False,
+            use_pos=False,
+            use_char_cnn=False,
+            use_mha=False,
+            disable_lstm=False,
+            feature_based=False):
         super().__init__(config=config)
 
         self.config = config
@@ -490,6 +519,7 @@ class BertLSTMCRF(BaseModel):
         self.use_crf = use_crf
         self.use_crf_slice = use_crf_slice
         self.use_pos = use_pos
+        self.use_char_cnn = use_char_cnn
         self.use_mha = use_mha
         mha_num_attentions = config['mha_num_attentions']
         self.disable_lstm = disable_lstm
@@ -528,6 +558,11 @@ class BertLSTMCRF(BaseModel):
             emb_dim = bert_emb_dim + pos_emb_dim
         else:
             emb_dim = bert_emb_dim
+
+        # char embedding layer
+        if self.use_char_cnn:
+            self.charcnn = CharCNN(config)
+            emb_dim = emb_dim + self.charcnn.last_dim
 
         # BiLSTM layer
         self.lstm_dim = emb_dim
@@ -634,6 +669,14 @@ class BertLSTMCRF(BaseModel):
         else:
             embed_out = bert_embed_out
         # embed_out : [batch_size, seq_size, emb_dim]
+        if self.use_char_cnn:
+            char_ids = x[4]
+            # char_ids : [batch_size, seq_size, char_n_ctx]
+            charcnn_out = self.charcnn(char_ids)
+            # charcnn_out : [batch_size, seq_size, self.charcnn.last_dim]
+            embed_out = torch.cat([embed_out, charcnn_out], dim=-1)
+            # embed_out : [batch_size, seq_size, emb_dim]
+
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
@@ -673,7 +716,7 @@ class BertLSTMCRF(BaseModel):
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
         if self.use_crf and self.use_crf_slice:
-            word2token_idx = x[4]
+            word2token_idx = x[5]
             mask_word2token_idx = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).unsqueeze(-1).to(self.device)
             # slice logits to remain first token's of word's before applying crf.
             # solution from https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
@@ -687,7 +730,16 @@ class BertLSTMCRF(BaseModel):
         return logits, prediction
 
 class ElmoLSTMCRF(BaseModel):
-    def __init__(self, config, elmo_model, embedding_path, label_path, pos_path, emb_non_trainable=True, use_crf=False, use_char_cnn=False, use_mha=False):
+    def __init__(self,
+            config,
+            elmo_model,
+            embedding_path,
+            label_path,
+            pos_path,
+            emb_non_trainable=True,
+            use_crf=False,
+            use_char_cnn=False,
+            use_mha=False):
         super().__init__(config=config)
 
         self.config = config
