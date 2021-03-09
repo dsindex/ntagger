@@ -1491,8 +1491,8 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | RoBERTa-base                   | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base               | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large              | 87.01       | eoj      | 35.9521 / -    |          |           |        |
-| Funnel-base                    | -           | eoj      | -       / -    |          |           |        |
-| Funnel-base, BiLSTM-CRF        | -           | eoj      | -       / -    |          |           | slicing logits, freezing BERT during some epochs |
+| Funnel-base                    | 87.97       | eoj      | 42.9287 / -    |          |           |        |
+| Funnel-base, BiLSTM-CRF        | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), [LM-kor](https://github.com/kiyoungkim1/LM-kor) measured by seqeval (micro F1)
@@ -2228,11 +2228,17 @@ accuracy:  94.48%; precision:  86.88%; recall:  87.14%; FB1:  87.01
 
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.8808256677945353, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 1106301.5718460083ms, 122.92021880588051ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4384.497880935669ms, 42.92876551849673ms on average
+accuracy:  94.98%; precision:  87.87%; recall:  88.06%; FB1:  87.97
 
 *** slicing logits
 *** --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
-
-
+INFO:__main__:[F1] : 0.8805391055748417, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 605362.9877567291ms, 67.25383387736339ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 8475.262641906738ms, 83.97073697562169ms on average
+accuracy:  94.80%; precision:  87.89%; recall:  87.96%; FB1:  87.92
 
 ```
 
