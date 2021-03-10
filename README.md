@@ -351,7 +351,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.60             |                   | word                 | 39.6135 / -        |           |           | using sub token label, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word, character, pos | -       / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30 |
+| BERT-base(cased), BiLSTM-CRF    | 91.66             |                   | word, character, pos | 39.6657 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30 |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
@@ -737,8 +737,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 148480.65185546875ms, 40.282283112
 accuracy:  98.27%; precision:  91.23%; recall:  91.52%; FB1:  91.37
 
 ** using sub token label, --bert_use_sub_label + --bert_use_pos --use_char_cnn --epoch=30
-
-
+INFO:__main__:[F1] : 0.9142604856512141, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 146215.95406532288ms, 39.665775003881194ms on average
+accuracy:  98.32%; precision:  91.57%; recall:  91.75%; FB1:  91.66
 
 * slicing logits to remain first token's of word's before applying crf, --bert_use_crf_slice 
 # preprocessing
