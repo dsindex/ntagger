@@ -271,10 +271,11 @@ class GloveLSTMCRF(BaseModel):
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         emb_dim = token_emb_dim + pos_emb_dim
+
         # char embedding layer
         if self.use_char_cnn:
             self.charcnn = CharCNN(config)
-            emb_dim = token_emb_dim + pos_emb_dim + self.charcnn.last_dim
+            emb_dim = emb_dim + self.charcnn.last_dim
 
         # BiLSTM layer
         self.lstm = nn.LSTM(input_size=emb_dim,
@@ -401,10 +402,11 @@ class GloveDensenetCRF(BaseModel):
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         emb_dim = token_emb_dim + pos_emb_dim
+
         # char embedding layer
         if self.use_char_cnn:
             self.charcnn = CharCNN(config)
-            emb_dim = token_emb_dim + pos_emb_dim + self.charcnn.last_dim
+            emb_dim = emb_dim + self.charcnn.last_dim
 
         # Densenet layer
         densenet_kernels = config['densenet_kernels']
@@ -549,15 +551,15 @@ class BertLSTMCRF(BaseModel):
             # 3) DSA pooling
             bert_emb_dim = self.dsa.last_dim
 
+        emb_dim = bert_emb_dim
+
         # pos embedding layer
         self.poss = super().load_dict(pos_path)
         self.pos_vocab_size = len(self.poss)
         padding_idx = config['pad_pos_id']
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
         if self.use_pos:
-            emb_dim = bert_emb_dim + pos_emb_dim
-        else:
-            emb_dim = bert_emb_dim
+            emb_dim = emb_dim + pos_emb_dim
 
         # char embedding layer
         if self.use_char_cnn:
@@ -771,10 +773,11 @@ class ElmoLSTMCRF(BaseModel):
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
         emb_dim = elmo_emb_dim + token_emb_dim + pos_emb_dim
+
         # char embedding layer
         if self.use_char_cnn:
             self.charcnn = CharCNN(config)
-            emb_dim = elmo_emb_dim + token_emb_dim + pos_emb_dim + self.charcnn.last_dim
+            emb_dim = emb_dim + self.charcnn.last_dim
 
         # BiLSTM layer
         self.lstm = nn.LSTM(input_size=emb_dim,
