@@ -82,12 +82,13 @@ def convert_onnx(config, torch_model, x):
             output_names += ['prediction']
             dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
     else:
-        input_names = ['input_ids', 'input_mask', 'segment_ids', 'pos_ids']
+        input_names = ['input_ids', 'input_mask', 'segment_ids', 'pos_ids', 'char_ids']
         output_names = ['logits']
         dynamic_axes = {'input_ids':   {0: 'batch', 1: 'sequence'},
                         'input_mask':  {0: 'batch', 1: 'sequence'},
                         'segment_ids': {0: 'batch', 1: 'sequence'},
                         'pos_ids':     {0: 'batch', 1: 'sequence'},
+                        'char_ids':    {0: 'batch', 1: 'sequence'},
                         'logits':      {0: 'batch', 1: 'sequence'}}
         if opt.use_crf:
             output_names += ['prediction']
@@ -288,6 +289,8 @@ def evaluate(opt):
                                       ort_session.get_inputs()[2].name: x[2]}
                     if opt.bert_use_pos:
                         ort_inputs[ort_session.get_inputs()[3].name] = x[3]
+                    if opt.use_char_cnn:
+                        ort_inputs[ort_session.get_inputs()[4].name] = x[4]
                 if opt.use_crf:
                     # FIXME not working for --use_crf
                     logits, prediction = ort_session.run(None, ort_inputs)
