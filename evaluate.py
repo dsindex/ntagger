@@ -280,7 +280,7 @@ def evaluate(opt):
                     if opt.use_char_cnn:
                         ort_inputs[ort_session.get_inputs()[2].name] = x[2]
                 else:
-                    if config['emb_class'] in ['distilbert', 'bart']:
+                    if config['emb_class'] in ['roberta', 'distilbert', 'bart']:
                         ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                                       ort_session.get_inputs()[1].name: x[1]}
                     else:
