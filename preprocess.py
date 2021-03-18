@@ -194,6 +194,7 @@ def write_data(opt, data, output_path, tokenizer, poss, labels):
     logger.info("\n[Writing data]")
     config = tokenizer.config
     pad_id = tokenizer.pad_id
+    default_label = config['default_label']
     num_tok_per_sent = []
     f_write = open(output_path, 'w', encoding='utf-8')
     for idx, item in enumerate(tqdm(data)):
@@ -219,7 +220,11 @@ def write_data(opt, data, output_path, tokenizer, poss, labels):
         # label ids
         label_ids = []
         for label in labelseq:
-            label_id = labels[label]
+            if label in labels:
+                label_id = labels[label]
+            else:
+                logger.warn("Unknown label: {}".format(label))
+                label_id = labels[default_label]
             label_ids.append(label_id)
         for _ in range(config['n_ctx'] - len(label_ids)):
             label_ids.append(config['pad_label_id'])

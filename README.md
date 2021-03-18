@@ -300,7 +300,7 @@ $ cp -rf valid.txt test.txt
     - mDistilBERT : `distilbert-base-multilingual-cased`
     - KoELECTRA-Base : `koelectra-base-v1-discriminator`, `koelectra-base-v3-discriminator`
     - LM-KOR-ELECTRA : `electra-kor-base`
-    - ELECTRA-base : `kor-electra-bpe.v1` (inhouse)
+    - ELECTRA-base : `kor-electra-bpe.v1`, `kor-electra-base-dhaToken1.large` (inhouse)
     - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
     - XLM-RoBERTa : `xlm-roberta-base`, `xlm-roberta-large`
     - Funnel-base : `funnel-kor-base`
@@ -1480,38 +1480,39 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 
 - ntagger, measured by conlleval.pl (micro F1)
 
-|                                | F1 (%)      | Features | GPU / CPU      | CONDA    | Dynamic   | Etc    |
-| ------------------------------ | ------------| -------- | -------------- | -------- | --------- | ------ |    
-| bpe DistilBERT(v1)             | 85.30       | eoj      | 9.0702  / -    |          |           |        |
-| wp  DistilBERT(v1)             | 84.45       | eoj      | 8.9646  / -    |          |           |        |
-| mDistilBERT                    | 83.89       | eoj      | 9.2205  / -    |          |           |        |
-| bpe BERT(v1), BiLSTM-CRF       | 86.34       | eoj      | 46.9389 / -    |          |           |        |
-| bpe BERT(v1), BiLSTM-CRF       | 87.17       | eoj      | 39.1787 / -    |          |           | freezing BERT during some epochs |
-| bpe BERT(v1), BiLSTM-CRF       | 86.99       | eoj      | 39.0575 / -    |          |           | using sub token label, freezing BERT during some epochs |
-| bpe BERT(v1), BiLSTM-CRF       | 87.46       | eoj      | 39.6914 / -    |          |           | slicing logits, freezing BERT during some epochs |
-| bpe BERT(v1), BiLSTM           | 86.37       | eoj      | 21.3232 / -    |          |           |        |
-| bpe BERT(v1), CRF              | 86.42       | eoj      | 35.2222 / -    |          |           |        |
-| bpe BERT(v1)                   | 87.13       | eoj      | 16.2121 / -    |          |           |        |
-| bpe BERT-large(v1)             | 85.99       | eoj      | 30.7513 / -    |          |           |        |
-| bpe BERT-large(v1), BiLSTM     | 85.82       | eoj      | 32.0083 / -    |          |           | freezing BERT during some epochs |
-| bpe BERT-large(v3)             | 85.89       | eoj      | 27.4264 / -    |          |           |        |
-| KcBERT-base, BiLSTM            | 84.76       | eoj      | 15.0553 / -    |          |           |        |
-| KcBERT-base, CRF               | 83.32       | eoj      | 31.8019 / -    |          |           |        |
-| KcBERT-base                    | 84.72       | eoj      | 13.3129 / -    |          |           |        |
-| KcBERT-large                   | 86.34       | eoj      | 26.9639 / -    |          |           |        |
-| KoELECTRA-Base-v1              | 86.64       | eoj      | 15.1616 / -    |          |           |        |
-| KoELECTRA-Base-v3              | 87.31       | eoj      | 14.8115 / -    |          |           |        |
-| KoELECTRA-Base-v3, BiLSTM-CRF  | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
-| KoELECTRA-Base-v3, BiLSTM-CRF  | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
-| KoELECTRA-Base-v3, BiLSTM-CRF  | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs |
-| LM-KOR-ELECTRA                 | 87.39       | eoj      | 17.1545 / -    |          |           |        |
-| LM-KOR-ELECTRA, BiLSTM-CRF     | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs |
-| bpe ELECTRA-base(v1)           | 86.46       | eoj      | 18.0449 / -    |          |           |        |
-| RoBERTa-base                   | 85.45       | eoj      | 15.6986 / -    |          |           |        |
-| XLM-RoBERTa-base               | 86.84       | eoj      | 18.1326 / -    |          |           |        |
-| XLM-RoBERTa-large              | 87.01       | eoj      | 35.9521 / -    |          |           |        |
-| Funnel-base                    | 87.97       | eoj      | 42.9287 / -    |          |           |        |
-| Funnel-base, BiLSTM-CRF        | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs |
+|                                          | F1 (%)      | Features | GPU / CPU      | CONDA    | Dynamic   | Etc    |
+| ---------------------------------------- | ------------| -------- | -------------- | -------- | --------- | ------ |    
+| bpe DistilBERT(v1)                       | 85.30       | eoj      | 9.0702  / -    |          |           |        |
+| wp  DistilBERT(v1)                       | 84.45       | eoj      | 8.9646  / -    |          |           |        |
+| mDistilBERT                              | 83.89       | eoj      | 9.2205  / -    |          |           |        |
+| bpe BERT(v1), BiLSTM-CRF                 | 86.34       | eoj      | 46.9389 / -    |          |           |        |
+| bpe BERT(v1), BiLSTM-CRF                 | 87.17       | eoj      | 39.1787 / -    |          |           | freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF                 | 86.99       | eoj      | 39.0575 / -    |          |           | using sub token label, freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF                 | 87.46       | eoj      | 39.6914 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM                     | 86.37       | eoj      | 21.3232 / -    |          |           |        |
+| bpe BERT(v1), CRF                        | 86.42       | eoj      | 35.2222 / -    |          |           |        |
+| bpe BERT(v1)                             | 87.13       | eoj      | 16.2121 / -    |          |           |        |
+| bpe BERT-large(v1)                       | 85.99       | eoj      | 30.7513 / -    |          |           |        |
+| bpe BERT-large(v1), BiLSTM               | 85.82       | eoj      | 32.0083 / -    |          |           | freezing BERT during some epochs |
+| bpe BERT-large(v3)                       | 85.89       | eoj      | 27.4264 / -    |          |           |        |
+| KcBERT-base, BiLSTM                      | 84.76       | eoj      | 15.0553 / -    |          |           |        |
+| KcBERT-base, CRF                         | 83.32       | eoj      | 31.8019 / -    |          |           |        |
+| KcBERT-base                              | 84.72       | eoj      | 13.3129 / -    |          |           |        |
+| KcBERT-large                             | 86.34       | eoj      | 26.9639 / -    |          |           |        |
+| KoELECTRA-Base-v1                        | 86.64       | eoj      | 15.1616 / -    |          |           |        |
+| KoELECTRA-Base-v3                        | 87.31       | eoj      | 14.8115 / -    |          |           |        |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| LM-KOR-ELECTRA                           | 87.39       | eoj      | 17.1545 / -    |          |           |        |
+| LM-KOR-ELECTRA, BiLSTM-CRF               | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| bpe ELECTRA-base(v1)                     | 86.46       | eoj      | 18.0449 / -    |          |           |        |
+| dhaToken1.large ELECTRA-base, BiLSTM-CRF | 86.90       | eoj      | 44.3714 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| RoBERTa-base                             | 85.45       | eoj      | 15.6986 / -    |          |           |        |
+| XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
+| XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
+| Funnel-base                              | 87.97       | eoj      | 42.9287 / -    |          |           |        |
+| Funnel-base, BiLSTM-CRF                  | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), [LM-kor](https://github.com/kiyoungkim1/LM-kor) measured by seqeval (micro F1)
@@ -2122,6 +2123,10 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
+** dhaToken1.large ELECTRA-base
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --warmup_epoch=0 --weight_decay=0.0 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 
+
 ** LM-KOR-ELECTRA
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/electra-kor-base
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/electra-kor-base --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
@@ -2216,6 +2221,13 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 1025293.7350273132ms, 113.92257348
 INFO:__main__:[Elapsed Time] : 100 examples, 1881.6356658935547ms, 18.044946169612384ms on average
 accuracy:  94.43%; precision:  86.76%; recall:  86.16%; FB1:  86.46
 
+** dhaToken1.large ELECTRA-base
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --use_crf --bert_use_crf_slice
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.8705621049034683, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 407867.568731308ms, 45.30506216694162ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 4550.331354141235ms, 44.371419482760956ms on average
+accuracy:  94.50%; precision:  87.18%; recall:  86.62%; FB1:  86.90
 
 ** RoBERTa-base
 
