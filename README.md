@@ -393,6 +393,7 @@ $ cp -rf valid.txt test.txt
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           |                           |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           |                           |
+| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | suing sub token label, freezing BERT during some epochs |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -1179,6 +1180,12 @@ INFO:__main__:[F1] : 0.9144771645212484, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 206926.0606765747ms, 56.128300501864594ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 5544.259309768677ms, 53.92497717732131ms on average
 accuracy:  98.32%; precision:  91.08%; recall:  91.82%; FB1:  91.45
+
+* using sub token label, --bert_use_sub_label
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_sub_label
+# --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --batch_size=16 --gradient_accumulation_steps=2 --use_crf --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --patience=4
+
 
 ```
 
