@@ -36,16 +36,6 @@ class BaseModel(nn.Module):
             emb_layer.weight.requires_grad = False
         return emb_layer
 
-    def load_dict(self, input_path):
-        dic = {}
-        with open(input_path, 'r', encoding='utf-8') as f:
-            for idx, line in enumerate(f):
-                toks = line.strip().split()
-                _key = toks[0]
-                _id = int(toks[1])
-                dic[_id] = _key
-        return dic
-
     def forward(self, x):
         return x
 
@@ -238,8 +228,8 @@ class GloveLSTMCRF(BaseModel):
     def __init__(self,
             config,
             embedding_path,
-            label_path,
-            pos_path,
+            label_size,
+            pos_size,
             emb_non_trainable=True,
             use_crf=False,
             use_char_cnn=False,
@@ -265,8 +255,7 @@ class GloveLSTMCRF(BaseModel):
         self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
 
         # pos embedding layer
-        self.poss = super().load_dict(pos_path)
-        self.pos_vocab_size = len(self.poss)
+        self.pos_vocab_size = pos_size
         padding_idx = config['pad_pos_id']
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
@@ -295,8 +284,7 @@ class GloveLSTMCRF(BaseModel):
             self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
-        self.labels = super().load_dict(label_path)
-        self.label_size = len(self.labels)
+        self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
@@ -372,8 +360,8 @@ class GloveDensenetCRF(BaseModel):
     def __init__(self,
             config,
             embedding_path,
-            label_path,
-            pos_path,
+            label_size,
+            pos_size,
             emb_non_trainable=True,
             use_crf=False,
             use_char_cnn=False,
@@ -396,8 +384,7 @@ class GloveDensenetCRF(BaseModel):
         self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
 
         # pos embedding layer
-        self.poss = super().load_dict(pos_path)
-        self.pos_vocab_size = len(self.poss)
+        self.pos_vocab_size = pos_size
         padding_idx = config['pad_pos_id']
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
@@ -425,8 +412,7 @@ class GloveDensenetCRF(BaseModel):
             self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
-        self.labels = super().load_dict(label_path)
-        self.label_size = len(self.labels)
+        self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
@@ -500,8 +486,8 @@ class BertLSTMCRF(BaseModel):
             bert_config,
             bert_model,
             bert_tokenizer,
-            label_path,
-            pos_path,
+            label_size,
+            pos_size,
             use_crf=False,
             use_crf_slice=False,
             use_pos=False,
@@ -554,8 +540,7 @@ class BertLSTMCRF(BaseModel):
         emb_dim = bert_emb_dim
 
         # pos embedding layer
-        self.poss = super().load_dict(pos_path)
-        self.pos_vocab_size = len(self.poss)
+        self.pos_vocab_size = pos_size
         padding_idx = config['pad_pos_id']
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
         if self.use_pos:
@@ -586,8 +571,7 @@ class BertLSTMCRF(BaseModel):
             self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
-        self.labels = super().load_dict(label_path)
-        self.label_size = len(self.labels)
+        self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer
@@ -736,8 +720,8 @@ class ElmoLSTMCRF(BaseModel):
             config,
             elmo_model,
             embedding_path,
-            label_path,
-            pos_path,
+            label_size,
+            pos_size,
             emb_non_trainable=True,
             use_crf=False,
             use_char_cnn=False,
@@ -767,8 +751,7 @@ class ElmoLSTMCRF(BaseModel):
         self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
 
         # pos embedding layer
-        self.poss = super().load_dict(pos_path)
-        self.pos_vocab_size = len(self.poss)
+        self.pos_vocab_size = pos_size
         padding_idx = config['pad_pos_id']
         self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
 
@@ -797,8 +780,7 @@ class ElmoLSTMCRF(BaseModel):
             self.layernorm_mha = nn.LayerNorm(self.mha_dim)
 
         # projection layer
-        self.labels = super().load_dict(label_path)
-        self.label_size = len(self.labels)
+        self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
 
         # CRF layer

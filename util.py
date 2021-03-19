@@ -21,6 +21,16 @@ def load_config(opt, config_path=None):
         config = dict()
     return config
 
+def load_dict(input_path):
+    dic = {}
+    with open(input_path, 'r', encoding='utf-8') as f:
+        for idx, line in enumerate(f):
+            toks = line.strip().split()
+            _key = toks[0]
+            _id = int(toks[1])
+            dic[_id] = _key
+    return dic
+
 def to_device(x, device):
     if type(x) != list: # torch.tensor
         x = x.to(device)

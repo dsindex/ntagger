@@ -15,7 +15,7 @@ import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 
 from tqdm import tqdm
-from util import load_checkpoint, load_config, to_device, to_numpy
+from util import load_checkpoint, load_config, load_dict, to_device, to_numpy
 from model import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 
@@ -36,19 +36,27 @@ def set_path(config):
 
 def load_model(config, checkpoint):
     opt = config['opt']
+    labels = load_dict(opt.label_path)
+    label_size = len(labels)
+    config['labels'] = labels
+    config['label_size'] = label_size
+    poss = load_dict(opt.pos_path)
+    pos_size = len(poss)
+    config['poss'] = poss
+    config['pos_size'] = pos_size
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
-            model = GloveLSTMCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
+            model = GloveLSTMCRF(config, opt.embedding_path, label_size, pos_size,
                                  emb_non_trainable=True, use_crf=opt.use_crf,
                                  use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
         if config['enc_class'] == 'densenet':
-            model = GloveDensenetCRF(config, opt.embedding_path, opt.label_path, opt.pos_path,
+            model = GloveDensenetCRF(config, opt.embedding_path, label_size, pos_size,
                                      emb_non_trainable=True, use_crf=opt.use_crf,
                                      use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
     elif config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
-        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, opt.label_path, opt.pos_path,
+        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, label_size, pos_size,
                             emb_non_trainable=True, use_crf=opt.use_crf,
                             use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
     else:
@@ -57,7 +65,7 @@ def load_model(config, checkpoint):
         bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_output_dir)
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, opt.label_path, opt.pos_path,
+        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, pos_size,
                            use_crf=opt.use_crf, use_crf_slice=opt.bert_use_crf_slice, use_pos=opt.bert_use_pos,
                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
                            disable_lstm=opt.bert_disable_lstm,
@@ -332,7 +340,7 @@ def evaluate(opt):
     avg_time = (whole_time - first_time) / (total_examples - first_examples)
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
-    labels = model.labels
+    labels = config['labels']
     ys_lbs = [[] for _ in range(ys.shape[0])]
     preds_lbs = [[] for _ in range(ys.shape[0])]
     pad_label_id = config['pad_label_id']
