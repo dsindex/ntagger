@@ -16,9 +16,18 @@ from torch.cuda.amp import autocast, GradScaler
 import torch.autograd.profiler as profiler
 
 try:
+    import torch.distributed as dist
+    import torch.multiprocessing as mp
+    from fairscale.optim.oss import OSS
+    from fairscale.nn.data_parallel import ShardedDataParallel as ShardedDDP
+except ImportError:
+    pass
+
+try:
     from torch.utils.tensorboard import SummaryWriter
 except ImportError:
     pass
+
 import numpy as np
 import random
 import json
@@ -53,7 +62,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     freeze_bert = False
     if opt.bert_freezing_epoch > 0:
         # apply second optimizer/scheduler during freezing epochs
-        if epoch_i < opt.bert_freezing_epoch:
+        if epoch_i < opt.bert_freezing_epoch and optimizer_2nd != None and scheduler_2nd != None:
             optimizer = optimizer_2nd
             scheduler = scheduler_2nd
             freeze_bert = True
@@ -378,7 +387,7 @@ def prepare_model(config):
     logger.info("[model prepared]")
     return model
 
-def prepare_osws(config, model, train_loader, lr=None, weight_decay=None):
+def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0):
     opt = config['opt']
 
     default_lr = opt.lr
@@ -399,6 +408,13 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None):
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=opt.adam_epsilon)
+    if opt.use_sharded_ddp:
+        dist.init_process_group(backend='nccl', init_method="tcp://127.0.0.1:{}".format(opt.sharded_ddp_port), rank=rank, world_size=opt.world_size)
+        base_optimizer = AdamW
+        base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
+        optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
+        model = ShardedDDP(model, optimizer)
+
     scheduler = get_linear_schedule_with_warmup(optimizer,
         num_warmup_steps=num_warmup_steps,
         num_training_steps=num_training_steps)
@@ -410,7 +426,7 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None):
     logger.info("[Creating optimizer, scheduler, summary writer, scaler]")
     return optimizer, scheduler, writer, scaler
 
-def train(opt):
+def train(rank, opt):
     if torch.cuda.is_available():
         logger.info("%s", torch.cuda.get_device_name(0))
 
@@ -433,9 +449,14 @@ def train(opt):
         model = prepare_model(config)
 
         # create optimizer, scheduler, summary writer, scaler
-        optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader)
+        optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, rank=rank)
         # create secondary optimizer, scheduler
-        optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+        if opt.use_sharded_ddp:
+            # don't use secondary optimizer with --use_sharded_ddp
+            optimizer_2nd = None
+            scheduler_2nd = None
+        else:
+            optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
         config['optimizer_2nd'] = optimizer_2nd
@@ -455,6 +476,10 @@ def train(opt):
             if eval_f1 == best_eval_f1:
                 early_stopping.reset(best_eval_f1)
             early_stopping.status()
+    
+    if opt.use_sharded_ddp:
+        dist.destroy_process_group()
+
 
 # for optuna, global for passing opt 
 gopt = None
@@ -544,6 +569,10 @@ def main():
     parser.add_argument('--use_amp', action='store_true', help="Use automatic mixed precision.")
     parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
+    parser.add_argument('--use_sharded_ddp', action='store_true', help="Use ShardedDataParallel.")
+    parser.add_argument('--world_size', default=2, type=int)
+    parser.add_argument('--rank', default=0, type=int)
+    parser.add_argument('--sharded_ddp_port', default=5004, type=int)
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -573,7 +602,20 @@ def main():
 
     opt = parser.parse_args()
 
+    if opt.use_sharded_ddp:
+        mp.spawn(
+            train,
+            args=[opt],
+            nprocs=opt.world_size,
+            join=True,
+        )
+    else:
+        train(0, opt)
+
     if opt.hp_search_optuna:
+        if opt.use_sharded_ddp:
+            logger.error("cant' be used with --use_sharded_ddp")
+            sys.exit(0)
         global gopt
         gopt = opt
         study = optuna.create_study(direction='maximize')
@@ -583,8 +625,6 @@ def main():
         logger.info("[study.best_params] : %s", study.best_params)
         logger.info("[study.best_value] : %s", study.best_value)
         logger.info("[study.best_trial] : %s", study.best_trial) # for all, study.trials
-    else:
-        train(opt)
  
 if __name__ == '__main__':
     main()
