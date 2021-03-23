@@ -386,14 +386,14 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs |
-| XLM-RoBERTa-large               | **92.75** / 93.95 | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
-| XLM-RoBERTa-large, BiLSTM       | -         / 93.75 | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
+| XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
+| XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           |                           |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           |                           |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           |                           |
+| DeBERTa-v2-xlarge               | **93.12**         |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp         |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -1184,7 +1184,9 @@ accuracy:  98.32%; precision:  91.08%; recall:  91.82%; FB1:  91.45
 * using sharded ddp 
 $ export NCCL_DEBUG=INFO
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --master_port=8666
-
+INFO:__main__:[F1] : 0.931234611326064, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 232110.55159568787ms, 62.972230753301766ms on average
+accuracy:  98.57%; precision:  92.51%; recall:  93.75%; FB1:  93.12
 
 ```
 
