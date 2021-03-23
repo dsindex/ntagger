@@ -409,11 +409,16 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=opt.adam_epsilon)
     if opt.use_sharded_ddp:
-        dist.init_process_group(backend='nccl', init_method="tcp://127.0.0.1:{}".format(opt.sharded_ddp_port), rank=rank, world_size=opt.world_size)
+        backend = 'nccl'
+        if backend == 'nccl':
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+        dist.init_process_group(backend=backend, init_method="tcp://localhost:{}".format(opt.master_port), rank=rank, world_size=opt.world_size)
         base_optimizer = AdamW
         base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
         optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
-        model = ShardedDDP(model, optimizer)
+        # single node run typically, no need for reduce buckets
+        model = ShardedDDP(model, optimizer, reduce_buffer_size=0)
 
     scheduler = get_linear_schedule_with_warmup(optimizer,
         num_warmup_steps=num_warmup_steps,
@@ -429,6 +434,8 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0
 def train(rank, opt):
     if torch.cuda.is_available():
         logger.info("%s", torch.cuda.get_device_name(0))
+        if opt.device != 'cpu':
+            torch.cuda.set_device(rank)
 
     # set etc
     torch.autograd.set_detect_anomaly(True)
@@ -450,12 +457,16 @@ def train(rank, opt):
 
         # create optimizer, scheduler, summary writer, scaler
         optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, rank=rank)
-        # create secondary optimizer, scheduler
         if opt.use_sharded_ddp:
             # don't use secondary optimizer with --use_sharded_ddp
             optimizer_2nd = None
             scheduler_2nd = None
+            if opt.device != 'cpu':
+                torch.cuda.empty_cache()
+                torch.cuda.reset_peak_memory_stats(rank)
+                torch.cuda.synchronize(rank)
         else:
+            # create secondary optimizer, scheduler
             optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
@@ -571,8 +582,7 @@ def main():
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
     parser.add_argument('--use_sharded_ddp', action='store_true', help="Use ShardedDataParallel.")
     parser.add_argument('--world_size', default=2, type=int)
-    parser.add_argument('--rank', default=0, type=int)
-    parser.add_argument('--sharded_ddp_port', default=5004, type=int)
+    parser.add_argument('--master_port', default=8666, type=int)
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")

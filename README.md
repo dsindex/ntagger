@@ -1181,9 +1181,9 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 206926.0606765747ms, 56.1283005018
 INFO:__main__:[Elapsed Time] : 100 examples, 5544.259309768677ms, 53.92497717732131ms on average
 accuracy:  98.32%; precision:  91.08%; recall:  91.82%; FB1:  91.45
 
-* --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --batch_size=16 --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --sharded_ddp_port=5004
+* using sharded ddp 
 $ export NCCL_DEBUG=INFO
-$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --sharded_ddp_port 5004
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --master_port=8666
 
 
 ```
