@@ -45,8 +45,9 @@ from datasets.metric import temp_seed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
+def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
     opt = config['opt']
+    world_size = opt.world_size
 
     optimizer = None
     scheduler = None
@@ -141,7 +142,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-            epoch_iterator.set_description(f"Epoch {epoch_i}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
+            epoch_iterator.set_description(f"Rank/WorldSize {rank}/{world_size}, Epoch {epoch_i}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
             if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, valid_loader)
@@ -409,17 +410,9 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=opt.adam_epsilon)
     if opt.use_sharded_ddp:
-        backend = 'nccl'
-        if backend == 'nccl':
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-        dist.init_process_group(backend=backend, init_method="tcp://localhost:{}".format(opt.master_port), rank=rank, world_size=opt.world_size)
         base_optimizer = AdamW
         base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
         optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
-        # single node run typically, no need for reduce buckets
-        model = ShardedDDP(model, optimizer, reduce_buffer_size=0)
-
     scheduler = get_linear_schedule_with_warmup(optimizer,
         num_warmup_steps=num_warmup_steps,
         num_training_steps=num_training_steps)
@@ -436,6 +429,9 @@ def train(rank, opt):
         logger.info("%s", torch.cuda.get_device_name(0))
         if opt.device != 'cpu':
             torch.cuda.set_device(rank)
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats(rank)
+            torch.cuda.synchronize(rank)
 
     # set etc
     torch.autograd.set_detect_anomaly(True)
@@ -451,23 +447,29 @@ def train(rank, opt):
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config)
 
+    if opt.use_sharded_ddp:
+        backend = 'nccl'
+        if backend == 'nccl':
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+        dist.init_process_group(backend=backend, init_method="tcp://localhost:{}".format(opt.master_port), rank=rank, world_size=opt.world_size)
+
     with temp_seed(opt.seed):
         # prepare model
         model = prepare_model(config)
 
         # create optimizer, scheduler, summary writer, scaler
         optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, rank=rank)
+        # create secondary optimizer, scheduler
+        optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+
         if opt.use_sharded_ddp:
-            # don't use secondary optimizer with --use_sharded_ddp
+            # single node run typically, no need for reduce buckets
+            model = ShardedDDP(model, optimizer, reduce_buffer_size=0)
+            # don't use secondary optimizer, scheduler for sharded ddp
             optimizer_2nd = None
             scheduler_2nd = None
-            if opt.device != 'cpu':
-                torch.cuda.empty_cache()
-                torch.cuda.reset_peak_memory_stats(rank)
-                torch.cuda.synchronize(rank)
-        else:
-            # create secondary optimizer, scheduler
-            optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
         config['optimizer_2nd'] = optimizer_2nd
@@ -481,7 +483,7 @@ def train(rank, opt):
         best_eval_f1 = -float('inf')
         for epoch_i in range(opt.epoch):
             epoch_st_time = time.time()
-            eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
+            eval_loss, eval_f1, best_eval_f1 = train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
             if eval_f1 == best_eval_f1:
@@ -535,7 +537,8 @@ def hp_search_optuna(trial: optuna.Trial):
         early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
         best_eval_f1 = -float('inf')
         for epoch in range(epochs):
-            eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch, best_eval_f1)
+            rank = 0
+            eval_loss, eval_f1, best_eval_f1 = train_epoch(rank, model, config, train_loader, valid_loader, epoch, best_eval_f1)
 
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
