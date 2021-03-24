@@ -145,7 +145,7 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
             epoch_iterator.set_description(f"Rank/WorldSize {rank}/{world_size}, Epoch {epoch_i}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
             if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
-                eval_ret = evaluate(model, config, valid_loader)
+                eval_ret = evaluate(rank, model, config, valid_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
                 if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
@@ -171,7 +171,7 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
     avg_loss = train_loss / n_batches
 
     # evaluate at the end of epoch
-    eval_ret = evaluate(model, config, valid_loader)
+    eval_ret = evaluate(rank, model, config, valid_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
     if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
@@ -208,7 +208,7 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
 
     return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
-def evaluate(model, config, valid_loader, eval_device=None):
+def evaluate(rank, model, config, valid_loader, eval_device=None):
     opt = config['opt']
     device = opt.device
     if eval_device != None: device = eval_device
@@ -220,7 +220,7 @@ def evaluate(model, config, valid_loader, eval_device=None):
     preds = None
     ys    = None
     with torch.no_grad():
-        iterator = tqdm(valid_loader, total=len(valid_loader), desc=f"Evaluate")
+        iterator = tqdm(valid_loader, total=len(valid_loader), desc=f"Evaluate, Rank {rank}")
         for i, (x,y) in enumerate(iterator):
             model.eval()
             x = to_device(x, device)
