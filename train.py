@@ -415,11 +415,13 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0
     scaler = GradScaler()
 
     if opt.use_sharded_ddp:
-        base_optimizer = AdamW
-        base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
-        # Optimizer State Sharding
-        optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
-        if opt.use_amp: scaler = ShardedGradScaler()
+        if not opt.use_fsdp:
+            base_optimizer = AdamW
+            base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
+            # Optimizer State Sharding
+            optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
+        if opt.use_amp:
+            scaler = ShardedGradScaler()
 
     scheduler = get_linear_schedule_with_warmup(optimizer,
         num_warmup_steps=num_warmup_steps,
