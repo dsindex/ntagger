@@ -20,6 +20,8 @@ try:
     import torch.multiprocessing as mp
     from fairscale.optim.oss import OSS
     from fairscale.nn.data_parallel import ShardedDataParallel as ShardedDDP
+    from fairscale.nn.data_parallel import FullyShardedDataParallel as FSDP
+    from fairscale.optim.grad_scaler import ShardedGradScaler
 except ImportError:
     pass
 
@@ -409,19 +411,26 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=opt.adam_epsilon)
+
+    scaler = GradScaler()
+
     if opt.use_sharded_ddp:
         base_optimizer = AdamW
         base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
+        # Optimizer State Sharding
         optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
+        if opt.use_amp: scaler = ShardedGradScaler()
+
     scheduler = get_linear_schedule_with_warmup(optimizer,
         num_warmup_steps=num_warmup_steps,
         num_training_steps=num_training_steps)
+
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
         writer = None
-    scaler = GradScaler()
-    logger.info("[Creating optimizer, scheduler, summary writer, scaler]")
+
+    logger.info("[Creating optimizer, scheduler, writer, scaler]")
     return optimizer, scheduler, writer, scaler
 
 def train(rank, opt):
@@ -458,15 +467,24 @@ def train(rank, opt):
         # prepare model
         model = prepare_model(config)
 
+        if opt.use_sharded_ddp:
+            if opt.use_fsdp:
+                mixed_precision = True if opt.use_amp else False
+                cpu_offload = True if mixed_precision else False
+                model = FSDP(model, mixed_precision=mixed_precision, cpu_offload=cpu_offload)
+                # optimizer must be initialized after the module has been wrapped.
+                # see : https://fairscale.readthedocs.io/en/latest/api/nn/fsdp.html
+
         # create optimizer, scheduler, summary writer, scaler
         optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, rank=rank)
         # create secondary optimizer, scheduler
         optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
 
         if opt.use_sharded_ddp:
-            # single node run typically, no need for reduce buckets
-            model = ShardedDDP(model, optimizer, reduce_buffer_size=0)
-            # don't use secondary optimizer, scheduler for sharded ddp
+            if not opt.use_fsdp:
+                # single node run typically, no need for reduce buckets
+                model = ShardedDDP(model, optimizer, reduce_buffer_size=0)
+            # don't use secondary optimizer, scheduler
             optimizer_2nd = None
             scheduler_2nd = None
 
@@ -584,6 +602,7 @@ def main():
     parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
     parser.add_argument('--use_sharded_ddp', action='store_true', help="Use ShardedDataParallel.")
+    parser.add_argument('--use_fsdp', action='store_true', help="Use FullyShardedDataParallel. must be used with --use_sharded_ddp")
     parser.add_argument('--world_size', default=2, type=int)
     parser.add_argument('--master_port', default=8666, type=int)
     # for BERT
