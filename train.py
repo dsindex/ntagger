@@ -144,7 +144,7 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-            epoch_iterator.set_description(f"Rank/WorldSize {rank}/{world_size}, Epoch {epoch_i}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
+            epoch_iterator.set_description(f"Rank/WorldSize {rank}/{world_size}, Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
             if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(rank, model, config, valid_loader)
@@ -158,15 +158,16 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
                     writer.add_scalar('LearningRate/train', curr_lr, global_step)
                 if eval_f1 > best_eval_f1:
                     best_eval_f1 = eval_f1
-                    if opt.save_path and not opt.hp_search_optuna:
-                        logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
+                    if rank == 0 and opt.save_path and not opt.hp_search_optuna:
                         save_model(config, model)
+                        logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
                         # save finetuned bert model/config/tokenizer
                         if config['emb_class'] not in ['glove', 'elmo']:
                             if not os.path.exists(opt.bert_output_dir):
                                 os.makedirs(opt.bert_output_dir)
                             model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
                             model.bert_model.save_pretrained(opt.bert_output_dir)
+                            logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
         # back-propagation - end
         train_loss += loss.item()
         if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
@@ -184,15 +185,16 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
         writer.add_scalar('LearningRate/train', curr_lr, global_step)
     if eval_f1 > best_eval_f1:
         best_eval_f1 = eval_f1
-        if opt.save_path and not opt.hp_search_optuna:
-            logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
+        if rank == 0 and opt.save_path and not opt.hp_search_optuna:
             save_model(config, model)
+            logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
             # save finetuned bert model/config/tokenizer
             if config['emb_class'] not in ['glove', 'elmo']:
                 if not os.path.exists(opt.bert_output_dir):
                     os.makedirs(opt.bert_output_dir)
                 model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
                 model.bert_model.save_pretrained(opt.bert_output_dir)
+                logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
 
     curr_time = time.time()
     elapsed_time = (curr_time - st_time) / 60

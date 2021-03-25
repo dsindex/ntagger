@@ -394,7 +394,7 @@ $ cp -rf valid.txt test.txt
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           |                           |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           |                           |
 | DeBERTa-v2-xlarge               | **93.12**         |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp         |
-| DeBERTa-v2-xlarge, BiLSTM-CRF   |                   |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp , using sub token label |
+| DeBERTa-v2-xlarge               |                   |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -1189,10 +1189,12 @@ INFO:__main__:[F1] : 0.931234611326064, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 232110.55159568787ms, 62.972230753301766ms on average
 accuracy:  98.57%; precision:  92.51%; recall:  93.75%; FB1:  93.12
 
-* --use_sharded_ddp --use_fsdp , using sub token label
+* --use_sharded_ddp --use_fsdp
 $ export NCCL_DEBUG=INFO
-$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_sub_label
-$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --gradient_accumulation_steps=2 --use_crf --use_sharded_ddp --use_fsdp --world_size=4 --master_port=5176
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --use_fsdp --world_size=4 --master_port=5176
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_disable_lstm
+
+fail to load!
 
 ```
 
