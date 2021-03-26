@@ -281,7 +281,14 @@ def save_model(config, model, save_path=None):
     checkpoint_path = opt.save_path
     if save_path: checkpoint_path = save_path
     with open(checkpoint_path, 'wb') as f:
-        checkpoint = model.state_dict()
+        if opt.use_sharded_ddp:
+            if opt.use_fsdp:
+                with model.summon_full_params(volatile=True):
+                    checkpoint = model.state_dict()
+            else:
+                checkpoint = model.module.state_dict()
+        else:
+            checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
 def set_path(config):
