@@ -1192,8 +1192,8 @@ accuracy:  98.57%; precision:  92.51%; recall:  93.75%; FB1:  93.12
 * --use_sharded_ddp --use_fsdp
 $ export NCCL_DEBUG=INFO
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --use_fsdp --world_size=2 --master_port=5176
-
-0 accuracy! why?
+# 0 accuracy! 
+how to load the saved model from FSDP.state_dict()?
 
 ```
 
