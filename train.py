@@ -283,8 +283,7 @@ def save_model(config, model, save_path=None):
     with open(checkpoint_path, 'wb') as f:
         if opt.use_sharded_ddp:
             if opt.use_fsdp:
-                with model.summon_full_params(volatile=True):
-                    checkpoint = model.state_dict()
+                checkpoint = model.state_dict()
             else:
                 checkpoint = model.module.state_dict()
         else:
