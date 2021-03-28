@@ -349,9 +349,9 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 90.17             |                   | word                 | 43.4804 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM-CRF    | 91.55             |                   | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 91.60             |                   | word                 | 39.6135 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 91.66             |                   | word, character, pos | 39.6657 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30 |
+| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| BERT-base(cased), BiLSTM-CRF    | 91.66             |                   | word, character, pos | 39.6657 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
@@ -385,7 +385,7 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
 | XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
@@ -744,6 +744,7 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 146215.95406532288ms, 39.665775003
 accuracy:  98.32%; precision:  91.57%; recall:  91.75%; FB1:  91.66
 
 * slicing logits to remain first token's of word's before applying crf, --bert_use_crf_slice 
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased
 # train
@@ -1047,6 +1048,7 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 158769.8678970337ms, 43.0662694781
 accuracy:  98.28%; precision:  91.24%; recall:  92.35%; FB1:  91.79
 
 * slicing logits, --bert_use_crf_slice
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 # train
 $ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5  --epoch=30 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_crf_slice
 INFO:__main__:[F1] : 0.911604155661208, 3684
@@ -1503,7 +1505,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | bpe BERT(v1), BiLSTM-CRF                 | 86.34       | eoj      | 46.9389 / -    |          |           |        |
 | bpe BERT(v1), BiLSTM-CRF                 | 87.17       | eoj      | 39.1787 / -    |          |           | freezing BERT during some epochs |
 | bpe BERT(v1), BiLSTM-CRF                 | 86.99       | eoj      | 39.0575 / -    |          |           | using sub token label, freezing BERT during some epochs |
-| bpe BERT(v1), BiLSTM-CRF                 | 87.46       | eoj      | 39.6914 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| bpe BERT(v1), BiLSTM-CRF                 | 87.46       | eoj      | 39.6914 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | bpe BERT(v1), BiLSTM                     | 86.37       | eoj      | 21.3232 / -    |          |           |        |
 | bpe BERT(v1), CRF                        | 86.42       | eoj      | 35.2222 / -    |          |           |        |
 | bpe BERT(v1)                             | 87.13       | eoj      | 16.2121 / -    |          |           |        |
@@ -1518,16 +1520,16 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v3                        | 87.31       | eoj      | 14.8115 / -    |          |           |        |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
-| KoELECTRA-Base-v3, BiLSTM-CRF            | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | LM-KOR-ELECTRA                           | 87.39       | eoj      | 17.1545 / -    |          |           |        |
-| LM-KOR-ELECTRA, BiLSTM-CRF               | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| LM-KOR-ELECTRA, BiLSTM-CRF               | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | bpe ELECTRA-base(v1)                     | 86.46       | eoj      | 18.0449 / -    |          |           |        |
-| dhaToken1.large ELECTRA-base, BiLSTM-CRF | 86.90       | eoj      | 44.3714 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| dhaToken1.large ELECTRA-base, BiLSTM-CRF | 86.90       | eoj      | 44.3714 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | RoBERTa-base                             | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
 | Funnel-base                              | 87.97       | eoj      | 42.9287 / -    |          |           |        |
-| Funnel-base, BiLSTM-CRF                  | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs |
+| Funnel-base, BiLSTM-CRF                  | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 
 
 - [HanBert-NER](https://github.com/monologg/HanBert-NER#results), [KoELECTRA](https://github.com/monologg/KoELECTRA), [LM-kor](https://github.com/kiyoungkim1/LM-kor) measured by seqeval (micro F1)
@@ -1760,6 +1762,7 @@ accuracy:  94.63%; precision:  87.15%; recall:  86.84%; FB1:  86.99
 
 ** slicing logits
 *** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8755258093632384, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 378671.01287841797ms, 42.06319689313522ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 4061.053991317749ms, 39.69146506954925ms on average
@@ -2139,6 +2142,7 @@ $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova20
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 
 
 ** dhaToken1.large ELECTRA-base
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --warmup_epoch=0 --weight_decay=0.0 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 
 
@@ -2206,6 +2210,7 @@ accuracy:  94.70%; precision:  87.71%; recall:  86.93%; FB1:  87.32
 
 *** slicing logits
 **** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8827849438546868, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 398727.7433872223ms, 44.294040061882015ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 4092.3564434051514ms, 40.08559265522042ms on average
@@ -2221,6 +2226,7 @@ accuracy:  94.75%; precision:  87.38%; recall:  87.39%; FB1:  87.39
 
 *** slicing logits
 *** --bert_model_name_or_path=./embeddings/electra-kor-base  --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8761777503683147, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 372020.70689201355ms, 41.32575471608662ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 4059.163808822632ms, 39.72473770681054ms on average
@@ -2237,6 +2243,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1881.6356658935547ms, 18.0449461696
 accuracy:  94.43%; precision:  86.76%; recall:  86.16%; FB1:  86.46
 
 ** dhaToken1.large ELECTRA-base
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --use_crf --bert_use_crf_slice
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.8705621049034683, 9000
@@ -2281,6 +2288,7 @@ accuracy:  94.98%; precision:  87.87%; recall:  88.06%; FB1:  87.97
 
 *** slicing logits
 *** --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+# https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8805391055748417, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 605362.9877567291ms, 67.25383387736339ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 8475.262641906738ms, 83.97073697562169ms on average
