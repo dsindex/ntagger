@@ -76,16 +76,30 @@ class CoNLLBertDataset(Dataset):
     def __init__(self, config, path):
         # load features from file
         features = torch.load(path)
+
         # convert to tensors and build dataset
         all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in features], dtype=torch.long)
         all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
         all_pos_ids = torch.tensor([f.pos_ids for f in features], dtype=torch.long)
         all_char_ids = torch.tensor([f.char_ids for f in features], dtype=torch.long)
-        all_word2token_idx = torch.tensor([f.word2token_idx for f in features], dtype=torch.long)
+        all_word2token_idx = None
+        all_word_mask = None
+        if hasattr(features[0], 'word2token_idx'):
+            all_word2token_idx = torch.tensor([f.word2token_idx for f in features], dtype=torch.long)
+            all_word_mask = torch.tensor([f.word_mask for f in features], dtype=torch.long)
+        all_word_ids = None
+        if hasattr(features[0], 'word_ids'):
+            all_word_ids = torch.tensor([f.word_ids for f in features], dtype=torch.long)
         all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
 
-        self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids, all_word2token_idx)
+        if all_word2token_idx != None:
+            if all_word_ids != None:
+                self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids, all_word2token_idx, all_word_mask, all_word_ids)
+            else:
+                self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids, all_word2token_idx, all_word_mask)
+        else:
+            self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids)
         self.y = all_label_ids
  
     def __len__(self):

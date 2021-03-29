@@ -2,6 +2,8 @@
     "emb_class": "bert",
     "enc_class": "bilstm",
     "n_ctx": 180,
+    "lowercase": true,
+    "token_emb_dim": 300,
     "pad_token": "<pad>",
     "pad_token_id": 0,
     "unk_token": "<unk>",

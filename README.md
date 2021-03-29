@@ -352,6 +352,9 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | BERT-base(cased), BiLSTM-CRF    | 91.66             |                   | word, character, pos | 39.6657 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | subword pooling, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word, character, pos | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
@@ -755,6 +758,25 @@ $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[F1] : 0.913277459197177, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 151587.14032173157ms, 41.12043155459907ms on average
 accuracy:  98.26%; precision:  91.01%; recall:  91.64%; FB1:  91.33
+
+* subword pooling
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_subword_pooling
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_subword_pooling
+# evaluate
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_subword_pooling
+
+
+* subword pooling, word embedding
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_subword_pooling --bert_use_word_embedding
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_subword_pooling --bert_use_word_embedding
+# evaluate
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_subword_pooling --bert_use_word_embedding
+
+
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
 INFO:__main__:[F1] : 0.9020433219328247, 3684

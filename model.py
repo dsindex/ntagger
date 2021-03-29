@@ -489,10 +489,13 @@ class BertLSTMCRF(BaseModel):
             label_size,
             pos_size,
             use_crf=False,
-            use_crf_slice=False,
             use_pos=False,
             use_char_cnn=False,
             use_mha=False,
+            use_subword_pooling=False,
+            use_word_embedding=False,
+            embedding_path=None,
+            emb_non_trainable=True,
             disable_lstm=False,
             feature_based=False):
         super().__init__(config=config)
@@ -505,10 +508,11 @@ class BertLSTMCRF(BaseModel):
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
-        self.use_crf_slice = use_crf_slice
         self.use_pos = use_pos
         self.use_char_cnn = use_char_cnn
         self.use_mha = use_mha
+        self.use_subword_pooling = use_subword_pooling
+        self.use_word_embedding = use_word_embedding
         mha_num_attentions = config['mha_num_attentions']
         self.disable_lstm = disable_lstm
 
@@ -521,15 +525,14 @@ class BertLSTMCRF(BaseModel):
         self.bert_num_layers = bert_config.num_hidden_layers
 
         # DSA layer for bert_feature_based
-        dsa_num_attentions = config['dsa_num_attentions']
-        dsa_input_dim = self.bert_hidden_size
-        dsa_dim = config['dsa_dim']
-        dsa_r = config['dsa_r']
-        self.dsa = DSA(config, dsa_num_attentions, dsa_input_dim, dsa_dim, dsa_r=dsa_r)
-        self.layernorm_dsa = nn.LayerNorm(self.dsa.last_dim)
-
         bert_emb_dim = self.bert_hidden_size
         if self.bert_feature_based:
+            dsa_num_attentions = config['dsa_num_attentions']
+            dsa_input_dim = self.bert_hidden_size
+            dsa_dim = config['dsa_dim']
+            dsa_r = config['dsa_r']
+            self.dsa = DSA(config, dsa_num_attentions, dsa_input_dim, dsa_dim, dsa_r=dsa_r)
+            self.layernorm_dsa = nn.LayerNorm(self.dsa.last_dim)
             '''
             # 1) last layer, 2) mean pooling
             bert_emb_dim = self.bert_hidden_size
@@ -539,11 +542,19 @@ class BertLSTMCRF(BaseModel):
 
         emb_dim = bert_emb_dim
 
+        # glove embedding layer
+        if self.use_word_embedding:
+            weights_matrix = super().load_embedding(embedding_path)
+            vocab_dim, token_emb_dim = weights_matrix.size()
+            padding_idx = config['pad_token_id']
+            self.embed_token = super().create_embedding_layer(vocab_dim, token_emb_dim, weights_matrix=weights_matrix, non_trainable=emb_non_trainable, padding_idx=padding_idx)
+            emb_dim = emb_dim + token_emb_dim 
+
         # pos embedding layer
-        self.pos_vocab_size = pos_size
-        padding_idx = config['pad_pos_id']
-        self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
         if self.use_pos:
+            self.pos_vocab_size = pos_size
+            padding_idx = config['pad_pos_id']
+            self.embed_pos = super().create_embedding_layer(self.pos_vocab_size, pos_emb_dim, weights_matrix=None, non_trainable=False, padding_idx=padding_idx)
             emb_dim = emb_dim + pos_emb_dim
 
         # char embedding layer
@@ -632,7 +643,12 @@ class BertLSTMCRF(BaseModel):
         return embedded, bert_outputs
 
     def forward(self, x, head_mask=None, freeze_bert=False):
-        # x[0,1,2] : [batch_size, seq_size]
+        # x[0,1,2] : [batch_size, seq_size], input_ids / input_mask / segment_ids == input_ids / attention_mask / token_type_ids
+        # x[3] :     [batch_size, seq_size], pos_ids
+        # x[4] :     [batch_size, seq_size, char_n_ctx], char_ids
+        # x[5] :     [batch_size, seq_size], word2token_idx with --bert_use_subword_pooling
+        # x[6] :     [batch_size, seq_size], word_mask      with --bert_use_subword_pooling
+        # x[7] :     [batch_size, seq_size], word_ids       with --bert_use_word_embedding
 
         mask = x[1].to(torch.uint8).to(self.device)
         # mask == attention_mask : [batch_size, seq_size]
@@ -647,13 +663,34 @@ class BertLSTMCRF(BaseModel):
         else:
             bert_embed_out, bert_outputs = self._compute_bert_embedding(x, head_mask=head_mask)
         # bert_embed_out : [batch_size, seq_size, *]
-        pos_ids = x[3]
-        pos_embed_out = self.embed_pos(pos_ids)
-        # pos_embed_out : [batch_size, seq_size, pos_emb_dim]
+
+        embed_out = bert_embed_out
+        if self.use_subword_pooling:
+            word2token_idx = x[5]
+            mask_word2token_idx = x[6].to(torch.uint8).unsqueeze(-1).to(self.device)
+            # mask_word2token_idx = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).unsqueeze(-1).to(self.device)
+            # first subword pooling
+            # solution from https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
+            src = embed_out
+            offset = torch.arange(0, src.size(0) * src.size(1), src.size(1)).to(self.device)
+            index = word2token_idx + offset.unsqueeze(1)
+            embed_out = src.reshape(-1, src.shape[-1])[index]
+            embed_out *= mask_word2token_idx
+            # update mask, lengths for word-level
+            mask = x[6].to(torch.uint8).to(self.device)
+            lengths = torch.sum(mask.to(torch.long), dim=1)
+            if self.use_word_embedding:
+                token_ids = x[7]
+                token_embed_out = self.embed_token(token_ids)
+                # token_embed_out : [batch_size, seq_size, token_emb_dim]
+                embed_out = torch.cat([embed_out, token_embed_out], dim=-1)
+
         if self.use_pos:
-            embed_out = torch.cat([bert_embed_out, pos_embed_out], dim=-1)
-        else:
-            embed_out = bert_embed_out
+            pos_ids = x[3]
+            pos_embed_out = self.embed_pos(pos_ids)
+            # pos_embed_out : [batch_size, seq_size, pos_emb_dim]
+            embed_out = torch.cat([embed_out, pos_embed_out], dim=-1)
+
         # embed_out : [batch_size, seq_size, emb_dim]
         if self.use_char_cnn:
             char_ids = x[4]
@@ -666,16 +703,16 @@ class BertLSTMCRF(BaseModel):
         embed_out = self.dropout(embed_out)
 
         # 2. LSTM
-        if not self.disable_lstm:
+        if self.disable_lstm:
+            lstm_out = embed_out
+            # lstm_out : [batch_size, seq_size, self.lstm_dim == emb_dim]
+        else:
             # FIXME : pytorch 1.7.0 bug https://github.com/pytorch/pytorch/issues/43227 , lengths.cpu()
             packed_embed_out = torch.nn.utils.rnn.pack_padded_sequence(embed_out, lengths.cpu(), batch_first=True, enforce_sorted=False)
             lstm_out, (h_n, c_n) = self.lstm(packed_embed_out)
             lstm_out, _ = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True, total_length=self.seq_size)
             # lstm_out : [batch_size, seq_size, self.lstm_dim == lstm_hidden_dim*2]
             lstm_out = self.dropout(lstm_out)
-        else:
-            lstm_out = embed_out
-            # lstm_out : [batch_size, seq_size, self.lstm_dim == emb_dim]
 
         # 3. MHA
         if self.use_mha:
@@ -701,15 +738,6 @@ class BertLSTMCRF(BaseModel):
         logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        if self.use_crf and self.use_crf_slice:
-            word2token_idx = x[5]
-            mask_word2token_idx = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).unsqueeze(-1).to(self.device)
-            # slice logits to remain first token's of word's before applying crf.
-            # solution from https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
-            offset = torch.arange(0, logits.size(0) * logits.size(1), logits.size(1)).to(self.device)
-            index = word2token_idx + offset.unsqueeze(1)
-            logits = logits.reshape(-1, logits.shape[-1])[index]
-            logits *= mask_word2token_idx
         prediction = self.crf.decode(logits)
         prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]

@@ -303,7 +303,7 @@ def preprocess_glove_or_elmo(config):
 # BERT
 # ---------------------------------------------------------------------------- #
 
-def build_features(input_path, tokenizer, poss, labels, config, mode='train'):
+def build_features(input_path, tokenizer, poss, labels, config, mode='train', w_tokenizer=None):
     from util_bert import read_examples_from_file
     from util_bert import convert_examples_to_features
 
@@ -319,7 +319,8 @@ def build_features(input_path, tokenizer, poss, labels, config, mode='train'):
                                             pad_token_pos_id=config['pad_pos_id'],
                                             pad_token_label_id=config['pad_label_id'],
                                             pad_token_segment_id=0,
-                                            sequence_a_segment_id=0)
+                                            sequence_a_segment_id=0,
+                                            w_tokenizer=w_tokenizer)
     return features
 
 def write_features(features, output_path):
@@ -331,8 +332,16 @@ def write_features(features, output_path):
 def preprocess_bert(config):
     opt = config['opt']
 
-    from transformers import AutoTokenizer
+    w_tokenizer = None
+    if opt.bert_use_subword_pooling and opt.bert_use_word_embedding:
+        from tokenizer import Tokenizer
+        opt = config['opt']
+        # vocab, embedding
+        init_vocab = build_init_vocab(config)
+        vocab, embedding = build_vocab_from_embedding(opt.embedding_path, init_vocab, config)
+        w_tokenizer = Tokenizer(vocab, config)
 
+    from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
     # build poss, chars, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
@@ -340,13 +349,13 @@ def preprocess_bert(config):
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    train_features = build_features(path, tokenizer, poss, labels, config, mode='train')
+    train_features = build_features(path, tokenizer, poss, labels, config, mode='train', w_tokenizer=w_tokenizer)
 
     path = os.path.join(opt.data_dir, _VALID_FILE)
-    valid_features = build_features(path, tokenizer, poss, labels, config, mode='valid')
+    valid_features = build_features(path, tokenizer, poss, labels, config, mode='valid', w_tokenizer=w_tokenizer)
 
     path = os.path.join(opt.data_dir, _TEST_FILE)
-    test_features = build_features(path, tokenizer, poss, labels, config, mode='test')
+    test_features = build_features(path, tokenizer, poss, labels, config, mode='test', w_tokenizer=w_tokenizer)
 
     # write features
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _FSUFFIX)
@@ -376,6 +385,10 @@ def main():
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
     parser.add_argument('--bert_use_sub_label', action='store_true',
                         help="Set this flag to use sub label instead of using pad label for sub tokens.")
+    parser.add_argument('--bert_use_subword_pooling', action='store_true',
+                        help="Set this flag for bert subword pooling.")
+    parser.add_argument('--bert_use_word_embedding', action='store_true',
+                        help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
     opt = parser.parse_args()
 
     # set seed

@@ -92,12 +92,6 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
         if opt.use_crf:
             with autocast(enabled=opt.use_amp):
                 mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
-                if opt.bert_use_crf_slice:
-                    # slice y to remain first token's of word's.
-                    word2token_idx = x[5]
-                    mask = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).to(opt.device)
-                    y = y.gather(1, word2token_idx)
-                    y *= mask
                 if opt.use_profiler:
                     with profiler.profile(profile_memory=True, record_shapes=True) as prof:
                         logits, prediction = model(x)
@@ -230,12 +224,6 @@ def evaluate(rank, model, config, valid_loader, eval_device=None):
             x = to_device(x, device)
             y = to_device(y, device)
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
-            if opt.bert_use_crf_slice:
-                # slice y to remain first token's of word's.
-                word2token_idx = x[5]
-                mask = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).to(opt.device)
-                y = y.gather(1, word2token_idx)
-                y *= mask
             if opt.use_crf:
                 logits, prediction = model(x)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
@@ -386,8 +374,10 @@ def prepare_model(config):
         reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, pos_size,
-                           use_crf=opt.use_crf, use_crf_slice=opt.bert_use_crf_slice, use_pos=opt.bert_use_pos,
+                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos,
                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
+                           use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
+                           embedding_path=opt.embedding_path, emb_non_trainable=emb_non_trainable,
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     if opt.restore_path:
@@ -612,8 +602,8 @@ def main():
     parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
     parser.add_argument('--use_sharded_ddp', action='store_true', help="Use ShardedDataParallel.")
-    parser.add_argument('--use_fsdp', action='store_true', help="Use FullyShardedDataParallel. must be used with --use_sharded_ddp")
-    parser.add_argument('--world_size', default=2, type=int)
+    parser.add_argument('--use_fsdp', action='store_true', help="Use FullyShardedDataParallel. it must be used with --use_sharded_ddp")
+    parser.add_argument('--world_size', default=1, type=int)
     parser.add_argument('--master_port', default=8666, type=int)
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
@@ -631,8 +621,10 @@ def main():
                         help="Number of freezing epoch for BERT.")
     parser.add_argument('--bert_lr_during_freezing', type=float, default=1e-3,
                         help="The learning rate during freezing BERT.")
-    parser.add_argument('--bert_use_crf_slice', action='store_true',
-                        help="Set this flag to slice logits before applying crf layer.")
+    parser.add_argument('--bert_use_subword_pooling', action='store_true',
+                        help="Set this flag for bert subword pooling.")
+    parser.add_argument('--bert_use_word_embedding', action='store_true',
+                        help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
