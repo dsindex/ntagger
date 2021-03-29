@@ -100,6 +100,13 @@ def convert_onnx(config, torch_model, x):
                         'pos_ids':     {0: 'batch', 1: 'sequence'},
                         'char_ids':    {0: 'batch', 1: 'sequence'},
                         'logits':      {0: 'batch', 1: 'sequence'}}
+        if opt.bert_use_subword_pooling:
+            input_names += ['word2token_idx', 'word_mask']
+            dynamic_axes['word2token_idx'] = {0: 'batch', 1: 'sequence'}
+            dynamic_axes['word_mask'] = {0: 'batch', 1: 'sequence'}
+            if opt.bert_use_word_embedding:
+                input_names += ['word_ids']
+                dynamic_axes['word_ids'] = {0: 'batch', 1: 'sequence'}
         if opt.use_crf:
             output_names += ['prediction']
             dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
@@ -294,6 +301,11 @@ def evaluate(opt):
                         ort_inputs[ort_session.get_inputs()[3].name] = x[3]
                     if opt.use_char_cnn:
                         ort_inputs[ort_session.get_inputs()[4].name] = x[4]
+                    if opt.bert_use_subword_pooling:
+                        ort_inputs[ort_session.get_inputs()[5].name] = x[5]
+                        ort_inputs[ort_session.get_inputs()[6].name] = x[6]
+                        if opt.bert_use_word_embedding:
+                            ort_inputs[ort_session.get_inputs()[7].name] = x[7]
                 if opt.use_crf:
                     # FIXME not working for --use_crf
                     logits, prediction = ort_session.run(None, ort_inputs)
