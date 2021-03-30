@@ -668,7 +668,6 @@ class BertLSTMCRF(BaseModel):
         if self.use_subword_pooling:
             word2token_idx = x[5]
             mask_word2token_idx = x[6].to(torch.uint8).unsqueeze(-1).to(self.device)
-            # mask_word2token_idx = torch.sign(torch.abs(word2token_idx)).to(torch.uint8).unsqueeze(-1).to(self.device)
             # first subword pooling
             # solution from https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
             src = embed_out
