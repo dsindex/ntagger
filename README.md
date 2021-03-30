@@ -352,9 +352,9 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | BERT-base(cased), BiLSTM-CRF    | 91.66             |                   | word, character, pos | 39.6657 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | subword pooling, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 40.1493 / -        |           |           | subword pooling, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 92.23             |                   | word                 | 40.7793 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word, character, pos | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word, character, pos | 41.1466 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
@@ -391,13 +391,16 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
 | XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
+| XLM-RoBERTa-large, BiLSTM-CRF   | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
+| XLM-RoBERTa-large, BiLSTM-CRF   | -                 |                   | word, character, pos | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           |                           |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           |                           |
 | DeBERTa-v2-xlarge               | **93.12**         |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp         |
-| DeBERTa-v2-xlarge               |                   |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp |
+| DeBERTa-v2-xlarge, BiLSTM-CRF   | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, subword pooling, word embedding |
+| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp, fail to train! |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -766,7 +769,9 @@ $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll20
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_subword_pooling
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_subword_pooling
-
+INFO:__main__:[F1] : 0.9132734003172924, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 148011.45482063293ms, 40.14931384098779ms on average
+accuracy:  98.26%; precision:  90.93%; recall:  91.73%; FB1:  91.33
 
 * subword pooling, word embedding
 # preprocessing
@@ -779,6 +784,11 @@ INFO:__main__:[F1] : 0.9231446430143498, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 150338.47284317017ms, 40.779396660975905ms on average
 accuracy:  98.33%; precision:  91.81%; recall:  92.83%; FB1:  92.31
 
+* subword pooling, word/pos/char embedding, --use_char_cnn --bert_use_pos
+# pos_emb_dim: 100 -> 40
+INFO:__main__:[F1] : 0.920799929521628, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 151703.0575275421ms, 41.146695921351785ms on average
+accuracy:  98.34%; precision:  91.64%; recall:  92.53%; FB1:  92.08
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
 INFO:__main__:[F1] : 0.9020433219328247, 3684
@@ -1091,6 +1101,19 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 112505.32031059265ms, 30.506469942
 INFO:__main__:[Elapsed Time] : 100 examples, 2932.1699142456055ms, 28.066835018119427ms on average
 accuracy:  98.48%; precision:  92.10%; recall:  93.70%; FB1:  92.89
 
+* subword pooling, word embedding
+# preprocessing
+$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_use_subword_pooling --bert_use_word_embedding
+# train
+$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5  --epoch=30 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_subword_pooling --bert_use_word_embedding
+# evaluate
+$ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta --use_crf --bert_use_subword_pooling --bert_use_word_embedding
+
+
+* subword pooling, word/pos/char embedding, --use_char_cnn --bert_use_pos
+# pos_emb_dim: 100 -> 40
+
+
 * --data_dir=data/conll++ --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
 INFO:__main__:[F1] : 0.9394968224949942, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 123247.82752990723ms, 33.42233563841862ms on average
@@ -1214,6 +1237,15 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --
 INFO:__main__:[F1] : 0.931234611326064, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 232110.55159568787ms, 62.972230753301766ms on average
 accuracy:  98.57%; precision:  92.51%; recall:  93.75%; FB1:  93.12
+
+* --use_sharded_ddp, subword pooling, word embedding, --use_crf, bilstm
+$ export NCCL_DEBUG=INFO
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_subword_pooling --bert_use_word_embedding
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --master_port=8666 --bert_use_subword_pooling --bert_use_word_embedding --use_crf
+# evaluate
+# python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_use_subword_pooling --bert_use_word_embedding --use_crf
 
 * --use_sharded_ddp --use_fsdp
 $ export NCCL_DEBUG=INFO
@@ -2680,3 +2712,8 @@ token_eval micro F1: 0.8926606215608773
 - [Poor Man’s BERT: Smaller and Faster Transformer Models](https://arxiv.org/pdf/2004.03844v1.pdf)
   - https://github.com/hsajjad/transformers/blob/master/examples/run_glue.py
 - [(pytorch) advanced_tutorial](https://tutorials.pytorch.kr/beginner/nlp/advanced_tutorial.html)
+- [Accelerate your NLP pipelines using Hugging Face Transformers and ONNX Runtime](https://medium.com/microsoftazure/accelerate-your-nlp-pipelines-using-hugging-face-transformers-and-onnx-runtime-2443578f4333)
+- [optuna](https://optuna.readthedocs.io/en/stable/tutorial/001_first.html)
+- [fairscale](https://github.com/facebookresearch/fairscale#optimizer-state-sharding-zero)
+- [FLERT: Document-Level Features for Named Entity Recognition](https://arxiv.org/pdf/2011.06993.pdf)
+- [Indexing a 3d tensor using a 2d tensor](https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor/55645658#55645658)

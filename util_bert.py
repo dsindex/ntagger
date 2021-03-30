@@ -130,7 +130,7 @@ def convert_single_example_to_feature(config,
       -----------------------------------------------------------------------
       with --bert_use_subword_pooling --bert_use_word_embedding:
 
-      word_ids:        0   2   2928  16  23223  0  0  0 ...
+      word_ids:        0   2   2928  16  23223  4  0  0 ...
       -----------------------------------------------------------------------
     """
 
