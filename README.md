@@ -355,7 +355,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 40.1493 / -        |           |           | subword pooling, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 92.23             |                   | word                 | 40.7793 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word, character, pos | 41.1466 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | 91.59             |                   | word                 | 43.1631 / -        |           |           | document context, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
@@ -799,6 +799,9 @@ $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll20
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_doc_context
+INFO:__main__:[F1] : 0.9128870953592421, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 159112.7679347992ms, 43.16315520175475ms on average
+accuracy:  98.22%; precision:  91.07%; recall:  92.12%; FB1:  91.59
 
 * document context, subword pooling
 
