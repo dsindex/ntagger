@@ -315,7 +315,8 @@ def build_features(input_path, tokenizer, poss, labels, config, mode='train', w_
                                             sep_token=tokenizer.sep_token,
                                             sep_token_extra=bool(config['emb_class'] in ['roberta']),
                                             # roberta uses an extra separator b/w pairs of sentences, cf. github.com/pytorch/fairseq/commit/1684e166e3da03f5b600dbb7855cb98ddfcd0805
-                                            pad_token=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
+                                            pad_token=tokenizer.pad_token,
+                                            pad_token_id=tokenizer.convert_tokens_to_ids([tokenizer.pad_token])[0],
                                             pad_token_pos_id=config['pad_pos_id'],
                                             pad_token_label_id=config['pad_label_id'],
                                             pad_token_segment_id=0,
@@ -389,6 +390,8 @@ def main():
                         help="Set this flag for bert subword pooling.")
     parser.add_argument('--bert_use_word_embedding', action='store_true',
                         help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
+    parser.add_argument('--bert_use_doc_context', action='store_true',
+                        help="Set this flag to use document-level context.")
     opt = parser.parse_args()
 
     # set seed

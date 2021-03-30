@@ -496,6 +496,7 @@ class BertLSTMCRF(BaseModel):
             use_word_embedding=False,
             embedding_path=None,
             emb_non_trainable=True,
+            use_doc_context=False,
             disable_lstm=False,
             feature_based=False):
         super().__init__(config=config)
@@ -514,6 +515,7 @@ class BertLSTMCRF(BaseModel):
         self.use_subword_pooling = use_subword_pooling
         self.use_word_embedding = use_word_embedding
         mha_num_attentions = config['mha_num_attentions']
+        self.use_doc_context = use_doc_context
         self.disable_lstm = disable_lstm
 
         # bert embedding layer
@@ -646,8 +648,17 @@ class BertLSTMCRF(BaseModel):
         # x[0,1,2] : [batch_size, seq_size], input_ids / input_mask / segment_ids == input_ids / attention_mask / token_type_ids
         # x[3] :     [batch_size, seq_size], pos_ids
         # x[4] :     [batch_size, seq_size, char_n_ctx], char_ids
+
+        # with --bert_use_doc_context
+        # x[5] :     [batch_size, seq_size], doc2sent_idx
+        # x[6] :     [batch_size, seq_size], doc2sent_mask
+        # x[7] :     [batch_size, seq_size], word2token_idx with --bert_use_subword_pooling
+        # x[8] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
+        # x[9] :     [batch_size, seq_size], word_ids       with --bert_use_word_embedding
+
+        # without --bert_use_doc_context
         # x[5] :     [batch_size, seq_size], word2token_idx with --bert_use_subword_pooling
-        # x[6] :     [batch_size, seq_size], word_mask      with --bert_use_subword_pooling
+        # x[6] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
         # x[7] :     [batch_size, seq_size], word_ids       with --bert_use_word_embedding
 
         mask = x[1].to(torch.uint8).to(self.device)
@@ -665,9 +676,24 @@ class BertLSTMCRF(BaseModel):
         # bert_embed_out : [batch_size, seq_size, *]
 
         embed_out = bert_embed_out
+
+        base_idx = 5
+        if self.use_doc_context:
+            doc2sent_idx = x[base_idx]
+            mask_doc2sent_idx = x[base_idx+1].to(torch.uint8).unsqueeze(-1).to(self.device)
+            src = embed_out
+            offset = torch.arange(0, src.size(0) * src.size(1), src.size(1)).to(self.device)
+            index = doc2sent_idx + offset.unsqueeze(1)
+            embed_out = src.reshape(-1, src.shape[-1])[index]
+            embed_out *= mask_doc2sent_idx
+            # update mask, lengths
+            mask = x[base_idx+1].to(torch.uint8).to(self.device)
+            lengths = torch.sum(mask.to(torch.long), dim=1)
+            base_idx += 2
+
         if self.use_subword_pooling:
-            word2token_idx = x[5]
-            mask_word2token_idx = x[6].to(torch.uint8).unsqueeze(-1).to(self.device)
+            word2token_idx = x[base_idx]
+            mask_word2token_idx = x[base_idx+1].to(torch.uint8).unsqueeze(-1).to(self.device)
             # first subword pooling
             # solution from https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor
             src = embed_out
@@ -676,10 +702,10 @@ class BertLSTMCRF(BaseModel):
             embed_out = src.reshape(-1, src.shape[-1])[index]
             embed_out *= mask_word2token_idx
             # update mask, lengths for word-level
-            mask = x[6].to(torch.uint8).to(self.device)
+            mask = x[base_idx+1].to(torch.uint8).to(self.device)
             lengths = torch.sum(mask.to(torch.long), dim=1)
             if self.use_word_embedding:
-                token_ids = x[7]
+                token_ids = x[base_idx+2]
                 token_embed_out = self.embed_token(token_ids)
                 # token_embed_out : [batch_size, seq_size, token_emb_dim]
                 embed_out = torch.cat([embed_out, token_embed_out], dim=-1)

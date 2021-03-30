@@ -355,6 +355,9 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 40.1493 / -        |           |           | subword pooling, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 92.23             |                   | word                 | 40.7793 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word, character, pos | 41.1466 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, freezing BERT during some epochs |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
 | BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
 | BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
@@ -391,8 +394,7 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
 | XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
-| XLM-RoBERTa-large, BiLSTM-CRF   | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
-| XLM-RoBERTa-large, BiLSTM-CRF   | -                 |                   | word, character, pos | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
+| XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
@@ -790,6 +792,20 @@ INFO:__main__:[F1] : 0.920799929521628, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 151703.0575275421ms, 41.146695921351785ms on average
 accuracy:  98.34%; precision:  91.64%; recall:  92.53%; FB1:  92.08
 
+* document context
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_doc_context
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context
+# evaluate
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_doc_context
+
+* document context, subword pooling
+
+
+* document context, subword pooling, word embedding
+
+
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
 INFO:__main__:[F1] : 0.9020433219328247, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 79621.61326408386ms, 21.58440276070066ms on average
@@ -1108,11 +1124,9 @@ $ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conl
 $ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=32 --lr=1e-5  --epoch=30 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_subword_pooling --bert_use_word_embedding
 # evaluate
 $ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta --use_crf --bert_use_subword_pooling --bert_use_word_embedding
-
-
-* subword pooling, word/pos/char embedding, --use_char_cnn --bert_use_pos
-# pos_emb_dim: 100 -> 40
-
+INFO:__main__:[F1] : 0.9296765119549929, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 194712.32175827026ms, 52.813371497264804ms on average
+accuracy:  98.44%; precision:  92.32%; recall:  93.63%; FB1:  92.97
 
 * --data_dir=data/conll++ --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_disable_lstm
 INFO:__main__:[F1] : 0.9394968224949942, 3684
@@ -1246,6 +1260,7 @@ $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll20
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --master_port=8666 --bert_use_subword_pooling --bert_use_word_embedding --use_crf
 # evaluate
 # python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_use_subword_pooling --bert_use_word_embedding --use_crf
+
 
 * --use_sharded_ddp --use_fsdp
 $ export NCCL_DEBUG=INFO

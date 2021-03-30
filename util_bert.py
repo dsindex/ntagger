@@ -24,7 +24,7 @@ class InputExample(object):
         self.labels = labels
 
 class InputFeature(object):
-    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, char_ids, label_ids, word2token_idx=None, word_mask=None, word_ids=None):
+    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, char_ids, label_ids, word2token_idx=None, word2token_mask=None, word_ids=None, doc2sent_idx=None, doc2sent_mask=None):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
@@ -33,9 +33,12 @@ class InputFeature(object):
         self.label_ids = label_ids
         if word2token_idx:
             self.word2token_idx = word2token_idx
-            self.word_mask = word_mask
+            self.word2token_mask = word2token_mask
         if word_ids:
             self.word_ids = word_ids
+        if doc2sent_idx:
+            self.doc2sent_idx = doc2sent_idx
+            self.doc2sent_mask = doc2sent_mask
 
 def read_examples_from_file(file_path, mode='train'):
     guid_index = 1
@@ -97,20 +100,24 @@ def convert_single_example_to_feature(config,
         cls_token_segment_id=0,
         sep_token="[SEP]",
         sep_token_extra=False,
-        pad_token=0,
+        pad_token="[PAD]",
+        pad_token_id=0,
         pad_token_pos_id=0,
         pad_token_label_id=0,
         pad_token_segment_id=0,
         sequence_a_segment_id=0,
         w_tokenizer=None,
+        prev_example=None,
+        next_example=None,
         ex_index=-1):
+
     """
     convention in BERT:
     for single sequence:
       word      : the dog is hairy .
       word_idx  : 0   1   2  3     4                                          | params
       ----------------------------------------------------------------------- | -------------- |
-      tokens:        [CLS] the dog is ha ##iry . [SEP] <pad> <pad> <pad> ...  |                |
+      tokens:        [CLS] the dog is ha ##iry . [SEP] [PAD] [PAD] [PAD] ...  |                |
       token_idx:       0   1   2   3  4  5     6   7     8     9     10  ...  |                |
       input_ids:       x   x   x   x  x  x     x   x     0     0     0   ...  | input_ids      |
       segment_ids:     0   0   0   0  0  0     0   0     0     0     0   ...  | token_type_ids |
@@ -119,19 +126,38 @@ def convert_single_example_to_feature(config,
       ----------------------------------------------------------------------- |                |
       pos_ids:         0   10  2   ...
       char_ids:        [0,..., 0] [259, ..., 261] ...
-      -----------------------------------------------------------------------
-      -----------------------------------------------------------------------
+      ---------------------------------------------------------------------------
+
+      ---------------------------------------------------------------------------
       with --bert_use_subword_pooling:
 
       word2token_idx:  0   1   2     3   4      6  0  0  0 ...
-      word_mask:       1   1   1     1   1      1  0  0  0 ...
+      word2token_mask: 1   1   1     1   1      1  0  0  0 ...
 
-      'label_ids, pos_ids, char_ids' are generated as word-level. 
-      -----------------------------------------------------------------------
+      additionally, 'label_ids, pos_ids, char_ids' are generated at word-level. 
+      ---------------------------------------------------------------------------
+
+      ---------------------------------------------------------------------------
       with --bert_use_subword_pooling --bert_use_word_embedding:
 
       word_ids:        0   2   2928  16  23223  4  0  0 ...
-      -----------------------------------------------------------------------
+      ---------------------------------------------------------------------------
+
+      ---------------------------------------------------------------------------
+      with --bert_use_doc_context:
+      
+                     prev_example         example     next_example
+      tokens:        [CLS] p1 p2 p3 p4 p5 x1 x2 x3 x4 n1 n2 n3 n4  [SEP] [PAD] ...
+      token_idx:     0     1  2  3  4  5  6  7  8  9  10 11 12 13  14    15    ...
+      input_ids:     x     x  x  x  x  x  x  x  x  x  x  x  x  x   x     0     ...
+      segment_ids:   0     0  0  0  0  0  0  0  0  0  0  0  0  0   0     0     ...
+      input_mask:    1     1  1  1  1  1  1  1  1  1  1  1  1  1   1     0     ...
+      doc2sent_idx:  0     6  7  8  9  0  0  0  0  0  0  0  0  0   0     0     ...
+      doc2sent_mask: 1     1  1  1  1  0  0  0  0  0  0  0  0  0   0     0     ...
+
+      input_ids, segment_ids, input_maks are replaced to document-level.
+      and doc2sent_idx will be used to slice input_ids, segment_ids, input_mask.
+      ---------------------------------------------------------------------------
     """
 
     opt = config['opt']
@@ -142,7 +168,7 @@ def convert_single_example_to_feature(config,
     label_ids = []
     word2token_idx = []
     token_idx = 1 # consider first sub-token is '[CLS]'
-    word_mask = []
+    word2token_mask = []
     word_ids = []
 
     for word, pos, label in zip(example.words, example.poss, example.labels):
@@ -202,13 +228,9 @@ def convert_single_example_to_feature(config,
         logger.info('len(poss): ' + str(len(example.poss)))
         logger.info("tokens: %s", " ".join([str(x) for x in tokens]))
         logger.info('len(tokens): ' + str(len(tokens)))
-        logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
-        logger.info('len(pos_ids): ' + str(len(pos_ids)))
-        logger.info("char_ids: %s", " ".join([str(x) for x in char_ids]))
-        logger.info('len(char_ids): ' + str(len(char_ids)))
         sys.exit(1)
 
-    # Account for [CLS] and [SEP] with "- 2" and with "- 3" for RoBERTa.
+    # Account for [CLS] and [SEP]
     special_tokens_count = 3 if sep_token_extra else 2
     if len(tokens) > max_seq_length - special_tokens_count:
         tokens = tokens[:(max_seq_length - special_tokens_count)]
@@ -250,11 +272,11 @@ def convert_single_example_to_feature(config,
     input_ids = tokenizer.convert_tokens_to_ids(tokens)
     input_mask = [1] * len(input_ids)
     if word2token_idx:
-        word_mask = [1] * len(word2token_idx)
+        word2token_mask = [1] * len(word2token_idx)
 
     # zero-pad up to the sequence length.
     padding_length = max_seq_length - len(input_ids)
-    input_ids += ([pad_token] * padding_length)
+    input_ids += ([pad_token_id] * padding_length)
     input_mask += ([0] * padding_length)
     segment_ids += ([pad_token_segment_id] * padding_length)
 
@@ -269,9 +291,9 @@ def convert_single_example_to_feature(config,
 
     if word2token_idx:
         padding_length_for_word2token_idx = max_seq_length - len(word2token_idx)
-        # 0 padding means the first token embedding('[CLS]') will be used as dummy.
+        # 0 padding means that the first token embedding('[CLS]') will be used as dummy.
         word2token_idx += ([0] * padding_length_for_word2token_idx)
-        word_mask += ([0] * padding_length_for_word2token_idx)
+        word2token_mask += ([0] * padding_length_for_word2token_idx)
     if word_ids:
         padding_length = max_seq_length - len(word_ids)
         word_ids += ([w_tokenizer.pad_id] * padding_length)
@@ -284,7 +306,7 @@ def convert_single_example_to_feature(config,
     assert len(label_ids) == max_seq_length
     if word2token_idx:
         assert len(word2token_idx) == max_seq_length
-        assert len(word_mask) == max_seq_length
+        assert len(word2token_mask) == max_seq_length
     if word_ids:
         assert len(word_ids) == max_seq_length
 
@@ -300,20 +322,112 @@ def convert_single_example_to_feature(config,
         logger.info("label_ids: %s", " ".join([str(x) for x in label_ids]))
         if word2token_idx:
             logger.info("word2token_idx: %s", " ".join([str(x) for x in word2token_idx]))
-            logger.info("word_mask: %s", " ".join([str(x) for x in word_mask]))
+            logger.info("word2token_mask: %s", " ".join([str(x) for x in word2token_mask]))
         if word_ids:
             logger.info("word_ids: %s", " ".join([str(x) for x in word_ids]))
 
+    # -------------------------------------------------------------------------------------
+    # build document-level input_ids, input_mask, segment_ids.
+    
+    doc2sent_idx = []
+    doc2sent_mask = []
+    if opt.bert_use_doc_context:
+        tokens = []
+        token_idx = 1 # consider first sub-token is '[CLS]'
+        csize = config['doc_context_size'] # half context size
+
+        prev_words = []
+        if prev_example == None:
+            prev_words += [pad_token] * csize
+        else:
+            prev_words += prev_example.words[:csize]
+        padding_length = csize - len(prev_words)
+        prev_words += ([pad_token] * padding_length)
+
+        next_words = []
+        if next_example == None:
+            next_words += [pad_token] * csize
+        else:
+            next_words += next_example.words[:csize]
+        padding_length = csize - len(next_words)
+        next_words += ([pad_token] * padding_length)
+   
+        words = prev_words + example.words + next_words
+        bos = csize
+        eos = bos + len(example.words)
+        for word_idx, word in enumerate(words):
+            word_tokens = tokenizer.tokenize(word)
+            tokens.extend(word_tokens)             
+            for token in word_tokens:
+                if word_idx >= bos and word_idx < eos:
+                    # token_idx must be less than max_seq_length.
+                    if token_idx < max_seq_length:
+                        doc2sent_idx.append(token_idx)
+                token_idx += 1
+
+        # Account for [CLS] and [SEP]
+        special_tokens_count = 3 if sep_token_extra else 2
+        if len(tokens) > max_seq_length - special_tokens_count:
+            tokens = tokens[:(max_seq_length - special_tokens_count)]
+
+        tokens += [sep_token]
+        if sep_token_extra:
+            # roberta uses an extra separator b/w pairs of sentences
+            tokens += [sep_token]
+        segment_ids = [sequence_a_segment_id] * len(tokens)
+
+        tokens = [cls_token] + tokens
+        segment_ids = [cls_token_segment_id] + segment_ids
+        if doc2sent_idx:
+            doc2sent_idx = [0] + doc2sent_idx
+
+        input_ids = tokenizer.convert_tokens_to_ids(tokens)
+        input_mask = [1] * len(input_ids)
+        if doc2sent_idx:
+            doc2sent_mask = [1] * len(doc2sent_idx)
+
+        # zero-pad up to the sequence length.
+        padding_length = max_seq_length - len(input_ids)
+        input_ids += ([pad_token_id] * padding_length)
+        input_mask += ([0] * padding_length)
+        segment_ids += ([pad_token_segment_id] * padding_length)
+
+        if doc2sent_idx:
+            padding_length_for_doc2sent_idx = max_seq_length - len(doc2sent_idx)
+            # 0 padding means that the first token embedding('[CLS]') will be used as dummy.
+            doc2sent_idx += ([0] * padding_length_for_doc2sent_idx)
+            doc2sent_mask += ([0] * padding_length_for_doc2sent_idx)
+
+        assert len(input_ids) == max_seq_length
+        assert len(input_mask) == max_seq_length
+        assert len(segment_ids) == max_seq_length
+        if doc2sent_idx:
+            assert len(doc2sent_idx) == max_seq_length
+            assert len(doc2sent_mask) == max_seq_length
+
+        if ex_index != -1 and ex_index < 5:
+            logger.info("*** Example(contextualized) ***")
+            logger.info("guid: %s", example.guid)
+            logger.info("tokens(context): %s", " ".join([str(x) for x in tokens]))
+            logger.info("input_ids(context): %s", " ".join([str(x) for x in input_ids]))
+            logger.info("input_mask(context): %s", " ".join([str(x) for x in input_mask]))
+            logger.info("segment_ids(context): %s", " ".join([str(x) for x in segment_ids]))
+            if doc2sent_idx:
+                logger.info("doc2sent_idx: %s", " ".join([str(x) for x in doc2sent_idx]))
+                logger.info("doc2sent_mask: %s", " ".join([str(x) for x in doc2sent_mask]))
+    # -------------------------------------------------------------------------------------
 
     feature = InputFeature(input_ids=input_ids,
-                            input_mask=input_mask,
-                            segment_ids=segment_ids,
-                            pos_ids=pos_ids,
-                            char_ids=char_ids,
-                            label_ids=label_ids,
-                            word2token_idx=word2token_idx,
-                            word_mask=word_mask,
-                            word_ids=word_ids)
+                           input_mask=input_mask,
+                           segment_ids=segment_ids,
+                           pos_ids=pos_ids,
+                           char_ids=char_ids,
+                           label_ids=label_ids,
+                           word2token_idx=word2token_idx,
+                           word2token_mask=word2token_mask,
+                           word_ids=word_ids,
+                           doc2sent_idx=doc2sent_idx,
+                           doc2sent_mask=doc2sent_mask)
     return feature
 
 def convert_examples_to_features(config,
@@ -326,7 +440,8 @@ def convert_examples_to_features(config,
                                  cls_token_segment_id=0,
                                  sep_token="[SEP]",
                                  sep_token_extra=False,
-                                 pad_token=0,
+                                 pad_token="[PAD]",
+                                 pad_token_id=0,
                                  pad_token_pos_id=0,
                                  pad_token_label_id=0,
                                  pad_token_segment_id=0,
@@ -334,7 +449,12 @@ def convert_examples_to_features(config,
                                  w_tokenizer=None):
 
     features = []
+    prev_example = None
+    n_examples = len(examples)
     for (ex_index, example) in enumerate(tqdm(examples)):
+        next_example = None
+        if ex_index+1 < n_examples:
+            next_example = examples[ex_index+1] 
         feature = convert_single_example_to_feature(config,
                                                     example,
                                                     pos_map,
@@ -346,11 +466,17 @@ def convert_examples_to_features(config,
                                                     sep_token=sep_token,
                                                     sep_token_extra=sep_token_extra,
                                                     pad_token=pad_token,
+                                                    pad_token_id=pad_token_id,
                                                     pad_token_pos_id=pad_token_pos_id,
                                                     pad_token_label_id=pad_token_label_id,
                                                     pad_token_segment_id=pad_token_segment_id,
                                                     sequence_a_segment_id=sequence_a_segment_id,
                                                     w_tokenizer=w_tokenizer,
+                                                    prev_example=prev_example,
+                                                    next_example=next_example,
                                                     ex_index=ex_index)
+
         features.append(feature)
+        prev_example = example
+
     return features

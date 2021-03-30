@@ -378,6 +378,7 @@ def prepare_model(config):
                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
                            use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
                            embedding_path=opt.embedding_path, emb_non_trainable=emb_non_trainable,
+                           use_doc_context=opt.bert_use_doc_context,
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     if opt.restore_path:
@@ -625,6 +626,8 @@ def main():
                         help="Set this flag for bert subword pooling.")
     parser.add_argument('--bert_use_word_embedding', action='store_true',
                         help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
+    parser.add_argument('--bert_use_doc_context', action='store_true',
+                        help="Set this flag to use document-level context.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')

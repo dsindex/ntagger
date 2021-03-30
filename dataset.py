@@ -84,22 +84,30 @@ class CoNLLBertDataset(Dataset):
         all_pos_ids = torch.tensor([f.pos_ids for f in features], dtype=torch.long)
         all_char_ids = torch.tensor([f.char_ids for f in features], dtype=torch.long)
         all_word2token_idx = None
-        all_word_mask = None
+        all_word2token_mask = None
         if hasattr(features[0], 'word2token_idx'):
             all_word2token_idx = torch.tensor([f.word2token_idx for f in features], dtype=torch.long)
-            all_word_mask = torch.tensor([f.word_mask for f in features], dtype=torch.long)
+            all_word2token_mask = torch.tensor([f.word2token_mask for f in features], dtype=torch.long)
         all_word_ids = None
         if hasattr(features[0], 'word_ids'):
             all_word_ids = torch.tensor([f.word_ids for f in features], dtype=torch.long)
+        all_doc2sent_idx = None
+        if hasattr(features[0], 'doc2sent_idx'):
+            all_doc2sent_idx = torch.tensor([f.doc2sent_idx for f in features], dtype=torch.long)
+            all_doc2sent_mask = torch.tensor([f.doc2sent_mask for f in features], dtype=torch.long)
+
         all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
 
+        # argument order must be sync with x parameter of BertLSTMCRF.forward().
+        args = [all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids]
+        if all_doc2sent_idx != None:
+            args += [all_doc2sent_idx, all_doc2sent_mask]
         if all_word2token_idx != None:
             if all_word_ids != None:
-                self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids, all_word2token_idx, all_word_mask, all_word_ids)
+                args += [all_word2token_idx, all_word2token_mask, all_word_ids]
             else:
-                self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids, all_word2token_idx, all_word_mask)
-        else:
-            self.x = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids)
+                args += [all_word2token_idx, all_word2token_mask]
+        self.x = TensorDataset(*args)
         self.y = all_label_ids
  
     def __len__(self):

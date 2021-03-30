@@ -27,5 +27,6 @@
     "mha_num_attentions": 8,
     "pad_label": "<pad>",
     "pad_label_id": 0,
-    "default_label": "O"
+    "default_label": "O",
+    "doc_context_size": 32
 }

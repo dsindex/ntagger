@@ -70,6 +70,7 @@ def load_model(config, checkpoint):
                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
                            use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
                            embedding_path=opt.embedding_path, emb_non_trainable=True,
+                           use_doc_context=opt.bert_use_doc_context,
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     model.load_state_dict(checkpoint)
@@ -100,10 +101,14 @@ def convert_onnx(config, torch_model, x):
                         'pos_ids':     {0: 'batch', 1: 'sequence'},
                         'char_ids':    {0: 'batch', 1: 'sequence'},
                         'logits':      {0: 'batch', 1: 'sequence'}}
+        if opt.bert_use_doc_context:
+            input_name += ['doc2sent_idx', 'doc2sent_mask']
+            dynamic_axes['doc2sent_idx'] = {0: 'batch', 1: 'sequence'}
+            dynamic_axes['doc2sent_mask'] = {0: 'batch', 1: 'sequence'}
         if opt.bert_use_subword_pooling:
-            input_names += ['word2token_idx', 'word_mask']
+            input_names += ['word2token_idx', 'word2token_mask']
             dynamic_axes['word2token_idx'] = {0: 'batch', 1: 'sequence'}
-            dynamic_axes['word_mask'] = {0: 'batch', 1: 'sequence'}
+            dynamic_axes['word2token_mask'] = {0: 'batch', 1: 'sequence'}
             if opt.bert_use_word_embedding:
                 input_names += ['word_ids']
                 dynamic_axes['word_ids'] = {0: 'batch', 1: 'sequence'}
@@ -290,6 +295,7 @@ def evaluate(opt):
                     if opt.use_char_cnn:
                         ort_inputs[ort_session.get_inputs()[2].name] = x[2]
                 else:
+                    # x order must be sync with x parameter of BertLSTMCRF.forward().
                     if config['emb_class'] in ['roberta', 'distilbert', 'bart']:
                         ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                                       ort_session.get_inputs()[1].name: x[1]}
@@ -301,11 +307,16 @@ def evaluate(opt):
                         ort_inputs[ort_session.get_inputs()[3].name] = x[3]
                     if opt.use_char_cnn:
                         ort_inputs[ort_session.get_inputs()[4].name] = x[4]
+                    base_idx = 5
+                    if opt.bert_use_doc_context:
+                        ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
+                        ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
+                        base_idx += 2
                     if opt.bert_use_subword_pooling:
-                        ort_inputs[ort_session.get_inputs()[5].name] = x[5]
-                        ort_inputs[ort_session.get_inputs()[6].name] = x[6]
+                        ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
+                        ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
                         if opt.bert_use_word_embedding:
-                            ort_inputs[ort_session.get_inputs()[7].name] = x[7]
+                            ort_inputs[ort_session.get_inputs()[base_idx+2].name] = x[base_idx+2]
                 if opt.use_crf:
                     # FIXME not working for --use_crf
                     logits, prediction = ort_session.run(None, ort_inputs)
@@ -401,6 +412,8 @@ def main():
                         help="Set this flag for bert subword pooling.")
     parser.add_argument('--bert_use_word_embedding', action='store_true',
                         help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
+    parser.add_argument('--bert_use_doc_context', action='store_true',
+                        help="Set this flag to use document-level context.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
