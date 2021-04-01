@@ -146,7 +146,7 @@ def convert_single_example_to_feature(config,
       ---------------------------------------------------------------------------
       with --bert_use_doc_context:
       
-                     prev_example         example     next_example
+                           prev_example   example     next_example
       tokens:        [CLS] p1 p2 p3 p4 p5 x1 x2 x3 x4 n1 n2 n3 n4  [SEP] [PAD] ...
       token_idx:     0     1  2  3  4  5  6  7  8  9  10 11 12 13  14    15    ...
       input_ids:     x     x  x  x  x  x  x  x  x  x  x  x  x  x   x     0     ...
@@ -328,32 +328,36 @@ def convert_single_example_to_feature(config,
 
     # -------------------------------------------------------------------------------------
     # build document-level input_ids, input_mask, segment_ids.
+    # -------------------------------------------------------------------------------------
     
     doc2sent_idx = []
     doc2sent_mask = []
     if opt.bert_use_doc_context:
         tokens = []
         token_idx = 1 # consider first sub-token is '[CLS]'
-        csize = config['doc_context_size'] # half context size
+        csize = config['doc_context_size'] # max context size in half
 
         prev_words = []
         if prev_example == None:
-            prev_words += [pad_token] * csize
+            prev_words = [pad_token]
         else:
-            prev_words += prev_example.words[:csize]
-        padding_length = csize - len(prev_words)
-        prev_words += ([pad_token] * padding_length)
+            # up to csize
+            if csize >= len(prev_example.words):
+                prev_words = prev_example.words
+            else:
+                # preserve right-side of previous example.
+                prev_words = prev_example.words[len(prev_example.words)-csize:]
+        prev_words = [sep_token] + prev_words + [sep_token]
 
         next_words = []
         if next_example == None:
-            next_words += [pad_token] * csize
+            next_words = [pad_token]
         else:
-            next_words += next_example.words[:csize]
-        padding_length = csize - len(next_words)
-        next_words += ([pad_token] * padding_length)
-   
+            next_words = next_example.words[:csize] # up to csize
+        next_words = [sep_token] + next_words + [sep_token]
+
         words = prev_words + example.words + next_words
-        bos = csize
+        bos = len(prev_words)
         eos = bos + len(example.words)
         for word_idx, word in enumerate(words):
             word_tokens = tokenizer.tokenize(word)

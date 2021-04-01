@@ -28,5 +28,5 @@
     "pad_label": "<pad>",
     "pad_label_id": 0,
     "default_label": "O",
-    "doc_context_size": 32
+    "doc_context_size": 64
 }

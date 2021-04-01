@@ -339,62 +339,64 @@ $ cp -rf valid.txt test.txt
 | DistilBERT, BiLSTM              | 89.50             |                   | word                 | 13.4564 / -        | 56.2819   | 47.8320   | threads=14                |
 | mDistilBERT, BiLSTM             | 90.21             |                   | word                 | 13.4910 / -        |           |           |                           |
 | MiniLM, BiLSTM                  | 90.55             |                   | word                 | 17.7890 / -        |           |           |                           |
-| BERT-base(uncased), BiLSTM-CRF  | 90.20             |                   | word                 | 42.6464 / -        |           |           |                           |
-| BERT-base(uncased), BiLSTM      | 90.55             |                   | word                 | 18.2323 / -        | 79.1914   | 83.9590   | threads=14                |
-| BERT-base(uncased), BiLSTM      | 90.60             |                   | word                 | 22.7757 / -        |           |           | freezing BERT during some epochs |
-| BERT-base(uncased), CRF         | 89.98             |                   | word                 | 36.6893 / -        |           |           |                           |
-| BERT-base(uncased)              | 90.25             |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   | threads=14                |
-| BERT-base(uncased), BiLSTM      | 89.03             |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14 |
-| bert-base-NER(cased), BiLSTM    | 91.63 / 92.71     | 92.25 / 93.16     | word                 | 17.6680 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase |
-| BERT-base(cased), BiLSTM-CRF    | 90.17             |                   | word                 | 43.4804 / -        |           |           |                           |
-| BERT-base(cased), BiLSTM-CRF    | 91.55             |                   | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 91.60             |                   | word                 | 39.6135 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| BERT-base(uncased), BiLSTM-CRF  | 90.20             |                   | word                 | 42.6464 / -        |           |           | epoch=10                  |
+| BERT-base(uncased), BiLSTM      | 90.55             |                   | word                 | 18.2323 / -        | 79.1914   | 83.9590   | threads=14, epoch=10      |
+| BERT-base(uncased), BiLSTM      | 90.60             |                   | word                 | 22.7757 / -        |           |           | freezing BERT during some epochs, epoch=10 |
+| BERT-base(uncased), CRF         | 89.98             |                   | word                 | 36.6893 / -        |           |           | epoch=10                  |
+| BERT-base(uncased)              | 90.25             |                   | word                 | 16.6877 / -        | 72.8225   | 75.3025   | threads=14, epoch=10      |
+| BERT-base(uncased), BiLSTM      | 89.03             |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14, epoch=10                                     |
+| bert-base-NER(cased), BiLSTM    | 91.63 / 92.71     | 92.25 / 93.16     | word                 | 17.6680 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase, epoch=10 |
+| BERT-base(cased), BiLSTM-CRF    | 90.17             |                   | word                 | 43.4804 / -        |           |           | epoch=10                                                                |
+| BERT-base(cased), BiLSTM-CRF    | 91.55             |                   | word                 | 42.2709 / -        |           |           | freezing BERT during some epochs, epoch=10                              |
+| BERT-base(cased), BiLSTM-CRF    | 91.60             |                   | word                 | 39.6135 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=10       |
+| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 41.1204 / -        |           |           | slicing logits, freezing BERT during some epochs, epoch=10, https://github.com/dsindex/ntagger/releases/tag/v1.0        |
+| BERT-base(cased), BiLSTM-CRF    | 91.37             |                   | word, character, pos | 40.2822 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=10, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | BERT-base(cased), BiLSTM-CRF    | 91.66             |                   | word, character, pos | 39.6657 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 40.1493 / -        |           |           | subword pooling, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 92.23             |                   | word                 | 40.7793 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word, character, pos | 41.1466 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | 91.59             |                   | word                 | 43.1631 / -        |           |           | document context, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           |                           |
-| BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs |
-| BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs |
-| BERT-large, BiLSTM+CRF          | 90.78             |                   | word                 | 59.3982 / -        |           |           |                           |
-| BERT-large, BiLSTM+CRF          | 92.02             | 91.96             | word                 | 54.4254 / -        |           |           | freezing BERT during some epochs |
-| BERT-large, BiLSTM              | 91.32             | 91.89             | word                 | 40.3581 / -        |           |           |                           |
-| BERT-large, BiLSTM              | 91.57             |                   | word                 | 35.2808 / -        |           |           | freezing BERT during some epochs |
-| BERT-large                      | 91.25             |                   | word                 | 29.5740 / -        |           |           |                           |
-| BERT-large, BiLSTM              | 89.10             |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23               |
-| BERT-large, BiLSTM              | 86.11             |                   | word                 | 49.3103 / -        |           |           | BERT as feature-based, initial embedding             |
-| BERT-large, BiLSTM-CRF          | 86.43             |                   | word                 | 63.1376 / -        |           |           | BERT as feature-based, initial embedding             |
-| BERT-large, BiLSTM              | 89.72             |                   | word                 | 47.9704 / -        |           |           | BERT as feature-based, initial+first+last embedding  |
-| BERT-large, BiLSTM-CRF          | 89.96             |                   | word                 | 67.2041 / -        |           |           | BERT as feature-based, initial+first+last embedding  |
-| BERT-large, BiLSTM-CRF          | 89.67             |                   | word                 | 68.7548 / -        |           |           | BERT as feature-based, last embedding                |
-| BERT-large, BiLSTM-CRF          | 90.64             |                   | word                 | 63.9397 / -        |           |           | BERT as feature-based, [-4:] embedding               |
-| BERT-large, BiLSTM-CRF          | 90.52             |                   | word                 | 70.8322 / -        |           |           | BERT as feature-based, mean([0:3] + [-4:]) embedding |
-| BERT-large, BiLSTM-CRF          | 90.81             |                   | word                 | 68.6139 / -        |           |           | BERT as feature-based, mean([0:17]) embedding        |
-| BERT-large, BiLSTM-CRF          | 90.76             |                   | word                 | 60.8039 / -        |           |           | BERT as feature-based, max([0:17]) embedding         |
-| BERT-large, BiLSTM-CRF          | 90.98             |                   | word                 | 58.9112 / -        |           |           | BERT as feature-based, mean([0:]) embedding          |
-| BERT-large, BiLSTM-CRF          | 90.62             |                   | word                 | 66.6576 / -        |           |           | BERT as feature-based, DSA(4, 300)                   |
-| BERT-large-squad, BiLSTM        | 91.75             | 92.17             | word                 | 35.6619 / -        |           |           |                           |
-| BERT-large-conll03, BiLSTM      | 91.87 / 92.62     | 92.40 / 93.36     | word                 | 32.2211 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase |
-| BERT-large-conll03              | 91.63             | 92.24             | word                 | 29.8476 / -        |           |           |                           |
+| BERT-base(cased), BiLSTM-CRF    | 91.33             |                   | word                 | 40.1493 / -        |           |           | subword pooling, freezing BERT during some epochs, epoch=10                              |
+| BERT-base(cased), BiLSTM-CRF    | 92.23             |                   | word                 | 40.7793 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=10              |
+| BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word, character, pos | 41.1466 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=10              |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, freezing BERT during some epochs, epoch=30, n_ctx=256                  |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, freezing BERT during some epochs, epoch=30, n_ctx=256 |
+| BERT-base(cased), BiLSTM-CRF    | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, epoch=30, n_ctx=256 |
+| BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | document context, epoch=30, n_ctx=256                  |
+| BERT-base(cased)                | 92.00             |                   | word                 | 25.2429 / -        |           |           | document context, subword pooling, epoch=30, n_ctx=256 |
+| BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           | epoch=10                                   |
+| BERT-base(cased), BiLSTM        | 90.99             |                   | word                 | 21.7328 / -        |           |           | freezing BERT during some epochs, epoch=10 |
+| BERT-base(cased), BiLSTM-MHA    | 90.95             |                   | word                 | 21.9845 / -        |           |           | freezing BERT during some epochs, epoch=10 |
+| BERT-large, BiLSTM+CRF          | 90.78             |                   | word                 | 59.3982 / -        |           |           | epoch=10                                   |
+| BERT-large, BiLSTM+CRF          | 92.02             | 91.96             | word                 | 54.4254 / -        |           |           | freezing BERT during some epochs, epoch=10 |
+| BERT-large, BiLSTM              | 91.32             | 91.89             | word                 | 40.3581 / -        |           |           | epoch=10                                   |
+| BERT-large, BiLSTM              | 91.57             |                   | word                 | 35.2808 / -        |           |           | freezing BERT during some epochs, epoch=10 |
+| BERT-large                      | 91.25             |                   | word                 | 29.5740 / -        |           |           | epoch=10                                   |
+| BERT-large, BiLSTM              | 89.10             |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23, epoch=10                      |
+| BERT-large, BiLSTM              | 86.11             |                   | word                 | 49.3103 / -        |           |           | BERT as feature-based, initial embedding, epoch=64             |
+| BERT-large, BiLSTM-CRF          | 86.43             |                   | word                 | 63.1376 / -        |           |           | BERT as feature-based, initial embedding  epoch=64             |
+| BERT-large, BiLSTM              | 89.72             |                   | word                 | 47.9704 / -        |           |           | BERT as feature-based, initial+first+last embedding, epoch=64  |
+| BERT-large, BiLSTM-CRF          | 89.96             |                   | word                 | 67.2041 / -        |           |           | BERT as feature-based, initial+first+last embedding, epoch=64  |
+| BERT-large, BiLSTM-CRF          | 89.67             |                   | word                 | 68.7548 / -        |           |           | BERT as feature-based, last embedding, epoch=64                |
+| BERT-large, BiLSTM-CRF          | 90.64             |                   | word                 | 63.9397 / -        |           |           | BERT as feature-based, [-4:] embedding, epoch=64               |
+| BERT-large, BiLSTM-CRF          | 90.52             |                   | word                 | 70.8322 / -        |           |           | BERT as feature-based, mean([0:3] + [-4:]) embedding, epoch=64 |
+| BERT-large, BiLSTM-CRF          | 90.81             |                   | word                 | 68.6139 / -        |           |           | BERT as feature-based, mean([0:17]) embedding, epoch=64        |
+| BERT-large, BiLSTM-CRF          | 90.76             |                   | word                 | 60.8039 / -        |           |           | BERT as feature-based, max([0:17]) embedding, epoch=64         |
+| BERT-large, BiLSTM-CRF          | 90.98             |                   | word                 | 58.9112 / -        |           |           | BERT as feature-based, mean([0:]) embedding, epoch=64          |
+| BERT-large, BiLSTM-CRF          | 90.62             |                   | word                 | 66.6576 / -        |           |           | BERT as feature-based, DSA(4, 300), epoch=64                   |
+| BERT-large-squad, BiLSTM        | 91.75             | 92.17             | word                 | 35.6619 / -        |           |           | epoch=10                  |
+| BERT-large-conll03, BiLSTM      | 91.87 / 92.62     | 92.40 / 93.36     | word                 | 32.2211 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase, epoch=10 |
+| BERT-large-conll03              | 91.63             | 92.24             | word                 | 29.8476 / -        |           |           | epoch=10                  |
 | SpanBERT-base, BiLSTM           | 90.46             |                   | word                 | 30.0991 / -        |           |           |                           |
 | SpanBERT-large, BiLSTM          | 91.39             | 92.01             | word                 | 42.5959 / -        |           |           |                           |
 | ALBERT-base, BiLSTM             | 88.19             |                   | word                 | 31.0868 / -        |           |           |                           |
 | ALBERT-xxlarge, BiLSTM          | 90.39             |                   | word                 | 107.778 / -        |           |           |                           |
-| RoBERTa-base                    | 90.03             |                   | word                 | 19.2503 / -        |           |           |                           |
-| RoBERTa-large                   | 91.83             | 91.90             | word                 | 28.5525 / -        |           |           |                           |
-| XLM-RoBERTa-base                | 91.20             |                   | word                 | 18.9604 / -        |           |           |                           |
-| XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs |
-| XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           |                           |
-| XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs |
-| XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs |
+| RoBERTa-base                    | 90.03             |                   | word                 | 19.2503 / -        |           |           | epoch=10                  |
+| RoBERTa-large                   | 91.83             | 91.90             | word                 | 28.5525 / -        |           |           | epoch=10                  |
+| XLM-RoBERTa-base                | 91.20             |                   | word                 | 18.9604 / -        |           |           | epoch=30                  |
+| XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs, epoch=30 |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs, epoch=30 |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30 |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           | epoch=30                         |
+| XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs, epoch=30 |
+| XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30 |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
@@ -792,22 +794,30 @@ INFO:__main__:[F1] : 0.920799929521628, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 151703.0575275421ms, 41.146695921351785ms on average
 accuracy:  98.34%; precision:  91.64%; recall:  92.53%; FB1:  92.08
 
-* document context
+* document context, --batch_size=16 --lr=2e-5, n_ctx: 256
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_doc_context
 # train
-$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=32 --lr=1e-5 --epoch=10 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --use_crf --bert_use_doc_context
-INFO:__main__:[F1] : 0.9128870953592421, 3684
-INFO:__main__:[Elapsed Time] : 3684 examples, 159112.7679347992ms, 43.16315520175475ms on average
-accuracy:  98.22%; precision:  91.07%; recall:  92.12%; FB1:  91.59
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
-* document context, subword pooling
+* document context, subword pooling, --batch_size=16 --lr=2e-5, n_ctx: 256
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context --bert_use_subword_pooling
+
+* document context, subword pooling, word embedding, --batch_size=16 --lr=2e-5, n_ctx: 256
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding 
+
+* document context, --bert_disable_lstm, --batch_size=16 --lr=2e-5, n_ctx: 256 
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_disable_lstm
 
 
-* document context, subword pooling, word embedding
-
+* document context, subword pooling, --bert_disable_lstm, --batch_size=16 --lr=2e-5, n_ctx: 256
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_disable_lstm
+INFO:__main__:[F1] : 0.9199576868829338, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 93080.98554611206ms, 25.242968677600505ms on average
+accuracy:  98.39%; precision:  91.61%; recall:  92.39%; FB1:  92.00
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
 INFO:__main__:[F1] : 0.9020433219328247, 3684
