@@ -107,8 +107,7 @@ def convert_single_example_to_feature(config,
         pad_token_segment_id=0,
         sequence_a_segment_id=0,
         w_tokenizer=None,
-        prev_example=None,
-        next_example=None,
+        examples=None,
         ex_index=-1):
 
     """
@@ -146,14 +145,14 @@ def convert_single_example_to_feature(config,
       ---------------------------------------------------------------------------
       with --bert_use_doc_context:
       
-                           prev_example   example     next_example
-      tokens:        [CLS] p1 p2 p3 p4 p5 x1 x2 x3 x4 n1 n2 n3 n4  [SEP] [PAD] ...
-      token_idx:     0     1  2  3  4  5  6  7  8  9  10 11 12 13  14    15    ...
-      input_ids:     x     x  x  x  x  x  x  x  x  x  x  x  x  x   x     0     ...
-      segment_ids:   0     0  0  0  0  0  0  0  0  0  0  0  0  0   0     0     ...
-      input_mask:    1     1  1  1  1  1  1  1  1  1  1  1  1  1   1     0     ...
-      doc2sent_idx:  0     6  7  8  9  0  0  0  0  0  0  0  0  0   0     0     ...
-      doc2sent_mask: 1     1  1  1  1  0  0  0  0  0  0  0  0  0   0     0     ...
+                           prev_example   example     next examples   
+      tokens:        [CLS] p1 p2 p3 p4 p5 x1 x2 x3 x4 n1 n2 n3 n4  m1 m2 m3 ...
+      token_idx:     0     1  2  3  4  5  6  7  8  9  10 11 12 13  14 15 16 ...
+      input_ids:     x     x  x  x  x  x  x  x  x  x  x  x  x  x   x  x  x  ...
+      segment_ids:   0     0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0  ...
+      input_mask:    1     1  1  1  1  1  1  1  1  1  1  1  1  1   1  1  1  ...
+      doc2sent_idx:  0     6  7  8  9  0  0  0  0  0  0  0  0  0   0  0  0  ...
+      doc2sent_mask: 1     1  1  1  1  0  0  0  0  0  0  0  0  0   0  0  0  ...
 
       input_ids, segment_ids, input_maks are replaced to document-level.
       and doc2sent_idx will be used to slice input_ids, segment_ids, input_mask.
@@ -333,10 +332,19 @@ def convert_single_example_to_feature(config,
     doc2sent_idx = []
     doc2sent_mask = []
     if opt.bert_use_doc_context:
+        prev_example = None
+        if ex_index > 0:
+            prev_example = examples[ex_index-1]
+        n_examples = len(examples)
+        next_examples = None
+        if ex_index < n_examples:
+            next_examples = examples[ex_index+1:]
+
         tokens = []
         token_idx = 1 # consider first sub-token is '[CLS]'
-        csize = config['doc_context_size'] # max context size in half
+        csize = config['prev_context_size'] # previous max context size
 
+        # previous one example 
         prev_words = []
         if prev_example == None:
             prev_words = [pad_token]
@@ -345,15 +353,23 @@ def convert_single_example_to_feature(config,
             if csize >= len(prev_example.words):
                 prev_words = prev_example.words
             else:
-                # preserve right-side of previous example.
+                # preserve right-most words of previous example if the length exceeds previous max context size.
                 prev_words = prev_example.words[len(prev_example.words)-csize:]
         prev_words = [sep_token] + prev_words + [sep_token]
 
+        # following examples
         next_words = []
-        if next_example == None:
+        if next_examples == None:
             next_words = [pad_token]
         else:
-            next_words = next_example.words[:csize] # up to csize
+            for idx, next_example in enumerate(next_examples):
+                # ignore '-DOCSTART-' separator.
+                # break if you need.
+                n_next_words = len(next_words)
+                # eg, csize: 64 -> next context size: 256
+                if n_next_words + len(next_example.words) + 1 > csize*4: break
+                if idx == 0: next_words += next_example.words
+                else: next_words += [sep_token] + next_example.words
         next_words = [sep_token] + next_words + [sep_token]
 
         words = prev_words + example.words + next_words
@@ -453,12 +469,7 @@ def convert_examples_to_features(config,
                                  w_tokenizer=None):
 
     features = []
-    prev_example = None
-    n_examples = len(examples)
     for (ex_index, example) in enumerate(tqdm(examples)):
-        next_example = None
-        if ex_index+1 < n_examples:
-            next_example = examples[ex_index+1] 
         feature = convert_single_example_to_feature(config,
                                                     example,
                                                     pos_map,
@@ -476,11 +487,9 @@ def convert_examples_to_features(config,
                                                     pad_token_segment_id=pad_token_segment_id,
                                                     sequence_a_segment_id=sequence_a_segment_id,
                                                     w_tokenizer=w_tokenizer,
-                                                    prev_example=prev_example,
-                                                    next_example=next_example,
+                                                    examples=examples,
                                                     ex_index=ex_index)
 
         features.append(feature)
-        prev_example = example
 
     return features
