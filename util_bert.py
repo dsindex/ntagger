@@ -332,14 +332,34 @@ def convert_single_example_to_feature(config,
     doc2sent_idx = []
     doc2sent_mask = []
     if opt.bert_use_doc_context:
+        # ---------------------------------------------------------------------------
+        doc_start = '-DOCSTART-' # only valid for CoNLL
+        start_ex_index = ex_index
+        end_ex_index = ex_index
+        if doc_start in example.words[0]:
+            for ex in examples[ex_index+1:]:
+                if doc_start in ex.words[0]: break
+                else: end_ex_index += 1
+        else:
+            for ex in examples[ex_index::-1]:
+                if doc_start in ex.words[0]: break
+                else: start_ex_index -= 1
+            for ex in examples[ex_index+1:]:
+                if doc_start in ex.words[0]: break
+                else: end_ex_index += 1
+        if ex_index < 5:
+            logger.info("document start index, end index: ({}, {})".format(start_ex_index, end_ex_index))
+            logger.info("document start: %s", " ".join([str(x) for x in examples[start_ex_index].words]))
+            logger.info("document endt: %s", " ".join([str(x) for x in examples[end_ex_index].words]))
+
         prev_example = None
         if ex_index > 0:
             prev_example = examples[ex_index-1]
         n_examples = len(examples)
         next_examples = None
-        if ex_index < n_examples:
-            next_examples = examples[ex_index+1:]
-
+        if ex_index+1 < n_examples:
+            next_examples = examples[ex_index+1:end_ex_index+1]
+        
         tokens = []
         token_idx = 1 # consider first sub-token is '[CLS]'
         csize = config['prev_context_size'] # previous max context size
@@ -357,20 +377,19 @@ def convert_single_example_to_feature(config,
                 prev_words = prev_example.words[len(prev_example.words)-csize:]
         prev_words = [sep_token] + prev_words + [sep_token]
 
-        # following examples
+        # following examples + previous examples
         next_words = []
         if next_examples == None:
             next_words = [pad_token]
         else:
             for idx, next_example in enumerate(next_examples):
-                # ignore '-DOCSTART-' separator.
-                # break if you need.
                 n_next_words = len(next_words)
                 # eg, csize: 64 -> next context size: 256
                 if n_next_words + len(next_example.words) + 1 > csize*4: break
                 if idx == 0: next_words += next_example.words
                 else: next_words += [sep_token] + next_example.words
         next_words = [sep_token] + next_words + [sep_token]
+        # ---------------------------------------------------------------------------
 
         words = prev_words + example.words + next_words
         bos = len(prev_words)
