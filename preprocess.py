@@ -392,6 +392,10 @@ def main():
                         help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
     parser.add_argument('--bert_use_doc_context', action='store_true',
                         help="Set this flag to use document-level context.")
+    parser.add_argument("--bert_doc_separator", type=str, default='-DOCSTART-',
+                        help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
+    parser.add_argument("--bert_doc_context_option", default=1, type=int,
+                        help="1: prev one example, cur example, next examples, 2: cur example, next examples + prev examples")
     opt = parser.parse_args()
 
     # set seed

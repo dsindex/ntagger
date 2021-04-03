@@ -144,8 +144,9 @@ def convert_single_example_to_feature(config,
 
       ---------------------------------------------------------------------------
       with --bert_use_doc_context:
-      
-                           prev_example   example     next examples   
+     
+        with --bert_doc_context_option=1:
+                           prev example   example     next examples   
       tokens:        [CLS] p1 p2 p3 p4 p5 x1 x2 x3 x4 n1 n2 n3 n4  m1 m2 m3 ...
       token_idx:     0     1  2  3  4  5  6  7  8  9  10 11 12 13  14 15 16 ...
       input_ids:     x     x  x  x  x  x  x  x  x  x  x  x  x  x   x  x  x  ...
@@ -153,6 +154,16 @@ def convert_single_example_to_feature(config,
       input_mask:    1     1  1  1  1  1  1  1  1  1  1  1  1  1   1  1  1  ...
       doc2sent_idx:  0     6  7  8  9  0  0  0  0  0  0  0  0  0   0  0  0  ...
       doc2sent_mask: 1     1  1  1  1  0  0  0  0  0  0  0  0  0   0  0  0  ...
+
+        with --bert_doc_context_option=2:
+                           example        next examples            prev examples   
+      tokens:        [CLS] x1 x2 x3 x4 x5 n1 n2 n3 n4 m1 m2 m3 m4  p1 p2 p3 ...
+      token_idx:     0     1  2  3  4  5  6  7  8  9  10 11 12 13  14 15 16 ...
+      input_ids:     x     x  x  x  x  x  x  x  x  x  x  x  x  x   x  x  x  ...
+      segment_ids:   0     0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0  ...
+      input_mask:    1     1  1  1  1  1  1  1  1  1  1  1  1  1   1  1  1  ...
+      doc2sent_idx:  0     1  2  2  4  5  0  0  0  0  0  0  0  0   0  0  0  ...
+      doc2sent_mask: 1     1  1  1  1  1  0  0  0  0  0  0  0  0   0  0  0  ...
 
       input_ids, segment_ids, input_maks are replaced to document-level.
       and doc2sent_idx will be used to slice input_ids, segment_ids, input_mask.
@@ -229,7 +240,7 @@ def convert_single_example_to_feature(config,
         logger.info('len(tokens): ' + str(len(tokens)))
         sys.exit(1)
 
-    # Account for [CLS] and [SEP]
+    # for [CLS] and [SEP]
     special_tokens_count = 3 if sep_token_extra else 2
     if len(tokens) > max_seq_length - special_tokens_count:
         tokens = tokens[:(max_seq_length - special_tokens_count)]
@@ -326,14 +337,16 @@ def convert_single_example_to_feature(config,
             logger.info("word_ids: %s", " ".join([str(x) for x in word_ids]))
 
     # -------------------------------------------------------------------------------------
-    # build document-level input_ids, input_mask, segment_ids.
+    # build input_ids, input_mask, segment_ids at document-level
     # -------------------------------------------------------------------------------------
     
     doc2sent_idx = []
     doc2sent_mask = []
     if opt.bert_use_doc_context:
         # ---------------------------------------------------------------------------
-        doc_start = '-DOCSTART-' # only valid for CoNLL
+        # build context
+        # ---------------------------------------------------------------------------
+        doc_start = opt.bert_doc_separator # eg, '-DOCSTART-'
         start_ex_index = ex_index
         end_ex_index = ex_index
         if doc_start in example.words[0]:
@@ -350,50 +363,69 @@ def convert_single_example_to_feature(config,
         if ex_index < 5:
             logger.info("document start index, end index: ({}, {})".format(start_ex_index, end_ex_index))
             logger.info("document start: %s", " ".join([str(x) for x in examples[start_ex_index].words]))
-            logger.info("document endt: %s", " ".join([str(x) for x in examples[end_ex_index].words]))
+            logger.info("document end: %s", " ".join([str(x) for x in examples[end_ex_index].words]))
 
-        prev_example = None
-        if ex_index > 0:
-            prev_example = examples[ex_index-1]
-        n_examples = len(examples)
-        next_examples = None
-        if ex_index+1 < n_examples:
-            next_examples = examples[ex_index+1:end_ex_index+1]
+        if opt.bert_doc_context_option == 1:
+            prev_example = None
+            if ex_index > 0:
+                prev_example = examples[ex_index-1]
+            n_examples = len(examples)
+            next_examples = None
+            if ex_index+1 < n_examples:
+                next_examples = examples[ex_index+1:end_ex_index+1]
         
-        tokens = []
-        token_idx = 1 # consider first sub-token is '[CLS]'
-        csize = config['prev_context_size'] # previous max context size
+            csize = config['prev_context_size'] # previous max context size
 
-        # previous one example 
-        prev_words = []
-        if prev_example == None:
-            prev_words = [pad_token]
-        else:
-            # up to csize
-            if csize >= len(prev_example.words):
-                prev_words = prev_example.words
+            prev_words = []
+            if prev_example == None:
+                prev_words = [pad_token]
             else:
-                # preserve right-most words of previous example if the length exceeds previous max context size.
-                prev_words = prev_example.words[len(prev_example.words)-csize:]
-        prev_words = [sep_token] + prev_words + [sep_token]
+                # up to csize
+                if csize >= len(prev_example.words):
+                    prev_words = prev_example.words
+                else:
+                    # preserve right-most words of previous example if the length exceeds previous max context size.
+                    prev_words = prev_example.words[len(prev_example.words)-csize:]
+            prev_words = [sep_token] + prev_words + [sep_token]
 
-        # following examples + previous examples
-        next_words = []
-        if next_examples == None:
-            next_words = [pad_token]
-        else:
-            for idx, next_example in enumerate(next_examples):
-                n_next_words = len(next_words)
-                # eg, csize: 64 -> next context size: 256
-                if n_next_words + len(next_example.words) + 1 > csize*4: break
-                if idx == 0: next_words += next_example.words
-                else: next_words += [sep_token] + next_example.words
-        next_words = [sep_token] + next_words + [sep_token]
+            next_words = []
+            if next_examples == None:
+                next_words = [pad_token]
+            else:
+                for idx, next_example in enumerate(next_examples):
+                    n_next_words = len(next_words)
+                    # eg, csize: 64 -> next context size: 256
+                    if n_next_words + len(next_example.words) + 1 > csize*4: break
+                    if idx == 0: next_words += next_example.words
+                    else: next_words += [sep_token] + next_example.words
+            next_words = [sep_token] + next_words + [sep_token]
+
+            words = prev_words + example.words + next_words
+            bos = len(prev_words)
+            eos = bos + len(example.words)
+        if opt.bert_doc_context_option == 2:
+            offset = ex_index - start_ex_index
+            prev_examples = examples[start_ex_index+offset:ex_index]
+            next_examples = examples[ex_index+1:end_ex_index+1-offset]
+
+            prev_words = []
+            if prev_examples != []:
+                for idx, prev_example in enumerate(prev_examples):
+                    if idx == 0: prev_words += prev_example.words
+                    else: prev_words += [sep_token] + prev_example.words
+            next_words = []
+            if next_examples != []:
+                for idx, next_example in enumerate(next_examples):
+                    if idx == 0: next_words += next_example.words
+                    else: next_words += [sep_token] + next_example.words
+
+            words = example.words + [sep_token] + next_words + [sep_token] + prev_words
+            bos = 0
+            eos = bos + len(example.words)
         # ---------------------------------------------------------------------------
 
-        words = prev_words + example.words + next_words
-        bos = len(prev_words)
-        eos = bos + len(example.words)
+        tokens = []
+        token_idx = 1 # consider first sub-token is '[CLS]'
         for word_idx, word in enumerate(words):
             word_tokens = tokenizer.tokenize(word)
             tokens.extend(word_tokens)             
@@ -404,7 +436,7 @@ def convert_single_example_to_feature(config,
                         doc2sent_idx.append(token_idx)
                 token_idx += 1
 
-        # Account for [CLS] and [SEP]
+        # for [CLS] and [SEP]
         special_tokens_count = 3 if sep_token_extra else 2
         if len(tokens) > max_seq_length - special_tokens_count:
             tokens = tokens[:(max_seq_length - special_tokens_count)]
