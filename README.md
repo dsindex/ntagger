@@ -349,7 +349,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | epoch=30                                               |
 | BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | subword pooling, epoch=30                              |
 | BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, epoch=30              |
-| BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | document context, epoch=30, n_ctx=512                  |
+| BERT-base(cased)                | 91.76             |                   | word                 | 46.3519 / -        |           |           | document context, epoch=30, n_ctx=512                  |
 | BERT-base(cased)                | 92.23             |                   | word                 | 46.7166 / -        |           |           | document context, subword pooling, epoch=30, n_ctx=512 |
 | BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, epoch=30, n_ctx=512 |
 | BERT-base(cased), BiLSTM        | 90.20             |                   | word                 | 21.5844 / -        |           |           | epoch=10                                   |
@@ -740,6 +740,9 @@ INFO:__main__:[F1] : 0.9135758963967932, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 155832.32188224792ms, 42.27091953413272ms on average
 accuracy:  98.21%; precision:  91.30%; recall:  91.80%; FB1:  91.55
 
+* --bert_model_name_or_path=./embedings/bert-base-cased --bert_disable_lstm --epoch=30
+
+
 * using sub token label, --bert_use_sub_label
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_sub_label
@@ -795,6 +798,7 @@ accuracy:  98.26%; precision:  90.93%; recall:  91.73%; FB1:  91.33
 
 * subword pooling, --batch_size=16 --lr=2e-5 --epoch=30
 
+
 * subword pooling, word embedding
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_subword_pooling --bert_use_word_embedding
@@ -817,6 +821,12 @@ accuracy:  98.34%; precision:  91.64%; recall:  92.53%; FB1:  92.08
 * subword pooling, word/pos/char embedding, --use_char_cnn --bert_use_pos, --batch_size=16 --lr=2e-5, --epoch=30
 
 
+* subword pooling, --bert_disable_lstm, --batch_size=16 --lr=2e-5, --epoch=30
+
+
+* subword pooling, word embedding, --bert_disable_lstm, --batch_size=16 --lr=2e-5, --epoch=30
+
+
 * document context, --batch_size=16 --lr=2e-5, n_ctx: 512, --epoch=30
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_doc_context
@@ -837,7 +847,9 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --
 
 * document context, --bert_disable_lstm, --batch_size=16 --lr=2e-5, n_ctx: 512, --epoch=30
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_disable_lstm
-
+INFO:__main__:[F1] : 0.9176470588235294, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 170834.2945575714ms, 46.35193099996301ms on average
+accuracy:  98.27%; precision:  91.01%; recall:  92.53%; FB1:  91.76
 
 * document context, subword pooling, --bert_disable_lstm, --batch_size=16 --lr=2e-5, n_ctx: 512, --epoch=30
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_disable_lstm
@@ -845,15 +857,13 @@ INFO:__main__:[F1] : 0.9223207232511191, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 172187.91961669922ms, 46.71668637358815ms on average
 accuracy:  98.41%; precision:  91.45%; recall:  93.02%; FB1:  92.23
 
-** --bert_doc_context_option=2, --batch_size=32 --lr=1e-5
+** --bert_doc_context_option=2, --batch_size=16 --lr=2e-5
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-base-cased --bert_use_subword_pooling --bert_doc_context_option=2 
-INFO:__main__:[F1] : 0.9132715509704493, 3684
-INFO:__main__:[Elapsed Time] : 3684 examples, 181268.28360557556ms, 49.185301537038576ms on average
-accuracy:  98.25%; precision:  90.21%; recall:  92.48%; FB1:  91.33
+
 
 * document context, subword pooling, word embedding, --bert_disable_lstm, --batch_size=16 --lr=2e-5, n_ctx: 512, --epoch=30
-$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_disable_lstm
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --bert_disable_lstm
 
 
 * --bert_model_name_or_path=./embedings/bert-base-cased --batch_size=32 --epoch=10
