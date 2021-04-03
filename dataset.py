@@ -7,7 +7,6 @@ import torch
 from torch.utils.data.dataset import Dataset
 from torch.utils.data import TensorDataset
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
-from torch.utils.data.distributed import DistributedSampler
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -21,8 +20,6 @@ def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=
         sampler = RandomSampler(dataset)
     else:
         sampler = SequentialSampler(dataset)
-    if hasattr(opt, 'distributed') and opt.distributed:
-        sampler = DistributedSampler(dataset)
 
     bz = opt.batch_size
     if batch_size > 0: bz = batch_size
@@ -74,10 +71,8 @@ class CoNLLGloveDataset(Dataset):
 
 class CoNLLBertDataset(Dataset):
     def __init__(self, config, path):
-        # load features from file
         features = torch.load(path)
 
-        # convert to tensors and build dataset
         all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in features], dtype=torch.long)
         all_segment_ids = torch.tensor([f.segment_ids for f in features], dtype=torch.long)
