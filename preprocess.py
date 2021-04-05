@@ -395,7 +395,7 @@ def main():
     parser.add_argument("--bert_doc_separator", type=str, default='-DOCSTART-',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
     parser.add_argument("--bert_doc_context_option", default=1, type=int,
-                        help="1: prev one example, cur example, next examples, 2: cur example, next examples + prev examples")
+                        help="1: prev one example, cur example, next examples, 2: prev examples, cur example, next examples")
     opt = parser.parse_args()
 
     # set seed
