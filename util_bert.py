@@ -180,7 +180,7 @@ def build_document_context(config,
         else:
             for idx, next_example in enumerate(next_examples):
                 n_next_words = len(next_words)
-                next_csize = csize*4 # eg, csize: 64 -> next context size: 256
+                next_csize = csize*4 # prevent too long, eg, csize: 64 -> next context size: 256
                 if n_next_words + len(next_example.words) + 1 > next_csize: break
                 if idx == 0: next_words += next_example.words
                 else: next_words += [sep_token] + next_example.words
@@ -191,9 +191,8 @@ def build_document_context(config,
         eos = bos + len(example.words)
 
     if opt.bert_doc_context_option == 2:
-        offset = ex_index - start_ex_index
         prev_examples = examples[start_ex_index:ex_index]
-        next_examples = examples[ex_index+1:end_ex_index+1-offset]
+        next_examples = examples[ex_index+1:end_ex_index+1]
 
         prev_words = []
         if prev_examples != []:
@@ -241,13 +240,11 @@ def build_document_context(config,
 
     tokens = [cls_token] + tokens
     segment_ids = [cls_token_segment_id] + segment_ids
-    if doc2sent_idx:
-        doc2sent_idx = [0] + doc2sent_idx
+    doc2sent_idx = [0] + doc2sent_idx
 
     input_ids = tokenizer.convert_tokens_to_ids(tokens)
     input_mask = [1] * len(input_ids)
-    if doc2sent_idx:
-        doc2sent_mask = [1] * len(doc2sent_idx)
+    doc2sent_mask = [1] * len(doc2sent_idx)
 
     # zero-pad up to the sequence length.
     padding_length = max_seq_length - len(input_ids)
@@ -255,18 +252,16 @@ def build_document_context(config,
     input_mask += ([0] * padding_length)
     segment_ids += ([pad_token_segment_id] * padding_length)
 
-    if doc2sent_idx:
-        padding_length_for_doc2sent_idx = max_seq_length - len(doc2sent_idx)
-        # 0 padding means that the first token embedding('[CLS]') will be used as dummy.
-        doc2sent_idx += ([0] * padding_length_for_doc2sent_idx)
-        doc2sent_mask += ([0] * padding_length_for_doc2sent_idx)
+    padding_length_for_doc2sent_idx = max_seq_length - len(doc2sent_idx)
+    # 0 padding means that the first token embedding('[CLS]') will be used as dummy.
+    doc2sent_idx += ([0] * padding_length_for_doc2sent_idx)
+    doc2sent_mask += ([0] * padding_length_for_doc2sent_idx)
 
     assert len(input_ids) == max_seq_length
     assert len(input_mask) == max_seq_length
     assert len(segment_ids) == max_seq_length
-    if doc2sent_idx:
-        assert len(doc2sent_idx) == max_seq_length
-        assert len(doc2sent_mask) == max_seq_length
+    assert len(doc2sent_idx) == max_seq_length
+    assert len(doc2sent_mask) == max_seq_length
 
     if ex_index != -1 and ex_index < 5:
         logger.info("*** Example(contextualized) ***")
@@ -275,9 +270,8 @@ def build_document_context(config,
         logger.info("input_ids(context): %s", " ".join([str(x) for x in input_ids]))
         logger.info("input_mask(context): %s", " ".join([str(x) for x in input_mask]))
         logger.info("segment_ids(context): %s", " ".join([str(x) for x in segment_ids]))
-        if doc2sent_idx:
-            logger.info("doc2sent_idx: %s", " ".join([str(x) for x in doc2sent_idx]))
-            logger.info("doc2sent_mask: %s", " ".join([str(x) for x in doc2sent_mask]))
+        logger.info("doc2sent_idx: %s", " ".join([str(x) for x in doc2sent_idx]))
+        logger.info("doc2sent_mask: %s", " ".join([str(x) for x in doc2sent_mask]))
 
     return input_ids, input_mask, segment_ids, doc2sent_idx, doc2sent_mask
 
