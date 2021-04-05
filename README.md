@@ -15,6 +15,8 @@
 - decoding
   - Softmax, CRF
 - related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
+- document context for BERT paper reproduction
+  - see : https://github.com/dsindex/ntagger/issues/4#issuecomment-810304253
 
 <br>
 
