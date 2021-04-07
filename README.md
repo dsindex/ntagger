@@ -370,11 +370,7 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word                 | 81.3581 / -        |           |           | document context, subword pooling, freezing BERT during some epochs, epoch=30, n_ctx=512 |
 | BERT-base(cased), BiLSTM-CRF    | 92.85             |                   | word                 | 80.1447 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, epoch=30, n_ctx=512 |
 | BERT-large                      | -                 |                   | word                 | -       / -        |           |           | epoch=30                                               |
-| BERT-large                      | -                 |                   | word                 | -       / -        |           |           | subword pooling, epoch=30                              |
-| BERT-large                      | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, epoch=30              |
 | BERT-large                      | -                 |                   | word                 | -       / -        |           |           | document context, epoch=30, n_ctx=512                  |
-| BERT-large                      | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, epoch=30, n_ctx=512 |
-| BERT-large                      | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, epoch=30, n_ctx=512 |
 | BERT-large, BiLSTM              | 91.32             | 91.89             | word                 | 40.3581 / -        |           |           | epoch=10                                   |
 | BERT-large, BiLSTM              | 91.57             |                   | word                 | 35.2808 / -        |           |           | freezing BERT during some epochs, epoch=10 |
 | BERT-large, BiLSTM+CRF          | 90.78             |                   | word                 | 59.3982 / -        |           |           | epoch=10                                   |
@@ -407,10 +403,7 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30           |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           | epoch=30                                                                    |
-| XLM-RoBERTa-large               | -                 |                   | word                 | -       / -        |           |           | subword pooling, freezing BERT during some epochs, epoch=30                 |
-| XLM-RoBERTa-large               | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30 |
-| XLM-RoBERTa-large               | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, epoch=30, n_ctx=512                      |
-| XLM-RoBERTa-large               | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, epoch=30, n_ctx=512      |
+| XLM-RoBERTa-large               | -                 |                   | word                 | -       / -        |           |           | document context, epoch=30, n_ctx=512                                       |
 | XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs, epoch=30                                  |
 | XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30 |
 | XLM-RoBERTa-large, BiLSTM-CRF   | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
@@ -419,12 +412,9 @@ $ cp -rf valid.txt test.txt
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           | epoch=20                  |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           | epoch=20                  |
-| DeBERTa-v2-xlarge               | **93.12**         |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp, epoch=20                                  |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, subword pooling, epoch=20                 |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, subword pooling, word embedding, epoch=20 |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, document context, subword pooling, epoch=20, n_ctx=512 |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, document context, subword pooling, word embedding, epoch=20, n_ctx=512 |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp, fail to train!       |
+| DeBERTa-v2-xlarge               | **93.12**         |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp, epoch=20                                               |
+| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, document context, epoch=20, n_ctx=512                  |
+| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp, fail to train!                              |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -677,6 +667,12 @@ accuracy:  98.36%; precision:  91.25%; recall:  92.53%; FB1:  91.89
 INFO:__main__:[F1] : 0.9124989051414557, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 109073.38047027588ms, 29.574078060898998ms on average
 accuracy:  98.27%; precision:  90.29%; recall:  92.23%; FB1:  91.25
+
+* --bert_disable_lstm --epoch=30
+
+
+
+
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
