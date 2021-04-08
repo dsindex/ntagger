@@ -341,6 +341,9 @@ def preprocess_bert(config):
         init_vocab = build_init_vocab(config)
         vocab, embedding = build_vocab_from_embedding(opt.embedding_path, init_vocab, config)
         w_tokenizer = Tokenizer(vocab, config)
+        # write embedding
+        path = os.path.join(opt.data_dir, _EMBED_FILE)
+        write_embedding(embedding, path)
 
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)

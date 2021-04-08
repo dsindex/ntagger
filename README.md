@@ -349,8 +349,8 @@ $ cp -rf valid.txt test.txt
 | BERT-base(uncased), BiLSTM      | 89.03             |                   | word                 | 24.9076 / -        |           |           | del 8,9,10,11, threads=14, epoch=10                                     |
 | bert-base-NER(cased), BiLSTM    | 91.63 / 92.71     | 92.25 / 93.16     | word                 | 17.6680 / -        |           |           | freezing BERT during some epochs for conll++,conll++_truecase, epoch=10 |
 | BERT-base(cased)                | 91.45             |                   | word                 | 45.5024 / -        |           |           | epoch=30                                               |
-| BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | subword pooling, epoch=30                              |
-| BERT-base(cased)                | -                 |                   | word                 | -       / -        |           |           | subword pooling, word embedding, epoch=30              |
+| BERT-base(cased)                | 91.37             |                   | word                 | 46.2147 / -        |           |           | subword pooling, epoch=30                              |
+| BERT-base(cased)                | 91.20             |                   | word                 | 33.3276 / -        |           |           | subword pooling, word embedding, epoch=30              |
 | BERT-base(cased)                | 92.35             |                   | word                 | 32.6524 / -        |           |           | document context, epoch=30, n_ctx=512                  |
 | BERT-base(cased)                | 92.23             |                   | word                 | 46.7166 / -        |           |           | document context, subword pooling, epoch=30, n_ctx=512 |
 | BERT-base(cased)                | 92.15             |                   | word                 | 46.5353 / -        |           |           | document context, subword pooling, word embedding, epoch=30, n_ctx=512 |
@@ -377,11 +377,6 @@ $ cp -rf valid.txt test.txt
 | BERT-large, BiLSTM+CRF          | 92.02             | 91.96             | word                 | 54.4254 / -        |           |           | freezing BERT during some epochs, epoch=10 |
 | BERT-large, BiLSTM+CRF          | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
 | BERT-large, BiLSTM              | 89.10             |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23, epoch=10                      |
-| BERT-large, BiLSTM              | 86.11             |                   | word                 | 49.3103 / -        |           |           | BERT as feature-based, initial embedding, epoch=64             |
-| BERT-large, BiLSTM-CRF          | 86.43             |                   | word                 | 63.1376 / -        |           |           | BERT as feature-based, initial embedding  epoch=64             |
-| BERT-large, BiLSTM              | 89.72             |                   | word                 | 47.9704 / -        |           |           | BERT as feature-based, initial+first+last embedding, epoch=64  |
-| BERT-large, BiLSTM-CRF          | 89.96             |                   | word                 | 67.2041 / -        |           |           | BERT as feature-based, initial+first+last embedding, epoch=64  |
-| BERT-large, BiLSTM-CRF          | 89.67             |                   | word                 | 68.7548 / -        |           |           | BERT as feature-based, last embedding, epoch=64                |
 | BERT-large, BiLSTM-CRF          | 90.64             |                   | word                 | 63.9397 / -        |           |           | BERT as feature-based, [-4:] embedding, epoch=64               |
 | BERT-large, BiLSTM-CRF          | 90.52             |                   | word                 | 70.8322 / -        |           |           | BERT as feature-based, mean([0:3] + [-4:]) embedding, epoch=64 |
 | BERT-large, BiLSTM-CRF          | 90.81             |                   | word                 | 68.6139 / -        |           |           | BERT as feature-based, mean([0:17]) embedding, epoch=64        |
@@ -815,12 +810,14 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 151703.0575275421ms, 41.1466959213
 accuracy:  98.34%; precision:  91.64%; recall:  92.53%; FB1:  92.08
 
 * subword pooling, --bert_disable_lstm, --batch_size=16 --epoch=30
-
-... (1)
+INFO:__main__:[F1] : 0.9137430757056186, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 170345.35002708435ms, 46.214719198010975ms on average
+accuracy:  98.27%; precision:  90.76%; recall:  92.00%; FB1:  91.37
 
 * subword pooling, word embedding, --bert_disable_lstm, --batch_size=16 --epoch=30
-
-... (2)
+INFO:__main__:[F1] : 0.9120337790288531, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 122857.85698890686ms, 33.327639701733474ms on average
+accuracy:  98.28%; precision:  90.63%; recall:  91.78%; FB1:  91.20
 
 * document context, --batch_size=16, n_ctx: 512, --epoch=30
 # preprocessing
