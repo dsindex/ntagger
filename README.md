@@ -370,12 +370,12 @@ $ cp -rf valid.txt test.txt
 | BERT-base(cased), BiLSTM-CRF    | 92.08             |                   | word                 | 81.3581 / -        |           |           | document context, subword pooling, freezing BERT during some epochs, epoch=30, n_ctx=512 |
 | BERT-base(cased), BiLSTM-CRF    | 92.85             |                   | word                 | 80.1447 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, epoch=30, n_ctx=512 |
 | BERT-large                      | 91.13             |                   | word                 | 31.2675 / -        |           |           | epoch=30                                                 |
-| BERT-large                      | -                 |                   | word                 | -       / -        |           |           | document context, epoch=30, n_ctx=512                    |
+| BERT-large                      | 92.27             |                   | word                 | 68.4826 / -        |           |           | document context, epoch=30, n_ctx=512                    |
 | BERT-large, BiLSTM              | 91.32             | 91.89             | word                 | 40.3581 / -        |           |           | epoch=10                                   |
 | BERT-large, BiLSTM              | 91.57             |                   | word                 | 35.2808 / -        |           |           | freezing BERT during some epochs, epoch=10 |
 | BERT-large, BiLSTM+CRF          | 90.78             |                   | word                 | 59.3982 / -        |           |           | epoch=10                                   |
 | BERT-large, BiLSTM+CRF          | 92.02             | 91.96             | word                 | 54.4254 / -        |           |           | freezing BERT during some epochs, epoch=10 |
-| BERT-large, BiLSTM+CRF          | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
+| BERT-large, BiLSTM+CRF          | 92.83             |                   | word                 | 103.930 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
 | BERT-large, BiLSTM              | 89.10             |                   | word                 | 33.1376 / -        |           |           | del 12 ~ 23, epoch=10                      |
 | BERT-large, BiLSTM-CRF          | 90.64             |                   | word                 | 63.9397 / -        |           |           | BERT as feature-based, [-4:] embedding, epoch=64               |
 | BERT-large, BiLSTM-CRF          | 90.52             |                   | word                 | 70.8322 / -        |           |           | BERT as feature-based, mean([0:3] + [-4:]) embedding, epoch=64 |
@@ -676,16 +676,25 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --bert_use_doc_context --bert_disable_lstm
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[F1] : 0.9217056973086334, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 252364.78638648987ms, 68.47469475875883ms on average
+accuracy:  98.39%; precision:  90.99%; recall:  93.38%; FB1:  92.17
 
-... (1)
+** --bert_doc_context_option=2
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-large-cased --bert_use_doc_context --bert_doc_context_option=2 
+INFO:__main__:[F1] : 0.9226704245199928, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 252395.40195465088ms, 68.4826407068746ms on average
+accuracy:  98.47%; precision:  91.80%; recall:  92.74%; FB1:  92.27
 
 * document context, --bert_subword_pooling --bert_word_embedding --use_crf --batch_size=8, n_ctx: 512, --epoch=30
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/bert-large-cased --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding
 # train
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-large-cased --bert_output_dir=bert-checkpoint --batch_size=8 --lr=1e-5 --epoch=30 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --use_crf --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --eval_batch_size=32
-
-... (2)
+INFO:__main__:[F1] : 0.9283378987364141, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 382980.3364276886ms, 103.93010136099117ms on average
+accuracy:  98.48%; precision:  92.66%; recall:  93.01%; FB1:  92.83
 
 * --bert_model_name_or_path=./embedings/bert-base-uncased --use_crf (BERT-base BiLSTM-CRF)
 INFO:__main__:[F1] : 0.8993429697766097, 3684
@@ -1697,10 +1706,12 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | -           | eoj      | -       / -    |          |           | subword pooling, freezing BERT during some epochs       |
 | LM-KOR-ELECTRA                           | 87.39       | eoj      | 17.1545 / -    |          |           |        |
 | LM-KOR-ELECTRA, BiLSTM-CRF               | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | bpe ELECTRA-base(v1)                     | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | dhaToken1.large ELECTRA-base, BiLSTM-CRF | 86.90       | eoj      | 44.3714 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| dhaSyllable ELECTRA-base, BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | subword pooling, freezing BERT during some epochs       |
 | RoBERTa-base                             | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
