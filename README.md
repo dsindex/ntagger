@@ -1262,6 +1262,28 @@ INFO:__main__:[F1] : 0.9381488266596877, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 127575.44207572937ms, 34.58970893571922ms on average
 accuracy:  98.65%; precision:  93.33%; recall:  94.30%; FB1:  93.81
 
+* document context, --bert_disable_lstm --batch_size=8, n_ctx: 512, --epoch=30
+# preprocessing
+$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_use_doc_context --bert_doc_context_option=2
+# train
+$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=8 --lr=1e-5 --epoch=30 --bert_use_doc_context --bert_disable_lstm  --eval_batch_size=32
+# evaluate
+$ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta --bert_use_doc_context --bert_disable_lstm
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+... (1)
+
+* document context, subword pooling, word embedding, --batch_size=8, n_ctx: 512, --epoch=30 --use_crf
+# preprocessing
+$ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_use_doc_context --bert_doc_context_option=2 --bert_use_subword_pooling --bert_use_word_embedding
+# train
+$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=8 --lr=1e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --use_crf --eval_batch_size=32 --patience=4 --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3
+# evaluate
+$ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --use_crf
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
+... (2)
+
 ```
 
 </p>
