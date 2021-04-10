@@ -451,6 +451,7 @@ $ cp -rf valid.txt test.txt
 |                                 | F1 (%)   | Etc                 |
 | ------------------------------- | -------- | ------------------- |
 | LUKE                            | **94.3** |                     |
+| ACE + document-context          | 94.14    |                     |
 | ACE                             | 93.63    |                     |
 | CNN Large + fine-tune           | 93.5     |                     |
 | biaffine-ner                    | 93.5     |                     |
@@ -1393,21 +1394,21 @@ INFO:__main__:[F1] : 0.931234611326064, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 232110.55159568787ms, 62.972230753301766ms on average
 accuracy:  98.57%; precision:  92.51%; recall:  93.75%; FB1:  93.12
 
-* --use_sharded_ddp, subword pooling, word embedding, --use_crf, bilstm
-$ export NCCL_DEBUG=INFO
-# preprocessing
-$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_subword_pooling --bert_use_word_embedding
-# train
-$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --master_port=8666 --bert_use_subword_pooling --bert_use_word_embedding --use_crf
-# evaluate
-# python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_use_subword_pooling --bert_use_word_embedding --use_crf
-
-
 * --use_sharded_ddp --use_fsdp
 $ export NCCL_DEBUG=INFO
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --use_fsdp --world_size=2 --master_port=5176
 # 0 accuracy! 
 how to load the saved model from FSDP.state_dict()?
+
+* document context, --bert_disable_lstm --batch_size=8, n_ctx: 512, --epoch=20
+# preprocessing
+$ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_doc_context --bert_doc_context_option=2
+# train
+$ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_output_dir=bert-checkpoint-deberta --batch_size=4 --gradient_accumulation_steps=4 --lr=1e-5 --epoch=20 --bert_use_doc_context --bert_disable_lstm  --eval_batch_size=32 --use_sharded_ddp --world_size=2 --master_port=20630
+# evaluate
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_use_doc_context --bert_disable_lstm
+$ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+
 
 ```
 
