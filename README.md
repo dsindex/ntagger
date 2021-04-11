@@ -401,7 +401,7 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-large               | **93.86**         |                   | word                 | 50.2684 / -        |           |           | document context, epoch=30, n_ctx=512                                       |
 | XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs, epoch=30                                  |
 | XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30 |
-| XLM-RoBERTa-large, BiLSTM-CRF   | -                 |                   | word                 | -       / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
+| XLM-RoBERTa-large, BiLSTM-CRF   | 93.59             |                   | word                 | 105.188 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
@@ -409,7 +409,6 @@ $ cp -rf valid.txt test.txt
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           | epoch=20                  |
 | DeBERTa-v2-xlarge               | 93.12             |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp, epoch=20                                               |
 | DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, document context, epoch=20, n_ctx=512                  |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp --use_fsdp, fail to train!                              |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -1287,8 +1286,9 @@ $ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003
 # evaluate
 $ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-... (2)
+INFO:__main__:[F1] : 0.9358929200422684, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 387618.5405254364ms, 105.18818713386779ms on average
+accuracy:  98.61%; precision:  93.10%; recall:  94.09%; FB1:  93.59
 
 ```
 
@@ -1409,6 +1409,7 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_use_doc_context --bert_disable_lstm
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 
+... (1)
 
 ```
 
