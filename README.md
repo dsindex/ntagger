@@ -2432,6 +2432,12 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 398727.7433872223ms, 44.2940400618
 INFO:__main__:[Elapsed Time] : 100 examples, 4092.3564434051514ms, 40.08559265522042ms on average
 accuracy:  94.92%; precision:  88.19%; recall:  88.07%; FB1:  88.13
 
+*** subword pooling
+**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_subword_pooling --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+
+... (2)
+
+
 ** LM-KOR-ELECTRA
 
 *** --bert_model_name_or_path=./embeddings/electra-kor-base  --warmup_epoch=0 --weight_decay=0.0 --gradient_accumulation_steps=2 --lr=8e-5 --epoch=30
