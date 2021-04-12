@@ -397,8 +397,8 @@ $ cp -rf valid.txt test.txt
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs, epoch=30 |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30           |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| XLM-RoBERTa-large               | 92.75 / 93.95     | **92.89** / 94.11 | word                 | 27.9144 / -        |           |           | epoch=30                                                                    |
-| XLM-RoBERTa-large               | **93.86**         |                   | word                 | 50.2684 / -        |           |           | document context, epoch=30, n_ctx=512                                       |
+| XLM-RoBERTa-large               | 92.75 / 93.95     | 92.89 / 94.11     | word                 | 27.9144 / -        |           |           | epoch=30                                                                    |
+| XLM-RoBERTa-large               | 93.86             |                   | word                 | 50.2684 / -        |           |           | document context, epoch=30, n_ctx=512                                       |
 | XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs, epoch=30                                  |
 | XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30 |
 | XLM-RoBERTa-large, BiLSTM-CRF   | 93.59             |                   | word                 | 105.188 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
@@ -408,7 +408,7 @@ $ cp -rf valid.txt test.txt
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           | epoch=20                  |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           | epoch=20                  |
 | DeBERTa-v2-xlarge               | 93.12             |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp, epoch=20                                               |
-| DeBERTa-v2-xlarge               | -                 |                   | word                 | -       / -        |           |           | --use_sharded_ddp, document context, epoch=20, n_ctx=512                  |
+| DeBERTa-v2-xlarge               | **94.00**         |                   | word                 | 157.075 / -        |           |           | --use_sharded_ddp, document context, epoch=20, n_ctx=512                  |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -1400,7 +1400,7 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --
 # 0 accuracy! 
 how to load the saved model from FSDP.state_dict()?
 
-* document context, --bert_disable_lstm --batch_size=8, n_ctx: 512, --epoch=20
+* --use_sharded_ddp, document context, --bert_disable_lstm --batch_size=8, n_ctx: 512, --epoch=20
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_doc_context --bert_doc_context_option=2
 # train
@@ -1408,8 +1408,13 @@ $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --
 # evaluate
 $ python evaluate.py --config=configs/config-bert.json --data_dir=data/conll2003 --model_path=pytorch-model-deberta.pt --bert_output_dir=bert-checkpoint-deberta --bert_use_doc_context --bert_disable_lstm
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-... (1)
+INFO:__main__:[F1] : 0.9400386847195358, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 578826.6246318817ms, 157.07525959682957ms on average
+accuracy:  98.73%; precision:  93.36%; recall:  94.65%; FB1:  94.00
+              LOC: precision:  94.47%; recall:  95.26%; FB1:  94.87  1682
+             MISC: precision:  80.48%; recall:  86.32%; FB1:  83.30  753
+              ORG: precision:  92.81%; recall:  94.10%; FB1:  93.45  1684
+              PER: precision:  98.82%; recall:  98.21%; FB1:  98.51  1607
 
 ```
 
@@ -2433,7 +2438,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 4092.3564434051514ms, 40.0855926552
 accuracy:  94.92%; precision:  88.19%; recall:  88.07%; FB1:  88.13
 
 *** subword pooling
-**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_subword_pooling --bert_freezing_epoch=3 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_subword_pooling --eval_and_save_steps=1000 , without --bert_disable_lstm
 
 ... (2)
 
