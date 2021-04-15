@@ -1740,12 +1740,12 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| KoELECTRA-Base-v3, BiLSTM-CRF            | -           | eoj      | -       / -    |          |           | subword pooling                  |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | 87.89       | eoj      | 47.0637 / -    |          |           | subword pooling                  |
 | LM-KOR-ELECTRA                           | 87.39       | eoj      | 17.1545 / -    |          |           |        |
 | LM-KOR-ELECTRA, BiLSTM-CRF               | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | bpe ELECTRA-base(v1)                     | 86.46       | eoj      | 18.0449 / -    |          |           |        |
 | dhaToken1.large ELECTRA-base, BiLSTM-CRF | 86.90       | eoj      | 44.3714 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| dhaSyllable ELECTRA-base, BiLSTM-CRF     | -           | eoj      | -       / -    |          |           | subword pooling                  |
+| dhaSyllable ELECTRA-base, BiLSTM-CRF     | 86.31       | eoj      | 41.0562 / -    |          |           | subword pooling                  |
 | RoBERTa-base                             | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
@@ -2443,9 +2443,9 @@ accuracy:  94.92%; precision:  88.19%; recall:  88.07%; FB1:  88.13
 
 *** subword pooling
 **** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_subword_pooling --eval_and_save_steps=1000 , without --bert_disable_lstm
-
-... (2)
-
+INFO:__main__:[F1] : 0.8789345427469033, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 423700.3529071808ms, 47.06374085311135ms on average
+accuracy:  94.94%; precision:  87.50%; recall:  88.29%; FB1:  87.89
 
 ** LM-KOR-ELECTRA
 
@@ -2485,8 +2485,9 @@ accuracy:  94.50%; precision:  87.18%; recall:  86.62%; FB1:  86.90
 ** dhaSyllable ELECTRA-base
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --use_crf --bert_use_subword_pooling
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
-... (1)
+INFO:__main__:[F1] : 0.8630221340357839, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 369628.701210022ms, 41.056287965584836ms on average
+accuracy:  94.25%; precision:  86.86%; recall:  85.77%; FB1:  86.31
 
 ** RoBERTa-base
 
