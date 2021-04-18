@@ -393,22 +393,22 @@ $ cp -rf valid.txt test.txt
 | RoBERTa-base                    | 90.03             |                   | word                 | 19.2503 / -        |           |           | epoch=10                  |
 | RoBERTa-large                   | 91.83             | 91.90             | word                 | 28.5525 / -        |           |           | epoch=10                  |
 | XLM-RoBERTa-base                | 91.20             |                   | word                 | 18.9604 / -        |           |           | epoch=30                  |
-| XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs, epoch=30 |
-| XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs, epoch=30 |
-| XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30           |
+| XLM-RoBERTa-base, BiLSTM        | 90.81             |                   | word                 | 21.4667 / -        |           |           | freezing BERT during some epochs, epoch=30                                                                       |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.12             |                   | word                 | 39.4418 / -        |           |           | freezing BERT during some epochs, epoch=30                                                                       |
+| XLM-RoBERTa-base, BiLSTM-CRF    | 91.79             |                   | word                 | 43.0662 / -        |           |           | using sub token label, freezing BERT during some epochs, epoch=30                                                |
 | XLM-RoBERTa-base, BiLSTM-CRF    | 91.16             |                   | word                 | 39.3642 / -        |           |           | slicing logits, freezing BERT during some epochs, epoch=30, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
-| XLM-RoBERTa-large               | 92.75 / 93.95     | 92.89 / 94.11     | word                 | 27.9144 / -        |           |           | epoch=30                                                                    |
-| XLM-RoBERTa-large               | 93.86             |                   | word                 | 50.2684 / -        |           |           | document context, epoch=30, n_ctx=512                                       |
-| XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs, epoch=30                                  |
-| XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30 |
-| XLM-RoBERTa-large, BiLSTM-CRF   | 93.59             |                   | word                 | 105.188 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30 |
+| XLM-RoBERTa-large               | 92.75 / 93.95     | 92.89 / 94.11     | word                 | 27.9144 / -        |           |           | epoch=30                                                                                                         |
+| XLM-RoBERTa-large               | 93.86             |                   | word                 | 50.2684 / -        |           |           | document context, epoch=30, n_ctx=512                                                                            |
+| XLM-RoBERTa-large, BiLSTM       | -     / 93.75     | -         / 93.81 | word                 | 34.4894 / -        |           |           | freezing BERT during some epochs, epoch=30                                                                       |
+| XLM-RoBERTa-large, BiLSTM-CRF   | 92.97             |                   | word                 | 52.8133 / -        |           |           | subword pooling, word embedding, freezing BERT during some epochs, epoch=30                                      |
+| XLM-RoBERTa-large, BiLSTM-CRF   | 93.59             |                   | word                 | 105.188 / -        |           |           | document context, subword pooling, word embedding, freezing BERT during some epochs, n_ctx=512, epoch=30         |
 | BART-large, BiLSTM              | 90.43             |                   | word                 | 53.3657 / -        |           |           |                           |
 | ELECTRA-base, BiLSTM            | 90.98             |                   | word                 | 22.4132 / -        |           |           |                           |
 | ELECTRA-large                   | 91.39             |                   | word                 | 29.5734 / -        |           |           |                           |
 | DeBERTa-base                    | 90.41             |                   | word                 | 28.6874 / -        |           |           | epoch=20                  |
 | DeBERTa-large                   | 91.45             |                   | word                 | 53.9249 / -        |           |           | epoch=20                  |
-| DeBERTa-v2-xlarge               | 93.12             |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp, epoch=20                                               |
-| DeBERTa-v2-xlarge               | **94.00**         |                   | word                 | 157.075 / -        |           |           | --use_sharded_ddp, document context, epoch=20, n_ctx=512                  |
+| DeBERTa-v2-xlarge               | 93.12             |                   | word                 | 62.9722 / -        |           |           | --use_sharded_ddp, epoch=20, https://github.com/dsindex/ntagger/releases/tag/v1.1                                |
+| DeBERTa-v2-xlarge               | **94.00**         |                   | word                 | 157.075 / -        |           |           | --use_sharded_ddp, document context, epoch=20, n_ctx=512, https://github.com/dsindex/ntagger/releases/tag/v1.1   |
 | ELMo, BiLSTM-CRF                | 91.78             |                   | word, pos            | 74.1001 / -        |           |           |                           |
 | ELMo, BiLSTM-CRF                | 91.93             |                   | word, character, pos | 67.6931 / -        |           |           |                           |
 | ELMo, GloVe, BiLSTM-CRF         | 92.63 / 93.49     | 92.51 / 93.68     | word, pos            | 74.6521 / -        |           |           |                           |
@@ -1388,6 +1388,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 5544.259309768677ms, 53.92497717732
 accuracy:  98.32%; precision:  91.08%; recall:  91.82%; FB1:  91.45
 
 * --use_sharded_ddp
+# https://github.com/dsindex/ntagger/releases/tag/v1.1
 $ export NCCL_DEBUG=INFO
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --world_size=2 --master_port=8666
 INFO:__main__:[F1] : 0.931234611326064, 3684
@@ -1395,12 +1396,14 @@ INFO:__main__:[Elapsed Time] : 3684 examples, 232110.55159568787ms, 62.972230753
 accuracy:  98.57%; precision:  92.51%; recall:  93.75%; FB1:  93.12
 
 * --use_sharded_ddp --use_fsdp
+# https://github.com/dsindex/ntagger/releases/tag/v1.1
 $ export NCCL_DEBUG=INFO
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=16 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=2 --use_sharded_ddp --use_fsdp --world_size=2 --master_port=5176
 # 0 accuracy! 
 how to load the saved model from FSDP.state_dict()?
 
 * --use_sharded_ddp, document context, --bert_disable_lstm --batch_size=8, n_ctx: 512, --epoch=20
+# https://github.com/dsindex/ntagger/releases/tag/v1.1
 # preprocessing
 $ python preprocess.py --config=configs/config-bert.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/deberta-v2-xlarge --bert_use_doc_context --bert_doc_context_option=2
 # train
