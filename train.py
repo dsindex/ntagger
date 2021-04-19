@@ -7,23 +7,15 @@ import time
 import pdb
 import json
 import logging
+import math
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.cuda.amp import autocast, GradScaler
-import torch.autograd.profiler as profiler
-
-try:
-    import torch.distributed as dist
-    import torch.multiprocessing as mp
-    from fairscale.optim.oss import OSS
-    from fairscale.nn.data_parallel import ShardedDataParallel as ShardedDDP
-    from fairscale.nn.data_parallel import FullyShardedDataParallel as FSDP
-    from fairscale.optim.grad_scaler import ShardedGradScaler
-except ImportError:
-    pass
+from accelerate import Accelerator
+from transformers import AdamW, get_linear_schedule_with_warmup
+from torch.nn.parallel import DistributedDataParallel
 
 try:
     from torch.utils.tensorboard import SummaryWriter
@@ -36,7 +28,7 @@ import json
 from tqdm import tqdm
 
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
-from util    import load_checkpoint, load_config, load_dict, to_device, to_numpy
+from util    import load_checkpoint, load_config, load_dict
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 from early_stopping import EarlyStopping
@@ -47,9 +39,9 @@ from datasets.metric import temp_seed
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
+def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
     opt = config['opt']
-    world_size = opt.world_size
+    accelerator = config['accelerator'] 
 
     optimizer = None
     scheduler = None
@@ -58,7 +50,6 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
     optimizer_2nd = config['optimizer_2nd']
     scheduler_2nd = config['scheduler_2nd']
     writer = config['writer']
-    scaler = config['scaler']
     pad_label_id = config['pad_label_id']
     optimizer = optimizer_1st
     scheduler = scheduler_1st
@@ -71,9 +62,9 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
             freeze_bert = True
 
     if opt.criterion == 'LabelSmoothingCrossEntropy':
-        criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum').to(opt.device)
+        criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
     else:
-        criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(opt.device)
+        criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     n_batches = len(train_loader)
 
     # train one epoch
@@ -87,61 +78,38 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
     for local_step, (x,y) in enumerate(epoch_iterator):
         model.train()
         global_step = (len(train_loader) * epoch_i) + local_step
-        x = to_device(x, opt.device)
-        y = to_device(y, opt.device)
         if opt.use_crf:
-            with autocast(enabled=opt.use_amp):
-                mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
-                if opt.use_profiler:
-                    with profiler.profile(profile_memory=True, record_shapes=True) as prof:
-                        logits, prediction = model(x)
-                    print(prof.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
-                else:
-                    if config['emb_class'] not in ['glove', 'elmo']:
-                        logits, prediction = model(x, freeze_bert=freeze_bert)
-                    else:
-                        logits, prediction = model(x)
-                log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
-                loss = -1 * log_likelihood
-                if opt.gradient_accumulation_steps > 1:
-                    loss = loss / opt.gradient_accumulation_steps
-        else:
-            with autocast(enabled=opt.use_amp):
-                if opt.use_profiler:
-                    with profiler.profile(profile_memory=True, record_shapes=True) as prof:
-                        logits = model(x)
-                    print(prof.key_averages().table(sort_by="self_cpu_memory_usage", row_limit=10))
-                else:
-                    if config['emb_class'] not in ['glove', 'elmo']:
-                        logits = model(x, freeze_bert=freeze_bert)
-                    else:
-                        logits = model(x)
-                # reshape for computing loss
-                logits_view = logits.view(-1, config['label_size'])
-                y_view = y.view(-1)
-                loss = criterion(logits_view, y_view)
-                if opt.gradient_accumulation_steps > 1:
-                    loss = loss / opt.gradient_accumulation_steps
-        # back-propagation - begin
-        if opt.device == 'cpu':
-            loss.backward()
-        else:
-            scaler.scale(loss).backward()
-        if (local_step + 1) % opt.gradient_accumulation_steps == 0:
-            if opt.device == 'cpu':
-                optimizer.step()
+            mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
+            if config['emb_class'] not in ['glove', 'elmo']:
+                logits, prediction = model(x, freeze_bert=freeze_bert)
             else:
-                scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(model.parameters(), opt.max_grad_norm)
-                scaler.step(optimizer)
-                scaler.update()
+                logits, prediction = model(x)
+            log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+            loss = -1 * log_likelihood
+            if opt.gradient_accumulation_steps > 1:
+                loss = loss / opt.gradient_accumulation_steps
+        else:
+           if config['emb_class'] not in ['glove', 'elmo']:
+               logits = model(x, freeze_bert=freeze_bert)
+           else:
+               logits = model(x)
+           # reshape for computing loss
+           logits_view = logits.view(-1, config['label_size'])
+           y_view = y.view(-1)
+           loss = criterion(logits_view, y_view)
+           if opt.gradient_accumulation_steps > 1:
+               loss = loss / opt.gradient_accumulation_steps
+        # back-propagation - begin
+        accelerator.backward(loss)
+        if (local_step + 1) % opt.gradient_accumulation_steps == 0:
+            optimizer.step()
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-            epoch_iterator.set_description(f"Rank/WorldSize {rank}/{world_size}, Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
-            if opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
+            epoch_iterator.set_description(f"Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
+            if accelerator.is_main_process and opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
-                eval_ret = evaluate(rank, model, config, valid_loader)
+                eval_ret = evaluate(model, config, valid_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
                 if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
@@ -152,15 +120,17 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
                     writer.add_scalar('LearningRate/train', curr_lr, global_step)
                 if eval_f1 > best_eval_f1:
                     best_eval_f1 = eval_f1
-                    if rank == 0 and opt.save_path and not opt.hp_search_optuna:
-                        save_model(config, model)
+                    if opt.save_path and not opt.hp_search_optuna:
+                        accelerator.wait_for_everyone()
+                        unwrapped_model = accelerator.unwrap_model(model)
+                        save_model(config, unwrapped_model)
                         logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
                         # save finetuned bert model/config/tokenizer
                         if config['emb_class'] not in ['glove', 'elmo']:
                             if not os.path.exists(opt.bert_output_dir):
                                 os.makedirs(opt.bert_output_dir)
-                            model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
-                            model.bert_model.save_pretrained(opt.bert_output_dir)
+                            unwrapped_model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
+                            unwrapped_model.bert_model.save_pretrained(opt.bert_output_dir)
                             logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
         # back-propagation - end
         train_loss += loss.item()
@@ -168,27 +138,30 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
     avg_loss = train_loss / n_batches
 
     # evaluate at the end of epoch
-    eval_ret = evaluate(rank, model, config, valid_loader)
-    eval_loss = eval_ret['loss']
-    eval_f1 = eval_ret['f1']
-    if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
-    if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
-    if writer:
-        writer.add_scalar('Loss/valid', eval_loss, global_step)
-        writer.add_scalar('F1/valid', eval_f1, global_step)
-        writer.add_scalar('LearningRate/train', curr_lr, global_step)
-    if eval_f1 > best_eval_f1:
-        best_eval_f1 = eval_f1
-        if rank == 0 and opt.save_path and not opt.hp_search_optuna:
-            save_model(config, model)
-            logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
-            # save finetuned bert model/config/tokenizer
-            if config['emb_class'] not in ['glove', 'elmo']:
-                if not os.path.exists(opt.bert_output_dir):
-                    os.makedirs(opt.bert_output_dir)
-                model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
-                model.bert_model.save_pretrained(opt.bert_output_dir)
-                logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
+    if accelerator.is_main_process:
+        eval_ret = evaluate(model, config, valid_loader)
+        eval_loss = eval_ret['loss']
+        eval_f1 = eval_ret['f1']
+        if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
+        if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
+        if writer:
+            writer.add_scalar('Loss/valid', eval_loss, global_step)
+            writer.add_scalar('F1/valid', eval_f1, global_step)
+            writer.add_scalar('LearningRate/train', curr_lr, global_step)
+        if eval_f1 > best_eval_f1:
+            best_eval_f1 = eval_f1
+            if opt.save_path and not opt.hp_search_optuna:
+                accelerator.wait_for_everyone()
+                unwrapped_model = accelerator.unwrap_model(model)
+                save_model(config, unwrapped_model)
+                logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
+                # save finetuned bert model/config/tokenizer
+                if config['emb_class'] not in ['glove', 'elmo']:
+                    if not os.path.exists(opt.bert_output_dir):
+                        os.makedirs(opt.bert_output_dir)
+                    unwrapped_model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
+                    unwrapped_model.bert_model.save_pretrained(opt.bert_output_dir)
+                    logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
 
     curr_time = time.time()
     elapsed_time = (curr_time - st_time) / 60
@@ -206,41 +179,42 @@ def train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_e
 
     return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
-def evaluate(rank, model, config, valid_loader, eval_device=None):
+def evaluate(model, config, valid_loader):
     opt = config['opt']
-    device = opt.device
-    if eval_device != None: device = eval_device
+    accelerator = config['accelerator'] 
     pad_label_id = config['pad_label_id']
 
     eval_loss = 0.
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id).to(device)
+    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     n_batches = len(valid_loader)
     preds = None
     ys    = None
     with torch.no_grad():
-        iterator = tqdm(valid_loader, total=len(valid_loader), desc=f"Evaluate, Rank {rank}")
+        iterator = tqdm(valid_loader, total=len(valid_loader), desc=f"Evaluate")
         for i, (x,y) in enumerate(iterator):
             model.eval()
-            x = to_device(x, device)
-            y = to_device(y, device)
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
             if opt.use_crf:
                 logits, prediction = model(x)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
+                logits = logits.cpu().numpy()
+                prediction = prediction.cpu().numpy()
             else:
                 logits = model(x)
                 loss = criterion(logits.view(-1, config['label_size']), y.view(-1))
                 # softmax after computing cross entropy loss
                 logits = torch.softmax(logits, dim=-1)
+                logits = logits.cpu().numpy()
+            y = y.cpu().numpy()
             if preds is None:
-                if opt.use_crf: preds = to_numpy(prediction)
-                else: preds = to_numpy(logits)
-                ys = to_numpy(y)
+                if opt.use_crf: preds = prediction
+                else: preds = logits
+                ys = y
             else:
-                if opt.use_crf: preds = np.append(preds, to_numpy(prediction), axis=0)
-                else: preds = np.append(preds, to_numpy(logits), axis=0)
-                ys = np.append(ys, to_numpy(y), axis=0)
+                if opt.use_crf: preds = np.append(preds, prediction, axis=0)
+                else: preds = np.append(preds, logits, axis=0)
+                ys = np.append(ys, y, axis=0)
             eval_loss += loss.item()
     eval_loss = eval_loss / n_batches
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
@@ -269,13 +243,7 @@ def save_model(config, model, save_path=None):
     checkpoint_path = opt.save_path
     if save_path: checkpoint_path = save_path
     with open(checkpoint_path, 'wb') as f:
-        if opt.use_sharded_ddp:
-            if opt.use_fsdp:
-                checkpoint = model.state_dict()
-            else:
-                checkpoint = model.module.state_dict()
-        else:
-            checkpoint = model.state_dict()
+        checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
 def set_path(config):
@@ -382,27 +350,31 @@ def prepare_model(config):
                            disable_lstm=opt.bert_disable_lstm,
                            feature_based=opt.bert_use_feature_based)
     if opt.restore_path:
-        checkpoint = load_checkpoint(opt.restore_path, device=opt.device)
+        checkpoint = load_checkpoint(opt.restore_path)
         model.load_state_dict(checkpoint)
-    model.to(opt.device)
     logger.info("[model] :\n{}".format(model.__str__()))
     logger.info("[model prepared]")
     return model
 
-def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0):
+def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
     opt = config['opt']
+    accelerator = config['accelerator']
 
     default_lr = opt.lr
     if lr: default_lr = lr
     default_weight_decay = opt.weight_decay
     if weight_decay: default_weight_decay = weight_decay
 
-    from transformers import AdamW, get_linear_schedule_with_warmup
-    num_training_steps_for_epoch = len(train_loader) // opt.gradient_accumulation_steps
-    num_training_steps = num_training_steps_for_epoch * opt.epoch
-    num_warmup_steps = num_training_steps_for_epoch * opt.warmup_epoch
-    logger.info("(num_training_steps_for_epoch, num_training_steps, num_warmup_steps): ({}, {}, {})".\
-        format(num_training_steps_for_epoch, num_training_steps, num_warmup_steps))        
+    num_update_steps_per_epoch = math.ceil(len(data_loader) / opt.gradient_accumulation_steps)
+    if opt.max_train_steps is None:
+        opt.max_train_steps = opt.epoch * num_update_steps_per_epoch
+    else:
+        opt.epoch = math.ceil(opt.max_train_steps / num_update_steps_per_epoch)
+    if opt.num_warmup_steps is None: 
+        opt.num_warmup_steps = num_update_steps_per_epoch * opt.warmup_epoch
+
+    logger.info(f"(num_update_steps_per_epoch, max_train_steps, num_warmup_steps): ({num_update_steps_per_epoch}, {opt.max_train_steps}, {opt.num_warmup_steps})")
+
     no_decay = ['bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
         {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
@@ -411,37 +383,20 @@ def prepare_osws(config, model, train_loader, lr=None, weight_decay=None, rank=0
     ]
     optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=opt.adam_epsilon)
 
-    scaler = GradScaler()
-
-    if opt.use_sharded_ddp:
-        if not opt.use_fsdp:
-            base_optimizer = AdamW
-            base_optimizer_arguments = {'lr': default_lr, 'eps': opt.adam_epsilon}
-            # Optimizer State Sharding
-            optimizer = OSS(params=optimizer_grouped_parameters, optim=base_optimizer, **base_optimizer_arguments)
-        if opt.use_amp:
-            scaler = ShardedGradScaler()
+    model, optimizer = accelerator.prepare(model, optimizer)
 
     scheduler = get_linear_schedule_with_warmup(optimizer,
-        num_warmup_steps=num_warmup_steps,
-        num_training_steps=num_training_steps)
+        num_warmup_steps=opt.num_warmup_steps,
+        num_training_steps=opt.max_train_steps)
 
     try:
         writer = SummaryWriter(log_dir=opt.log_dir)
     except:
         writer = None
 
-    logger.info("[Creating optimizer, scheduler, writer, scaler]")
-    return optimizer, scheduler, writer, scaler
+    return model, optimizer, scheduler, writer
 
-def train(rank, opt):
-    if torch.cuda.is_available():
-        logger.info("%s", torch.cuda.get_device_name(0))
-        if opt.device != 'cpu':
-            torch.cuda.set_device(rank)
-            torch.cuda.empty_cache()
-            torch.cuda.reset_peak_memory_stats(rank)
-            torch.cuda.synchronize(rank)
+def train(opt):
 
     # set etc
     torch.autograd.set_detect_anomaly(True)
@@ -453,48 +408,40 @@ def train(rank, opt):
  
     # set path
     set_path(config)
-  
+
+    # create accelerator
+    accelerator = Accelerator()
+    config['accelerator'] = accelerator
+    opt.device = accelerator.device
+
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config)
-
-    if opt.use_sharded_ddp:
-        backend = 'nccl'
-        if backend == 'nccl':
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-        dist.init_process_group(backend=backend, init_method="tcp://localhost:{}".format(opt.master_port), rank=rank, world_size=opt.world_size)
 
     with temp_seed(opt.seed):
         # prepare model
         model = prepare_model(config)
 
-        if opt.use_sharded_ddp:
-            if opt.use_fsdp:
-                mixed_precision = True if opt.use_amp else False
-                cpu_offload = True if mixed_precision else False
-                model = FSDP(model, mixed_precision=mixed_precision, cpu_offload=cpu_offload)
-                # optimizer must be initialized after the module has been wrapped.
-                # see : https://fairscale.readthedocs.io/en/latest/api/nn/fsdp.html
-
-        # create optimizer, scheduler, summary writer, scaler
-        optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, rank=rank)
+        # create optimizer, scheduler, summary writer
+        model, optimizer, scheduler, writer = prepare_others(config, model, train_loader)
         # create secondary optimizer, scheduler
-        optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
-
-        if opt.use_sharded_ddp:
-            if not opt.use_fsdp:
-                # single node run typically, no need for reduce buckets
-                model = ShardedDDP(model, optimizer, reduce_buffer_size=0)
-            # don't use secondary optimizer, scheduler
-            optimizer_2nd = None
-            scheduler_2nd = None
+        _, optimizer_2nd, scheduler_2nd, _= prepare_others(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+        train_loader = accelerator.prepare(train_loader)
+        valid_loader = accelerator.prepare(valid_loader)
 
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
         config['optimizer_2nd'] = optimizer_2nd
         config['scheduler_2nd'] = scheduler_2nd
         config['writer'] = writer
-        config['scaler'] = scaler
+
+        total_batch_size = opt.batch_size * accelerator.num_processes * opt.gradient_accumulation_steps
+        logger.info("***** Running training *****")
+        logger.info(f"  Num examples = {len(train_loader)}")
+        logger.info(f"  Num Epochs = {opt.epoch}")
+        logger.info(f"  Instantaneous batch size per device = {opt.batch_size}")
+        logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
+        logger.info(f"  Gradient Accumulation steps = {opt.gradient_accumulation_steps}")
+        logger.info(f"  Total optimization steps = {opt.max_train_steps}")
 
         # training
         early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
@@ -502,23 +449,18 @@ def train(rank, opt):
         best_eval_f1 = -float('inf')
         for epoch_i in range(opt.epoch):
             epoch_st_time = time.time()
-            eval_loss, eval_f1, best_eval_f1 = train_epoch(rank, model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
+            eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
             if eval_f1 == best_eval_f1:
                 early_stopping.reset(best_eval_f1)
             early_stopping.status()
     
-    if opt.use_sharded_ddp:
-        dist.destroy_process_group()
-
 
 # for optuna, global for passing opt 
 gopt = None
 
 def hp_search_optuna(trial: optuna.Trial):
-    if torch.cuda.is_available():
-        logger.info("%s", torch.cuda.get_device_name(0))
 
     global gopt
     opt = gopt
@@ -529,6 +471,11 @@ def hp_search_optuna(trial: optuna.Trial):
 
     # set path
     set_path(config)
+
+    # create accelerator
+    accelerator = Accelerator()
+    config['accelerator'] = accelerator
+    opt.device = accelerator.device
 
     # set search spaces
     lr = trial.suggest_float('lr', 1e-5, 1e-3, log=True)
@@ -542,22 +489,33 @@ def hp_search_optuna(trial: optuna.Trial):
     with temp_seed(seed):
         # prepare model
         model = prepare_model(config)
-        # create optimizer, scheduler, summary writer, scaler
-        optimizer, scheduler, writer, scaler = prepare_osws(config, model, train_loader, lr=lr)
+
+        # create optimizer, scheduler, summary writer
+        model, optimizer, scheduler, writer = prepare_others(config, model, train_loader, lr=lr)
         # create secondary optimizer, scheduler
-        optimizer_2nd, scheduler_2nd, _, _ = prepare_osws(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+        _, optimizer_2nd, scheduler_2nd, _ = prepare_others(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+        train_loader = accelerator.prepare(train_loader)
+        valid_loader = accelerator.prepare(valid_loader)
+
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
         config['optimizer_2nd'] = optimizer_2nd
         config['scheduler_2nd'] = scheduler_2nd
         config['writer'] = writer
-        config['scaler'] = scaler
+
+        total_batch_size = opt.batch_size * accelerator.num_processes * opt.gradient_accumulation_steps
+        logger.info("***** Running training *****")
+        logger.info(f"  Num examples = {len(train_loader)}")
+        logger.info(f"  Num Epochs = {opt.epoch}")
+        logger.info(f"  Instantaneous batch size per device = {opt.batch_size}")
+        logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
+        logger.info(f"  Gradient Accumulation steps = {opt.gradient_accumulation_steps}")
+        logger.info(f"  Total optimization steps = {opt.max_train_steps}")
 
         early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
         best_eval_f1 = -float('inf')
         for epoch in range(epochs):
-            rank = 0
-            eval_loss, eval_f1, best_eval_f1 = train_epoch(rank, model, config, train_loader, valid_loader, epoch, best_eval_f1)
+            eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch, best_eval_f1)
 
             # early stopping
             if early_stopping.validate(eval_f1, measure='f1'): break
@@ -581,9 +539,11 @@ def main():
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--eval_batch_size', type=int, default=128)
+    parser.add_argument('--max_train_steps', type=int, default=None)
     parser.add_argument('--epoch', type=int, default=30)
     parser.add_argument('--eval_and_save_steps', type=int, default=500, help="Save checkpoint every X updates steps.")
     parser.add_argument('--lr', type=float, default=1e-3)
+    parser.add_argument('--num_warmup_steps', type=int, default=None)
     parser.add_argument('--warmup_epoch', type=int, default=0,  help="Number of warmup epoch")
     parser.add_argument('--patience', default=7, type=int, help="Max number of epoch to be patient for early stopping.")
     parser.add_argument('--adam_epsilon', type=float, default=1e-8)
@@ -599,13 +559,7 @@ def main():
     parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable.")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features.")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
-    parser.add_argument('--use_amp', action='store_true', help="Use automatic mixed precision.")
-    parser.add_argument('--use_profiler', action='store_true', help="Use profiler.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
-    parser.add_argument('--use_sharded_ddp', action='store_true', help="Use ShardedDataParallel.")
-    parser.add_argument('--use_fsdp', action='store_true', help="Use FullyShardedDataParallel. it must be used with --use_sharded_ddp")
-    parser.add_argument('--world_size', default=1, type=int)
-    parser.add_argument('--master_port', default=8666, type=int)
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
@@ -639,20 +593,7 @@ def main():
 
     opt = parser.parse_args()
 
-    if opt.use_sharded_ddp:
-        mp.spawn(
-            train,
-            args=[opt],
-            nprocs=opt.world_size,
-            join=True,
-        )
-    else:
-        train(0, opt)
-
     if opt.hp_search_optuna:
-        if opt.use_sharded_ddp:
-            logger.error("cant' be used with --use_sharded_ddp")
-            sys.exit(0)
         global gopt
         gopt = opt
         study = optuna.create_study(direction='maximize')
@@ -662,6 +603,8 @@ def main():
         logger.info("[study.best_params] : %s", study.best_params)
         logger.info("[study.best_value] : %s", study.best_value)
         logger.info("[study.best_trial] : %s", study.best_trial) # for all, study.trials
- 
+    else:
+        train(opt)
+
 if __name__ == '__main__':
     main()

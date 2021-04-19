@@ -269,7 +269,7 @@ def evaluate(opt):
         ort_session = ort.InferenceSession(opt.onnx_path, sess_options=sess_options)
     
     # enable to use dynamic quantized model (pytorch>=1.3.0)
-    if opt.enable_dqm and opt.device == 'cpu':
+    if opt.enable_dqm:
         model = torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
         print(model)
  
