@@ -15,7 +15,6 @@ import torch.nn.functional as F
 import torch.optim as optim
 from accelerate import Accelerator
 from transformers import AdamW, get_linear_schedule_with_warmup
-from torch.nn.parallel import DistributedDataParallel
 
 try:
     from torch.utils.tensorboard import SummaryWriter
