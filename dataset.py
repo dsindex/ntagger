@@ -14,9 +14,9 @@ def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=
     opt = config['opt']
     dataset = DatasetClass(config, filepath)
 
-    if sampling is True:
+    if sampling:
         sampler = RandomSampler(dataset)
-    if sampling is False:
+    else:
         sampler = SequentialSampler(dataset)
 
     bz = opt.batch_size
