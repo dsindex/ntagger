@@ -896,6 +896,11 @@ accuracy:  98.40%; precision:  91.68%; recall:  93.02%; FB1:  92.35
               ORG: precision:  89.92%; recall:  92.35%; FB1:  91.12  1706
               PER: precision:  97.39%; recall:  96.97%; FB1:  97.18  1610
 
+** --bert_doc_context_option=2, try again!
+INFO:__main__:[F1] : 0.9232660228270413, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 101272.75466918945ms, 27.464767011196564ms on average
+accuracy:  98.44%; precision:  91.57%; recall:  93.09%; FB1:  92.33
+
 * document context, subword pooling, --bert_disable_lstm, --batch_size=16 --lr=2e-5, n_ctx: 512, --epoch=30
 $ python train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-bert.pt --bert_model_name_or_path=./embeddings/bert-base-cased --bert_output_dir=bert-checkpoint --batch_size=16 --lr=2e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_disable_lstm
 INFO:__main__:[F1] : 0.9223207232511191, 3684
