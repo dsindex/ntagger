@@ -118,7 +118,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                 if eval_f1 > best_eval_f1:
                     best_eval_f1 = eval_f1
                     if opt.save_path and not opt.hp_search_optuna:
-                        accelerator.wait_for_everyone()
                         unwrapped_model = accelerator.unwrap_model(model)
                         save_model(config, unwrapped_model)
                         logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
@@ -148,7 +147,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         if eval_f1 > best_eval_f1:
             best_eval_f1 = eval_f1
             if opt.save_path and not opt.hp_search_optuna:
-                accelerator.wait_for_everyone()
                 unwrapped_model = accelerator.unwrap_model(model)
                 save_model(config, unwrapped_model)
                 logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
