@@ -1428,6 +1428,8 @@ accuracy:  98.73%; precision:  93.36%; recall:  94.65%; FB1:  94.00
 # 1 node, 2 gpu
 $ export NCCL_DEBUG=INFO
 $ python -m torch.distributed.launch --nnodes 1 --nproc_per_node 2 --use_env --node_rank 0 --master_addr 10.55.14.139 --master_port 3667 train.py --config=configs/config-bert.json --data_dir=data/conll2003 --save_path=pytorch-model-deberta.pt --bert_model_name_or_path=./embeddings/deberta-v2-xlarge/ --bert_output_dir=bert-checkpoint-deberta --batch_size=8 --lr=1e-5 --epoch=20 --bert_disable_lstm --gradient_accumulation_steps=4 --eval_batch_size=4
+INFO:__main__:[F1] : 0.9230634266163698, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 233286.6771221161ms, 63.29245888406804ms on average
 
 ```
 
