@@ -31,6 +31,7 @@ $ cd data/atis; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 INFO:__main__:[sequence classification F1] : 0.9776035834266518, 893
 INFO:__main__:[token classification F1] : 0.9570422535211267, 893
 INFO:__main__:[Elapsed Time] : 893 examples, 45115.190505981445ms, 50.43707888222596ms on average
+accuracy:  98.01%; precision:  95.30%; recall:  95.77%; FB1:  95.53
 
 * entity tagging only
 INFO:__main__:[F1] : 0.9562764456981664, 893
