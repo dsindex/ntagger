@@ -545,7 +545,7 @@ class BertLSTMCRF(BaseModel):
 
         emb_dim = bert_emb_dim
 
-        # layer if mutl-task learning
+        # layer for sequence classification
         if self.use_mtl:
             self.glabel_size = glabel_size
             self.fc = nn.Linear(emb_dim, self.glabel_size)

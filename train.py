@@ -554,7 +554,7 @@ def hp_search_optuna(trial: optuna.Trial):
 
     # set search spaces
     lr = trial.suggest_float('lr', 1e-5, 1e-3, log=True)
-    bsz = trial.suggest_categorical('batch_size', [32, 64, 128])
+    bsz = trial.suggest_categorical('batch_size', [8, 16, 32, 64])
     seed = trial.suggest_int('seed', 17, 42)
     epochs = trial.suggest_int('epochs', 1, opt.epoch)
 

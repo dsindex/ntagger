@@ -23,7 +23,7 @@
   - see : https://github.com/dsindex/ntagger/issues/4#issuecomment-810304253
 
 - [multi-task learning](/MULTI-TASK.md)
-  - joint learning of sequence/token classification
+  - joint learning of sequence and token classification
 
 <br>
 
