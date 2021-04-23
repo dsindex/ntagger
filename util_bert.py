@@ -15,30 +15,45 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------- #
 
 class InputExample(object):
-    def __init__(self, guid, words, poss, labels):
+    def __init__(self, guid, words, poss, labels, glabel=None):
         self.guid   = guid
-        self.words  = words
-        self.poss   = poss
-        self.labels = labels
+        self.words  = words   # word sequence
+        self.poss   = poss    # pos sequence
+        self.labels = labels  # label sequence
+        self.glabel = glabel  # global label
 
 class InputFeature(object):
-    def __init__(self, input_ids, input_mask, segment_ids, pos_ids, char_ids, label_ids, word2token_idx=None, word2token_mask=None, word_ids=None, doc2sent_idx=None, doc2sent_mask=None):
+    def __init__(self,
+                 input_ids,
+                 input_mask,
+                 segment_ids,
+                 pos_ids,
+                 char_ids,
+                 label_ids,
+                 glabel_id,
+                 word2token_idx=None,
+                 word2token_mask=None,
+                 word_ids=None,
+                 doc2sent_idx=None,
+                 doc2sent_mask=None):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
         self.pos_ids = pos_ids
         self.char_ids = char_ids
         self.label_ids = label_ids
-        if word2token_idx:
+        self.glabel_id = glabel_id
+        if word2token_idx is not None:
             self.word2token_idx = word2token_idx
             self.word2token_mask = word2token_mask
-        if word_ids:
+        if word_ids is not None:
             self.word_ids = word_ids
-        if doc2sent_idx:
+        if doc2sent_idx is not None:
             self.doc2sent_idx = doc2sent_idx
             self.doc2sent_mask = doc2sent_mask
 
-def read_examples_from_file(file_path, mode='train'):
+def read_examples_from_file(config, file_path, mode='train'):
+    opt = config['opt']
     guid_index = 1
     examples = []
     tot_num_line = sum(1 for _ in open(file_path, 'r'))
@@ -50,6 +65,10 @@ def read_examples_from_file(file_path, mode='train'):
                 tokens = []
                 posseq = []
                 labelseq = []
+                glabel = None
+                if opt.bert_use_mtl:
+                    glabel = bucket[0][0] # first token means global label.
+                    bucket = bucket[1:]
                 for entry in bucket:
                     token = entry[0]
                     pos = entry[1]
@@ -61,7 +80,8 @@ def read_examples_from_file(file_path, mode='train'):
                 examples.append(InputExample(guid="{}-{}".format(mode, guid_index),
                     words=tokens,
                     poss=posseq,
-                    labels=labelseq))
+                    labels=labelseq,
+                    glabel=glabel))
                 guid_index += 1
                 bucket = []
             else:
@@ -72,6 +92,10 @@ def read_examples_from_file(file_path, mode='train'):
             tokens = []
             posseq = []
             labelseq = []
+            glabel = None
+            if opt.bert_use_mtl:
+                glabel = bucket[0][0] # first token means global label.
+                bucket = bucket[1:]
             for entry in bucket:
                 token = entry[0]
                 pos = entry[1]
@@ -83,7 +107,8 @@ def read_examples_from_file(file_path, mode='train'):
             examples.append(InputExample(guid="{}-{}".format(mode, guid_index),
                 words=tokens,
                 poss=posseq,
-                labels=labelseq))
+                labels=labelseq,
+                glabel=glabel))
             guid_index += 1
 
     return examples
@@ -291,6 +316,7 @@ def convert_single_example_to_feature(config,
         sequence_a_segment_id=0,
         w_tokenizer=None,
         examples=None,
+        glabel_map={},
         ex_index=-1):
 
     """
@@ -305,6 +331,7 @@ def convert_single_example_to_feature(config,
       segment_ids:     0   0   0   0  0  0     0   0     0     0     0   ...  | token_type_ids |
       input_mask:      1   1   1   1  1  1     1   1     0     0     0   ...  | attention_mask |
       label_ids:       0   1   1   1  1  0     1   0     0     0     0   ...  |                |
+      glabel_id:       0                                                      |                |
       ----------------------------------------------------------------------- |                |
       pos_ids:         0   10  2   ...
       char_ids:        [0,..., 0] [259, ..., 261] ...
@@ -327,6 +354,12 @@ def convert_single_example_to_feature(config,
     """
 
     opt = config['opt']
+
+    glabel = example.glabel
+    glabel_id = pad_token_label_id
+    if glabel is not None and glabel in glabel_map:
+        glabel_id = glabel_map[glabel]
+
     tokens = []
     pos_ids = []
     char_ids = []
@@ -347,11 +380,12 @@ def convert_single_example_to_feature(config,
             if token_idx < max_seq_length:
                 word2token_idx.append(token_idx)
                 token_idx += len(word_tokens)
-        # pos extension: set same pos_id
+        # pos extension
         pos_id = pos_map[pos]
         if opt.bert_use_subword_pooling:
             pos_ids.extend([pos_id])
         else:
+            # set same pod_id
             pos_ids.extend([pos_id] + [pos_id] * (len(word_tokens) - 1))
         # char extension
         if opt.bert_use_subword_pooling:
@@ -360,8 +394,10 @@ def convert_single_example_to_feature(config,
         else:
             c_ids = batch_to_ids([word_tokens])[0].detach().cpu().numpy().tolist()
             char_ids.extend(c_ids)
-        # label extension: set pad_token_label_id
-        label_id = label_map[label]
+        # label extension
+        label_id = pad_token_label_id
+        if label in label_map:
+            label_id = label_map[label]
         if opt.bert_use_subword_pooling:
             label_ids.extend([label_id])
         else:
@@ -379,6 +415,7 @@ def convert_single_example_to_feature(config,
                     sub_token_label_id = label_map[sub_token_label]
                     label_ids.extend([label_id] + [sub_token_label_id] * (len(word_tokens) - 1))
             else:
+                # set pad_token_label_id
                 label_ids.extend([label_id] + [pad_token_label_id] * (len(word_tokens) - 1))
 
     # build word ids
@@ -486,6 +523,7 @@ def convert_single_example_to_feature(config,
         logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
         logger.info("char_ids: %s ...", " ".join([str(x) for x in char_ids][:3]))
         logger.info("label_ids: %s", " ".join([str(x) for x in label_ids]))
+        logger.info("glabel_id(glabel): %s(%s)", glabel_id, glabel)
         if word2token_idx:
             logger.info("word2token_idx: %s", " ".join([str(x) for x in word2token_idx]))
             logger.info("word2token_mask: %s", " ".join([str(x) for x in word2token_mask]))
@@ -516,6 +554,7 @@ def convert_single_example_to_feature(config,
                            pos_ids=pos_ids,
                            char_ids=char_ids,
                            label_ids=label_ids,
+                           glabel_id=glabel_id,
                            word2token_idx=word2token_idx,
                            word2token_mask=word2token_mask,
                            word_ids=word_ids,
@@ -539,7 +578,8 @@ def convert_examples_to_features(config,
                                  pad_token_label_id=0,
                                  pad_token_segment_id=0,
                                  sequence_a_segment_id=0,
-                                 w_tokenizer=None):
+                                 w_tokenizer=None,
+                                 glabel_map={}):
 
     features = []
     for (ex_index, example) in enumerate(tqdm(examples)):
@@ -561,6 +601,7 @@ def convert_examples_to_features(config,
                                                     sequence_a_segment_id=sequence_a_segment_id,
                                                     w_tokenizer=w_tokenizer,
                                                     examples=examples,
+                                                    glabel_map=glabel_map,
                                                     ex_index=ex_index)
 
         features.append(feature)

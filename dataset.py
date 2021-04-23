@@ -67,6 +67,7 @@ class CoNLLGloveDataset(Dataset):
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]
 
+
 class CoNLLBertDataset(Dataset):
     def __init__(self, config, path):
         features = torch.load(path)
@@ -91,6 +92,8 @@ class CoNLLBertDataset(Dataset):
 
         all_label_ids = torch.tensor([f.label_ids for f in features], dtype=torch.long)
 
+        all_glabel_ids = torch.tensor([f.glabel_id for f in features], dtype=torch.long)
+        
         # argument order must be sync with x parameter of BertLSTMCRF.forward().
         args = [all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids]
         if all_doc2sent_idx != None:
@@ -100,14 +103,17 @@ class CoNLLBertDataset(Dataset):
                 args += [all_word2token_idx, all_word2token_mask, all_word_ids]
             else:
                 args += [all_word2token_idx, all_word2token_mask]
+
         self.x = TensorDataset(*args)
         self.y = all_label_ids
+        self.gy = all_glabel_ids
  
     def __len__(self):
         return len(self.y)
 
     def __getitem__(self, idx):
-        return self.x[idx], self.y[idx]
+        return self.x[idx], self.y[idx], self.gy[idx]
+
 
 class CoNLLElmoDataset(Dataset):
     def __init__(self, config, path):

@@ -24,47 +24,80 @@ _EMBED_FILE = 'embedding.npy'
 _POS_FILE = 'pos.txt'
 _CHAR_FILE = 'char.txt'
 _LABEL_FILE = 'label.txt'
+_GLABEL_FILE = 'glabel.txt'
 _FSUFFIX = '.fs'
 
-def build_dict(input_path, config):
+def build_dict(input_path, config, extra_path=None):
     logger.info("\n[building dict]")
+    opt = config['opt']
     poss = {}
     chars = {}
     labels = {}
-    # add pad, unk info
+    glabels = {}
+
+    # add pad/unk info, set base id
     poss[config['pad_pos']] = config['pad_pos_id']
     pos_id = 1
-    chars[config['pad_token']] = config['pad_token_id']
-    chars[config['unk_token']] = config['unk_token_id']
+    chars[config['pad_token']] = config['pad_token_id']   # 0
+    chars[config['unk_token']] = config['unk_token_id']   # 1
     char_id = 2
-    labels[config['pad_label']] = config['pad_label_id']
+    labels[config['pad_label']] = config['pad_label_id']  # 0
     label_id = 1
-    tot_num_line = sum(1 for _ in open(input_path, 'r')) 
-    with open(input_path, 'r', encoding='utf-8') as f:
-        for idx, line in enumerate(tqdm(f, total=tot_num_line)):
-            line = line.strip()
-            if line == "": continue
-            toks = line.split()
-            try:
-                assert(len(toks) == 4)
-            except Exception as e:
-                logger.error(str(idx) + '\t' + line + '\t' + str(e))
-                sys.exit(1)
-            word = toks[0]
-            pos = toks[1]
-            label = toks[-1]
-            if pos not in poss:
-                poss[pos] = pos_id
-                pos_id += 1
-            for ch in word:
-                if ch not in chars:
-                    chars[ch] = char_id
-                    char_id += 1
-            if label not in labels:
-                labels[label] = label_id
-                label_id += 1
-    logger.info("\nUnique poss, chars, labels : {}, {}".format(len(poss), len(chars), len(labels)))
-    return poss, chars, labels
+    glabels[config['pad_label']] = config['pad_label_id'] # 0
+    glabel_id = 1
+
+    for path in [input_path, extra_path]:
+        if not path: break
+        is_next_bos = True
+        tot_num_line = sum(1 for _ in open(path, 'r')) 
+        with open(path, 'r', encoding='utf-8') as f:
+            for idx, line in enumerate(tqdm(f, total=tot_num_line)):
+                line = line.strip()
+                if line == "":
+                    is_next_bos = True
+                    continue
+                toks = line.split()
+                try:
+                    assert(len(toks) == 4)
+                except Exception as e:
+                    logger.error(str(idx) + '\t' + line + '\t' + str(e))
+                    sys.exit(1)
+
+                if opt.bert_use_mtl and is_next_bos:
+                    glabel = toks[0]
+                    if glabel not in glabels:
+                        glabels[glabel] = glabel_id
+                        glabel_id += 1
+                    is_next_bos = False
+                    continue
+
+                word = toks[0]
+                pos = toks[1]
+                label = toks[-1]
+                if pos not in poss:
+                    poss[pos] = pos_id
+                    pos_id += 1
+                for ch in word:
+                    if ch not in chars:
+                        chars[ch] = char_id
+                        char_id += 1
+                if label not in labels:
+                    labels[label] = label_id
+                    label_id += 1
+                    # for preventing 'key not found error' for 'B-', 'I-'
+                    p = label.find('-')
+                    if p != -1:
+                        if 'B-' in label:
+                            label = 'I-' + label[p+1:]
+                        if 'I-' in label:
+                            label = 'B-' + label[p+1:]
+                        if label not in labels:
+                            labels[label] = label_id
+                            label_id += 1
+                        
+
+    logger.info("\nUnique poss, chars, labels, glabels : {}, {}, {}, {}".format(len(poss), len(chars), len(labels), len(glabels)))
+    return poss, chars, labels, glabels
 
 def write_dict(dic, output_path):
     logger.info("\n[Writing dict]")
@@ -261,7 +294,7 @@ def preprocess_glove_or_elmo(config):
 
     # build poss, chars, labels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    poss, chars, labels = build_dict(path, config)
+    poss, chars, labels, _ = build_dict(path, config)
 
     tokenizer = Tokenizer(vocab, config)
 
@@ -301,12 +334,12 @@ def preprocess_glove_or_elmo(config):
 # BERT
 # ---------------------------------------------------------------------------- #
 
-def build_features(input_path, tokenizer, poss, labels, config, mode='train', w_tokenizer=None):
+def build_features(input_path, tokenizer, poss, labels, config, mode='train', w_tokenizer=None, glabels={}):
     from util_bert import read_examples_from_file
     from util_bert import convert_examples_to_features
 
     logger.info("[Creating features from file] %s", input_path)
-    examples = read_examples_from_file(input_path, mode=mode)
+    examples = read_examples_from_file(config, input_path, mode=mode)
     features = convert_examples_to_features(config, examples, poss, labels, config['n_ctx'], tokenizer,
                                             cls_token=tokenizer.cls_token,
                                             cls_token_segment_id=0,
@@ -319,6 +352,7 @@ def build_features(input_path, tokenizer, poss, labels, config, mode='train', w_
                                             pad_token_label_id=config['pad_label_id'],
                                             pad_token_segment_id=0,
                                             sequence_a_segment_id=0,
+                                            glabel_map=glabels,
                                             w_tokenizer=w_tokenizer)
     return features
 
@@ -345,19 +379,19 @@ def preprocess_bert(config):
 
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
-    # build poss, chars, labels
+    # build poss, chars, labels, glabels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    poss, chars, labels = build_dict(path, config)
+    poss, chars, labels, glabels = build_dict(path, config)
 
     # build features
     path = os.path.join(opt.data_dir, _TRAIN_FILE)
-    train_features = build_features(path, tokenizer, poss, labels, config, mode='train', w_tokenizer=w_tokenizer)
+    train_features = build_features(path, tokenizer, poss, labels, config, mode='train', w_tokenizer=w_tokenizer, glabels=glabels)
 
     path = os.path.join(opt.data_dir, _VALID_FILE)
-    valid_features = build_features(path, tokenizer, poss, labels, config, mode='valid', w_tokenizer=w_tokenizer)
+    valid_features = build_features(path, tokenizer, poss, labels, config, mode='valid', w_tokenizer=w_tokenizer, glabels=glabels)
 
     path = os.path.join(opt.data_dir, _TEST_FILE)
-    test_features = build_features(path, tokenizer, poss, labels, config, mode='test', w_tokenizer=w_tokenizer)
+    test_features = build_features(path, tokenizer, poss, labels, config, mode='test', w_tokenizer=w_tokenizer, glabels=glabels)
 
     # write features
     path = os.path.join(opt.data_dir, _TRAIN_FILE + _FSUFFIX)
@@ -369,11 +403,13 @@ def preprocess_bert(config):
     path = os.path.join(opt.data_dir, _TEST_FILE + _FSUFFIX)
     write_features(test_features, path)
 
-    # write poss, labels
+    # write poss, labels, glabels
     path = os.path.join(opt.data_dir, _POS_FILE)
     write_dict(poss, path)
     path = os.path.join(opt.data_dir, _LABEL_FILE)
     write_dict(labels, path)
+    path = os.path.join(opt.data_dir, _GLABEL_FILE)
+    write_dict(glabels, path)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -397,6 +433,8 @@ def main():
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
     parser.add_argument("--bert_doc_context_option", default=1, type=int,
                         help="1: prev one example, cur example, next examples, 2: prev examples, cur example, next examples")
+    parser.add_argument('--bert_use_mtl', action='store_true',
+                        help="Set this flag to use multi-task learning of token and sentence classification.")
     opt = parser.parse_args()
 
     # set seed

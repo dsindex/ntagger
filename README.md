@@ -6,17 +6,24 @@
   - word : GloVe, BERT, DistilBERT, mDistilBERT, MiniLM, feature-based BERT using DSA(Dynamic Self Attention) pooling, SpanBERT, ALBERT, RoBERTa, XLM-RoBERTa, BART, ELECTRA, DeBERTa, ELMo
   - character : CNN
   - pos : lookup
+
 - encoding
   - BiLSTM
   - DenseNet
     - [Dynamic Self-Attention: Computing Attention over Words Dynamically for Sentence Embedding](https://arxiv.org/pdf/1808.07383.pdf)
     - a slightly modified DenseNet for longer dependency.
   - Multi-Head Attention
+
 - decoding
   - Softmax, CRF
+
 - related: [reference pytorch code for intent(sentence) classification](https://github.com/dsindex/iclassifier)
+
 - document context for BERT paper reproduction
   - see : https://github.com/dsindex/ntagger/issues/4#issuecomment-810304253
+
+- [multi-task learning](/MULTI-TASK.md)
+  - joint learning of entity tagging and intent classification
 
 <br>
 

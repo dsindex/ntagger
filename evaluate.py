@@ -11,6 +11,7 @@ import torch.quantization
 import torch.nn as nn
 import numpy as np
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
+from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
 
 from tqdm import tqdm
 from util import load_checkpoint, load_config, load_dict, to_device, to_numpy
@@ -28,6 +29,7 @@ def set_path(config):
         opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
     opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
     opt.label_path = os.path.join(opt.data_dir, 'label.txt')
+    opt.glabel_path = os.path.join(opt.data_dir, 'glabel.txt')
     opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
     opt.test_path = os.path.join(opt.data_dir, 'test.txt')
     opt.vocab_path = os.path.join(opt.data_dir, 'vocab.txt')
@@ -38,6 +40,10 @@ def load_model(config, checkpoint):
     label_size = len(labels)
     config['labels'] = labels
     config['label_size'] = label_size
+    glabels = load_dict(opt.glabel_path)
+    glabel_size = len(glabels)
+    config['glabels'] = glabels
+    config['glabel_size'] = glabel_size
     poss = load_dict(opt.pos_path)
     pos_size = len(poss)
     config['poss'] = poss
@@ -63,14 +69,15 @@ def load_model(config, checkpoint):
         bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_output_dir)
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, pos_size,
+        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos,
                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
                            use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
                            embedding_path=opt.embedding_path, emb_non_trainable=True,
                            use_doc_context=opt.bert_use_doc_context,
                            disable_lstm=opt.bert_disable_lstm,
-                           feature_based=opt.bert_use_feature_based)
+                           feature_based=opt.bert_use_feature_based,
+                           use_mtl=opt.bert_use_mtl)
     model.load_state_dict(checkpoint)
     model = model.to(opt.device)
     logger.info("[Loaded]")
@@ -113,6 +120,9 @@ def convert_onnx(config, torch_model, x):
         if opt.use_crf:
             output_names += ['prediction']
             dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
+        if opt.bert_use_mtl:
+            output_names += ['glogits']
+            dynamic_axes['glogits'] = {0: 'batch'}
         
     with torch.no_grad():
         torch.onnx.export(torch_model,                  # model being run
@@ -172,6 +182,8 @@ def write_prediction(config, model, ys, preds, labels):
         for idx, line in enumerate(tqdm(f, total=tot_num_line)):
             line = line.strip()
             if line == "":
+                if opt.bert_use_mtl:
+                    bucket = bucket[1:]
                 data.append(bucket)
                 bucket = []
             else:
@@ -212,6 +224,33 @@ def write_prediction(config, model, ys, preds, labels):
     except Exception as e:
         logger.warn(str(e))
 
+def write_gprediction(opt, gpreds, glabels):
+    # load test data
+    tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
+    with open(opt.test_path, 'r', encoding='utf-8') as f:
+        data = []
+        is_next_bos = True
+        for idx, line in enumerate(tqdm(f, total=tot_num_line)):
+            line = line.strip()
+            if line == "":
+                is_next_bos = True
+                continue
+            tokens = line.split()
+            if is_next_bos:
+                glabel = tokens[0]
+            is_next_bos = False
+            data.append(glabel)
+    # write prediction
+    try:
+        gpred_path = opt.test_path + '.gpred'
+        with open(gpred_path, 'w', encoding='utf-8') as f:
+            for glabel, gpred in zip(data, gpreds):
+                gpred_id = np.argmax(gpred)
+                gpred_label = glabels[gpred_id]
+                f.write(glabel + '\t' + gpred_label + '\n')
+    except Exception as e:
+        logger.warn(str(e))
+
 def prepare_datasets(config):
     opt = config['opt']
     if config['emb_class'] == 'glove':
@@ -246,9 +285,12 @@ def evaluate(opt):
     # convert to onnx format
     if opt.convert_onnx:
         # FIXME not working for --use_crf
-        (x, y) = next(iter(test_loader))
+        batch = next(iter(test_loader))
+        if config['emb_class'] not in ['glove', 'elmo']:
+            x, y, gy = batch
+        else:
+            x, y = batch
         x = to_device(x, opt.device)
-        y = to_device(y, opt.device)
         convert_onnx(config, model, x)
         check_onnx(config)
         logger.info("[ONNX model saved] : {}".format(opt.onnx_path))
@@ -274,6 +316,8 @@ def evaluate(opt):
     # evaluation
     preds = None
     ys    = None
+    gpreds = None
+    gys    = None
     n_batches = len(test_loader)
     total_examples = 0
     whole_st_time = time.time()
@@ -281,8 +325,14 @@ def evaluate(opt):
     first_examples = 0
     total_duration_time = 0.0
     with torch.no_grad():
-        for i, (x,y) in enumerate(tqdm(test_loader, total=n_batches)):
+        for i, batch in enumerate(tqdm(test_loader, total=n_batches)):
             start_time = time.time()
+            if config['emb_class'] not in ['glove', 'elmo']:
+                x, y, gy = batch
+                gy = to_device(gy, opt.device)
+            else:
+                x, y = batch
+
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
             if opt.enable_ort:
@@ -317,18 +367,30 @@ def evaluate(opt):
                             ort_inputs[ort_session.get_inputs()[base_idx+2].name] = x[base_idx+2]
                 if opt.use_crf:
                     # FIXME not working for --use_crf
-                    logits, prediction = ort_session.run(None, ort_inputs)
+                    if opt.bert_use_mtl:
+                        logits, prediction, glogits = ort_session.run(None, ort_inputs)
+                    else:
+                        logits, prediction = ort_session.run(None, ort_inputs)
                     prediction = to_device(torch.tensor(prediction), opt.device)
                     logits = to_device(torch.tensor(logits), opt.device)
                 else:
-                    logits = ort_session.run(None, ort_inputs)[0]
+                    if opt.bert_use_mtl:
+                        logits, glogits = ort_session.run(None, ort_inputs)[0]
+                    else:
+                        logits = ort_session.run(None, ort_inputs)[0]
                     logits = to_device(torch.tensor(logits), opt.device)
                     logits = torch.softmax(logits, dim=-1)
             else:
                 if opt.use_crf:
-                    logits, prediction = model(x)
+                    if opt.bert_use_mtl:
+                        logits, prediction, glogits = model(x)
+                    else:
+                        logits, prediction = model(x)
                 else:
-                    logits = model(x)
+                    if opt.bert_use_mtl:
+                        logits, glogits = model(x)
+                    else:
+                        logits = model(x)
                     logits = torch.softmax(logits, dim=-1)
 
             if preds is None:
@@ -339,6 +401,16 @@ def evaluate(opt):
                 if opt.use_crf: preds = np.append(preds, to_numpy(prediction), axis=0)
                 else: preds = np.append(preds, to_numpy(logits), axis=0)
                 ys = np.append(ys, to_numpy(y), axis=0)
+
+            if opt.bert_use_mtl:
+                glogits = torch.softmax(glogits, dim=-1)
+                if gpreds is None:
+                    gpreds = to_numpy(glogits)
+                    gys = to_numpy(gy)
+                else:
+                    gpreds = np.append(gpreds, to_numpy(glogits), axis=0)
+                    gys = np.append(gys, to_numpy(gy), axis=0)
+
             cur_examples = y.size(0)
             total_examples += cur_examples
             if i == 0: # first one may take longer time, so ignore in computing duration.
@@ -354,6 +426,8 @@ def evaluate(opt):
             '''
     whole_time = float((time.time()-whole_st_time)*1000)
     avg_time = (whole_time - first_time) / (total_examples - first_examples)
+
+    # generate report for token classification
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = config['labels']
@@ -372,11 +446,33 @@ def evaluate(opt):
         "report": classification_report(ys_lbs, preds_lbs, digits=4),
     }
     print(ret['report'])
-    f1 = ret['f1']
     # write predicted labels to file
     write_prediction(config, model, ys, preds, labels)
 
-    logger.info("[F1] : {}, {}".format(f1, total_examples))
+    # generate report for sequence classification
+    if opt.bert_use_mtl:
+        glabels = config['glabels']
+        glabel_names = [v for k, v in sorted(glabels.items(), key=lambda x: x[0])]
+        glabel_ids = [k for k in glabels.keys()]
+        gpreds_ids = np.argmax(gpreds, axis=1)
+        try:
+            g_report = sequence_classification_report(gys, gpreds_ids, target_names=glabel_names, labels=glabel_ids, digits=4)
+            g_report_dict = sequence_classification_report(gys, gpreds_ids, target_names=glabel_names, labels=glabel_ids, output_dict=True)
+            g_matrix = confusion_matrix(gys, gpreds_ids)
+            ret['g_report'] = g_report
+            ret['g_report_dict'] = g_report_dict
+            ret['g_f1'] = g_report_dict['micro avg']['f1-score']
+            ret['g_matrix'] = g_matrix
+        except Exception as e:
+            logger.warn(str(e))
+        print(ret['g_report'])
+        print(ret['g_f1'])
+        print(ret['g_matrix'])
+        logger.info("[sequence classification F1] : {}, {}".format(ret['g_f1'], total_examples))
+        # write predicted glabels to file
+        write_gprediction(opt, gpreds, glabels)
+
+    logger.info("[token classification F1] : {}, {}".format(ret['f1'], total_examples))
     logger.info("[Elapsed Time] : {} examples, {}ms, {}ms on average".format(total_examples, whole_time, avg_time))
     logger.info("[Elapsed Time(total_duration_time, average)] : {}ms, {}ms".format(total_duration_time, total_duration_time/(total_examples-1)))
 
@@ -412,6 +508,8 @@ def main():
                         help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
     parser.add_argument('--bert_use_doc_context', action='store_true',
                         help="Set this flag to use document-level context.")
+    parser.add_argument('--bert_use_mtl', action='store_true',
+                        help="Set this flag to use multi-task learning of token and sentence classification.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')

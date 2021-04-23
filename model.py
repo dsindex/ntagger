@@ -485,6 +485,7 @@ class BertLSTMCRF(BaseModel):
             bert_model,
             bert_tokenizer,
             label_size,
+            glabel_size,
             pos_size,
             use_crf=False,
             use_pos=False,
@@ -496,7 +497,8 @@ class BertLSTMCRF(BaseModel):
             emb_non_trainable=True,
             use_doc_context=False,
             disable_lstm=False,
-            feature_based=False):
+            feature_based=False,
+            use_mtl=False):
         super().__init__(config=config)
 
         self.config = config
@@ -515,6 +517,7 @@ class BertLSTMCRF(BaseModel):
         mha_num_attentions = config['mha_num_attentions']
         self.use_doc_context = use_doc_context
         self.disable_lstm = disable_lstm
+        self.use_mtl = use_mtl
 
         # bert embedding layer
         self.bert_config = bert_config
@@ -541,6 +544,11 @@ class BertLSTMCRF(BaseModel):
             bert_emb_dim = self.dsa.last_dim
 
         emb_dim = bert_emb_dim
+
+        # layer if mutl-task learning
+        if self.use_mtl:
+            self.glabel_size = glabel_size
+            self.fc = nn.Linear(emb_dim, self.glabel_size)
 
         # glove embedding layer
         if self.use_word_embedding:
@@ -650,14 +658,14 @@ class BertLSTMCRF(BaseModel):
         # with --bert_use_doc_context
         # x[5] :     [batch_size, seq_size], doc2sent_idx
         # x[6] :     [batch_size, seq_size], doc2sent_mask
-        # x[7] :     [batch_size, seq_size], word2token_idx with --bert_use_subword_pooling
+        # x[7] :     [batch_size, seq_size], word2token_idx  with --bert_use_subword_pooling
         # x[8] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
-        # x[9] :     [batch_size, seq_size], word_ids       with --bert_use_word_embedding
+        # x[9] :     [batch_size, seq_size], word_ids        with --bert_use_word_embedding
 
         # without --bert_use_doc_context
-        # x[5] :     [batch_size, seq_size], word2token_idx with --bert_use_subword_pooling
+        # x[5] :     [batch_size, seq_size], word2token_idx  with --bert_use_subword_pooling
         # x[6] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
-        # x[7] :     [batch_size, seq_size], word_ids       with --bert_use_word_embedding
+        # x[7] :     [batch_size, seq_size], word_ids        with --bert_use_word_embedding
 
         mask = x[1].to(torch.uint8).to(self.device)
         # mask == attention_mask : [batch_size, seq_size]
@@ -674,6 +682,12 @@ class BertLSTMCRF(BaseModel):
         # bert_embed_out : [batch_size, seq_size, *]
 
         embed_out = bert_embed_out
+
+        # Fully connected for multi-task learning
+        if self.use_mtl:
+            pooled = embed_out[:, 0, :] # first token of the last layer
+            glogits = self.fc(pooled)
+            # glogits : [batch_size, glabel_size]
 
         base_idx = 5
         if self.use_doc_context:
@@ -760,10 +774,14 @@ class BertLSTMCRF(BaseModel):
         # 4. Output
         logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
-        if not self.use_crf: return logits
+
+        if not self.use_crf:
+            if self.use_mtl: return logits, glogits
+            return logits
         prediction = self.crf.decode(logits)
         prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]
+        if self.use_mtl: return logits, prediction, glogits
         return logits, prediction
 
 class ElmoLSTMCRF(BaseModel):

@@ -25,6 +25,7 @@ import json
 from tqdm import tqdm
 
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
+from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
 from util    import load_checkpoint, load_config, load_dict
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
@@ -62,6 +63,8 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
     else:
         criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
+    g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
+
     n_batches = len(train_loader)
 
     # train one epoch
@@ -72,30 +75,46 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     st_time = time.time()
     optimizer.zero_grad()
     epoch_iterator = tqdm(train_loader, total=len(train_loader), desc=f"Epoch {epoch_i}")
-    for local_step, (x,y) in enumerate(epoch_iterator):
+    for local_step, batch in enumerate(epoch_iterator):
+        if config['emb_class'] not in ['glove', 'elmo']:
+            x, y, gy = batch
+        else:
+            x, y = batch
+
         model.train()
         global_step = (len(train_loader) * epoch_i) + local_step
+        gloss = 0.
         if opt.use_crf:
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
             if config['emb_class'] not in ['glove', 'elmo']:
-                logits, prediction = model(x, freeze_bert=freeze_bert)
+                if opt.bert_use_mtl:
+                    logits, prediction, glogits = model(x, freeze_bert=freeze_bert)
+                    gloss = g_criterion(glogits, gy)
+                else:
+                    logits, prediction = model(x, freeze_bert=freeze_bert)
             else:
                 logits, prediction = model(x)
             log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
             loss = -1 * log_likelihood
-            if opt.gradient_accumulation_steps > 1:
-                loss = loss / opt.gradient_accumulation_steps
+            loss = loss + gloss
         else:
-           if config['emb_class'] not in ['glove', 'elmo']:
-               logits = model(x, freeze_bert=freeze_bert)
-           else:
-               logits = model(x)
-           # reshape for computing loss
-           logits_view = logits.view(-1, config['label_size'])
-           y_view = y.view(-1)
-           loss = criterion(logits_view, y_view)
-           if opt.gradient_accumulation_steps > 1:
-               loss = loss / opt.gradient_accumulation_steps
+            if config['emb_class'] not in ['glove', 'elmo']:
+                if opt.bert_use_mtl:
+                    logits, glogits = model(x, freeze_bert=freeze_bert)
+                    gloss = g_criterion(glogits, gy)
+                else:
+                    logits = model(x, freeze_bert=freeze_bert)
+            else:
+                logits = model(x)
+            # reshape for computing loss
+            logits_view = logits.view(-1, config['label_size'])
+            y_view = y.view(-1)
+            loss = criterion(logits_view, y_view)
+            loss = loss + gloss
+
+        if opt.gradient_accumulation_steps > 1:
+           loss = loss / opt.gradient_accumulation_steps
+
         # back-propagation - begin
         accelerator.backward(loss)
         if (local_step + 1) % opt.gradient_accumulation_steps == 0:
@@ -103,7 +122,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-            epoch_iterator.set_description(f"Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, curr_lr: {curr_lr:.7f}")
+            epoch_iterator.set_description(f"Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, gloss: {gloss:.3f},curr_lr: {curr_lr:.7f}")
             if accelerator.is_main_process and opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, valid_loader)
@@ -181,26 +200,46 @@ def evaluate(model, config, valid_loader):
 
     eval_loss = 0.
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
+    g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     n_batches = len(valid_loader)
     preds = None
     ys    = None
+    gpreds = None
+    gys    = None
     with torch.no_grad():
         iterator = tqdm(valid_loader, total=len(valid_loader), desc=f"Evaluate")
-        for i, (x,y) in enumerate(iterator):
+        for i, batch in enumerate(iterator):
+            if config['emb_class'] not in ['glove', 'elmo']:
+                x, y, gy = batch
+            else:
+                x, y = batch
+
             model.eval()
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
+            gloss = 0.
             if opt.use_crf:
-                logits, prediction = model(x)
+                if opt.bert_use_mtl:
+                    logits, prediction, glogits = model(x)
+                    gloss = g_criterion(glogits, gy)
+                else:
+                    logits, prediction = model(x)
                 log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
+                loss = loss + gloss
                 logits = logits.cpu().numpy()
                 prediction = prediction.cpu().numpy()
             else:
-                logits = model(x)
+                if opt.bert_use_mtl:
+                    logits, glogits = model(x)
+                    gloss = g_criterion(glogits, gy)
+                else:
+                    logits = model(x)
                 loss = criterion(logits.view(-1, config['label_size']), y.view(-1))
+                loss = loss + gloss
                 # softmax after computing cross entropy loss
                 logits = torch.softmax(logits, dim=-1)
                 logits = logits.cpu().numpy()
+
             y = y.cpu().numpy()
             if preds is None:
                 if opt.use_crf: preds = prediction
@@ -210,7 +249,21 @@ def evaluate(model, config, valid_loader):
                 if opt.use_crf: preds = np.append(preds, prediction, axis=0)
                 else: preds = np.append(preds, logits, axis=0)
                 ys = np.append(ys, y, axis=0)
+
+            if opt.bert_use_mtl:
+                glogits = torch.softmax(glogits, dim=-1)
+                glogits = glogits.cpu().numpy()
+                gy = gy.cpu().numpy()
+                if gpreds is None:
+                    gpreds = glogits
+                    gys = gy
+                else:
+                    gpreds = np.append(gpreds, glogits, axis=0)
+                    gys = np.append(gys, gy, axis=0)
+
             eval_loss += loss.item()
+
+    # generate report for token classification
     eval_loss = eval_loss / n_batches
     if not opt.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
@@ -230,6 +283,27 @@ def evaluate(model, config, valid_loader):
         "report": classification_report(ys_lbs, preds_lbs, digits=4),
     }
     print(ret['report'])
+
+    # generate report for sequence classification
+    if opt.bert_use_mtl:
+        glabels = config['glabels']
+        glabel_names = [v for k, v in sorted(glabels.items(), key=lambda x: x[0])]
+        glabel_ids = [k for k in glabels.keys()]
+        gpreds_ids = np.argmax(gpreds, axis=1)
+        try:
+            g_report = sequence_classification_report(gys, gpreds_ids, target_names=glabel_names, labels=glabel_ids, digits=4)
+            g_report_dict = sequence_classification_report(gys, gpreds_ids, target_names=glabel_names, labels=glabel_ids, output_dict=True)
+            g_matrix = confusion_matrix(gys, gpreds_ids)
+            ret['g_report'] = g_report
+            ret['g_report_dict'] = g_report_dict
+            ret['g_f1'] = g_report_dict['micro avg']['f1-score']
+            ret['g_matrix'] = g_matrix
+        except Exception as e:
+            logger.warn(str(e))
+        print(ret['g_report'])
+        print(ret['g_f1'])
+        print(ret['g_matrix'])
+
     return ret
 
 def save_model(config, model, save_path=None):
@@ -250,6 +324,7 @@ def set_path(config):
         opt.train_path = os.path.join(opt.data_dir, 'train.txt.fs')
         opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.fs')
     opt.label_path = os.path.join(opt.data_dir, opt.label_filename)
+    opt.glabel_path = os.path.join(opt.data_dir, opt.glabel_filename)
     opt.pos_path = os.path.join(opt.data_dir, opt.pos_filename)
     opt.embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
 
@@ -307,6 +382,10 @@ def prepare_model(config):
     label_size = len(labels)
     config['labels'] = labels
     config['label_size'] = label_size
+    glabels = load_dict(opt.glabel_path)
+    glabel_size = len(glabels)
+    config['glabels'] = glabels
+    config['glabel_size'] = glabel_size
     poss = load_dict(opt.pos_path)
     pos_size = len(poss)
     config['poss'] = poss
@@ -336,14 +415,15 @@ def prepare_model(config):
         # bert model reduction
         reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
-        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, pos_size,
+        model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
                            use_crf=opt.use_crf, use_pos=opt.bert_use_pos,
                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
                            use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
                            embedding_path=opt.embedding_path, emb_non_trainable=emb_non_trainable,
                            use_doc_context=opt.bert_use_doc_context,
                            disable_lstm=opt.bert_disable_lstm,
-                           feature_based=opt.bert_use_feature_based)
+                           feature_based=opt.bert_use_feature_based,
+                           use_mtl=opt.bert_use_mtl)
     if opt.restore_path:
         checkpoint = load_checkpoint(opt.restore_path)
         model.load_state_dict(checkpoint)
@@ -530,6 +610,7 @@ def main():
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_filename', type=str, default='embedding.npy')
     parser.add_argument('--label_filename', type=str, default='label.txt')
+    parser.add_argument('--glabel_filename', type=str, default='glabel.txt')
     parser.add_argument('--pos_filename', type=str, default='pos.txt')
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--batch_size', type=int, default=32)
@@ -577,6 +658,8 @@ def main():
                         help="Set this flag to use word embedding(eg, GloVe). it should be used with --bert_use_subword_pooling.")
     parser.add_argument('--bert_use_doc_context', action='store_true',
                         help="Set this flag to use document-level context.")
+    parser.add_argument('--bert_use_mtl', action='store_true',
+                        help="Set this flag to use multi-task learning of token and sentence classification.")
     # for ELMo
     parser.add_argument('--elmo_options_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_options.json')
     parser.add_argument('--elmo_weights_file', type=str, default='embeddings/elmo_2x4096_512_2048cnn_2xhighway_5.5B_weights.hdf5')
