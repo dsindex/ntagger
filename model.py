@@ -674,7 +674,6 @@ class BertLSTMCRF(BaseModel):
 
         # 1. Embedding
         if freeze_bert:
-            # freeze_bert is the runtime option which has the same effect to the static option `feature_based`.
             with torch.no_grad():
                 bert_embed_out, bert_outputs = self._compute_bert_embedding(x, head_mask=head_mask)
         else:
@@ -683,7 +682,7 @@ class BertLSTMCRF(BaseModel):
 
         embed_out = bert_embed_out
 
-        # Fully connected for multi-task learning
+        # apply fully connected layer for sequence classification
         if self.use_mtl:
             pooled = embed_out[:, 0, :] # first token of the last layer
             glogits = self.fc(pooled)

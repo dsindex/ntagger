@@ -107,18 +107,24 @@ if (( VERBOSE_MODE > 1 )); then
     revert_calmness
 fi
 
+# reference : https://huggingface.co/blog/bert-cpu-scaling-part-1
+
 numactl --hardware
 numactl --show
+lscpu
 
-export OMP_SCHEDULE=STATIC
-export OMP_PROC_BIND=CLOSE
-export OMP_NUM_THREADS=14
-#export GOMP_CPU_AFFINITY="0-13"
-#export KMP_AFFINITY=granularity=fine,proclist=[0-13],explicit
-export KMP_AFFINITY=granularity=fine,explicit
+# Architecture:        x86_64
+# CPU op-mode(s):      32-bit, 64-bit
+# Byte Order:          Little Endian
+# CPU(s):              56
+# On-line CPU(s) list: 0-55
+# Thread(s) per core:  2
+# Core(s) per socket:  14
+# Socket(s):           2
+# NUMA node(s):        2
 
-#numactl --cpunodebind=0 --membind=0
-numactl --physcpubind=0-13 --membind=0 python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos --device=cpu --num_examples=100 --num_threads=14 
+numactl -C 0-14   -m 0 python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos --device=cpu --num_examples=100 --num_threads=14 
+numactl -C 15-27  -m 1 python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos --device=cpu --num_examples=100 --num_threads=14 
 
 close_fd
 

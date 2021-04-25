@@ -136,13 +136,7 @@ def convert_onnx(config, torch_model, x):
                           output_names=output_names,    # the model's output names
                           dynamic_axes=dynamic_axes)    # variable length axes
 
-# ------------------------------------------------------------------------------ #
-# source code from https://github.com/huggingface/transformers/blob/master/src/transformers/convert_graph_to_onnx.py#L374
-# ------------------------------------------------------------------------------ #
 def quantize_onnx(onnx_path, quantized_onnx_path):
-    """
-    Quantize the weights of the model from float32 to in8 to allow very efficient inference on modern CPU.
-    """
     import onnx
     from onnxruntime.quantization import QuantizationMode, quantize
 
