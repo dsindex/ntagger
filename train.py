@@ -61,9 +61,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
 
     if opt.criterion == 'LabelSmoothingCrossEntropy':
         criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
+        g_criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
     else:
         criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
-    g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
+        g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
 
     n_batches = len(train_loader)
 
