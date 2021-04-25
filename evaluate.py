@@ -149,7 +149,6 @@ def quantize_onnx(onnx_path, quantized_onnx_path):
         symmetric_weight=True,
     )
 
-    # Save model
     onnx.save_model(quantized_model, quantized_onnx_path)
 
 def check_onnx(config):
