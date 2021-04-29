@@ -196,7 +196,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
  
 def evaluate(model, config, valid_loader):
     opt = config['opt']
-    accelerator = config['accelerator'] 
     pad_label_id = config['pad_label_id']
 
     eval_loss = 0.
