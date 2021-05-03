@@ -2899,25 +2899,3 @@ token_eval micro F1: 0.8926606215608773
 
 
 
-# References
-
-- [Named Entity Recoginition](https://paperswithcode.com/task/named-entity-recognition-ner)
-- [transformers_examples](https://github.com/dsindex/transformers_examples)
-- [macro and micro precision/recall/f1 score](https://datascience.stackexchange.com/a/24051)
-- [RoBERTa](https://github.com/pytorch/fairseq/tree/master/examples/roberta)
-  - [RoBERTa GLUE task setting](https://github.com/pytorch/fairseq/blob/master/examples/roberta/README.glue.md)
-- [BERT Miniatures](https://huggingface.co/google/bert_uncased_L-12_H-128_A-2)
-  - search range of hyperparameters
-    - batch sizes: 8, 16, 32, 64, 128
-    - learning rates: 3e-4, 1e-4, 5e-5, 3e-5
-- scalar mixtures of BERT all layers
-  - [ScalarMixWithDropout](https://github.com/Hyperparticle/udify/blob/master/udify/modules/scalar_mix.py)
-  - [ScalarMix](https://github.com/allenai/allennlp/blob/master/allennlp/modules/scalar_mix.py)
-- [Poor Man’s BERT: Smaller and Faster Transformer Models](https://arxiv.org/pdf/2004.03844v1.pdf)
-  - https://github.com/hsajjad/transformers/blob/master/examples/run_glue.py
-- [(pytorch) advanced_tutorial](https://tutorials.pytorch.kr/beginner/nlp/advanced_tutorial.html)
-- [Accelerate your NLP pipelines using Hugging Face Transformers and ONNX Runtime](https://medium.com/microsoftazure/accelerate-your-nlp-pipelines-using-hugging-face-transformers-and-onnx-runtime-2443578f4333)
-- [optuna](https://optuna.readthedocs.io/en/stable/tutorial/001_first.html)
-- [fairscale](https://github.com/facebookresearch/fairscale#optimizer-state-sharding-zero)
-- [FLERT: Document-Level Features for Named Entity Recognition](https://arxiv.org/pdf/2011.06993.pdf)
-- [Indexing a 3d tensor using a 2d tensor](https://stackoverflow.com/questions/55628014/indexing-a-3d-tensor-using-a-2d-tensor/55645658#55645658)
