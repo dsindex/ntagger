@@ -31,11 +31,11 @@ class InputFeature(object):
                  char_ids,
                  label_ids,
                  glabel_id,
-                 word2token_idx=None,
-                 word2token_mask=None,
-                 word_ids=None,
-                 doc2sent_idx=None,
-                 doc2sent_mask=None):
+                 word2token_idx=[],
+                 word2token_mask=[],
+                 word_ids=[],
+                 doc2sent_idx=[],
+                 doc2sent_mask=[]):
         self.input_ids = input_ids
         self.input_mask = input_mask
         self.segment_ids = segment_ids
@@ -43,12 +43,12 @@ class InputFeature(object):
         self.char_ids = char_ids
         self.label_ids = label_ids
         self.glabel_id = glabel_id
-        if word2token_idx is not None:
+        if word2token_idx:
             self.word2token_idx = word2token_idx
             self.word2token_mask = word2token_mask
-        if word_ids is not None:
+        if word_ids:
             self.word_ids = word_ids
-        if doc2sent_idx is not None:
+        if doc2sent_idx:
             self.doc2sent_idx = doc2sent_idx
             self.doc2sent_mask = doc2sent_mask
 
