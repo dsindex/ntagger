@@ -94,7 +94,22 @@ class CoNLLBertDataset(Dataset):
 
         all_glabel_ids = torch.tensor([f.glabel_id for f in features], dtype=torch.long)
         
-        # argument order must be sync with x parameter of BertLSTMCRF.forward().
+        # arguments order must be sync with x parameter of BertLSTMCRF.forward().
+        # x[0,1,2] : [batch_size, seq_size], input_ids / input_mask / segment_ids == input_ids / attention_mask / token_type_ids
+        # x[3] :     [batch_size, seq_size], pos_ids
+        # x[4] :     [batch_size, seq_size, char_n_ctx], char_ids
+
+        # with --bert_use_doc_context
+        # x[5] :     [batch_size, seq_size], doc2sent_idx
+        # x[6] :     [batch_size, seq_size], doc2sent_mask
+        # x[7] :     [batch_size, seq_size], word2token_idx  with --bert_use_subword_pooling
+        # x[8] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
+        # x[9] :     [batch_size, seq_size], word_ids        with --bert_use_word_embedding
+
+        # without --bert_use_doc_context
+        # x[5] :     [batch_size, seq_size], word2token_idx  with --bert_use_subword_pooling
+        # x[6] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
+        # x[7] :     [batch_size, seq_size], word_ids        with --bert_use_word_embedding
         args = [all_input_ids, all_input_mask, all_segment_ids, all_pos_ids, all_char_ids]
         if all_doc2sent_idx != None:
             args += [all_doc2sent_idx, all_doc2sent_mask]
