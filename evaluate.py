@@ -123,7 +123,7 @@ def convert_onnx(config, torch_model, x):
         if opt.bert_use_mtl:
             output_names += ['glogits']
             dynamic_axes['glogits'] = {0: 'batch'}
-        
+       
     with torch.no_grad():
         torch.onnx.export(torch_model,                  # model being run
                           x,                            # model input (or a tuple for multiple inputs)
@@ -157,6 +157,54 @@ def check_onnx(config):
     onnx_model = onnx.load(opt.onnx_path)
     onnx.checker.check_model(onnx_model)
     print(onnx.helper.printable_graph(onnx_model.graph))
+
+def build_onnx_input(config, ort_session, x):
+    opt = config['opt']
+    x = to_numpy(x)
+    if config['emb_class'] in ['glove', 'elmo']:
+        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                      ort_session.get_inputs()[1].name: x[1]}
+        if opt.use_char_cnn:
+            ort_inputs[ort_session.get_inputs()[2].name] = x[2]
+    else:
+        # x order must be sync with x parameter of BertLSTMCRF.forward().
+        # x[0,1,2] : [batch_size, seq_size], input_ids / input_mask / segment_ids == input_ids / attention_mask / token_type_ids
+        # x[3] :     [batch_size, seq_size], pos_ids
+        # x[4] :     [batch_size, seq_size, char_n_ctx], char_ids
+
+        # with --bert_use_doc_context
+        # x[5] :     [batch_size, seq_size], doc2sent_idx
+        # x[6] :     [batch_size, seq_size], doc2sent_mask
+        # x[7] :     [batch_size, seq_size], word2token_idx  with --bert_use_subword_pooling
+        # x[8] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
+        # x[9] :     [batch_size, seq_size], word_ids        with --bert_use_word_embedding
+
+        # without --bert_use_doc_context
+        # x[5] :     [batch_size, seq_size], word2token_idx  with --bert_use_subword_pooling
+        # x[6] :     [batch_size, seq_size], word2token_mask with --bert_use_subword_pooling
+        # x[7] :     [batch_size, seq_size], word_ids        with --bert_use_word_embedding
+        if config['emb_class'] in ['roberta', 'distilbert', 'bart']:
+            ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                          ort_session.get_inputs()[1].name: x[1]}
+        else:
+            ort_inputs = {ort_session.get_inputs()[0].name: x[0],
+                          ort_session.get_inputs()[1].name: x[1],
+                          ort_session.get_inputs()[2].name: x[2]}
+        if opt.bert_use_pos:
+            ort_inputs[ort_session.get_inputs()[3].name] = x[3]
+        if opt.use_char_cnn:
+            ort_inputs[ort_session.get_inputs()[4].name] = x[4]
+        base_idx = 5
+        if opt.bert_use_doc_context:
+            ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
+            ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
+            base_idx += 2
+        if opt.bert_use_subword_pooling:
+            ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
+            ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
+            if opt.bert_use_word_embedding:
+                ort_inputs[ort_session.get_inputs()[base_idx+2].name] = x[base_idx+2]
+    return ort_inputs
 
 # ---------------------------------------------------------------------------- #
 # Evaluation
@@ -329,46 +377,20 @@ def evaluate(opt):
             x = to_device(x, opt.device)
             y = to_device(y, opt.device)
             if opt.enable_ort:
-                x = to_numpy(x)
-                if config['emb_class'] in ['glove', 'elmo']:
-                    ort_inputs = {ort_session.get_inputs()[0].name: x[0],
-                                  ort_session.get_inputs()[1].name: x[1]}
-                    if opt.use_char_cnn:
-                        ort_inputs[ort_session.get_inputs()[2].name] = x[2]
-                else:
-                    # x order must be sync with x parameter of BertLSTMCRF.forward().
-                    if config['emb_class'] in ['roberta', 'distilbert', 'bart']:
-                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
-                                      ort_session.get_inputs()[1].name: x[1]}
-                    else:
-                        ort_inputs = {ort_session.get_inputs()[0].name: x[0],
-                                      ort_session.get_inputs()[1].name: x[1],
-                                      ort_session.get_inputs()[2].name: x[2]}
-                    if opt.bert_use_pos:
-                        ort_inputs[ort_session.get_inputs()[3].name] = x[3]
-                    if opt.use_char_cnn:
-                        ort_inputs[ort_session.get_inputs()[4].name] = x[4]
-                    base_idx = 5
-                    if opt.bert_use_doc_context:
-                        ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
-                        ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
-                        base_idx += 2
-                    if opt.bert_use_subword_pooling:
-                        ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
-                        ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
-                        if opt.bert_use_word_embedding:
-                            ort_inputs[ort_session.get_inputs()[base_idx+2].name] = x[base_idx+2]
+                ort_inputs = build_onnx_input(config, ort_session, x)
                 if opt.use_crf:
                     # FIXME not working for --use_crf
                     if opt.bert_use_mtl:
                         logits, prediction, glogits = ort_session.run(None, ort_inputs)
+                        glogits = to_device(torch.tensor(glogits), opt.device)
                     else:
                         logits, prediction = ort_session.run(None, ort_inputs)
                     prediction = to_device(torch.tensor(prediction), opt.device)
                     logits = to_device(torch.tensor(logits), opt.device)
                 else:
                     if opt.bert_use_mtl:
-                        logits, glogits = ort_session.run(None, ort_inputs)[0]
+                        logits, glogits = ort_session.run(None, ort_inputs)
+                        glogits = to_device(torch.tensor(glogits), opt.device)
                     else:
                         logits = ort_session.run(None, ort_inputs)[0]
                     logits = to_device(torch.tensor(logits), opt.device)

@@ -57,5 +57,14 @@ accuracy:  97.95%; precision:  94.88%; recall:  95.45%; FB1:  95.17
 
 ```
 
+### conversion to onnx
+```
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/atis --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --bert_use_mtl --convert_onnx
+
+$ python evaluate.py --config=configs/config-bert.json --data_dir=data/atis --model_path=pytorch-model-bert.pt --bert_output_dir=bert-checkpoint --bert_use_mtl --enable_ort
+
+
+```
+
 
 
