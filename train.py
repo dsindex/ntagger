@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from accelerate import Accelerator
-from transformers import AdamW, get_linear_schedule_with_warmup
+from transformers import AdamW, get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
 
 try:
     from torch.utils.tensorboard import SummaryWriter
@@ -453,7 +453,7 @@ def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
 
     logger.info(f"(num_update_steps_per_epoch, max_train_steps, num_warmup_steps): ({num_update_steps_per_epoch}, {opt.max_train_steps}, {opt.num_warmup_steps})")
 
-    no_decay = ['bias', 'LayerNorm.weight']
+    no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
         {'params': [p for n, p in model.named_parameters() if not any(nd in n for nd in no_decay)],
          'weight_decay': default_weight_decay},
@@ -463,7 +463,7 @@ def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
 
     model, optimizer = accelerator.prepare(model, optimizer)
 
-    scheduler = get_linear_schedule_with_warmup(optimizer,
+    scheduler = get_cosine_schedule_with_warmup(optimizer,
         num_warmup_steps=opt.num_warmup_steps,
         num_training_steps=opt.max_train_steps)
 
