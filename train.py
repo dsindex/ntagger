@@ -447,7 +447,7 @@ def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
         opt.epoch = math.ceil(opt.max_train_steps / num_update_steps_per_epoch)
     if opt.num_warmup_steps is None: 
         if opt.warmup_ratio:
-            opt.num_warmup_steps = opt.max_train_steps * opt.warmup_epoch
+            opt.num_warmup_steps = opt.max_train_steps * opt.warmup_ratio
         if opt.warmup_epoch:
             opt.num_warmup_steps = num_update_steps_per_epoch * opt.warmup_epoch
 
