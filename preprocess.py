@@ -50,12 +50,6 @@ def build_dict(input_path, config, extra_path=None):
     label_id = 0
     labels[config['pad_label']] = config['pad_label_id']  # 0
     label_id += 1
-    if args.use_ncrf:
-        # NCRF tasks actual number of labels + 2(<bos>, <eos>)
-        labels['<bos>'] = config['pad_label_id'] + 1  # 1
-        label_id += 1
-        labels['<eos>'] = config['pad_label_id'] + 2  # 2
-        label_id += 1
 
     glabels[config['pad_label']] = config['pad_label_id'] # 0
     glabel_id = 1
@@ -109,6 +103,14 @@ def build_dict(input_path, config, extra_path=None):
                             labels[label] = label_id
                             label_id += 1
                         
+    if args.use_ncrf:
+        # NCRF takes actual number of labels + 2, see model/crf.py
+        # START_TAG = -2
+        # END_TAG = -1
+        labels['START_TAG'] = label_id # init_transitions[:,START_TAG] = -10000.0
+        label_id += 1
+        labels['STOP_TAG'] = label_id # init_transitions[STOP_TAG,:] = -10000.0
+        label_id += 1
 
     logger.info("\nUnique poss, chars, labels, glabels : {}, {}, {}, {}".format(len(poss), len(chars), len(labels), len(glabels)))
     return poss, chars, labels, glabels
