@@ -448,6 +448,7 @@ def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
             opt.num_warmup_steps = opt.max_train_steps * opt.warmup_ratio
         if opt.warmup_epoch:
             opt.num_warmup_steps = num_update_steps_per_epoch * opt.warmup_epoch
+        if opt.num_warmup_steps is None: opt.num_warmup_steps = 0
 
     logger.info(f"(num_update_steps_per_epoch, max_train_steps, num_warmup_steps): ({num_update_steps_per_epoch}, {opt.max_train_steps}, {opt.num_warmup_steps})")
 
