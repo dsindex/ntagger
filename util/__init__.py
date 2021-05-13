@@ -1,4 +1,4 @@
-from .util import load_checkpoint, load_config, load_dict
+from .util import load_checkpoint, load_config, load_dict, to_device, to_numpy
 from .tokenizer import Tokenizer
 from .early_stopping import EarlyStopping
 from .label_smoothing import LabelSmoothingCrossEntropy

@@ -37,7 +37,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1):
-    opt = config['opt']
+    args = config['args']
     accelerator = config['accelerator'] 
 
     optimizer = None
@@ -51,14 +51,14 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     optimizer = optimizer_1st
     scheduler = scheduler_1st
     freeze_bert = False
-    if opt.bert_freezing_epoch > 0:
+    if args.bert_freezing_epoch > 0:
         # apply second optimizer/scheduler during freezing epochs
-        if epoch_i < opt.bert_freezing_epoch and optimizer_2nd != None and scheduler_2nd != None:
+        if epoch_i < args.bert_freezing_epoch and optimizer_2nd != None and scheduler_2nd != None:
             optimizer = optimizer_2nd
             scheduler = scheduler_2nd
             freeze_bert = True
 
-    if opt.criterion == 'LabelSmoothingCrossEntropy':
+    if args.criterion == 'LabelSmoothingCrossEntropy':
         criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
         g_criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
     else:
@@ -84,10 +84,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         model.train()
         global_step = (len(train_loader) * epoch_i) + local_step
         gloss = 0.
-        if opt.use_crf:
+        if args.use_crf:
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
             if config['emb_class'] not in ['glove', 'elmo']:
-                if opt.bert_use_mtl:
+                if args.bert_use_mtl:
                     logits, prediction, glogits = model(x, freeze_bert=freeze_bert)
                     gloss = g_criterion(glogits, gy)
                 else:
@@ -99,7 +99,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             loss = loss + gloss
         else:
             if config['emb_class'] not in ['glove', 'elmo']:
-                if opt.bert_use_mtl:
+                if args.bert_use_mtl:
                     logits, glogits = model(x, freeze_bert=freeze_bert)
                     gloss = g_criterion(glogits, gy)
                 else:
@@ -112,18 +112,18 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             loss = criterion(logits_view, y_view)
             loss = loss + gloss
 
-        if opt.gradient_accumulation_steps > 1:
-           loss = loss / opt.gradient_accumulation_steps
+        if args.gradient_accumulation_steps > 1:
+           loss = loss / args.gradient_accumulation_steps
 
         # back-propagation - begin
         accelerator.backward(loss)
-        if (local_step + 1) % opt.gradient_accumulation_steps == 0:
+        if (local_step + 1) % args.gradient_accumulation_steps == 0:
             optimizer.step()
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
             epoch_iterator.set_description(f"Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, gloss: {gloss:.3f},curr_lr: {curr_lr:.7f}")
-            if accelerator.is_main_process and opt.eval_and_save_steps > 0 and global_step != 0 and global_step % opt.eval_and_save_steps == 0:
+            if accelerator.is_main_process and args.eval_and_save_steps > 0 and global_step != 0 and global_step % args.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, valid_loader)
                 eval_loss = eval_ret['loss']
@@ -136,16 +136,16 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                     writer.add_scalar('LearningRate/train', curr_lr, global_step)
                 if eval_f1 > best_eval_f1:
                     best_eval_f1 = eval_f1
-                    if opt.save_path and not opt.hp_search_optuna:
+                    if args.save_path and not args.hp_search_optuna:
                         unwrapped_model = accelerator.unwrap_model(model)
                         save_model(config, unwrapped_model)
                         logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
                         # save finetuned bert model/config/tokenizer
                         if config['emb_class'] not in ['glove', 'elmo']:
-                            if not os.path.exists(opt.bert_output_dir):
-                                os.makedirs(opt.bert_output_dir)
-                            unwrapped_model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
-                            unwrapped_model.bert_model.save_pretrained(opt.bert_output_dir)
+                            if not os.path.exists(args.bert_output_dir):
+                                os.makedirs(args.bert_output_dir)
+                            unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
+                            unwrapped_model.bert_model.save_pretrained(args.bert_output_dir)
                             logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
         # back-propagation - end
         train_loss += loss.item()
@@ -165,16 +165,16 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             writer.add_scalar('LearningRate/train', curr_lr, global_step)
         if eval_f1 > best_eval_f1:
             best_eval_f1 = eval_f1
-            if opt.save_path and not opt.hp_search_optuna:
+            if args.save_path and not args.hp_search_optuna:
                 unwrapped_model = accelerator.unwrap_model(model)
                 save_model(config, unwrapped_model)
                 logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
                 # save finetuned bert model/config/tokenizer
                 if config['emb_class'] not in ['glove', 'elmo']:
-                    if not os.path.exists(opt.bert_output_dir):
-                        os.makedirs(opt.bert_output_dir)
-                    unwrapped_model.bert_tokenizer.save_pretrained(opt.bert_output_dir)
-                    unwrapped_model.bert_model.save_pretrained(opt.bert_output_dir)
+                    if not os.path.exists(args.bert_output_dir):
+                        os.makedirs(args.bert_output_dir)
+                    unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
+                    unwrapped_model.bert_model.save_pretrained(args.bert_output_dir)
                     logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
 
     curr_time = time.time()
@@ -194,7 +194,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     return local_best_eval_loss, local_best_eval_f1, best_eval_f1
  
 def evaluate(model, config, valid_loader):
-    opt = config['opt']
+    args = config['args']
     pad_label_id = config['pad_label_id']
 
     eval_loss = 0.
@@ -216,8 +216,8 @@ def evaluate(model, config, valid_loader):
             model.eval()
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
             gloss = 0.
-            if opt.use_crf:
-                if opt.bert_use_mtl:
+            if args.use_crf:
+                if args.bert_use_mtl:
                     logits, prediction, glogits = model(x)
                     gloss = g_criterion(glogits, gy)
                 else:
@@ -228,7 +228,7 @@ def evaluate(model, config, valid_loader):
                 logits = logits.cpu().numpy()
                 prediction = prediction.cpu().numpy()
             else:
-                if opt.bert_use_mtl:
+                if args.bert_use_mtl:
                     logits, glogits = model(x)
                     gloss = g_criterion(glogits, gy)
                 else:
@@ -241,15 +241,15 @@ def evaluate(model, config, valid_loader):
 
             y = y.cpu().numpy()
             if preds is None:
-                if opt.use_crf: preds = prediction
+                if args.use_crf: preds = prediction
                 else: preds = logits
                 ys = y
             else:
-                if opt.use_crf: preds = np.append(preds, prediction, axis=0)
+                if args.use_crf: preds = np.append(preds, prediction, axis=0)
                 else: preds = np.append(preds, logits, axis=0)
                 ys = np.append(ys, y, axis=0)
 
-            if opt.bert_use_mtl:
+            if args.bert_use_mtl:
                 glogits = torch.softmax(glogits, dim=-1)
                 glogits = glogits.cpu().numpy()
                 gy = gy.cpu().numpy()
@@ -264,7 +264,7 @@ def evaluate(model, config, valid_loader):
 
     # generate report for token classification
     eval_loss = eval_loss / n_batches
-    if not opt.use_crf: preds = np.argmax(preds, axis=2)
+    if not args.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = config['labels']
     ys_lbs = [[] for _ in range(ys.shape[0])]
@@ -284,7 +284,7 @@ def evaluate(model, config, valid_loader):
     print(ret['report'])
 
     # generate report for sequence classification
-    if opt.bert_use_mtl:
+    if args.bert_use_mtl:
         glabels = config['glabels']
         glabel_names = [v for k, v in sorted(glabels.items(), key=lambda x: x[0])]
         glabel_ids = [k for k in glabels.keys()]
@@ -306,31 +306,31 @@ def evaluate(model, config, valid_loader):
     return ret
 
 def save_model(config, model, save_path=None):
-    opt = config['opt']
+    args = config['args']
     optimizer = config['optimizer']
-    checkpoint_path = opt.save_path
+    checkpoint_path = args.save_path
     if save_path: checkpoint_path = save_path
     with open(checkpoint_path, 'wb') as f:
         checkpoint = model.state_dict()
         torch.save(checkpoint,f)
 
 def set_path(config):
-    opt = config['opt']
+    args = config['args']
     if config['emb_class'] in ['glove', 'elmo']:
-        opt.train_path = os.path.join(opt.data_dir, 'train.txt.ids')
-        opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.ids')
+        args.train_path = os.path.join(args.data_dir, 'train.txt.ids')
+        args.valid_path = os.path.join(args.data_dir, 'valid.txt.ids')
     else:
-        opt.train_path = os.path.join(opt.data_dir, 'train.txt.fs')
-        opt.valid_path = os.path.join(opt.data_dir, 'valid.txt.fs')
-    opt.label_path = os.path.join(opt.data_dir, opt.label_filename)
-    opt.glabel_path = os.path.join(opt.data_dir, opt.glabel_filename)
-    opt.pos_path = os.path.join(opt.data_dir, opt.pos_filename)
-    opt.embedding_path = os.path.join(opt.data_dir, opt.embedding_filename)
+        args.train_path = os.path.join(args.data_dir, 'train.txt.fs')
+        args.valid_path = os.path.join(args.data_dir, 'valid.txt.fs')
+    args.label_path = os.path.join(args.data_dir, args.label_filename)
+    args.glabel_path = os.path.join(args.data_dir, args.glabel_filename)
+    args.pos_path = os.path.join(args.data_dir, args.pos_filename)
+    args.embedding_path = os.path.join(args.data_dir, args.embedding_filename)
 
 def prepare_datasets(config, hp_search_bsz=None, train_path=None, valid_path=None):
-    opt = config['opt']
-    default_train_path = opt.train_path
-    default_valid_path = opt.valid_path
+    args = config['args']
+    default_train_path = args.train_path
+    default_valid_path = args.valid_path
     if train_path: default_train_path = train_path
     if valid_path: default_valid_path = valid_path
     if config['emb_class'] == 'glove':
@@ -350,19 +350,19 @@ def prepare_datasets(config, hp_search_bsz=None, train_path=None, valid_path=Non
             DatasetClass,
             sampling=False,
             num_workers=2,
-            batch_size=opt.eval_batch_size)
+            batch_size=args.eval_batch_size)
     return train_loader, valid_loader
 
 def get_bert_embed_layer_list(config, bert_model):
-    opt = config['opt']
+    args = config['args']
     embed_list = list(bert_model.embeddings.parameters())
     # note that 'distilbert' has no encoder.layer, so don't use bert_remove_layers for distilbert.
     layer_list = bert_model.encoder.layer
     return embed_list, layer_list
 
 def reduce_bert_model(config, bert_model, bert_config):
-    opt = config['opt']
-    remove_layers = opt.bert_remove_layers
+    args = config['args']
+    remove_layers = args.bert_remove_layers
     # drop layers
     if remove_layers is not "":
         embed_list, layer_list = get_bert_embed_layer_list(config, bert_model)
@@ -376,81 +376,81 @@ def reduce_bert_model(config, bert_model, bert_config):
             bert_config.num_hidden_layers = len(layer_list)
 
 def prepare_model(config):
-    opt = config['opt']
-    labels = load_dict(opt.label_path)
+    args = config['args']
+    labels = load_dict(args.label_path)
     label_size = len(labels)
     config['labels'] = labels
     config['label_size'] = label_size
-    glabels = load_dict(opt.glabel_path)
+    glabels = load_dict(args.glabel_path)
     glabel_size = len(glabels)
     config['glabels'] = glabels
     config['glabel_size'] = glabel_size
-    poss = load_dict(opt.pos_path)
+    poss = load_dict(args.pos_path)
     pos_size = len(poss)
     config['poss'] = poss
     config['pos_size'] = pos_size
-    emb_non_trainable = not opt.embedding_trainable
+    emb_non_trainable = not args.embedding_trainable
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
-            model = GloveLSTMCRF(config, opt.embedding_path, label_size, pos_size,
-                                 emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf,
-                                 use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
+            model = GloveLSTMCRF(config, args.embedding_path, label_size, pos_size,
+                                 emb_non_trainable=emb_non_trainable, use_crf=args.use_crf,
+                                 use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
         if config['enc_class'] == 'densenet':
-            model = GloveDensenetCRF(config, opt.embedding_path, label_size, pos_size,
-                                     emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf,
-                                     use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
+            model = GloveDensenetCRF(config, args.embedding_path, label_size, pos_size,
+                                     emb_non_trainable=emb_non_trainable, use_crf=args.use_crf,
+                                     use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     elif config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
-        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
-        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, label_size, pos_size,
-                            emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf,
-                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
+        elmo_model = Elmo(args.elmo_options_file, args.elmo_weights_file, 2, dropout=0)
+        model = ElmoLSTMCRF(config, elmo_model, args.embedding_path, label_size, pos_size,
+                            emb_non_trainable=emb_non_trainable, use_crf=args.use_crf,
+                            use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     else:
-        bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
-        bert_model = AutoModel.from_pretrained(opt.bert_model_name_or_path,
-                                               from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
+        bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path)
+        bert_model = AutoModel.from_pretrained(args.bert_model_name_or_path,
+                                               from_tf=bool(".ckpt" in args.bert_model_name_or_path))
         bert_config = bert_model.config
         # bert model reduction
         reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
-                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos,
-                           use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
-                           use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
-                           embedding_path=opt.embedding_path, emb_non_trainable=emb_non_trainable,
-                           use_doc_context=opt.bert_use_doc_context,
-                           disable_lstm=opt.bert_disable_lstm,
-                           feature_based=opt.bert_use_feature_based,
-                           use_mtl=opt.bert_use_mtl)
-    if opt.restore_path:
-        checkpoint = load_checkpoint(opt.restore_path)
+                           use_crf=args.use_crf, use_pos=args.bert_use_pos,
+                           use_char_cnn=args.use_char_cnn, use_mha=args.use_mha,
+                           use_subword_pooling=args.bert_use_subword_pooling, use_word_embedding=args.bert_use_word_embedding,
+                           embedding_path=args.embedding_path, emb_non_trainable=emb_non_trainable,
+                           use_doc_context=args.bert_use_doc_context,
+                           disable_lstm=args.bert_disable_lstm,
+                           feature_based=args.bert_use_feature_based,
+                           use_mtl=args.bert_use_mtl)
+    if args.restore_path:
+        checkpoint = load_checkpoint(args.restore_path)
         model.load_state_dict(checkpoint)
     logger.info("[model] :\n{}".format(model.__str__()))
     logger.info("[model prepared]")
     return model
 
 def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
-    opt = config['opt']
+    args = config['args']
     accelerator = config['accelerator']
 
-    default_lr = opt.lr
+    default_lr = args.lr
     if lr: default_lr = lr
-    default_weight_decay = opt.weight_decay
+    default_weight_decay = args.weight_decay
     if weight_decay: default_weight_decay = weight_decay
 
-    num_update_steps_per_epoch = math.ceil(len(data_loader) / opt.gradient_accumulation_steps)
-    if opt.max_train_steps is None:
-        opt.max_train_steps = opt.epoch * num_update_steps_per_epoch
+    num_update_steps_per_epoch = math.ceil(len(data_loader) / args.gradient_accumulation_steps)
+    if args.max_train_steps is None:
+        args.max_train_steps = args.epoch * num_update_steps_per_epoch
     else:
-        opt.epoch = math.ceil(opt.max_train_steps / num_update_steps_per_epoch)
-    if opt.num_warmup_steps is None: 
-        if opt.warmup_ratio:
-            opt.num_warmup_steps = opt.max_train_steps * opt.warmup_ratio
-        if opt.warmup_epoch:
-            opt.num_warmup_steps = num_update_steps_per_epoch * opt.warmup_epoch
-        if opt.num_warmup_steps is None: opt.num_warmup_steps = 0
+        args.epoch = math.ceil(args.max_train_steps / num_update_steps_per_epoch)
+    if args.num_warmup_steps is None: 
+        if args.warmup_ratio:
+            args.num_warmup_steps = args.max_train_steps * args.warmup_ratio
+        if args.warmup_epoch:
+            args.num_warmup_steps = num_update_steps_per_epoch * args.warmup_epoch
+        if args.num_warmup_steps is None: args.num_warmup_steps = 0
 
-    logger.info(f"(num_update_steps_per_epoch, max_train_steps, num_warmup_steps): ({num_update_steps_per_epoch}, {opt.max_train_steps}, {opt.num_warmup_steps})")
+    logger.info(f"(num_update_steps_per_epoch, max_train_steps, num_warmup_steps): ({num_update_steps_per_epoch}, {args.max_train_steps}, {args.num_warmup_steps})")
 
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
@@ -458,29 +458,29 @@ def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
          'weight_decay': default_weight_decay},
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
     ]
-    optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=opt.adam_epsilon)
+    optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=args.adam_epsilon)
 
     model, optimizer = accelerator.prepare(model, optimizer)
 
     scheduler = get_cosine_schedule_with_warmup(optimizer,
-        num_warmup_steps=opt.num_warmup_steps,
-        num_training_steps=opt.max_train_steps)
+        num_warmup_steps=args.num_warmup_steps,
+        num_training_steps=args.max_train_steps)
 
     try:
-        writer = SummaryWriter(log_dir=opt.log_dir)
+        writer = SummaryWriter(log_dir=args.log_dir)
     except:
         writer = None
 
     return model, optimizer, scheduler, writer
 
-def train(opt):
+def train(args):
 
     # set etc
     torch.autograd.set_detect_anomaly(True)
 
     # set config
-    config = load_config(opt)
-    config['opt'] = opt
+    config = load_config(args)
+    config['args'] = args
     logger.info("%s", config)
  
     # set path
@@ -489,19 +489,19 @@ def train(opt):
     # create accelerator
     accelerator = Accelerator()
     config['accelerator'] = accelerator
-    opt.device = accelerator.device
+    args.device = accelerator.device
 
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config)
 
-    with temp_seed(opt.seed):
+    with temp_seed(args.seed):
         # prepare model
         model = prepare_model(config)
 
         # create optimizer, scheduler, summary writer
         model, optimizer, scheduler, writer = prepare_others(config, model, train_loader)
         # create secondary optimizer, scheduler
-        _, optimizer_2nd, scheduler_2nd, _= prepare_others(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+        _, optimizer_2nd, scheduler_2nd, _= prepare_others(config, model, train_loader, lr=args.bert_lr_during_freezing)
         train_loader = accelerator.prepare(train_loader)
         valid_loader = accelerator.prepare(valid_loader)
 
@@ -511,20 +511,20 @@ def train(opt):
         config['scheduler_2nd'] = scheduler_2nd
         config['writer'] = writer
 
-        total_batch_size = opt.batch_size * accelerator.num_processes * opt.gradient_accumulation_steps
+        total_batch_size = args.batch_size * accelerator.num_processes * args.gradient_accumulation_steps
         logger.info("***** Running training *****")
         logger.info(f"  Num examples = {len(train_loader)}")
-        logger.info(f"  Num Epochs = {opt.epoch}")
-        logger.info(f"  Instantaneous batch size per device = {opt.batch_size}")
+        logger.info(f"  Num Epochs = {args.epoch}")
+        logger.info(f"  Instantaneous batch size per device = {args.batch_size}")
         logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
-        logger.info(f"  Gradient Accumulation steps = {opt.gradient_accumulation_steps}")
-        logger.info(f"  Total optimization steps = {opt.max_train_steps}")
+        logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+        logger.info(f"  Total optimization steps = {args.max_train_steps}")
 
         # training
-        early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
+        early_stopping = EarlyStopping(logger, patience=args.patience, measure='f1', verbose=1)
         local_worse_epoch = 0
         best_eval_f1 = -float('inf')
-        for epoch_i in range(opt.epoch):
+        for epoch_i in range(args.epoch):
             epoch_st_time = time.time()
             eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1)
             # early stopping
@@ -534,16 +534,16 @@ def train(opt):
             early_stopping.status()
     
 
-# for optuna, global for passing opt 
-gopt = None
+# for optuna, global for passing args 
+gargs = None
 
 def hp_search_optuna(trial: optuna.Trial):
 
-    global gopt
-    opt = gopt
+    global gargs
+    args = gargs
     # set config
-    config = load_config(opt)
-    config['opt'] = opt
+    config = load_config(args)
+    config['args'] = args
     logger.info("%s", config)
 
     # set path
@@ -552,13 +552,13 @@ def hp_search_optuna(trial: optuna.Trial):
     # create accelerator
     accelerator = Accelerator()
     config['accelerator'] = accelerator
-    opt.device = accelerator.device
+    args.device = accelerator.device
 
     # set search spaces
     lr = trial.suggest_float('lr', 1e-5, 1e-3, log=True)
     bsz = trial.suggest_categorical('batch_size', [8, 16, 32, 64])
     seed = trial.suggest_int('seed', 17, 42)
-    epochs = trial.suggest_int('epochs', 1, opt.epoch)
+    epochs = trial.suggest_int('epochs', 1, args.epoch)
 
     # prepare train, valid dataset
     train_loader, valid_loader = prepare_datasets(config, hp_search_bsz=bsz)
@@ -570,7 +570,7 @@ def hp_search_optuna(trial: optuna.Trial):
         # create optimizer, scheduler, summary writer
         model, optimizer, scheduler, writer = prepare_others(config, model, train_loader, lr=lr)
         # create secondary optimizer, scheduler
-        _, optimizer_2nd, scheduler_2nd, _ = prepare_others(config, model, train_loader, lr=opt.bert_lr_during_freezing)
+        _, optimizer_2nd, scheduler_2nd, _ = prepare_others(config, model, train_loader, lr=args.bert_lr_during_freezing)
         train_loader = accelerator.prepare(train_loader)
         valid_loader = accelerator.prepare(valid_loader)
 
@@ -580,16 +580,16 @@ def hp_search_optuna(trial: optuna.Trial):
         config['scheduler_2nd'] = scheduler_2nd
         config['writer'] = writer
 
-        total_batch_size = opt.batch_size * accelerator.num_processes * opt.gradient_accumulation_steps
+        total_batch_size = args.batch_size * accelerator.num_processes * args.gradient_accumulation_steps
         logger.info("***** Running training *****")
         logger.info(f"  Num examples = {len(train_loader)}")
-        logger.info(f"  Num Epochs = {opt.epoch}")
-        logger.info(f"  Instantaneous batch size per device = {opt.batch_size}")
+        logger.info(f"  Num Epochs = {args.epoch}")
+        logger.info(f"  Instantaneous batch size per device = {args.batch_size}")
         logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
-        logger.info(f"  Gradient Accumulation steps = {opt.gradient_accumulation_steps}")
-        logger.info(f"  Total optimization steps = {opt.max_train_steps}")
+        logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+        logger.info(f"  Total optimization steps = {args.max_train_steps}")
 
-        early_stopping = EarlyStopping(logger, patience=opt.patience, measure='f1', verbose=1)
+        early_stopping = EarlyStopping(logger, patience=args.patience, measure='f1', verbose=1)
         best_eval_f1 = -float('inf')
         for epoch in range(epochs):
             eval_loss, eval_f1, best_eval_f1 = train_epoch(model, config, train_loader, valid_loader, epoch, best_eval_f1)
@@ -672,20 +672,20 @@ def main():
     parser.add_argument('--hp_trials', default=24, type=int,
                         help="Number of trials for hyper-parameter search.")
 
-    opt = parser.parse_args()
+    args = parser.parse_args()
 
-    if opt.hp_search_optuna:
-        global gopt
-        gopt = opt
+    if args.hp_search_optuna:
+        global gargs
+        gargs = args
         study = optuna.create_study(direction='maximize')
-        study.optimize(hp_search_optuna, n_trials=opt.hp_trials)
+        study.optimize(hp_search_optuna, n_trials=args.hp_trials)
         df = study.trials_dataframe(attrs=('number', 'value', 'params', 'state'))
         print(df)
         logger.info("[study.best_params] : %s", study.best_params)
         logger.info("[study.best_value] : %s", study.best_value)
         logger.info("[study.best_trial] : %s", study.best_trial) # for all, study.trials
     else:
-        train(opt)
+        train(args)
 
 if __name__ == '__main__':
     main()

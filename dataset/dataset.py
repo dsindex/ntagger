@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=1, batch_size=0, hp_search_bsz=None):
-    opt = config['opt']
+    args = config['args']
     dataset = DatasetClass(config, filepath)
 
     if sampling:
@@ -19,7 +19,7 @@ def prepare_dataset(config, filepath, DatasetClass, sampling=False, num_workers=
     else:
         sampler = SequentialSampler(dataset)
 
-    bz = opt.batch_size
+    bz = args.batch_size
     if batch_size > 0: bz = batch_size
     # for optuna
     if hp_search_bsz: bz = hp_search_bsz

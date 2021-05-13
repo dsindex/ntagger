@@ -53,7 +53,7 @@ class InputFeature(object):
             self.doc2sent_mask = doc2sent_mask
 
 def read_examples_from_file(config, file_path, mode='train'):
-    opt = config['opt']
+    args = config['args']
     guid_index = 1
     examples = []
     tot_num_line = sum(1 for _ in open(file_path, 'r'))
@@ -66,7 +66,7 @@ def read_examples_from_file(config, file_path, mode='train'):
                 posseq = []
                 labelseq = []
                 glabel = None
-                if opt.bert_use_mtl:
+                if args.bert_use_mtl:
                     glabel = bucket[0][0] # first token means global label.
                     bucket = bucket[1:]
                 for entry in bucket:
@@ -93,7 +93,7 @@ def read_examples_from_file(config, file_path, mode='train'):
             posseq = []
             labelseq = []
             glabel = None
-            if opt.bert_use_mtl:
+            if args.bert_use_mtl:
                 glabel = bucket[0][0] # first token means global label.
                 bucket = bucket[1:]
             for entry in bucket:
@@ -147,7 +147,7 @@ def build_document_context(config,
       ---------------------------------------------------------------------------
     """
 
-    opt = config['opt']
+    args = config['args']
 
     doc2sent_idx = []
     doc2sent_mask = []
@@ -155,7 +155,7 @@ def build_document_context(config,
     # ---------------------------------------------------------------------------
     # build context
     # ---------------------------------------------------------------------------
-    doc_start = opt.bert_doc_separator # eg, '-DOCSTART-'
+    doc_start = args.bert_doc_separator # eg, '-DOCSTART-'
     start_ex_index = ex_index
     end_ex_index = ex_index
     if doc_start in example.words[0]:
@@ -176,7 +176,7 @@ def build_document_context(config,
 
     csize = config['prev_context_size'] # previous max context size
 
-    if opt.bert_doc_context_option == 1:
+    if args.bert_doc_context_option == 1:
         prev_example = None
         if ex_index > 0:
             prev_example = examples[ex_index-1]
@@ -213,7 +213,7 @@ def build_document_context(config,
         bos = len(prev_words)
         eos = bos + len(example.words)
 
-    if opt.bert_doc_context_option == 2:
+    if args.bert_doc_context_option == 2:
         prev_examples = examples[start_ex_index:ex_index]
         next_examples = examples[ex_index+1:end_ex_index+1]
 
@@ -353,7 +353,7 @@ def convert_single_example_to_feature(config,
       ---------------------------------------------------------------------------
     """
 
-    opt = config['opt']
+    args = config['args']
 
     glabel = example.glabel
     glabel_id = pad_token_label_id
@@ -374,7 +374,7 @@ def convert_single_example_to_feature(config,
         # word extension
         word_tokens = tokenizer.tokenize(word)
         tokens.extend(word_tokens)
-        if opt.bert_use_subword_pooling:
+        if args.bert_use_subword_pooling:
             # build word2token_idx, save the first token's idx of sub-tokens for the word.
             # token_idx must be less than max_seq_length.
             if token_idx < max_seq_length:
@@ -382,13 +382,13 @@ def convert_single_example_to_feature(config,
                 token_idx += len(word_tokens)
         # pos extension
         pos_id = pos_map[pos]
-        if opt.bert_use_subword_pooling:
+        if args.bert_use_subword_pooling:
             pos_ids.extend([pos_id])
         else:
             # set same pod_id
             pos_ids.extend([pos_id] + [pos_id] * (len(word_tokens) - 1))
         # char extension
-        if opt.bert_use_subword_pooling:
+        if args.bert_use_subword_pooling:
             c_ids = batch_to_ids([word])[0].detach().cpu().numpy().tolist()
             char_ids.extend(c_ids)
         else:
@@ -398,10 +398,10 @@ def convert_single_example_to_feature(config,
         label_id = pad_token_label_id
         if label in label_map:
             label_id = label_map[label]
-        if opt.bert_use_subword_pooling:
+        if args.bert_use_subword_pooling:
             label_ids.extend([label_id])
         else:
-            if opt.bert_use_sub_label:
+            if args.bert_use_sub_label:
                 if label == config['default_label']:
                     # ex) 'round', '##er' -> 1/'O', 1/'O'
                     sub_token_label = label
@@ -419,10 +419,10 @@ def convert_single_example_to_feature(config,
                 label_ids.extend([label_id] + [pad_token_label_id] * (len(word_tokens) - 1))
 
     # build word ids
-    if opt.bert_use_subword_pooling and opt.bert_use_word_embedding:
+    if args.bert_use_subword_pooling and args.bert_use_word_embedding:
         word_ids = w_tokenizer.convert_tokens_to_ids(example.words) 
 
-    if not opt.bert_use_subword_pooling and len(tokens) != len(pos_ids):
+    if not args.bert_use_subword_pooling and len(tokens) != len(pos_ids):
         # tokenizer returns empty result, ex) [<96>, ;, -, O], [<94>, ``, -, O]
         logger.info("guid: %s", example.guid)
         logger.info("words: %s", " ".join([str(x) for x in example.words]))
@@ -532,7 +532,7 @@ def convert_single_example_to_feature(config,
 
     doc2sent_idx = []
     doc2sent_mask = []
-    if opt.bert_use_doc_context:
+    if args.bert_use_doc_context:
         input_ids, input_mask, segment_ids, doc2sent_idx, doc2sent_mask = build_document_context(config,
             example,
             max_seq_length,

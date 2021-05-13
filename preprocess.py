@@ -30,7 +30,7 @@ _FSUFFIX = '.fs'
 
 def build_dict(input_path, config, extra_path=None):
     logger.info("\n[building dict]")
-    opt = config['opt']
+    args = config['args']
     poss = {}
     chars = {}
     labels = {}
@@ -64,7 +64,7 @@ def build_dict(input_path, config, extra_path=None):
                     logger.error(str(idx) + '\t' + line + '\t' + str(e))
                     sys.exit(1)
 
-                if opt.bert_use_mtl and is_next_bos:
+                if args.bert_use_mtl and is_next_bos:
                     glabel = toks[0]
                     if glabel not in glabels:
                         glabels[glabel] = glabel_id
@@ -222,7 +222,7 @@ def build_data(input_path, tokenizer):
     logger.info("Vocab coverage : {:.2f}%\n".format(cover_token_cnt/total_token_cnt*100.0))
     return data
 
-def write_data(opt, data, output_path, tokenizer, poss, labels):
+def write_data(args, data, output_path, tokenizer, poss, labels):
     logger.info("\n[Writing data]")
     config = tokenizer.config
     pad_id = tokenizer.pad_id
@@ -286,48 +286,48 @@ def write_embedding(embedding, output_path):
     np.save(output_path, embedding)
 
 def preprocess_glove_or_elmo(config):
-    opt = config['opt']
+    args = config['args']
 
     # vocab, embedding
     init_vocab = build_init_vocab(config)
-    vocab, embedding = build_vocab_from_embedding(opt.embedding_path, init_vocab, config)
+    vocab, embedding = build_vocab_from_embedding(args.embedding_path, init_vocab, config)
 
     # build poss, chars, labels
-    path = os.path.join(opt.data_dir, _TRAIN_FILE)
+    path = os.path.join(args.data_dir, _TRAIN_FILE)
     poss, chars, labels, _ = build_dict(path, config)
 
     tokenizer = Tokenizer(vocab, config)
 
     # build data
-    path = os.path.join(opt.data_dir, _TRAIN_FILE)
+    path = os.path.join(args.data_dir, _TRAIN_FILE)
     train_data = build_data(path, tokenizer)
 
-    path = os.path.join(opt.data_dir, _VALID_FILE)
+    path = os.path.join(args.data_dir, _VALID_FILE)
     valid_data = build_data(path, tokenizer)
 
-    path = os.path.join(opt.data_dir, _TEST_FILE)
+    path = os.path.join(args.data_dir, _TEST_FILE)
     test_data = build_data(path, tokenizer)
 
     # write data, vocab, embedding, poss, labels
-    path = os.path.join(opt.data_dir, _TRAIN_FILE + _SUFFIX)
-    write_data(opt, train_data, path, tokenizer, poss, labels)
+    path = os.path.join(args.data_dir, _TRAIN_FILE + _SUFFIX)
+    write_data(args, train_data, path, tokenizer, poss, labels)
 
-    path = os.path.join(opt.data_dir, _VALID_FILE + _SUFFIX)
-    write_data(opt, valid_data, path, tokenizer, poss, labels)
+    path = os.path.join(args.data_dir, _VALID_FILE + _SUFFIX)
+    write_data(args, valid_data, path, tokenizer, poss, labels)
 
-    path = os.path.join(opt.data_dir, _TEST_FILE + _SUFFIX)
-    write_data(opt, test_data, path, tokenizer, poss, labels)
+    path = os.path.join(args.data_dir, _TEST_FILE + _SUFFIX)
+    write_data(args, test_data, path, tokenizer, poss, labels)
 
-    path = os.path.join(opt.data_dir, _VOCAB_FILE)
+    path = os.path.join(args.data_dir, _VOCAB_FILE)
     write_vocab(vocab, path)
 
-    path = os.path.join(opt.data_dir, _EMBED_FILE)
+    path = os.path.join(args.data_dir, _EMBED_FILE)
     write_embedding(embedding, path)
 
-    path = os.path.join(opt.data_dir, _POS_FILE)
+    path = os.path.join(args.data_dir, _POS_FILE)
     write_dict(poss, path)
 
-    path = os.path.join(opt.data_dir, _LABEL_FILE)
+    path = os.path.join(args.data_dir, _LABEL_FILE)
     write_dict(labels, path)
 
 # ---------------------------------------------------------------------------- #
@@ -361,50 +361,50 @@ def write_features(features, output_path):
     torch.save(features, output_path)
    
 def preprocess_bert(config):
-    opt = config['opt']
+    args = config['args']
 
     w_tokenizer = None
-    if opt.bert_use_subword_pooling and opt.bert_use_word_embedding:
-        opt = config['opt']
+    if args.bert_use_subword_pooling and args.bert_use_word_embedding:
+        args = config['args']
         # vocab, embedding
         init_vocab = build_init_vocab(config)
-        vocab, embedding = build_vocab_from_embedding(opt.embedding_path, init_vocab, config)
+        vocab, embedding = build_vocab_from_embedding(args.embedding_path, init_vocab, config)
         w_tokenizer = Tokenizer(vocab, config)
         # write embedding
-        path = os.path.join(opt.data_dir, _EMBED_FILE)
+        path = os.path.join(args.data_dir, _EMBED_FILE)
         write_embedding(embedding, path)
 
-    tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path)
     # build poss, chars, labels, glabels
-    path = os.path.join(opt.data_dir, _TRAIN_FILE)
+    path = os.path.join(args.data_dir, _TRAIN_FILE)
     poss, chars, labels, glabels = build_dict(path, config)
 
     # build features
-    path = os.path.join(opt.data_dir, _TRAIN_FILE)
+    path = os.path.join(args.data_dir, _TRAIN_FILE)
     train_features = build_features(path, tokenizer, poss, labels, config, mode='train', w_tokenizer=w_tokenizer, glabels=glabels)
 
-    path = os.path.join(opt.data_dir, _VALID_FILE)
+    path = os.path.join(args.data_dir, _VALID_FILE)
     valid_features = build_features(path, tokenizer, poss, labels, config, mode='valid', w_tokenizer=w_tokenizer, glabels=glabels)
 
-    path = os.path.join(opt.data_dir, _TEST_FILE)
+    path = os.path.join(args.data_dir, _TEST_FILE)
     test_features = build_features(path, tokenizer, poss, labels, config, mode='test', w_tokenizer=w_tokenizer, glabels=glabels)
 
     # write features
-    path = os.path.join(opt.data_dir, _TRAIN_FILE + _FSUFFIX)
+    path = os.path.join(args.data_dir, _TRAIN_FILE + _FSUFFIX)
     write_features(train_features, path)
 
-    path = os.path.join(opt.data_dir, _VALID_FILE + _FSUFFIX)
+    path = os.path.join(args.data_dir, _VALID_FILE + _FSUFFIX)
     write_features(valid_features, path)
 
-    path = os.path.join(opt.data_dir, _TEST_FILE + _FSUFFIX)
+    path = os.path.join(args.data_dir, _TEST_FILE + _FSUFFIX)
     write_features(test_features, path)
 
     # write poss, labels, glabels
-    path = os.path.join(opt.data_dir, _POS_FILE)
+    path = os.path.join(args.data_dir, _POS_FILE)
     write_dict(poss, path)
-    path = os.path.join(opt.data_dir, _LABEL_FILE)
+    path = os.path.join(args.data_dir, _LABEL_FILE)
     write_dict(labels, path)
-    path = os.path.join(opt.data_dir, _GLABEL_FILE)
+    path = os.path.join(args.data_dir, _GLABEL_FILE)
     write_dict(glabels, path)
 
 def main():
@@ -431,14 +431,14 @@ def main():
                         help="1: prev one example, cur example, next examples, 2: prev examples, cur example, next examples")
     parser.add_argument('--bert_use_mtl', action='store_true',
                         help="Set this flag to use multi-task learning of token and sentence classification.")
-    opt = parser.parse_args()
+    args = parser.parse_args()
 
     # set seed
-    random.seed(opt.seed)
+    random.seed(args.seed)
 
     # set config
-    config = load_config(opt)
-    config['opt'] = opt
+    config = load_config(args)
+    config['args'] = args
     logger.info("%s", config)
 
     if config['emb_class'] == 'glove':

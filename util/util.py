@@ -10,9 +10,9 @@ def load_checkpoint(model_path, device='cuda'):
         checkpoint = torch.load(model_path)
     return checkpoint
 
-def load_config(opt, config_path=None):
+def load_config(args, config_path=None):
     try:
-        if not config_path: config_path = opt.config
+        if not config_path: config_path = args.config
         with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
     except Exception as e:

@@ -23,68 +23,68 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def set_path(config):
-    opt = config['opt']
+    args = config['args']
     if config['emb_class'] in ['glove', 'elmo']:
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.ids')
+        args.data_path = os.path.join(args.data_dir, 'test.txt.ids')
     else:
-        opt.data_path = os.path.join(opt.data_dir, 'test.txt.fs')
-    opt.embedding_path = os.path.join(opt.data_dir, 'embedding.npy')
-    opt.label_path = os.path.join(opt.data_dir, 'label.txt')
-    opt.glabel_path = os.path.join(opt.data_dir, 'glabel.txt')
-    opt.pos_path = os.path.join(opt.data_dir, 'pos.txt')
-    opt.test_path = os.path.join(opt.data_dir, 'test.txt')
-    opt.vocab_path = os.path.join(opt.data_dir, 'vocab.txt')
+        args.data_path = os.path.join(args.data_dir, 'test.txt.fs')
+    args.embedding_path = os.path.join(args.data_dir, 'embedding.npy')
+    args.label_path = os.path.join(args.data_dir, 'label.txt')
+    args.glabel_path = os.path.join(args.data_dir, 'glabel.txt')
+    args.pos_path = os.path.join(args.data_dir, 'pos.txt')
+    args.test_path = os.path.join(args.data_dir, 'test.txt')
+    args.vocab_path = os.path.join(args.data_dir, 'vocab.txt')
 
 def load_model(config, checkpoint):
-    opt = config['opt']
-    labels = load_dict(opt.label_path)
+    args = config['args']
+    labels = load_dict(args.label_path)
     label_size = len(labels)
     config['labels'] = labels
     config['label_size'] = label_size
-    glabels = load_dict(opt.glabel_path)
+    glabels = load_dict(args.glabel_path)
     glabel_size = len(glabels)
     config['glabels'] = glabels
     config['glabel_size'] = glabel_size
-    poss = load_dict(opt.pos_path)
+    poss = load_dict(args.pos_path)
     pos_size = len(poss)
     config['poss'] = poss
     config['pos_size'] = pos_size
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
-            model = GloveLSTMCRF(config, opt.embedding_path, label_size, pos_size,
-                                 emb_non_trainable=True, use_crf=opt.use_crf,
-                                 use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
+            model = GloveLSTMCRF(config, args.embedding_path, label_size, pos_size,
+                                 emb_non_trainable=True, use_crf=args.use_crf,
+                                 use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
         if config['enc_class'] == 'densenet':
-            model = GloveDensenetCRF(config, opt.embedding_path, label_size, pos_size,
-                                     emb_non_trainable=True, use_crf=opt.use_crf,
-                                     use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
+            model = GloveDensenetCRF(config, args.embedding_path, label_size, pos_size,
+                                     emb_non_trainable=True, use_crf=args.use_crf,
+                                     use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     elif config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
-        elmo_model = Elmo(opt.elmo_options_file, opt.elmo_weights_file, 2, dropout=0)
-        model = ElmoLSTMCRF(config, elmo_model, opt.embedding_path, label_size, pos_size,
-                            emb_non_trainable=True, use_crf=opt.use_crf,
-                            use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
+        elmo_model = Elmo(args.elmo_options_file, args.elmo_weights_file, 2, dropout=0)
+        model = ElmoLSTMCRF(config, elmo_model, args.embedding_path, label_size, pos_size,
+                            emb_non_trainable=True, use_crf=args.use_crf,
+                            use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     else:
-        bert_config = AutoConfig.from_pretrained(opt.bert_output_dir)
-        bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_output_dir)
+        bert_config = AutoConfig.from_pretrained(args.bert_output_dir)
+        bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_output_dir)
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
-                           use_crf=opt.use_crf, use_pos=opt.bert_use_pos,
-                           use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha,
-                           use_subword_pooling=opt.bert_use_subword_pooling, use_word_embedding=opt.bert_use_word_embedding,
-                           embedding_path=opt.embedding_path, emb_non_trainable=True,
-                           use_doc_context=opt.bert_use_doc_context,
-                           disable_lstm=opt.bert_disable_lstm,
-                           feature_based=opt.bert_use_feature_based,
-                           use_mtl=opt.bert_use_mtl)
+                           use_crf=args.use_crf, use_pos=args.bert_use_pos,
+                           use_char_cnn=args.use_char_cnn, use_mha=args.use_mha,
+                           use_subword_pooling=args.bert_use_subword_pooling, use_word_embedding=args.bert_use_word_embedding,
+                           embedding_path=args.embedding_path, emb_non_trainable=True,
+                           use_doc_context=args.bert_use_doc_context,
+                           disable_lstm=args.bert_disable_lstm,
+                           feature_based=args.bert_use_feature_based,
+                           use_mtl=args.bert_use_mtl)
     model.load_state_dict(checkpoint)
-    model = model.to(opt.device)
+    model = model.to(args.device)
     logger.info("[Loaded]")
     return model
 
 def convert_onnx(config, torch_model, x):
-    opt = config['opt']
+    args = config['args']
     import torch.onnx
 
     if config['emb_class'] in ['glove', 'elmo']:
@@ -94,7 +94,7 @@ def convert_onnx(config, torch_model, x):
                         'pos_ids':   {0: 'batch', 1: 'sequence'},
                         'char_ids' : {0: 'batch', 1: 'sequence'},
                         'logits':    {0: 'batch', 1: 'sequence'}}
-        if opt.use_crf:
+        if args.use_crf:
             output_names += ['prediction']
             dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
     else:
@@ -106,30 +106,30 @@ def convert_onnx(config, torch_model, x):
                         'pos_ids':     {0: 'batch', 1: 'sequence'},
                         'char_ids':    {0: 'batch', 1: 'sequence'},
                         'logits':      {0: 'batch', 1: 'sequence'}}
-        if opt.bert_use_doc_context:
+        if args.bert_use_doc_context:
             input_name += ['doc2sent_idx', 'doc2sent_mask']
             dynamic_axes['doc2sent_idx'] = {0: 'batch', 1: 'sequence'}
             dynamic_axes['doc2sent_mask'] = {0: 'batch', 1: 'sequence'}
-        if opt.bert_use_subword_pooling:
+        if args.bert_use_subword_pooling:
             input_names += ['word2token_idx', 'word2token_mask']
             dynamic_axes['word2token_idx'] = {0: 'batch', 1: 'sequence'}
             dynamic_axes['word2token_mask'] = {0: 'batch', 1: 'sequence'}
-            if opt.bert_use_word_embedding:
+            if args.bert_use_word_embedding:
                 input_names += ['word_ids']
                 dynamic_axes['word_ids'] = {0: 'batch', 1: 'sequence'}
-        if opt.use_crf:
+        if args.use_crf:
             output_names += ['prediction']
             dynamic_axes['prediction'] = {0: 'batch', 1: 'sequence'}
-        if opt.bert_use_mtl:
+        if args.bert_use_mtl:
             output_names += ['glogits']
             dynamic_axes['glogits'] = {0: 'batch'}
        
     with torch.no_grad():
         torch.onnx.export(torch_model,                  # model being run
                           x,                            # model input (or a tuple for multiple inputs)
-                          opt.onnx_path,                # where to save the model (can be a file or file-like object)
+                          args.onnx_path,                # where to save the model (can be a file or file-like object)
                           export_params=True,           # store the trained parameter weights inside the model file
-                          opset_version=opt.onnx_opset, # the ONNX version to export the model to
+                          opset_version=args.onnx_opset, # the ONNX version to export the model to
                           do_constant_folding=True,     # whether to execute constant folding for optimization
                           verbose=True,
                           input_names=input_names,      # the model's input names
@@ -152,19 +152,19 @@ def quantize_onnx(onnx_path, quantized_onnx_path):
     onnx.save_model(quantized_model, quantized_onnx_path)
 
 def check_onnx(config):
-    opt = config['opt']
+    args = config['args']
     import onnx
-    onnx_model = onnx.load(opt.onnx_path)
+    onnx_model = onnx.load(args.onnx_path)
     onnx.checker.check_model(onnx_model)
     print(onnx.helper.printable_graph(onnx_model.graph))
 
 def build_onnx_input(config, ort_session, x):
-    opt = config['opt']
+    args = config['args']
     x = to_numpy(x)
     if config['emb_class'] in ['glove', 'elmo']:
         ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                       ort_session.get_inputs()[1].name: x[1]}
-        if opt.use_char_cnn:
+        if args.use_char_cnn:
             ort_inputs[ort_session.get_inputs()[2].name] = x[2]
     else:
         # x order must be sync with x parameter of BertLSTMCRF.forward().
@@ -190,19 +190,19 @@ def build_onnx_input(config, ort_session, x):
             ort_inputs = {ort_session.get_inputs()[0].name: x[0],
                           ort_session.get_inputs()[1].name: x[1],
                           ort_session.get_inputs()[2].name: x[2]}
-        if opt.bert_use_pos:
+        if args.bert_use_pos:
             ort_inputs[ort_session.get_inputs()[3].name] = x[3]
-        if opt.use_char_cnn:
+        if args.use_char_cnn:
             ort_inputs[ort_session.get_inputs()[4].name] = x[4]
         base_idx = 5
-        if opt.bert_use_doc_context:
+        if args.bert_use_doc_context:
             ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
             ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
             base_idx += 2
-        if opt.bert_use_subword_pooling:
+        if args.bert_use_subword_pooling:
             ort_inputs[ort_session.get_inputs()[base_idx].name] = x[base_idx]
             ort_inputs[ort_session.get_inputs()[base_idx+1].name] = x[base_idx+1]
-            if opt.bert_use_word_embedding:
+            if args.bert_use_word_embedding:
                 ort_inputs[ort_session.get_inputs()[base_idx+2].name] = x[base_idx+2]
     return ort_inputs
 
@@ -211,19 +211,19 @@ def build_onnx_input(config, ort_session, x):
 # ---------------------------------------------------------------------------- #
 
 def write_prediction(config, model, ys, preds, labels):
-    opt = config['opt']
+    args = config['args']
     pad_label_id = config['pad_label_id']
     default_label = config['default_label']
 
     # load test data
-    tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
-    with open(opt.test_path, 'r', encoding='utf-8') as f:
+    tot_num_line = sum(1 for _ in open(args.test_path, 'r')) 
+    with open(args.test_path, 'r', encoding='utf-8') as f:
         data = []
         bucket = []
         for idx, line in enumerate(tqdm(f, total=tot_num_line)):
             line = line.strip()
             if line == "":
-                if opt.bert_use_mtl:
+                if args.bert_use_mtl:
                     bucket = bucket[1:]
                 data.append(bucket)
                 bucket = []
@@ -235,7 +235,7 @@ def write_prediction(config, model, ys, preds, labels):
             data.append(bucket)
     # write prediction
     try:
-        pred_path = opt.test_path + '.pred'
+        pred_path = args.test_path + '.pred'
         with open(pred_path, 'w', encoding='utf-8') as f:
             for i, bucket in enumerate(data):      # foreach sentence
                 if i >= ys.shape[0]:
@@ -246,7 +246,7 @@ def write_prediction(config, model, ys, preds, labels):
                 if config['emb_class'] not in ['glove', 'elmo']:
                     use_subtoken = True
                     ys_idx = 1 # account '[CLS]'
-                if opt.bert_use_subword_pooling:
+                if args.bert_use_subword_pooling:
                     use_subtoken = False
                 for j, entry in enumerate(bucket): # foreach token
                     entry = bucket[j]
@@ -265,10 +265,10 @@ def write_prediction(config, model, ys, preds, labels):
     except Exception as e:
         logger.warn(str(e))
 
-def write_gprediction(opt, gpreds, glabels):
+def write_gprediction(args, gpreds, glabels):
     # load test data
-    tot_num_line = sum(1 for _ in open(opt.test_path, 'r')) 
-    with open(opt.test_path, 'r', encoding='utf-8') as f:
+    tot_num_line = sum(1 for _ in open(args.test_path, 'r')) 
+    with open(args.test_path, 'r', encoding='utf-8') as f:
         data = []
         is_next_bos = True
         for idx, line in enumerate(tqdm(f, total=tot_num_line)):
@@ -283,7 +283,7 @@ def write_gprediction(opt, gpreds, glabels):
             data.append(glabel)
     # write prediction
     try:
-        gpred_path = opt.test_path + '.gpred'
+        gpred_path = args.test_path + '.gpred'
         with open(gpred_path, 'w', encoding='utf-8') as f:
             for glabel, gpred in zip(data, gpreds):
                 gpred_id = np.argmax(gpred)
@@ -293,21 +293,21 @@ def write_gprediction(opt, gpreds, glabels):
         logger.warn(str(e))
 
 def prepare_datasets(config):
-    opt = config['opt']
+    args = config['args']
     if config['emb_class'] == 'glove':
         DatasetClass = CoNLLGloveDataset
     elif config['emb_class'] == 'elmo':
         DatasetClass = CoNLLElmoDataset
     else:
         DatasetClass = CoNLLBertDataset
-    test_loader = prepare_dataset(config, opt.data_path, DatasetClass, sampling=False, num_workers=1)
+    test_loader = prepare_dataset(config, args.data_path, DatasetClass, sampling=False, num_workers=1)
     return test_loader
 
-def evaluate(opt):
+def evaluate(args):
     # set config
-    config = load_config(opt)
-    if opt.num_threads > 0: torch.set_num_threads(opt.num_threads)
-    config['opt'] = opt
+    config = load_config(args)
+    if args.num_threads > 0: torch.set_num_threads(args.num_threads)
+    config['args'] = args
     logger.info("%s", config)
 
     # set path
@@ -317,40 +317,40 @@ def evaluate(opt):
     test_loader = prepare_datasets(config)
  
     # load pytorch model checkpoint
-    checkpoint = load_checkpoint(opt.model_path, device=opt.device)
+    checkpoint = load_checkpoint(args.model_path, device=args.device)
 
     # prepare model and load parameters
     model = load_model(config, checkpoint)
     model.eval()
 
     # convert to onnx format
-    if opt.convert_onnx:
+    if args.convert_onnx:
         # FIXME not working for --use_crf
         batch = next(iter(test_loader))
         if config['emb_class'] not in ['glove', 'elmo']:
             x, y, gy = batch
         else:
             x, y = batch
-        x = to_device(x, opt.device)
+        x = to_device(x, args.device)
         convert_onnx(config, model, x)
         check_onnx(config)
-        logger.info("[ONNX model saved] : {}".format(opt.onnx_path))
+        logger.info("[ONNX model saved] : {}".format(args.onnx_path))
         # quantize onnx
-        if opt.quantize_onnx:
-            quantize_onnx(opt.onnx_path, opt.quantized_onnx_path)
-            logger.info("[Quantized ONNX model saved] : {}".format(opt.quantized_onnx_path))
+        if args.quantize_onnx:
+            quantize_onnx(args.onnx_path, args.quantized_onnx_path)
+            logger.info("[Quantized ONNX model saved] : {}".format(args.quantized_onnx_path))
         return
 
     # load onnx model for using onnxruntime
-    if opt.enable_ort:
+    if args.enable_ort:
         import onnxruntime as ort
         sess_options = ort.SessionOptions()
-        sess_options.inter_op_num_threads = opt.num_threads
-        sess_options.intra_op_num_threads = opt.num_threads
-        ort_session = ort.InferenceSession(opt.onnx_path, sess_options=sess_options)
+        sess_options.inter_op_num_threads = args.num_threads
+        sess_options.intra_op_num_threads = args.num_threads
+        ort_session = ort.InferenceSession(args.onnx_path, sess_options=sess_options)
     
     # enable to use dynamic quantized model (pytorch>=1.3.0)
-    if opt.enable_dqm:
+    if args.enable_dqm:
         model = torch.quantization.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
         print(model)
  
@@ -370,54 +370,54 @@ def evaluate(opt):
             start_time = time.time()
             if config['emb_class'] not in ['glove', 'elmo']:
                 x, y, gy = batch
-                gy = to_device(gy, opt.device)
+                gy = to_device(gy, args.device)
             else:
                 x, y = batch
 
-            x = to_device(x, opt.device)
-            y = to_device(y, opt.device)
-            if opt.enable_ort:
+            x = to_device(x, args.device)
+            y = to_device(y, args.device)
+            if args.enable_ort:
                 ort_inputs = build_onnx_input(config, ort_session, x)
-                if opt.use_crf:
+                if args.use_crf:
                     # FIXME not working for --use_crf
-                    if opt.bert_use_mtl:
+                    if args.bert_use_mtl:
                         logits, prediction, glogits = ort_session.run(None, ort_inputs)
-                        glogits = to_device(torch.tensor(glogits), opt.device)
+                        glogits = to_device(torch.tensor(glogits), args.device)
                     else:
                         logits, prediction = ort_session.run(None, ort_inputs)
-                    prediction = to_device(torch.tensor(prediction), opt.device)
-                    logits = to_device(torch.tensor(logits), opt.device)
+                    prediction = to_device(torch.tensor(prediction), args.device)
+                    logits = to_device(torch.tensor(logits), args.device)
                 else:
-                    if opt.bert_use_mtl:
+                    if args.bert_use_mtl:
                         logits, glogits = ort_session.run(None, ort_inputs)
-                        glogits = to_device(torch.tensor(glogits), opt.device)
+                        glogits = to_device(torch.tensor(glogits), args.device)
                     else:
                         logits = ort_session.run(None, ort_inputs)[0]
-                    logits = to_device(torch.tensor(logits), opt.device)
+                    logits = to_device(torch.tensor(logits), args.device)
                     logits = torch.softmax(logits, dim=-1)
             else:
-                if opt.use_crf:
-                    if opt.bert_use_mtl:
+                if args.use_crf:
+                    if args.bert_use_mtl:
                         logits, prediction, glogits = model(x)
                     else:
                         logits, prediction = model(x)
                 else:
-                    if opt.bert_use_mtl:
+                    if args.bert_use_mtl:
                         logits, glogits = model(x)
                     else:
                         logits = model(x)
                     logits = torch.softmax(logits, dim=-1)
 
             if preds is None:
-                if opt.use_crf: preds = to_numpy(prediction)
+                if args.use_crf: preds = to_numpy(prediction)
                 else: preds = to_numpy(logits)
                 ys = to_numpy(y)
             else:
-                if opt.use_crf: preds = np.append(preds, to_numpy(prediction), axis=0)
+                if args.use_crf: preds = np.append(preds, to_numpy(prediction), axis=0)
                 else: preds = np.append(preds, to_numpy(logits), axis=0)
                 ys = np.append(ys, to_numpy(y), axis=0)
 
-            if opt.bert_use_mtl:
+            if args.bert_use_mtl:
                 glogits = torch.softmax(glogits, dim=-1)
                 if gpreds is None:
                     gpreds = to_numpy(glogits)
@@ -431,7 +431,7 @@ def evaluate(opt):
             if i == 0: # first one may take longer time, so ignore in computing duration.
                 first_time = float((time.time()-first_time)*1000)
                 first_examples = cur_examples
-            if opt.num_examples != 0 and total_examples >= opt.num_examples:
+            if args.num_examples != 0 and total_examples >= args.num_examples:
                 logger.info("[Stop Evaluation] : up to the {} examples".format(total_examples))
                 break
             duration_time = float((time.time()-start_time)*1000)
@@ -443,7 +443,7 @@ def evaluate(opt):
     avg_time = (whole_time - first_time) / (total_examples - first_examples)
 
     # generate report for token classification
-    if not opt.use_crf: preds = np.argmax(preds, axis=2)
+    if not args.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = config['labels']
     ys_lbs = [[] for _ in range(ys.shape[0])]
@@ -465,7 +465,7 @@ def evaluate(opt):
     write_prediction(config, model, ys, preds, labels)
 
     # generate report for sequence classification
-    if opt.bert_use_mtl:
+    if args.bert_use_mtl:
         glabels = config['glabels']
         glabel_names = [v for k, v in sorted(glabels.items(), key=lambda x: x[0])]
         glabel_ids = [k for k in glabels.keys()]
@@ -485,7 +485,7 @@ def evaluate(opt):
         print(ret['g_matrix'])
         logger.info("[sequence classification F1] : {}, {}".format(ret['g_f1'], total_examples))
         # write predicted glabels to file
-        write_gprediction(opt, gpreds, glabels)
+        write_gprediction(args, gpreds, glabels)
 
     logger.info("[token classification F1] : {}, {}".format(ret['f1'], total_examples))
     logger.info("[Elapsed Time] : {} examples, {}ms, {}ms on average".format(total_examples, whole_time, avg_time))
@@ -542,9 +542,9 @@ def main():
     parser.add_argument('--enable_dqm', action='store_true',
                         help="Set this flag to use dynamic quantized model.")
 
-    opt = parser.parse_args()
+    args = parser.parse_args()
 
-    evaluate(opt) 
+    evaluate(args) 
 
 if __name__ == '__main__':
     main()
