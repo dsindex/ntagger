@@ -37,13 +37,26 @@ def build_dict(input_path, config, extra_path=None):
     glabels = {}
 
     # add pad/unk info, set base id
+    pos_id = 0
     poss[config['pad_pos']] = config['pad_pos_id']
-    pos_id = 1
+    pos_id += 1
+
+    char_id = 0
     chars[config['pad_token']] = config['pad_token_id']   # 0
+    char_id += 1
     chars[config['unk_token']] = config['unk_token_id']   # 1
-    char_id = 2
+    char_id += 1
+
+    label_id = 0
     labels[config['pad_label']] = config['pad_label_id']  # 0
-    label_id = 1
+    label_id += 1
+    if args.use_ncrf:
+        # NCRF tasks actual number of labels + 2(<bos>, <eos>)
+        labels['<bos>'] = config['pad_label_id'] + 1  # 1
+        label_id += 1
+        labels['<eos>'] = config['pad_label_id'] + 2  # 2
+        label_id += 1
+
     glabels[config['pad_label']] = config['pad_label_id'] # 0
     glabel_id = 1
 
@@ -414,6 +427,7 @@ def main():
     parser.add_argument('--data_dir', type=str, default='data/conll2003')
     parser.add_argument('--embedding_path', type=str, default='embeddings/glove.6B.300d.txt')
     parser.add_argument("--seed", default=5, type=int)
+    parser.add_argument('--use_ncrf', action='store_true', help="Use NCRF instead of pytorch-crf. in this case, '<bos>, <eos>' labels will be added.")
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")

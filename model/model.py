@@ -293,8 +293,7 @@ class GloveLSTMCRF(BaseModel):
             if self.use_ncrf:
                 use_gpu = True
                 if self.device == 'cpu': use_gpu = False
-                # you need to add '<bos>', '<eos>' to 'label.txt'
-                self.crf = NCRF(self.label_size-2, use_gpu)
+                self.crf = NCRF(self.label_size-2, use_gpu) # -2 due to <bos> <eos> tags
             else:
                 self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
@@ -432,8 +431,7 @@ class GloveDensenetCRF(BaseModel):
             if self.use_ncrf:
                 use_gpu = True
                 if self.device == 'cpu': use_gpu = False
-                # you need to add '<bos>', '<eos>' to 'label.txt'
-                self.crf = NCRF(self.label_size-2, use_gpu)
+                self.crf = NCRF(self.label_size-2, use_gpu) # -2 due to <bos> <eos> tags
             else:
                 self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
@@ -623,8 +621,7 @@ class BertLSTMCRF(BaseModel):
             if self.use_ncrf:
                 use_gpu = True
                 if self.device == 'cpu': use_gpu = False
-                # you need to add '<bos>', '<eos>' to 'label.txt'
-                self.crf = NCRF(self.label_size-2, use_gpu)
+                self.crf = NCRF(self.label_size-2, use_gpu) # -2 due to <bos> <eos> tags
             else:
                 self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
@@ -892,8 +889,7 @@ class ElmoLSTMCRF(BaseModel):
             if self.use_ncrf:
                 use_gpu = True
                 if self.device == 'cpu': use_gpu = False
-                # you need to add '<bos>', '<eos>' to 'label.txt'
-                self.crf = NCRF(self.label_size-2, use_gpu)
+                self.crf = NCRF(self.label_size-2, use_gpu) # -2 due to <bos> <eos> tags
             else:
                 self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
