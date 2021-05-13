@@ -16,6 +16,7 @@ from sklearn.metrics import classification_report as sequence_classification_rep
 from tqdm import tqdm
 from util import load_checkpoint, load_config, load_dict, to_device, to_numpy
 from model import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
+from transformers import AutoTokenizer, AutoConfig, AutoModel
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 
 logging.basicConfig(level=logging.INFO)
@@ -64,7 +65,6 @@ def load_model(config, checkpoint):
                             emb_non_trainable=True, use_crf=opt.use_crf,
                             use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
     else:
-        from transformers import AutoTokenizer, AutoConfig, AutoModel
         bert_config = AutoConfig.from_pretrained(opt.bert_output_dir)
         bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_output_dir)
         bert_model = AutoModel.from_config(bert_config)

@@ -10,7 +10,8 @@ import pdb
 import logging
 
 from tqdm import tqdm
-from util import load_config
+from util import load_config, Tokenizer, read_examples_from_file, convert_examples_to_features
+from transformers import AutoTokenizer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -285,7 +286,6 @@ def write_embedding(embedding, output_path):
     np.save(output_path, embedding)
 
 def preprocess_glove_or_elmo(config):
-    from tokenizer import Tokenizer
     opt = config['opt']
 
     # vocab, embedding
@@ -335,8 +335,6 @@ def preprocess_glove_or_elmo(config):
 # ---------------------------------------------------------------------------- #
 
 def build_features(input_path, tokenizer, poss, labels, config, mode='train', w_tokenizer=None, glabels={}):
-    from util_bert import read_examples_from_file
-    from util_bert import convert_examples_to_features
 
     logger.info("[Creating features from file] %s", input_path)
     examples = read_examples_from_file(config, input_path, mode=mode)
@@ -367,7 +365,6 @@ def preprocess_bert(config):
 
     w_tokenizer = None
     if opt.bert_use_subword_pooling and opt.bert_use_word_embedding:
-        from tokenizer import Tokenizer
         opt = config['opt']
         # vocab, embedding
         init_vocab = build_init_vocab(config)
@@ -377,7 +374,6 @@ def preprocess_bert(config):
         path = os.path.join(opt.data_dir, _EMBED_FILE)
         write_embedding(embedding, path)
 
-    from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
     # build poss, chars, labels, glabels
     path = os.path.join(opt.data_dir, _TRAIN_FILE)

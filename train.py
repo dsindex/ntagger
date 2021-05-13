@@ -26,11 +26,10 @@ from tqdm import tqdm
 
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
-from util    import load_checkpoint, load_config, load_dict
+from util    import load_checkpoint, load_config, load_dict, EarlyStopping, LabelSmoothingCrossEntropy
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
+from transformers import AutoTokenizer, AutoConfig, AutoModel
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
-from early_stopping import EarlyStopping
-from label_smoothing import LabelSmoothingCrossEntropy
 import optuna
 from datasets.metric import temp_seed 
 
@@ -407,7 +406,6 @@ def prepare_model(config):
                             emb_non_trainable=emb_non_trainable, use_crf=opt.use_crf,
                             use_char_cnn=opt.use_char_cnn, use_mha=opt.use_mha)
     else:
-        from transformers import AutoTokenizer, AutoConfig, AutoModel
         bert_tokenizer = AutoTokenizer.from_pretrained(opt.bert_model_name_or_path)
         bert_model = AutoModel.from_pretrained(opt.bert_model_name_or_path,
                                                from_tf=bool(".ckpt" in opt.bert_model_name_or_path))
