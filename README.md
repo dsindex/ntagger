@@ -552,6 +552,13 @@ INFO:__main__:[F1] : 0.9042186256301407, 3684
 INFO:__main__:[Elapsed Time] : 3684 examples, 111375.56338310242ms, 30.19321803129985ms on average
 accuracy:  97.96%; precision:  90.33%; recall:  90.51%; FB1:  90.42
 
+* --use_ncrf (use NCRF instead of pytorch-crf)
+$ python preprocess.py --data_dir=data/conll2003 --use_ncrf
+$ python train.py --data_dir=data/conll2003 --use_crf --use_ncrf
+$ python evaluate.py --data_dir=data/conll2003 --use_crf --use_ncrf
+
+
+
 ```
 
 </p>
