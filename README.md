@@ -330,6 +330,7 @@ $ cp -rf valid.txt test.txt
 |                                 | F1 (%)            | (truecase) F1 (%) | Features             | GPU / CPU          | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | ----------------- | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
+| GloVe, BiLSTM                   | -                 |                   | word, pos            | -       / -        | -         |           | NCRF                      |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
 | GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        |           |           |                           |
 | GloVe, BiLSTM-MHA-CRF           | 90.48             |                   | word, character, pos | 25.8200 / -        |           |           |                           |
