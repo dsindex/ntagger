@@ -37,19 +37,15 @@ def build_dict(input_path, config, extra_path=None):
     glabels = {}
 
     # add pad/unk info, set base id
-    pos_id = 0
     poss[config['pad_pos']] = config['pad_pos_id']
-    pos_id += 1
+    pos_id = 1
 
-    char_id = 0
     chars[config['pad_token']] = config['pad_token_id']   # 0
-    char_id += 1
     chars[config['unk_token']] = config['unk_token_id']   # 1
-    char_id += 1
+    char_id = 2
 
-    label_id = 0
     labels[config['pad_label']] = config['pad_label_id']  # 0
-    label_id += 1
+    label_id = 1
 
     glabels[config['pad_label']] = config['pad_label_id'] # 0
     glabel_id = 1
