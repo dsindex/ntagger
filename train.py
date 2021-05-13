@@ -94,8 +94,12 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                     logits, prediction = model(x, freeze_bert=freeze_bert)
             else:
                 logits, prediction = model(x)
-            log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
-            loss = -1 * log_likelihood
+            if args.use_ncrf:
+                log_likelihood = model.crf.neg_log_likelihood_loss(logits, mask.bool(), y)
+                loss = log_likelihood
+            else:
+                log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                loss = -1 * log_likelihood
             loss = loss + gloss
         else:
             if config['emb_class'] not in ['glove', 'elmo']:
@@ -222,8 +226,12 @@ def evaluate(model, config, valid_loader):
                     gloss = g_criterion(glogits, gy)
                 else:
                     logits, prediction = model(x)
-                log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
-                loss = -1 * log_likelihood
+                if args.use_ncrf:
+                    log_likelihood = model.crf.neg_log_likelihood_loss(logits, mask.bool(), y)
+                    loss = log_likelihood
+                else:
+                    log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                    loss = -1 * log_likelihood
                 loss = loss + gloss
                 logits = logits.cpu().numpy()
                 prediction = prediction.cpu().numpy()
@@ -393,17 +401,17 @@ def prepare_model(config):
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             model = GloveLSTMCRF(config, args.embedding_path, label_size, pos_size,
-                                 emb_non_trainable=emb_non_trainable, use_crf=args.use_crf,
+                                 emb_non_trainable=emb_non_trainable, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                                  use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, args.embedding_path, label_size, pos_size,
-                                     emb_non_trainable=emb_non_trainable, use_crf=args.use_crf,
+                                     emb_non_trainable=emb_non_trainable, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                                      use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     elif config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(args.elmo_options_file, args.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, args.embedding_path, label_size, pos_size,
-                            emb_non_trainable=emb_non_trainable, use_crf=args.use_crf,
+                            emb_non_trainable=emb_non_trainable, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                             use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     else:
         bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path)
@@ -414,7 +422,7 @@ def prepare_model(config):
         reduce_bert_model(config, bert_model, bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
-                           use_crf=args.use_crf, use_pos=args.bert_use_pos,
+                           use_crf=args.use_crf, use_ncrf=args.use_ncrf, use_pos=args.bert_use_pos,
                            use_char_cnn=args.use_char_cnn, use_mha=args.use_mha,
                            use_subword_pooling=args.bert_use_subword_pooling, use_word_embedding=args.bert_use_word_embedding,
                            embedding_path=args.embedding_path, emb_non_trainable=emb_non_trainable,
@@ -634,7 +642,8 @@ def main():
     parser.add_argument('--restore_path', type=str, default='')
     parser.add_argument('--log_dir', type=str, default='runs')
     parser.add_argument('--seed', default=42, type=int)
-    parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
+    parser.add_argument('--use_crf', action='store_true', help="Add CRF layer.")
+    parser.add_argument('--use_ncrf', action='store_true', help="Use NCRF instead of pytorch-crf.")
     parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable.")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features.")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")

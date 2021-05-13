@@ -52,17 +52,17 @@ def load_model(config, checkpoint):
     if config['emb_class'] == 'glove':
         if config['enc_class'] == 'bilstm':
             model = GloveLSTMCRF(config, args.embedding_path, label_size, pos_size,
-                                 emb_non_trainable=True, use_crf=args.use_crf,
+                                 emb_non_trainable=True, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                                  use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
         if config['enc_class'] == 'densenet':
             model = GloveDensenetCRF(config, args.embedding_path, label_size, pos_size,
-                                     emb_non_trainable=True, use_crf=args.use_crf,
+                                     emb_non_trainable=True, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                                      use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     elif config['emb_class'] == 'elmo':
         from allennlp.modules.elmo import Elmo
         elmo_model = Elmo(args.elmo_options_file, args.elmo_weights_file, 2, dropout=0)
         model = ElmoLSTMCRF(config, elmo_model, args.embedding_path, label_size, pos_size,
-                            emb_non_trainable=True, use_crf=args.use_crf,
+                            emb_non_trainable=True, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                             use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     else:
         bert_config = AutoConfig.from_pretrained(args.bert_output_dir)
@@ -70,7 +70,7 @@ def load_model(config, checkpoint):
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
-                           use_crf=args.use_crf, use_pos=args.bert_use_pos,
+                           use_crf=args.use_crf, use_ncrf=args.use_ncrf, use_pos=args.bert_use_pos,
                            use_char_cnn=args.use_char_cnn, use_mha=args.use_mha,
                            use_subword_pooling=args.bert_use_subword_pooling, use_word_embedding=args.bert_use_word_embedding,
                            embedding_path=args.embedding_path, emb_non_trainable=True,
@@ -506,7 +506,8 @@ def main():
     parser.add_argument('--num_threads', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--num_examples', default=0, type=int, help="Number of examples to evaluate, 0 means all of them.")
-    parser.add_argument('--use_crf', action='store_true', help="Add CRF layer")
+    parser.add_argument('--use_crf', action='store_true', help="Add CRF layer.")
+    parser.add_argument('--use_ncrf', action='store_true', help="Use NCRF instead of pytorch-crf.")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     # for BERT

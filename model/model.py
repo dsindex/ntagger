@@ -8,6 +8,7 @@ import numpy as np
 import random
 
 from torchcrf import CRF
+from .crf import CRF as NCRF
 
 class BaseModel(nn.Module):
     def __init__(self, config=None):
@@ -230,6 +231,7 @@ class GloveLSTMCRF(BaseModel):
             pos_size,
             emb_non_trainable=True,
             use_crf=False,
+            use_ncrf=False,
             use_char_cnn=False,
             use_mha=False):
         super().__init__(config=config)
@@ -243,6 +245,7 @@ class GloveLSTMCRF(BaseModel):
         lstm_dropout = config['lstm_dropout']
         self.use_char_cnn = use_char_cnn
         self.use_crf = use_crf
+        self.use_ncrf = use_ncrf
         self.use_mha = use_mha
         mha_num_attentions = config['mha_num_attentions']
 
@@ -287,7 +290,13 @@ class GloveLSTMCRF(BaseModel):
 
         # CRF layer
         if self.use_crf:
-            self.crf = CRF(num_tags=self.label_size, batch_first=True)
+            if self.use_ncrf:
+                use_gpu = True
+                if self.device == 'cpu': use_gpu = False
+                # you need to add '<bos>', '<eos>' to 'label.txt'
+                self.crf = NCRF(self.label_size-2, use_gpu)
+            else:
+                self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def forward(self, x):
         # x[0, 1] : [batch_size, seq_size]
@@ -349,8 +358,11 @@ class GloveLSTMCRF(BaseModel):
         logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        prediction = self.crf.decode(logits)
-        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        if self.use_ncrf:
+            scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
+        else:
+            prediction = self.crf.decode(logits)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]
         return logits, prediction
 
@@ -362,6 +374,7 @@ class GloveDensenetCRF(BaseModel):
             pos_size,
             emb_non_trainable=True,
             use_crf=False,
+            use_ncrf=False,
             use_char_cnn=False,
             use_mha=False):
         super().__init__(config=config)
@@ -371,6 +384,7 @@ class GloveDensenetCRF(BaseModel):
         self.seq_size = config['n_ctx']
         pos_emb_dim = config['pos_emb_dim']
         self.use_crf = use_crf
+        self.use_ncrf = use_ncrf
         self.use_char_cnn = use_char_cnn
         self.use_mha = use_mha
         mha_num_attentions = config['mha_num_attentions']
@@ -415,7 +429,13 @@ class GloveDensenetCRF(BaseModel):
 
         # CRF layer
         if self.use_crf:
-            self.crf = CRF(num_tags=self.label_size, batch_first=True)
+            if self.use_ncrf:
+                use_gpu = True
+                if self.device == 'cpu': use_gpu = False
+                # you need to add '<bos>', '<eos>' to 'label.txt'
+                self.crf = NCRF(self.label_size-2, use_gpu)
+            else:
+                self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def forward(self, x):
         # x[0, 1] : [batch_size, seq_size]
@@ -473,8 +493,11 @@ class GloveDensenetCRF(BaseModel):
         logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        prediction = self.crf.decode(logits)
-        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        if self.use_ncrf:
+            scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
+        else:
+            prediction = self.crf.decode(logits)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]
         return logits, prediction
 
@@ -488,6 +511,7 @@ class BertLSTMCRF(BaseModel):
             glabel_size,
             pos_size,
             use_crf=False,
+            use_ncrf=False,
             use_pos=False,
             use_char_cnn=False,
             use_mha=False,
@@ -509,6 +533,7 @@ class BertLSTMCRF(BaseModel):
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
+        self.use_ncrf = use_ncrf
         self.use_pos = use_pos
         self.use_char_cnn = use_char_cnn
         self.use_mha = use_mha
@@ -595,7 +620,13 @@ class BertLSTMCRF(BaseModel):
 
         # CRF layer
         if self.use_crf:
-            self.crf = CRF(num_tags=self.label_size, batch_first=True)
+            if self.use_ncrf:
+                use_gpu = True
+                if self.device == 'cpu': use_gpu = False
+                # you need to add '<bos>', '<eos>' to 'label.txt'
+                self.crf = NCRF(self.label_size-2, use_gpu)
+            else:
+                self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def _compute_bert_embedding(self, x, head_mask=None):
         params = {
@@ -777,8 +808,11 @@ class BertLSTMCRF(BaseModel):
         if not self.use_crf:
             if self.use_mtl: return logits, glogits
             return logits
-        prediction = self.crf.decode(logits)
-        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        if self.use_ncrf:
+            scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
+        else:
+            prediction = self.crf.decode(logits)
+            prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]
         if self.use_mtl: return logits, prediction, glogits
         return logits, prediction
@@ -792,6 +826,7 @@ class ElmoLSTMCRF(BaseModel):
             pos_size,
             emb_non_trainable=True,
             use_crf=False,
+            use_ncrf=False,
             use_char_cnn=False,
             use_mha=False):
         super().__init__(config=config)
@@ -805,6 +840,7 @@ class ElmoLSTMCRF(BaseModel):
         lstm_num_layers = config['lstm_num_layers']
         lstm_dropout = config['lstm_dropout']
         self.use_crf = use_crf
+        self.use_ncrf = use_ncrf
         self.use_char_cnn = use_char_cnn
         self.use_mha = use_mha
         mha_num_attentions = config['mha_num_attentions']
@@ -853,7 +889,13 @@ class ElmoLSTMCRF(BaseModel):
 
         # CRF layer
         if self.use_crf:
-            self.crf = CRF(num_tags=self.label_size, batch_first=True)
+            if self.use_ncrf:
+                use_gpu = True
+                if self.device == 'cpu': use_gpu = False
+                # you need to add '<bos>', '<eos>' to 'label.txt'
+                self.crf = NCRF(self.label_size-2, use_gpu)
+            else:
+                self.crf = CRF(num_tags=self.label_size, batch_first=True)
 
     def forward(self, x):
         # x[0,1] : [batch_size, seq_size]
@@ -923,8 +965,11 @@ class ElmoLSTMCRF(BaseModel):
         logits = self.linear(mha_out)
         # logits : [batch_size, seq_size, label_size]
         if not self.use_crf: return logits
-        prediction = self.crf.decode(logits)
-        prediction = torch.as_tensor(prediction, dtype=torch.long)
+        if self.use_ncrf:
+            scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
+        else:
+           prediction = self.crf.decode(logits)
+           prediction = torch.as_tensor(prediction, dtype=torch.long)
         # prediction : [batch_size, seq_size]
         return logits, prediction
 
