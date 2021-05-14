@@ -330,7 +330,7 @@ $ cp -rf valid.txt test.txt
 |                                 | F1 (%)            | (truecase) F1 (%) | Features             | GPU / CPU          | ONNX      | Dynamic   | Etc                       |
 | ------------------------------- | ----------------- | ----------------- | -------------------- | ------------------ | --------- | --------- | ------------------------- |
 | GloVe, BiLSTM                   | 88.23             |                   | word, pos            | 5.6217  / -        | 3.6969    |           | threads=14                |
-| GloVe, BiLSTM                   | -                 |                   | word, pos            | -       / -        | -         |           | NCRF                      |
+| GloVe, BiLSTM                   | 88.18             |                   | word, pos            | 29.9140 / -        | -         |           | NCRF                      |
 | GloVe, BiLSTM                   | 88.94             |                   | word, character, pos | 6.4108  / -        | 8.5656    |           | threads=14                |
 | GloVe, BiLSTM-MHA               | 89.99             |                   | word, character, pos | 7.7513  / -        |           |           |                           |
 | GloVe, BiLSTM-MHA-CRF           | 90.48             |                   | word, character, pos | 25.8200 / -        |           |           |                           |
@@ -557,8 +557,15 @@ accuracy:  97.96%; precision:  90.33%; recall:  90.51%; FB1:  90.42
 $ python preprocess.py --data_dir=data/conll2003 --use_ncrf
 $ python train.py --data_dir=data/conll2003 --use_crf --use_ncrf
 $ python evaluate.py --data_dir=data/conll2003 --use_crf --use_ncrf
+INFO:__main__:[token classification F1] : 0.8818254461511142, 3684
+INFO:__main__:[Elapsed Time] : 3684 examples, 110281.77309036255ms, 29.91403479502313ms on average
+accuracy:  97.40%; precision:  88.44%; recall:  87.92%; FB1:  88.18
 
-
+$ python evaluate.py --data_dir=data/conll2003 --use_crf --use_ncrf --convert_onnx
+...
+File "/usr/local/lib/python3.6/dist-packages/torch/onnx/symbolic_opset9.py", line 441, in transpose
+    axes[dim0], axes[dim1] = axes[dim1], axes[dim0]
+    IndexError: list index out of range
 
 ```
 
