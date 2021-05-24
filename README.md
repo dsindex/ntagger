@@ -2603,6 +2603,7 @@ accuracy:  94.80%; precision:  87.89%; recall:  87.96%; FB1:  87.92
 | dha-bpe BERT(v3), BiLSTM-CRF   | 88.71 / 91.16          | morph, pos            | 40.5316 / - |               |
 | dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
 | dha-bpe BERT-large(v3), CRF    | 88.62 / 91.17          | morph, pos            | 47.9219 / - |               |
+| KoELECTRA-Base-v3, CRF         | 87.12 / 89.93          | morph, pos            | 36.8965 / - |               |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - |               |
@@ -2830,6 +2831,35 @@ INFO:__main__:[F1] : 0.8860723030390322, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 44546.09036445618ms, 47.92198120389077ms on average
 accuracy:  97.81%; precision:  86.97%; recall:  90.34%; FB1:  88.62
 token_eval micro F1: 0.9117692189657818
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=electra, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+* share config-bert.json
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator
+
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2019 --bert_disable_lstm --use_crf --bert_use_pos   
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2019 --bert_output_dir=bert-checkpoint-kor-kmou-morph --bert_disable_lstm --use_crf --bert_use_pos
+$ cd data/kmou2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2019; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
+
+INFO:__main__:[token classification F1] : 0.868553368768855, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 34294.98624801636ms, 36.89658744803773ms on average
+accuracy:  97.47%; precision:  85.52%; recall:  88.78%; FB1:  87.12
+token_eval micro F1: 0.8993278337916285
 
 ```
 
