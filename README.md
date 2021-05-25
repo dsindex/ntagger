@@ -2601,9 +2601,12 @@ accuracy:  94.80%; precision:  87.89%; recall:  87.96%; FB1:  87.92
 | dha BERT(v2), BiLSTM-CRF       | 85.24 / 87.35          | morph, pos            | 37.7829 / - |               |
 | dha-bpe BERT(v1), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF   | 88.71 / 91.16          | morph, pos            | 40.5316 / - |               |
+| dha-bpe BERT(v3), BiLSTM-CRF   | 88.68 / 90.24          | morph, pos            | 42.6378 / - | subword pooling, word embedding |
 | dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
+| dha-bpe BERT-large(v1), CRF    | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
 | dha-bpe BERT-large(v3), CRF    | 88.62 / 91.17          | morph, pos            | 47.9219 / - |               |
 | KoELECTRA-Base-v3, CRF         | 87.12 / 89.93          | morph, pos            | 36.8965 / - |               |
+| KoELECTRA-Base-v3, BiLSTM-CRF  | 88.39 / 90.36          | morph, pos            | 42.0473 / - | subword pooling, word embedding |
 | ELMo, BiLSTM-CRF               | 88.22 / 89.05          | morph, pos            | 128.029 / - |               |
 | ELMo, BiLSTM-CRF               | 88.25 / 89.26          | morph, character, pos | 127.514 / - |               |
 | ELMo, GloVe, BiLSTM-CRF        | 88.10 / 88.71          | morph, pos            | 127.989 / - |               |
@@ -2832,6 +2835,19 @@ INFO:__main__:[Elapsed Time] : 927 examples, 44546.09036445618ms, 47.92198120389
 accuracy:  97.81%; precision:  86.97%; recall:  90.34%; FB1:  88.62
 token_eval micro F1: 0.9117692189657818
 
+* subword pooling, word embedding, --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --batch_size=64 
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-base-dha_bpe.v3 --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=64 --lr=5e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
+INFO:__main__:[token classification F1] : 0.8868199010765203, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 39642.81368255615ms, 42.63782732945024ms on average
+accuracy:  97.60%; precision:  87.86%; recall:  89.52%; FB1:  88.68
+token_eval micro F1: 0.9024785730831597
+
+* subword pooling, word embedding, --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_disable_lstm --lr=1e-5 
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2019 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
+
+
 ```
 
 </p>
@@ -2860,6 +2876,15 @@ INFO:__main__:[token classification F1] : 0.868553368768855, 927
 INFO:__main__:[Elapsed Time] : 927 examples, 34294.98624801636ms, 36.89658744803773ms on average
 accuracy:  97.47%; precision:  85.52%; recall:  88.78%; FB1:  87.12
 token_eval micro F1: 0.8993278337916285
+
+* subword pooling, word embedding, with lstm
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2019 --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
+
+INFO:__main__:[token classification F1] : 0.8837545126353791, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 39087.4285697937ms, 42.04730853663665ms on average
+accuracy:  97.63%; precision:  86.96%; recall:  89.87%; FB1:  88.39
+token_eval micro F1: 0.9036218538980969
 
 ```
 
