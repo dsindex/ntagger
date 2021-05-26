@@ -2602,8 +2602,8 @@ accuracy:  94.80%; precision:  87.89%; recall:  87.96%; FB1:  87.92
 | dha-bpe BERT(v1), BiLSTM-CRF   | 85.18 / 88.01          | morph, pos            | 39.0183 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF   | 88.71 / 91.16          | morph, pos            | 40.5316 / - |               |
 | dha-bpe BERT(v3), BiLSTM-CRF   | 88.68 / 90.24          | morph, pos            | 42.6378 / - | subword pooling, word embedding |
-| dha-bpe BERT-large(v1), CRF    | **89.02** / 91.07      | morph, pos            | 45.1637 / - |               |
-| dha-bpe BERT-large(v1), CRF    | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
+| dha-bpe BERT-large(v1), CRF    | 89.02 / 91.07          | morph, pos            | 45.1637 / - |               |
+| dha-bpe BERT-large(v1), CRF    | **89.14** / 90.85      | morph, pos            | 52.9427 / - | subword pooling, word embedding |
 | dha-bpe BERT-large(v3), CRF    | 88.62 / 91.17          | morph, pos            | 47.9219 / - |               |
 | KoELECTRA-Base-v3, CRF         | 87.12 / 89.93          | morph, pos            | 36.8965 / - |               |
 | KoELECTRA-Base-v3, BiLSTM-CRF  | 88.39 / 90.36          | morph, pos            | 42.0473 / - | subword pooling, word embedding |
@@ -2846,7 +2846,10 @@ token_eval micro F1: 0.9024785730831597
 * subword pooling, word embedding, --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_disable_lstm --lr=1e-5 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2019 --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2019 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
-
+INFO:__main__:[token classification F1] : 0.8913835836127716, 927
+INFO:__main__:[Elapsed Time] : 927 examples, 49218.56093406677ms, 52.94274176686165ms on average
+accuracy:  97.72%; precision:  88.51%; recall:  89.78%; FB1:  89.14
+token_eval micro F1: 0.9085975657027677
 
 ```
 
