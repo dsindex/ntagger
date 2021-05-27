@@ -29,6 +29,7 @@
 
 
 
+
 # Requirements
 
 - python >= 3.6
@@ -230,7 +231,7 @@ _ _ - O
 </details>
 
 
-## KMOU NER 2019 (Korean)
+## KMOU NER (Korean)
 
 #### from [KMOU NER](https://github.com/kmounlp/NER)
 
@@ -274,7 +275,20 @@ $ cp -rf valid.txt test.txt
 
 <br>
 
+##### data/kmou2021
 
+- data source
+  - https://github.com/kmounlp/NER/tree/master/%EA%B0%9C%EC%B2%B4%EB%AA%85%20%EC%9D%B8%EC%8B%9D/data/example/KMOU_BIO
+  ```
+  testa.pos.txt  testa.tags.txt  testa.words.txt  testb.pos.txt  testb.tags.txt  testb.words.txt  train.pos.txt  train.tags.txt  train.words.txt 
+  ```
+
+- convert to CoNLL format
+```
+$ python to-conll.py --words=train.words.txt --tags=train.tags.txt --pos=train.pos.txt > train.txt
+$ python to-conll.py --words=testa.words.txt --tags=testa.tags.txt --pos=testa.pos.txt > valid.txt
+$ python to-conll.py --words=testb.words.txt --tags=testb.tags.txt --pos=testb.pos.txt > test.txt
+```
 
 
 # Pretrained models
@@ -2579,9 +2593,13 @@ accuracy:  94.80%; precision:  87.89%; recall:  87.96%; FB1:  87.92
 
 
 
-# KMOU NER 2019 (Korean)
+# KMOU NER (Korean)
 
-## experiments summary
+
+## KMOU NER 2019
+
+
+#### experiments summary
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
@@ -2953,6 +2971,77 @@ token_eval micro F1: 0.8926606215608773
 
 <br>
 
+
+## KMOU NER 2021
+
+
+#### experiments summary
+
+
+- ntagger, measured by conlleval.pl / token_eval.py (micro F1)
+
+|                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
+| ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
+| dha-bpe BERT-large(v1), CRF    | -     / -              | morph, pos            | -       / - |               |
+| dha-bpe BERT-large(v1), CRF    | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
+| KoELECTRA-Base-v3, CRF         | -     / -              | morph, pos            | -       / - |               |
+| KoELECTRA-Base-v3, CRF         | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
+
+
+<details><summary><b>emb_class=bert, enc_class=bilstm, morph-based</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos
+
+
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2021 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
+$ cd data/kmou2021; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2021; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
+
+
+```
+
+</p>
+</details>
+
+<details><summary><b>emb_class=electra, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+* share config-bert.json
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator
+
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos   
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2021 --bert_output_dir=bert-checkpoint-kor-kmou-morph --bert_disable_lstm --use_crf --bert_use_pos
+$ cd data/kmou2021; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/kmou2021; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
+
+
+* subword pooling, word embedding
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
+
+
+```
+
+</p>
+</details>
 
 
 # Citation
