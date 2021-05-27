@@ -431,6 +431,8 @@ def convert_single_example_to_feature(config,
         logger.info('len(poss): ' + str(len(example.poss)))
         logger.info("tokens: %s", " ".join([str(x) for x in tokens]))
         logger.info('len(tokens): ' + str(len(tokens)))
+        logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
+        logger.info('len(pos_ids): ' + str(len(pos_ids)))
         sys.exit(1)
 
     # for [CLS] and [SEP]

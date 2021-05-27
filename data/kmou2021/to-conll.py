@@ -6,8 +6,9 @@ import time
 import json
 from tqdm import tqdm
 import logging
+from unicodedata import category
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
@@ -44,6 +45,19 @@ if __name__ == '__main__':
         words = all_words[i]
         tags = all_tags[i]
         pos = all_pos[i]
+        
+        if len(words) != len(pos) or len(words) != len(tags):
+            logger.error('%s %s', len(words), ' '.join(words))
+            logger.error('%s %s', len(pos), ' '.join(pos))
+            logger.error('%s %s', len(tags), ' '.join(pos))
+            sys.exit(1)
+
+        valid = True
+        for j, word in enumerate(words):
+            if category(word[0]) in ['Cc', 'Zs', 'Cf']:
+                logger.error('Control/Space Character %s-th word in %s', j, ' '.join(words))
+                valid = False
+        if not valid: continue
 
         for word, tag, p in zip(words, tags, pos):
             # append '다' for 'VV', 'VA', ...
