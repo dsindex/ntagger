@@ -2982,10 +2982,10 @@ token_eval micro F1: 0.8926606215608773
 
 |                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
-| dha-bpe BERT-large(v1), CRF    | -     / -              | morph, pos            | -       / - |               |
-| dha-bpe BERT-large(v1), CRF    | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
-| KoELECTRA-Base-v3, CRF         | -     / -              | morph, pos            | -       / - |               |
-| KoELECTRA-Base-v3, CRF         | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
+| dha-bpe BERT-large(v1), CRF    | 83.20 / 86.94          | morph, pos            | 55.3803 / - |               |
+| dha-bpe BERT-large(v1), CRF    | 83.53 / 87.13          | morph, pos            | 45.5633 / - | subword pooling, word embedding |
+| KoELECTRA-Base-v3, CRF         | 84.41 / 87.11          | morph, pos            | 38.0129 / - |               |
+| KoELECTRA-Base-v3, CRF         | 84.72 / 87.64          | morph, pos            | 40.6136 / - | subword pooling, word embedding |
 
 
 <details><summary><b>emb_class=bert, enc_class=bilstm, morph-based</b></summary>
@@ -3003,10 +3003,21 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 
 - evaluation
 ```
-$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2021 --bert_output_dir=bert-checkpoint-kor-kmou-morph --use_crf --bert_use_pos
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2021 --bert_output_dir=bert-checkpoint-kor-kmou-morph --bert_disable_lstm --use_crf --bert_use_pos
 $ cd data/kmou2021; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2021; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
+INFO:__main__:[token classification F1] : 0.8319154700623138, 5299
+INFO:__main__:[Elapsed Time] : 5299 examples, 293569.5028305054ms, 55.38036617165289ms on average
+accuracy:  96.46%; precision:  82.19%; recall:  84.22%; FB1:  83.20
+token eval micro F1: 0.8694284374669146
 
+* subword pooling, word embedding
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/kor-bert-large-dha_bpe.v1 --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
+INFO:__main__:[token classification F1] : 0.8351195159671162, 5299
+INFO:__main__:[Elapsed Time] : 5299 examples, 241545.16887664795ms, 45.5633999492232ms on average
+accuracy:  96.52%; precision:  82.65%; recall:  84.43%; FB1:  83.53
+token eval micro F1: 0.8713530863449863
 
 ```
 
@@ -3023,7 +3034,7 @@ $ cd data/kmou2021; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator
 
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos   
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos   
 ```
 
 - evaluation
@@ -3031,12 +3042,18 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-kmou-morph.pt --data_dir=data/kmou2021 --bert_output_dir=bert-checkpoint-kor-kmou-morph --bert_disable_lstm --use_crf --bert_use_pos
 $ cd data/kmou2021; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
 $ cd data/kmou2021; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
-
+INFO:__main__:[token classification F1] : 0.8396272154285407, 5299
+INFO:__main__:[Elapsed Time] : 5299 examples, 201513.93675804138ms, 38.01290765714087ms on average
+accuracy:  96.44%; precision:  83.35%; recall:  85.50%; FB1:  84.41
+token level micro F1: 0.8711555442477213
 
 * subword pooling, word embedding
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
-
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
+INFO:__main__:[token classification F1] : 0.8469365663563542, 5299
+INFO:__main__:[Elapsed Time] : 5299 examples, 215320.6009864807ms, 40.613625714715ms on average
+accuracy:  96.64%; precision:  83.63%; recall:  85.84%; FB1:  84.72
+token eval micro F1: 0.876451414237003
 
 ```
 
