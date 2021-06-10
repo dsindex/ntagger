@@ -1,4 +1,6 @@
 torch
+# 1.8.1+cu101
+# pip install torch==1.8.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html
 # pip install torch==1.8.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html
 # pip install torch==1.7.1+cu101 -f https://download.pytorch.org/whl/torch_stable.html
 # pip install torch==1.7.1+cu110 -f https://download.pytorch.org/whl/torch_stable.html
@@ -11,6 +13,11 @@ allennlp==0.9.0
 transformers
 datasets
 accelerate
+# 0.4.0.dev0
+# pip install git+https://github.com/huggingface/accelerate.git@main
+deepspeed
+# 0.4.0
+# DS_BUILD_OPS=1 pip install deepspeed --global-option="build_ext" --global-option="-j8"
 optuna
 onnx
 onnxruntime
