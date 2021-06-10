@@ -122,6 +122,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         # back-propagation - begin
         accelerator.backward(loss)
         if (local_step + 1) % args.gradient_accumulation_steps == 0:
+            if args.max_grad_norm != 0.0:
+                accelerator.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+            if args.max_grad_value != 0.0:
+                accelerator.clip_grad_value_(model.parameters(), args.max_grad_value)
             optimizer.step()
             optimizer.zero_grad()
             scheduler.step()
@@ -469,9 +473,15 @@ def prepare_others(config, model, data_loader, lr=None, weight_decay=None):
          'weight_decay': default_weight_decay},
         {'params': [p for n, p in model.named_parameters() if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
     ]
-    optimizer = AdamW(optimizer_grouped_parameters, lr=default_lr, eps=args.adam_epsilon)
+    optimizer = AdamW(optimizer_grouped_parameters,
+                      lr=default_lr,
+                      eps=args.adam_epsilon)
 
-    model, optimizer = accelerator.prepare(model, optimizer)
+    if accelerator:
+        optimizer = torch.optim.AdamW(optimizer_grouped_parameters,
+                                      lr=default_lr,
+                                      eps=args.adam_epsilon)
+        model, optimizer, _ = accelerator.prepare(model, optimizer, data_loader)
 
     scheduler = get_cosine_schedule_with_warmup(optimizer,
         num_warmup_steps=args.num_warmup_steps,
@@ -640,7 +650,8 @@ def main():
     parser.add_argument('--weight_decay', type=float, default=0.01)
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
-    parser.add_argument('--max_grad_norm', default=1.0, type=float, help="Max gradient norm.")
+    parser.add_argument('--max_grad_norm', default=0.0, type=float, help="Max gradient norm.")
+    parser.add_argument('--max_grad_value', type=float, default=0.0, help="Max gradient value for clipping.")
     parser.add_argument('--save_path', type=str, default='pytorch-model-glove.pt')
     parser.add_argument('--restore_path', type=str, default='')
     parser.add_argument('--log_dir', type=str, default='runs')
@@ -651,6 +662,7 @@ def main():
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features.")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
+    parser.add_argument('--local_rank', default=0, type=int)
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
