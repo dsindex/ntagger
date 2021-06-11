@@ -130,7 +130,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             optimizer.zero_grad()
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
-            epoch_iterator.set_description(f"Epoch {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, gloss: {gloss:.3f},curr_lr: {curr_lr:.7f}")
+            epoch_iterator.set_description(f"Process: {accelerator.process_index}, epoch: {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, gloss: {gloss:.3f},curr_lr: {curr_lr:.7f}")
             if accelerator.is_main_process and args.eval_and_save_steps > 0 and global_step != 0 and global_step % args.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, valid_loader)
