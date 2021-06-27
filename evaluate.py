@@ -67,7 +67,7 @@ def load_model(config, checkpoint):
     else:
         bert_config = AutoConfig.from_pretrained(args.bert_output_dir)
         bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_output_dir)
-        bert_model = AutoModel(bert_config)
+        bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
                            use_crf=args.use_crf, use_ncrf=args.use_ncrf, use_pos=args.bert_use_pos,
