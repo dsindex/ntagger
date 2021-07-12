@@ -1791,7 +1791,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | KoELECTRA-Base-v3                        | 87.31       | eoj      | 14.8115 / -    |          |           |        |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.76       | eoj      | 40.4698 / -    |          |           | freezing BERT during some epochs |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.32       | eoj      | 39.8039 / -    |          |           | using sub token label, freezing BERT during some epochs |
-| KoELECTRA-Base-v3, BiLSTM-CRF            | **88.13**   | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
+| KoELECTRA-Base-v3, BiLSTM-CRF            | 88.13       | eoj      | 40.0855 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | KoELECTRA-Base-v3, BiLSTM-CRF            | 87.89       | eoj      | 47.0637 / -    |          |           | subword pooling                  |
 | LM-KOR-ELECTRA                           | 87.39       | eoj      | 17.1545 / -    |          |           |        |
 | LM-KOR-ELECTRA, BiLSTM-CRF               | 87.49       | eoj      | 39.7247 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
@@ -1802,7 +1802,9 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
 | KLUE-RoBERTa-base                        | 87.74       | eoj      | 17.3930 / -    |          |           |        |
-| KLUE-RoBERTa-large                       | -           | eoj      | -       / -    |          |           |        |
+| KLUE-RoBERTa-base                        | -           | eoj      | -       / -    |          |           | subword pooling                  |
+| KLUE-RoBERTa-large                       | **88.75**   | eoj      | 30.9014 / -    |          |           |        |
+| KLUE-RoBERTa-large                       | -           | eoj      | -       / -    |          |           | subword pooling                  |
 | Funnel-base                              | 87.97       | eoj      | 42.9287 / -    |          |           |        |
 | Funnel-base, BiLSTM-CRF                  | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 
@@ -2581,7 +2583,15 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1831.2511444091797ms, 17.3930543841
 accuracy:  94.89%; precision:  87.62%; recall:  87.86%; FB1:  87.74
 
 *** --bert_model_name_or_path=./embeddings/klue-roberta-large --lr=1e-5
+INFO:__main__:[token classification F1] : 0.8888285044665603, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 1007004.5683383942ms, 111.88273531077292ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 3218.8217639923096ms, 30.901489835796934ms on average
+accuracy:  95.27%; precision:  88.53%; recall:  88.97%; FB1:  88.75
 
+*** subword pooling
+**** --bert_use_subword_pooling --lr=1e-5
+
+**** --bert_use_subword_pooling --bert_model_name_or_path=./embeddings/klue-roberta-large --lr=1e-5
 
 ** Funnel-base
 
@@ -3003,6 +3013,8 @@ token_eval micro F1: 0.8926606215608773
 | dha-bpe BERT-large(v1), CRF    | 83.53 / 87.13          | morph, pos            | 45.5633 / - | subword pooling, word embedding |
 | KoELECTRA-Base-v3, CRF         | 84.41 / 87.11          | morph, pos            | 38.0129 / - |               |
 | KoELECTRA-Base-v3, CRF         | 84.72 / 87.64          | morph, pos            | 40.6136 / - | subword pooling, word embedding |
+| KLUE-RoBERTa-base, CRF         | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
+| KLUE-RoBERTa-large, CRF        | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
 
 
 <details><summary><b>emb_class=bert, enc_class=bilstm, morph-based</b></summary>
@@ -3041,7 +3053,7 @@ token eval micro F1: 0.8713530863449863
 </p>
 </details>
 
-<details><summary><b>emb_class=electra, enc_class=bilstm</b></summary>
+<details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
 <p>
 
 - train
@@ -3050,8 +3062,12 @@ token eval micro F1: 0.8713530863449863
 * share config-bert.json
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator
-
 $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos   
+
+* KLUE-RoBERTa-base, KLUE-RoBERTa-large
+$ python preprocess.py --config=configs/config-roberta.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/klue-roberta-base --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/klue-roberta-base --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos   
+
 ```
 
 - evaluation
@@ -3071,6 +3087,11 @@ INFO:__main__:[token classification F1] : 0.8469365663563542, 5299
 INFO:__main__:[Elapsed Time] : 5299 examples, 215320.6009864807ms, 40.613625714715ms on average
 accuracy:  96.64%; precision:  83.63%; recall:  85.84%; FB1:  84.72
 token eval micro F1: 0.876451414237003
+
+* KLUE-RoBERTa-base, subword pooling, word embedding
+
+* KLUE-RoBERTa-large, subword pooling, word embedding
+
 
 ```
 
