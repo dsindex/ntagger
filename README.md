@@ -1801,7 +1801,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | RoBERTa-base                             | 85.45       | eoj      | 15.6986 / -    |          |           |        |
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
-| KLUE-RoBERTa-base                        | -           | eoj      | -       / -    |          |           |        |
+| KLUE-RoBERTa-base                        | 87.74       | eoj      | 17.3930 / -    |          |           |        |
 | KLUE-RoBERTa-large                       | -           | eoj      | -       / -    |          |           |        |
 | Funnel-base                              | 87.97       | eoj      | 42.9287 / -    |          |           |        |
 | Funnel-base, BiLSTM-CRF                  | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
@@ -2575,8 +2575,12 @@ accuracy:  94.48%; precision:  86.88%; recall:  87.14%; FB1:  87.01
 ** KLUE-RoBERTa-base, KLUE-RoBERTa-large
 $ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[token classification F1] : 0.8789022648439093, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 878899.0874290466ms, 97.65359777545304ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1831.2511444091797ms, 17.39305438417377ms on average
+accuracy:  94.89%; precision:  87.62%; recall:  87.86%; FB1:  87.74
 
-*** --bert_model_name_or_path=./embeddings/klue-roberta-large
+*** --bert_model_name_or_path=./embeddings/klue-roberta-large --lr=1e-5
 
 
 ** Funnel-base
