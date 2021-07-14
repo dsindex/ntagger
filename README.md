@@ -1802,9 +1802,9 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
 | KLUE-RoBERTa-base                        | 87.74       | eoj      | 17.3930 / -    |          |           |        |
-| KLUE-RoBERTa-base                        | -           | eoj      | -       / -    |          |           | subword pooling                  |
+| KLUE-RoBERTa-base                        | 87.83       | eoj      | 22.3236 / -    |          |           | subword pooling                  |
 | KLUE-RoBERTa-large                       | **88.75**   | eoj      | 30.9014 / -    |          |           |        |
-| KLUE-RoBERTa-large                       | -           | eoj      | -       / -    |          |           | subword pooling                  |
+| KLUE-RoBERTa-large                       | 88.74       | eoj      | 33.8022 / -    |          |           | subword pooling                  |
 | Funnel-base                              | 87.97       | eoj      | 42.9287 / -    |          |           |        |
 | Funnel-base, BiLSTM-CRF                  | 87.92       | eoj      | 83.9707 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 
@@ -2590,8 +2590,16 @@ accuracy:  95.27%; precision:  88.53%; recall:  88.97%; FB1:  88.75
 
 *** subword pooling
 **** --bert_use_subword_pooling --lr=1e-5
+INFO:__main__:[token classification F1] : 0.8783027507377132, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 909895.295381546ms, 101.09652555151798ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 2381.690502166748ms, 22.323678238223298ms on average
+accuracy:  94.94%; precision:  87.62%; recall:  88.04%; FB1:  87.83
 
 **** --bert_use_subword_pooling --bert_model_name_or_path=./embeddings/klue-roberta-large --lr=1e-5
+INFO:__main__:[token classification F1] : 0.8874214794873099, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 1073524.353504181ms, 119.2730264486717ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 3537.3592376708984ms, 33.802254031402896ms on average
+accuracy:  95.29%; precision:  88.39%; recall:  89.10%; FB1:  88.74
 
 ** Funnel-base
 
@@ -3066,7 +3074,7 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 
 * KLUE-RoBERTa-base, KLUE-RoBERTa-large
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/kmou2021 --bert_model_name_or_path=./embeddings/klue-roberta-base --bert_use_subword_pooling --bert_use_word_embedding --embedding_path=./embeddings/kor.glove.300k.300d.txt
-$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/klue-roberta-base --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos   
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-kmou-morph.pt --bert_model_name_or_path=./embeddings/klue-roberta-base --bert_output_dir=bert-checkpoint-kor-kmou-morph --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/kmou2021 --bert_disable_lstm --use_crf --bert_use_pos --bert_use_subword_pooling --bert_use_word_embedding
 
 ```
 
