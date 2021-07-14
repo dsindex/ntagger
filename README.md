@@ -3021,8 +3021,8 @@ token_eval micro F1: 0.8926606215608773
 | dha-bpe BERT-large(v1), CRF    | 83.53 / 87.13          | morph, pos            | 45.5633 / - | subword pooling, word embedding |
 | KoELECTRA-Base-v3, CRF         | 84.41 / 87.11          | morph, pos            | 38.0129 / - |               |
 | KoELECTRA-Base-v3, CRF         | 84.72 / 87.64          | morph, pos            | 40.6136 / - | subword pooling, word embedding |
-| KLUE-RoBERTa-base, CRF         | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
-| KLUE-RoBERTa-large, CRF        | -     / -              | morph, pos            | -       / - | subword pooling, word embedding |
+| KLUE-RoBERTa-base, CRF         | 84.39 / 87.78          | morph, pos            | 40.9797 / - | subword pooling, word embedding |
+| KLUE-RoBERTa-large, CRF        | **85.24** / 88.19      | morph, pos            | 54.2707 / - | subword pooling, word embedding |
 
 
 <details><summary><b>emb_class=bert, enc_class=bilstm, morph-based</b></summary>
@@ -3097,9 +3097,16 @@ accuracy:  96.64%; precision:  83.63%; recall:  85.84%; FB1:  84.72
 token eval micro F1: 0.876451414237003
 
 * KLUE-RoBERTa-base, subword pooling, word embedding
+INFO:__main__:[token classification F1] : 0.8438759228709738, 5299
+INFO:__main__:[Elapsed Time] : 5299 examples, 217291.34964942932ms, 40.979761814522085ms on average
+accuracy:  96.69%; precision:  83.22%; recall:  85.59%; FB1:  84.39
+token level micro F1: 0.8778010784901139
 
 * KLUE-RoBERTa-large, subword pooling, word embedding
-
+INFO:__main__:[token classification F1] : 0.8524501593819223, 5299
+INFO:__main__:[Elapsed Time] : 5299 examples, 287711.5547657013ms, 54.27072263294996ms on average
+accuracy:  96.76%; precision:  83.97%; recall:  86.55%; FB1:  85.24
+token eval micro F1: 0.8819225186670456
 
 ```
 
