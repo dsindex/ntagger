@@ -3140,9 +3140,9 @@ token eval micro F1: 0.8819225186670456
 
 |                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
-| KoELECTRA-Base-v3              | 83.35 / 89.59          | morph(in fact, char)  | 33.1255 / - |               |
-| KLUE-RoBERTa-base              | 84.20 / 90.06          | morph(in fact, char)  | 33.3189 / - |               |
-| KLUE-RoBERTa-large             | **85.81** / 91.27      | morph(in fact, char)  | 45.7652 / - |               |
+| KoELECTRA-Base-v3              | 83.35 / 89.59          | char                  | 33.1255 / - |               |
+| KLUE-RoBERTa-base              | 84.20 / 90.06          | char                  | 33.3189 / - |               |
+| KLUE-RoBERTa-large             | **85.81** / 91.27      | char                  | 45.7652 / - |               |
 
 
 <details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
