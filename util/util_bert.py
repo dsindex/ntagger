@@ -433,7 +433,8 @@ def convert_single_example_to_feature(config,
         logger.info('len(tokens): ' + str(len(tokens)))
         logger.info("pos_ids: %s", " ".join([str(x) for x in pos_ids]))
         logger.info('len(pos_ids): ' + str(len(pos_ids)))
-        sys.exit(1)
+        logger.warning('number of tokens != number of pos_ids, size mismatch!')
+        return None
 
     # for [CLS] and [SEP]
     special_tokens_count = 3 if sep_token_extra else 2
@@ -606,6 +607,7 @@ def convert_examples_to_features(config,
                                                     glabel_map=glabel_map,
                                                     ex_index=ex_index)
 
-        features.append(feature)
+        if feature:
+            features.append(feature)
 
     return features
