@@ -3142,7 +3142,7 @@ token eval micro F1: 0.8819225186670456
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
 | KoELECTRA-Base-v3              | 83.35 / 89.59          | morph(in fact, char)  | 33.1255 / - |               |
 | KLUE-RoBERTa-base              | 84.20 / 90.06          | morph(in fact, char)  | 33.3189 / - |               |
-| KLUE-RoBERTa-large             | -     / -              | morph(in fact, char)  | -       / - |               |
+| KLUE-RoBERTa-large             | 85.81 / 91.27          | morph(in fact, char)  | 45.7652 / - |               |
 
 
 <details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
@@ -3180,6 +3180,10 @@ accuracy:  97.05%; precision:  82.71%; recall:  85.75%; FB1:  84.20
 token level micro F1: 0.9006345665357541
 
 * KLUE-RoBERTa-large
+INFO:__main__:[token classification F1] : 0.8580685186461708, 5000
+INFO:__main__:[Elapsed Time] : 5000 examples, 228947.60727882385ms, 45.76522103546381ms on average
+accuracy:  97.43%; precision:  84.35%; recall:  87.31%; FB1:  85.81
+token level micro F1: 0.9127928737180926
 
 ```
 
