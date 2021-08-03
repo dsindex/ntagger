@@ -3141,7 +3141,7 @@ token eval micro F1: 0.8819225186670456
 |                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
 | KoELECTRA-Base-v3              | 83.35 / 89.59          | morph(in fact, char)  | 33.1255 / - |               |
-| KLUE-RoBERTa-base              | -     / -              | morph(in fact, char)  | -       / - |               |
+| KLUE-RoBERTa-base              | 84.20 / 90.06          | morph(in fact, char)  | 33.3189 / - |               |
 | KLUE-RoBERTa-large             | -     / -              | morph(in fact, char)  | -       / - |               |
 
 
@@ -3174,7 +3174,10 @@ token level micro F1: 0.895993426642639
 
 
 * KLUE-RoBERTa-base
-
+INFO:__main__:[token classification F1] : 0.842000137750534, 5000
+INFO:__main__:[Elapsed Time] : 5000 examples, 166681.09965324402ms, 33.31893542977089ms on average
+accuracy:  97.05%; precision:  82.71%; recall:  85.75%; FB1:  84.20
+token level micro F1: 0.9006345665357541
 
 * KLUE-RoBERTa-large
 
