@@ -290,6 +290,20 @@ $ python to-conll.py --words=testa.words.txt --tags=testa.tags.txt --pos=testa.p
 $ python to-conll.py --words=testb.words.txt --tags=testb.tags.txt --pos=testb.pos.txt > test.txt
 ```
 
+## KLUE NER (Korean)
+
+#### from [KLUE-benchmark](https://github.com/KLUE-benchmark/KLUE/tree/main/klue_benchmark/klue-ner-v1.1)
+
+##### data/klue
+
+- convert to CoNLL format
+```
+$ python to-conll.py --file klue-ner-v1.1_train.tsv > train.txt
+$ python to-conll.py --file klue-ner-v1.1_dev.tsv > valid.txt
+$ python to-conll.py --file klue-ner-v1.1_dev.tsv > test.txt
+```
+
+
 
 # Pretrained models
 
@@ -3113,6 +3127,61 @@ token eval micro F1: 0.8819225186670456
 </p>
 </details>
 
+<br>
+
+
+## KLUE NER
+
+
+#### experiments summary
+
+
+- ntagger, measured by conlleval.pl / token_eval.py (micro F1)
+
+|                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
+| ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
+| KoELECTRA-Base-v3              | 83.35 / 89.59          | morph(in fact, char)  | 33.1255 / - |               |
+| KLUE-RoBERTa-base              | -     / -              | morph(in fact, char)  | -       / - |               |
+| KLUE-RoBERTa-large             | -     / -              | morph(in fact, char)  | -       / - |               |
+
+
+<details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
+<p>
+
+- train
+```
+* n_ctx size should be less than 512
+* share config-bert.json
+
+$ python preprocess.py --config=configs/config-bert.json --data_dir data/klue --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-klue.pt --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --bert_output_dir=bert-checkpoint-kor-klue --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/klue --bert_disable_lstm   
+
+* KLUE-RoBERTa-base, KLUE-RoBERTa-large
+$ python preprocess.py --config=configs/config-roberta.json --data_dir data/klue --bert_model_name_or_path=./embeddings/klue-roberta-base 
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-klue.pt --bert_model_name_or_path=./embeddings/klue-roberta-base --bert_output_dir=bert-checkpoint-kor-klue --batch_size=32 --lr=1e-5 --epoch=20 --data_dir data/klue --bert_disable_lstm
+
+```
+
+- evaluation
+```
+$ python evaluate.py --config=configs/config-bert.json --model_path=pytorch-model-bert-kor-klue.pt --data_dir=data/klue --bert_output_dir=bert-checkpoint-kor-klue --bert_disable_lstm
+$ cd data/klue; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+$ cd data/klue; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
+INFO:__main__:[token classification F1] : 0.8334647694153952, 5000
+INFO:__main__:[Elapsed Time] : 5000 examples, 165709.34796333313ms, 33.12553837671831ms on average
+accuracy:  96.92%; precision:  81.53%; recall:  85.25%; FB1:  83.35
+token level micro F1: 0.895993426642639
+
+
+* KLUE-RoBERTa-base
+
+
+* KLUE-RoBERTa-large
+
+```
+
+</p>
+</details>
 
 # Citation
 
