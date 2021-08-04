@@ -3198,8 +3198,8 @@ token eval micro F1: 0.8819225186670456
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
 | KoELECTRA-Base-v3              | 83.35 / 89.59          | char                  | 33.1255 / - |               |
 | KLUE-RoBERTa-base              | 84.20 / 90.06          | char                  | 33.3189 / - |               |
-| KLUE-RoBERTa-large             | **85.81** / 91.27      | char                  | 45.7652 / - |               |
-| KoELECTRA-Base-v3              | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
+| KLUE-RoBERTa-large             | 85.81 / 91.27          | char                  | 45.7652 / - |               |
+| KoELECTRA-Base-v3              | 88.17 / 92.02          | eoj/morph             | 34.9123 / - | segmented by to-conll.py |
 | KLUE-RoBERTa-base              | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
 | KLUE-RoBERTa-large             | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
 
@@ -3245,10 +3245,27 @@ accuracy:  97.43%; precision:  84.35%; recall:  87.31%; FB1:  85.81
 token level micro F1: 0.9127928737180926
 
 * KoELECTRA-Base-v3, segmented
+INFO:__main__:[token classification F1] : 0.8817226890756302, 5000
+INFO:__main__:[Elapsed Time] : 5000 examples, 174636.47651672363ms, 34.912302055748064ms on average
+accuracy:  97.80%; precision:  87.15%; recall:  89.22%; FB1:  88.17
+token level micro F1: 0.9181545590840943
+
+** evaluation by character-level
+$ cd data/klue; python to-char.py --file test.txt.pred > test.txt.pred.char; cd ../..
+$ cd data/klue; perl ../../etc/conlleval.pl < test.txt.pred.char ; cd ../..
+$ cd data/klue; python ../../etc/token_eval.py < test.txt.pred.char ; cd ../..
+
+accuracy:  97.57%; precision:  87.15%; recall:  89.22%; FB1:  88.17
+token level micro F1: 0.9202676812160063
 
 * KLUE-RoBERTa-base, segmented
 
+** evaluation by character-level
+
+
 * KLUE-RoBERTa-large, segmented
+
+** evaluation by character-level
 
 ```
 
