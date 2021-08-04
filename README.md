@@ -3201,7 +3201,7 @@ token eval micro F1: 0.8819225186670456
 | KLUE-RoBERTa-large             | 85.81 / 91.27          | char                  | 45.7652 / - |               |
 | KoELECTRA-Base-v3              | 88.17 / 92.02          | eoj/morph             | 34.9123 / - | segmented by to-conll.py |
 | KLUE-RoBERTa-base              | 88.97 / 92.74          | eoj/morph             | 35.0677 / - | segmented by to-conll.py |
-| KLUE-RoBERTa-large             | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
+| KLUE-RoBERTa-large             | **89.69 / 93.19**      | eoj/morph             | 49.4650 / - | segmented by to-conll.py |
 
 
 <details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
@@ -3268,8 +3268,17 @@ accuracy:  97.77%; precision:  88.15%; recall:  89.80%; FB1:  88.97
 char level micro F1: 0.9274341142020498
 
 * KLUE-RoBERTa-large, segmented
+   micro avg     0.8895    0.9045    0.8969     14113
+   macro avg     0.8798    0.8969    0.8882     14113
+ eighted avg     0.8897    0.9045    0.8970     14113
+INFO:__main__:[token classification F1] : 0.8969224283305228, 5000
+INFO:__main__:[Elapsed Time] : 5000 examples, 247434.663772583ms, 49.46500650761866ms on average
+accuracy:  98.08%; precision:  88.95%; recall:  90.45%; FB1:  89.69
+token level micro F1: 0.9285750945203838
 
 ** evaluation by character-level
+accuracy:  97.90%; precision:  88.95%; recall:  90.45%; FB1:  89.69
+char level micro F1: 0.9319178819301942
 
 ```
 
