@@ -1,4 +1,11 @@
-data
+*.txt*
+*.ids
+*.fs
+*.tsv
+*.npy
+*.csv*
+*.raw
+*.conll
 embeddings
 pytorch-model*
 bert-checkpoint*

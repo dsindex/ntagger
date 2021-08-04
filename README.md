@@ -296,13 +296,64 @@ $ python to-conll.py --words=testb.words.txt --tags=testb.tags.txt --pos=testb.p
 
 ##### data/klue
 
-- convert to CoNLL format
+- convert to CoNLL format, original, character-based
 ```
 $ python to-conll.py --file klue-ner-v1.1_train.tsv > train.txt
 $ python to-conll.py --file klue-ner-v1.1_dev.tsv > valid.txt
 $ python to-conll.py --file klue-ner-v1.1_dev.tsv > test.txt
 ```
 
+- convert to CoNLL format, segmented by khaiii
+<details><summary>details</summary>
+<p>
+```
+$ python to-conll.py --file klue-ner-v1.1_train.tsv --segmentation > train.txt
+$ python to-conll.py --file klue-ner-v1.1_dev.tsv --segmentation > valid.txt
+$ python to-conll.py --file klue-ner-v1.1_dev.tsv --segmentation > test.txt
+
+특히 pos pt O
+_ _ pt O
+영동고속도 pos pt B-LC
+로 pos pt I-LC
+_ _ pt O
+강릉 pos pt B-LC
+_ _ pt O
+방향 pos pt O
+_ _ pt O
+문막 pos pt B-LC
+휴게소 pos pt I-LC
+에서 pos pt O
+_ _ pt O
+만종분기점 pos pt B-LC
+까지 pos pt O
+_ _ pt O
+5 pos pt B-QT
+km pos pt I-QT
+_ _ pt O
+구간 pos pt O
+에 pos pt O
+는 pos pt O
+_ _ pt O
+승용차 pos pt O
+_ _ pt O
+전용 pos pt O
+_ _ pt O
+임시 pos pt O
+_ _ pt O
+갓길차로제 pos pt O
+를 pos pt O
+_ _ pt O
+운영 pos pt O
+하 pos pt O
+기 pos pt O
+로 pos pt O
+_ _ pt O
+했다. pos pt O
+...
+```
+
+</p>
+</details>
 
 
 # Pretrained models
@@ -3147,6 +3198,9 @@ token eval micro F1: 0.8819225186670456
 | KoELECTRA-Base-v3              | 83.35 / 89.59          | char                  | 33.1255 / - |               |
 | KLUE-RoBERTa-base              | 84.20 / 90.06          | char                  | 33.3189 / - |               |
 | KLUE-RoBERTa-large             | **85.81** / 91.27      | char                  | 45.7652 / - |               |
+| KoELECTRA-Base-v3              | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
+| KLUE-RoBERTa-base              | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
+| KLUE-RoBERTa-large             | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
 
 
 <details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
@@ -3188,6 +3242,12 @@ INFO:__main__:[token classification F1] : 0.8580685186461708, 5000
 INFO:__main__:[Elapsed Time] : 5000 examples, 228947.60727882385ms, 45.76522103546381ms on average
 accuracy:  97.43%; precision:  84.35%; recall:  87.31%; FB1:  85.81
 token level micro F1: 0.9127928737180926
+
+* KoELECTRA-Base-v3, segmented
+
+* KLUE-RoBERTa-base, segmented
+
+* KLUE-RoBERTa-large, segmented
 
 ```
 
