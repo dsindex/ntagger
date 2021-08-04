@@ -3194,13 +3194,13 @@ token eval micro F1: 0.8819225186670456
 
 - ntagger, measured by conlleval.pl / token_eval.py (micro F1)
 
-|                                | span / token F1 (%)    | Features              | GPU / CPU   | Etc           |
+|                                | entity / char F1 (%)   | Features              | GPU / CPU   | Etc           |
 | ------------------------------ | ---------------------- | --------------------- | ----------- | ------------- |    
 | KoELECTRA-Base-v3              | 83.35 / 89.59          | char                  | 33.1255 / - |               |
 | KLUE-RoBERTa-base              | 84.20 / 90.06          | char                  | 33.3189 / - |               |
 | KLUE-RoBERTa-large             | 85.81 / 91.27          | char                  | 45.7652 / - |               |
 | KoELECTRA-Base-v3              | 88.17 / 92.02          | eoj/morph             | 34.9123 / - | segmented by to-conll.py |
-| KLUE-RoBERTa-base              | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
+| KLUE-RoBERTa-base              | 88.97 / 92.74          | eoj/morph             | 35.0677 / - | segmented by to-conll.py |
 | KLUE-RoBERTa-large             | -     / -              | eoj/morph             | -       / - | segmented by to-conll.py |
 
 
@@ -3229,20 +3229,20 @@ $ cd data/klue; python ../../etc/token_eval.py < test.txt.pred ; cd ../..
 INFO:__main__:[token classification F1] : 0.8334647694153952, 5000
 INFO:__main__:[Elapsed Time] : 5000 examples, 165709.34796333313ms, 33.12553837671831ms on average
 accuracy:  96.92%; precision:  81.53%; recall:  85.25%; FB1:  83.35
-token level micro F1: 0.895993426642639
+char level micro F1: 0.895993426642639
 
 
 * KLUE-RoBERTa-base
 INFO:__main__:[token classification F1] : 0.842000137750534, 5000
 INFO:__main__:[Elapsed Time] : 5000 examples, 166681.09965324402ms, 33.31893542977089ms on average
 accuracy:  97.05%; precision:  82.71%; recall:  85.75%; FB1:  84.20
-token level micro F1: 0.9006345665357541
+char level micro F1: 0.9006345665357541
 
 * KLUE-RoBERTa-large
 INFO:__main__:[token classification F1] : 0.8580685186461708, 5000
 INFO:__main__:[Elapsed Time] : 5000 examples, 228947.60727882385ms, 45.76522103546381ms on average
 accuracy:  97.43%; precision:  84.35%; recall:  87.31%; FB1:  85.81
-token level micro F1: 0.9127928737180926
+char level micro F1: 0.9127928737180926
 
 * KoELECTRA-Base-v3, segmented
 INFO:__main__:[token classification F1] : 0.8817226890756302, 5000
@@ -3254,14 +3254,18 @@ token level micro F1: 0.9181545590840943
 $ cd data/klue; python to-char.py --file test.txt.pred > test.txt.pred.char; cd ../..
 $ cd data/klue; perl ../../etc/conlleval.pl < test.txt.pred.char ; cd ../..
 $ cd data/klue; python ../../etc/token_eval.py < test.txt.pred.char ; cd ../..
-
 accuracy:  97.57%; precision:  87.15%; recall:  89.22%; FB1:  88.17
-token level micro F1: 0.9202676812160063
+char level micro F1: 0.9202676812160063
 
 * KLUE-RoBERTa-base, segmented
+INFO:__main__:[token classification F1] : 0.8896767173294957, 5000
+INFO:__main__:[Elapsed Time] : 5000 examples, 175425.91190338135ms, 35.06772521496487ms on average
+accuracy:  97.95%; precision:  88.15%; recall:  89.80%; FB1:  88.97
+token level micro F1: 0.9233786340959917
 
 ** evaluation by character-level
-
+accuracy:  97.77%; precision:  88.15%; recall:  89.80%; FB1:  88.97
+char level micro F1: 0.9274341142020498
 
 * KLUE-RoBERTa-large, segmented
 
