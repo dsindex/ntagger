@@ -391,6 +391,7 @@ _ _ pt O
     - LM-KOR-ELECTRA : `electra-kor-base`
     - ELECTRA-base : `kor-electra-bpe.v1`, `kor-electra-base-dhaToken1.large`, `kor-electra-base-dhaSyllable` (inhouse)
     - RoBERTa-base : `kor-roberta-base-bbpe` (inhouse)
+    - MA-RoBERTa-base : `kor-roberta-base-morpheme-aware` (inhouse)
     - XLM-RoBERTa : `xlm-roberta-base`, `xlm-roberta-large`
     - KLUE-RoBERTa : `klue-roberta-base`, `klue-roberta-large`
     - Funnel-base : `funnel-kor-base`
@@ -1865,6 +1866,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | dhaToken1.large ELECTRA-base, BiLSTM-CRF | 86.90       | eoj      | 44.3714 / -    |          |           | slicing logits, freezing BERT during some epochs, https://github.com/dsindex/ntagger/releases/tag/v1.0 |
 | dhaSyllable ELECTRA-base, BiLSTM-CRF     | 86.31       | eoj      | 41.0562 / -    |          |           | subword pooling                  |
 | RoBERTa-base                             | 85.45       | eoj      | 15.6986 / -    |          |           |        |
+| MA-RoBERTa-base                          | 87.80       | eoj      | 15.7000 / -    |          |           |        |
 | XLM-RoBERTa-base                         | 86.84       | eoj      | 18.1326 / -    |          |           |        |
 | XLM-RoBERTa-large                        | 87.01       | eoj      | 35.9521 / -    |          |           |        |
 | KLUE-RoBERTa-base                        | 87.74       | eoj      | 17.3930 / -    |          |           |        |
@@ -2501,6 +2503,10 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-roberta-base-bbpe --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
 
+** MA-RoBERTa-base
+$ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-roberta-base-morpheme-aware
+$ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-roberta-base-morpheme-aware --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm   
+
 ** XLM-RoBERTa-base, XLM-RoBERTa-large
 $ python preprocess.py --config=configs/config-roberta.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/xlm-roberta-base
 $ python train.py --config=configs/config-roberta.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/xlm-roberta-base --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=30 --data_dir data/clova2019 --bert_disable_lstm  --warmup_epoch=0 --weight_decay=0.0 
@@ -2619,11 +2625,19 @@ accuracy:  94.25%; precision:  86.86%; recall:  85.77%; FB1:  86.31
 
 $ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
 $ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
-
 INFO:__main__:[F1] : 0.8556474298866252, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 892125.4014968872ms, 99.12149309250948ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 1671.3252067565918ms, 15.69863280864677ms on average
 accuracy:  94.02%; precision:  85.59%; recall:  85.32%; FB1:  85.45
+
+** MA-RoBERTa-base
+
+$ python evaluate.py --config=configs/config-roberta.json --model_path=pytorch-model-bert-kor-eoj.pt --data_dir data/clova2019 --bert_output_dir=bert-checkpoint-kor-eoj --bert_disable_lstm
+$ cd data/clova2019; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
+INFO:__main__:[token classification F1] : 0.8793426111810541, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 892001.630783081ms, 99.09754653071838ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1739.4590377807617ms, 15.700003113409485ms on average
+accuracy:  94.89%; precision:  87.75%; recall:  87.86%; FB1:  87.80
 
 ** XLM-RoBERTa-base, XLM-RoBERTa-large
 
