@@ -3215,7 +3215,7 @@ token eval micro F1: 0.8819225186670456
 | KLUE-RoBERTa-large             | 85.81 / 91.27          | char                  | 45.7652 / - |               |
 | KoELECTRA-Base-v3              | 88.17 / 92.02          | eoj/morph             | 34.9123 / - | segmented by to-conll.py |
 | KLUE-RoBERTa-base              | 88.97 / 92.74          | eoj/morph             | 35.0677 / - | segmented by to-conll.py |
-| KLUE-RoBERTa-large             | **89.69 / 93.19**      | eoj/morph             | 49.4650 / - | segmented by to-conll.py |
+| KLUE-RoBERTa-large             | **89.69 (macro 88.82) / 93.19**  | eoj/morph   | 49.4650 / - | segmented by to-conll.py |
 
 
 <details><summary><b>emb_class=electra / roberta, enc_class=bilstm</b></summary>
