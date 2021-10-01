@@ -534,7 +534,7 @@ def train(args):
 
         total_batch_size = args.batch_size * accelerator.num_processes * args.gradient_accumulation_steps
         logger.info("***** Running training *****")
-        logger.info(f"  Num examples = {len(train_loader)}")
+        logger.info(f"  Num examples(batches) per epoch = {len(train_loader)}")
         logger.info(f"  Num Epochs = {args.epoch}")
         logger.info(f"  Instantaneous batch size per device = {args.batch_size}")
         logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
@@ -603,7 +603,7 @@ def hp_search_optuna(trial: optuna.Trial):
 
         total_batch_size = args.batch_size * accelerator.num_processes * args.gradient_accumulation_steps
         logger.info("***** Running training *****")
-        logger.info(f"  Num examples = {len(train_loader)}")
+        logger.info(f"  Num examples(batches) per epoch = {len(train_loader)}")
         logger.info(f"  Num Epochs = {args.epoch}")
         logger.info(f"  Instantaneous batch size per device = {args.batch_size}")
         logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
