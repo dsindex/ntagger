@@ -5,7 +5,7 @@ import torch
 
 def load_checkpoint(model_path, device='cuda'):
     if device == 'cpu':
-        checkpoint = torch.load(model_path, map_location=lambda storage, loc: storage)
+        checkpoint = torch.load(model_path, map_location=torch.device(device))
     else:
         checkpoint = torch.load(model_path)
     return checkpoint
