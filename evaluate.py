@@ -79,7 +79,10 @@ def load_model(config, checkpoint):
                            feature_based=args.bert_use_feature_based,
                            use_mtl=args.bert_use_mtl)
     model.load_state_dict(checkpoint)
-    model = model.to(args.device)
+    if args.use_fp16:
+        model = model.half().to(args.device)
+    else:
+        model = model.to(args.device)
     logger.info("[Loaded]")
     return model
 
@@ -510,6 +513,7 @@ def main():
     parser.add_argument('--use_ncrf', action='store_true', help="Use NCRF instead of pytorch-crf.")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
+    parser.add_argument('--use_fp16', action='store_true', help="Use half precision inference.")
     # for BERT
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The checkpoint directory of fine-tuned BERT model.")
