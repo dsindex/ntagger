@@ -513,7 +513,7 @@ def main():
     parser.add_argument('--use_ncrf', action='store_true', help="Use NCRF instead of pytorch-crf.")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
-    parser.add_argument('--use_fp16', action='store_true', help="Use half precision inference.")
+    parser.add_argument('--use_fp16', action='store_true', help="Use half precision to load model.")
     # for BERT
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The checkpoint directory of fine-tuned BERT model.")
