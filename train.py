@@ -153,7 +153,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                             if not os.path.exists(args.bert_output_dir):
                                 os.makedirs(args.bert_output_dir)
                             unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
-                            unwrapped_model.bert_model.save_pretrained(args.bert_output_dir)
+                            unwrapped_model.bert_model.save_pretrained(args.bert_output_dir, save_function=accelerator.save, state_dict=accelerator.get_state_dict(model))
                             logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
         # back-propagation - end
         train_loss += loss.item()
@@ -182,7 +182,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                     if not os.path.exists(args.bert_output_dir):
                         os.makedirs(args.bert_output_dir)
                     unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
-                    unwrapped_model.bert_model.save_pretrained(args.bert_output_dir)
+                    unwrapped_model.bert_model.save_pretrained(args.bert_output_dir, save_function=accelerator.save, state_dict=accelerator.get_state_dict(model))
                     logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
 
     curr_time = time.time()
