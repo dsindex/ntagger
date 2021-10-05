@@ -524,6 +524,7 @@ def train(args):
         # create secondary optimizer, scheduler
         _, optimizer_2nd, scheduler_2nd, _= prepare_others(config, model, train_loader, lr=args.bert_lr_during_freezing)
         train_loader = accelerator.prepare(train_loader)
+        valid_loader = accelerator.prepare(valid_loader)
 
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
@@ -592,6 +593,7 @@ def hp_search_optuna(trial: optuna.Trial):
         # create secondary optimizer, scheduler
         _, optimizer_2nd, scheduler_2nd, _ = prepare_others(config, model, train_loader, lr=args.bert_lr_during_freezing)
         train_loader = accelerator.prepare(train_loader)
+        valid_loader = accelerator.prepare(valid_loader)
 
         config['optimizer'] = optimizer
         config['scheduler'] = scheduler
