@@ -438,7 +438,7 @@ def prepare_model(config):
                            feature_based=args.bert_use_feature_based,
                            use_mtl=args.bert_use_mtl)
     if args.restore_path:
-        checkpoint = load_checkpoint(args.restore_path)
+        checkpoint = load_checkpoint(args.restore_path, device='cpu')
         model.load_state_dict(checkpoint)
     logger.info("[model] :\n{}".format(model.__str__()))
     logger.info("[model prepared]")
@@ -508,7 +508,7 @@ def train(args):
     set_path(config)
 
     # create accelerator
-    accelerator = Accelerator()
+    accelerator = Accelerator(fp16=args.use_fp16)
     config['accelerator'] = accelerator
     args.device = accelerator.device
 
@@ -571,7 +571,7 @@ def hp_search_optuna(trial: optuna.Trial):
     set_path(config)
 
     # create accelerator
-    accelerator = Accelerator()
+    accelerator = Accelerator(fp16=args.use_fp16)
     config['accelerator'] = accelerator
     args.device = accelerator.device
 
@@ -663,6 +663,7 @@ def main():
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
     parser.add_argument('--local_rank', default=0, type=int)
+    parser.add_argument('--use_fp16', action='store_true', help="Use half precision to load model.")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")

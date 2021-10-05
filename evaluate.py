@@ -320,7 +320,7 @@ def evaluate(args):
     test_loader = prepare_datasets(config)
  
     # load pytorch model checkpoint
-    checkpoint = load_checkpoint(args.model_path, device=args.device)
+    checkpoint = load_checkpoint(args.model_path, device='cpu')
 
     # prepare model and load parameters
     model = load_model(config, checkpoint)
