@@ -663,7 +663,7 @@ def main():
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
     parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
     parser.add_argument('--local_rank', default=0, type=int)
-    parser.add_argument('--use_fp16', action='store_true', help="Use half precision to load model.")
+    parser.add_argument('--use_fp16', action='store_true', help="Use mixed precision training via torch.cuda.amp(inside Accelerate).")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
