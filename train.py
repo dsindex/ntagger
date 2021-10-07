@@ -141,10 +141,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
                     writer.add_scalar('F1/valid', eval_f1, global_step)
                     writer.add_scalar('LearningRate/train', curr_lr, global_step)
+                accelerator.wait_for_everyone()
                 if eval_f1 > best_eval_f1 and accelerator.is_main_process:
                     best_eval_f1 = eval_f1
                     if args.save_path and not args.hp_search_optuna:
-                        accelerator.wait_for_everyone()
                         unwrapped_model = accelerator.unwrap_model(model)
                         save_model(config, unwrapped_model)
                         logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
@@ -171,10 +171,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
         writer.add_scalar('LearningRate/train', curr_lr, global_step)
+    accelerator.wait_for_everyone()
     if eval_f1 > best_eval_f1 and accelerator.is_main_process:
         best_eval_f1 = eval_f1
         if args.save_path and not args.hp_search_optuna:
-            accelerator.wait_for_everyone()
             unwrapped_model = accelerator.unwrap_model(model)
             save_model(config, unwrapped_model)
             logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
