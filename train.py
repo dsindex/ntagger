@@ -65,7 +65,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
         g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
 
-    n_batches = len(train_loader)
 
     # train one epoch
     train_loss = 0.
@@ -73,7 +72,8 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     local_best_eval_f1 = 0
     st_time = time.time()
     optimizer.zero_grad()
-    epoch_iterator = tqdm(train_loader, total=len(train_loader), desc=f"Epoch {epoch_i}")
+    n_batches = len(train_loader)
+    epoch_iterator = tqdm(train_loader, total=n_batches, desc=f"Epoch {epoch_i}")
     for local_step, batch in enumerate(epoch_iterator):
         if config['emb_class'] not in ['glove', 'elmo']:
             x, y, gy = batch
@@ -81,7 +81,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             x, y = batch
 
         model.train()
-        global_step = (len(train_loader) * epoch_i) + local_step
+        global_step = (n_batches * epoch_i) + local_step
         gloss = 0.
         if args.use_crf:
             mask = torch.sign(torch.abs(x[1])).to(torch.uint8)
