@@ -69,7 +69,6 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
 
     # train one epoch
     train_loss = 0.
-    avg_loss = 0.
     local_best_eval_loss = float('inf')
     local_best_eval_f1 = 0
     st_time = time.time()
@@ -131,7 +130,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
             scheduler.step()
             curr_lr = scheduler.get_last_lr()[0] if scheduler else optimizer.param_groups[0]['lr']
             epoch_iterator.set_description(f"Process: {accelerator.process_index}, epoch: {epoch_i}, global_step: {global_step}, local_step: {local_step}, loss: {loss:.3f}, gloss: {gloss:.3f},curr_lr: {curr_lr:.7f}")
-            if accelerator.is_main_process and args.eval_and_save_steps > 0 and global_step != 0 and global_step % args.eval_and_save_steps == 0:
+            if args.eval_and_save_steps > 0 and global_step != 0 and global_step % args.eval_and_save_steps == 0:
                 # evaluate
                 eval_ret = evaluate(model, config, valid_loader)
                 eval_loss = eval_ret['loss']
@@ -142,9 +141,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
                     writer.add_scalar('F1/valid', eval_f1, global_step)
                     writer.add_scalar('LearningRate/train', curr_lr, global_step)
-                if eval_f1 > best_eval_f1:
+                if eval_f1 > best_eval_f1 and accelerator.is_main_process:
                     best_eval_f1 = eval_f1
                     if args.save_path and not args.hp_search_optuna:
+                        accelerator.wait_for_everyone()
                         unwrapped_model = accelerator.unwrap_model(model)
                         save_model(config, unwrapped_model)
                         logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
@@ -153,37 +153,38 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                             if not os.path.exists(args.bert_output_dir):
                                 os.makedirs(args.bert_output_dir)
                             unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
-                            unwrapped_model.bert_model.save_pretrained(args.bert_output_dir, save_function=accelerator.save, state_dict=accelerator.get_state_dict(model))
+                            unwrapped_model.bert_model.save_pretrained(args.bert_output_dir, save_function=accelerator.save)
                             logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
         # back-propagation - end
         train_loss += loss.item()
         if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
-    avg_loss = train_loss / n_batches
+
+    train_loss = train_loss / n_batches
 
     # evaluate at the end of epoch
-    if accelerator.is_main_process:
-        eval_ret = evaluate(model, config, valid_loader)
-        eval_loss = eval_ret['loss']
-        eval_f1 = eval_ret['f1']
-        if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
-        if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
-        if writer:
-            writer.add_scalar('Loss/valid', eval_loss, global_step)
-            writer.add_scalar('F1/valid', eval_f1, global_step)
-            writer.add_scalar('LearningRate/train', curr_lr, global_step)
-        if eval_f1 > best_eval_f1:
-            best_eval_f1 = eval_f1
-            if args.save_path and not args.hp_search_optuna:
-                unwrapped_model = accelerator.unwrap_model(model)
-                save_model(config, unwrapped_model)
-                logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
-                # save finetuned bert model/config/tokenizer
-                if config['emb_class'] not in ['glove', 'elmo']:
-                    if not os.path.exists(args.bert_output_dir):
-                        os.makedirs(args.bert_output_dir)
-                    unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
-                    unwrapped_model.bert_model.save_pretrained(args.bert_output_dir, save_function=accelerator.save, state_dict=accelerator.get_state_dict(model))
-                    logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
+    eval_ret = evaluate(model, config, valid_loader)
+    eval_loss = eval_ret['loss']
+    eval_f1 = eval_ret['f1']
+    if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
+    if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
+    if writer:
+        writer.add_scalar('Loss/valid', eval_loss, global_step)
+        writer.add_scalar('F1/valid', eval_f1, global_step)
+        writer.add_scalar('LearningRate/train', curr_lr, global_step)
+    if eval_f1 > best_eval_f1 and accelerator.is_main_process:
+        best_eval_f1 = eval_f1
+        if args.save_path and not args.hp_search_optuna:
+            accelerator.wait_for_everyone()
+            unwrapped_model = accelerator.unwrap_model(model)
+            save_model(config, unwrapped_model)
+            logger.info("[Best model saved] : {}, {}".format(eval_loss, eval_f1))
+            # save finetuned bert model/config/tokenizer
+            if config['emb_class'] not in ['glove', 'elmo']:
+                if not os.path.exists(args.bert_output_dir):
+                    os.makedirs(args.bert_output_dir)
+                unwrapped_model.bert_tokenizer.save_pretrained(args.bert_output_dir)
+                unwrapped_model.bert_model.save_pretrained(args.bert_output_dir, save_function=accelerator.save)
+                logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
 
     curr_time = time.time()
     elapsed_time = (curr_time - st_time) / 60
@@ -194,7 +195,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
         'epoch': epoch_i,
         'local_step': local_step+1,
         'epoch_step': len(train_loader),
-        'avg_loss': avg_loss,
+        'train_loss': train_loss,
         'local_best_eval_loss': local_best_eval_loss,
         'local_best_eval_f1': local_best_eval_f1,
         'best_eval_f1': best_eval_f1,
@@ -207,8 +208,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
 def evaluate(model, config, valid_loader):
     args = config['args']
     pad_label_id = config['pad_label_id']
+    accelerator = None
+    if 'accelerator' in config: accelerator = config['accelerator']
 
-    eval_loss = 0.
+    losses = []
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     n_batches = len(valid_loader)
@@ -275,10 +278,14 @@ def evaluate(model, config, valid_loader):
                     gpreds = np.append(gpreds, glogits, axis=0)
                     gys = np.append(gys, gy, axis=0)
 
-            eval_loss += loss.item()
+            # gathering loss across devices
+            if accelerator:
+                losses.append(accelerator.gather(loss))
+            else:
+                losses.append(loss)
 
     # generate report for token classification
-    eval_loss = eval_loss / n_batches
+    eval_loss = torch.mean(torch.tensor(losses)).item()
     if not args.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = config['labels']
