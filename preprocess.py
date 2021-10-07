@@ -136,10 +136,10 @@ def build_vocab_from_embedding(input_path, vocab, config):
     # build embedding as numpy array
     embedding = []
     # <pad>
-    vector = np.array([float(0) for i in range(config['token_emb_dim'])]).astype(np.float)
+    vector = np.array([float(0) for i in range(config['token_emb_dim'])]).astype(float)
     embedding.append(vector)
     # <unk>
-    vector = np.array([random.random() for i in range(config['token_emb_dim'])]).astype(np.float)
+    vector = np.array([random.random() for i in range(config['token_emb_dim'])]).astype(float)
     embedding.append(vector)
     tot_num_line = sum(1 for _ in open(input_path, 'r'))
     tid = len(vocab)
@@ -147,7 +147,7 @@ def build_vocab_from_embedding(input_path, vocab, config):
         for idx, line in enumerate(tqdm(f, total=tot_num_line)):
             toks = line.strip().split()
             word = toks[0]
-            vector = np.array(toks[1:]).astype(np.float)
+            vector = np.array(toks[1:]).astype(float)
             assert(config['token_emb_dim'] == len(vector))
             vocab[word] = tid
             embedding.append(vector)
