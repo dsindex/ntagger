@@ -26,8 +26,9 @@ from tqdm import tqdm
 
 from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
 from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
-from util    import load_checkpoint, load_config, load_dict, EarlyStopping, LabelSmoothingCrossEntropy
+from util    import load_checkpoint, load_config, load_dict, EarlyStopping
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
+from loss    import LabelSmoothingCrossEntropy
 from transformers import AutoTokenizer, AutoConfig, AutoModel
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 import optuna
