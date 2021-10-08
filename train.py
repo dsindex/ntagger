@@ -284,8 +284,12 @@ def evaluate(model, config, valid_loader):
             else:
                 losses.append(loss)
 
-    # generate report for token classification
+    # aggregating losses
     eval_loss = torch.mean(torch.tensor(losses)).item()
+
+    # generate report for token classification
+    if accelerator:
+        print(f"Process: {accelerator.process_index}")
     if not args.use_crf: preds = np.argmax(preds, axis=2)
     # compute measure using seqeval
     labels = config['labels']
