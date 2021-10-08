@@ -135,12 +135,12 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                 eval_ret = evaluate(model, config, valid_loader)
                 eval_loss = eval_ret['loss']
                 eval_f1 = eval_ret['f1']
-                if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
-                if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
-                if writer:
+                if writer and accelerator.is_main_process:
                     writer.add_scalar('Loss/valid', eval_loss, global_step)
                     writer.add_scalar('F1/valid', eval_f1, global_step)
                     writer.add_scalar('LearningRate/train', curr_lr, global_step)
+                if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
+                if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
                 accelerator.wait_for_everyone()
                 if eval_f1 > best_eval_f1 and accelerator.is_main_process:
                     best_eval_f1 = eval_f1
@@ -157,7 +157,7 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                             logger.info("[Pretrained bert model saved] : {}, {}".format(eval_loss, eval_f1))
         # back-propagation - end
         train_loss += loss.item()
-        if writer: writer.add_scalar('Loss/train', loss.item(), global_step)
+        if writer and accelerator.is_main_process: writer.add_scalar('Loss/train', loss.item(), global_step)
 
     train_loss = train_loss / n_batches
 
@@ -165,12 +165,12 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     eval_ret = evaluate(model, config, valid_loader)
     eval_loss = eval_ret['loss']
     eval_f1 = eval_ret['f1']
-    if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
-    if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
-    if writer:
+    if writer and accelerator.is_main_process:
         writer.add_scalar('Loss/valid', eval_loss, global_step)
         writer.add_scalar('F1/valid', eval_f1, global_step)
         writer.add_scalar('LearningRate/train', curr_lr, global_step)
+    if local_best_eval_loss > eval_loss: local_best_eval_loss = eval_loss
+    if local_best_eval_f1 < eval_f1: local_best_eval_f1 = eval_f1
     accelerator.wait_for_everyone()
     if eval_f1 > best_eval_f1 and accelerator.is_main_process:
         best_eval_f1 = eval_f1
@@ -253,7 +253,7 @@ def evaluate(model, config, valid_loader):
                     logits = model(x)
                 loss = criterion(logits.view(-1, config['label_size']), y.view(-1))
                 loss = loss + gloss
-                # softmax after computing cross entropy loss
+                # softmax after computing loss
                 logits = torch.softmax(logits, dim=-1)
                 logits = logits.cpu().numpy()
 
