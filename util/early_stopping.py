@@ -4,7 +4,7 @@
 
 class EarlyStopping():
 
-    def __init__(self, logger, patience=0, measure='loss', verbose=0):
+    def __init__(self, logger, patience=0, measure='loss', process_index=0, verbose=0):
         """Set early stopping condition
 
         Args:
@@ -19,6 +19,7 @@ class EarlyStopping():
             self._value = 0
         self.logger = logger
         self.patience  = patience
+        self.process_index = process_index
         self.verbose = verbose
 
     def reset(self, value):
@@ -26,7 +27,7 @@ class EarlyStopping():
         self._value = value
 
     def status(self):
-        self.logger.info('EarlyStopping Status: _step / patience = %d / %d, value = %f' % (self._step, self.patience, self._value))
+        self.logger.info(f"EaryStopping Status[process_index {self.process_index}]: _steps / patience = {self._step} / {self.patience}, value = {self._value}")
 
     def step(self):
         return self._step
