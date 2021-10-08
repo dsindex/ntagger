@@ -9,6 +9,7 @@ import random
 
 from torchcrf import CRF
 from .crf import CRF as NCRF
+from .isomax import IsoMax
 
 class BaseModel(nn.Module):
     def __init__(self, config=None):
@@ -287,6 +288,8 @@ class GloveLSTMCRF(BaseModel):
         # projection layer
         self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
+        if self.config['args'].use_isomax:
+            self.linear = IsoMax(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -425,6 +428,8 @@ class GloveDensenetCRF(BaseModel):
         # projection layer
         self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
+        if self.config['args'].use_isomax:
+            self.linear = IsoMax(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -615,6 +620,8 @@ class BertLSTMCRF(BaseModel):
         # projection layer
         self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
+        if self.config['args'].use_isomax:
+            self.linear = IsoMax(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:
@@ -883,6 +890,8 @@ class ElmoLSTMCRF(BaseModel):
         # projection layer
         self.label_size = label_size
         self.linear = nn.Linear(self.mha_dim, self.label_size)
+        if self.config['args'].use_isomax:
+            self.linear = IsoMax(self.mha_dim, self.label_size)
 
         # CRF layer
         if self.use_crf:

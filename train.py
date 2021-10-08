@@ -28,7 +28,7 @@ from seqeval.metrics import precision_score, recall_score, f1_score, classificat
 from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
 from util    import load_checkpoint, load_config, load_dict, EarlyStopping
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
-from loss    import LabelSmoothingCrossEntropy
+from loss    import LabelSmoothingCrossEntropy, IsoMaxLoss
 from transformers import AutoTokenizer, AutoConfig, AutoModel
 from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
 import optuna
@@ -62,6 +62,10 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
     if args.criterion == 'LabelSmoothingCrossEntropy':
         criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
         g_criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
+    elif args.criterion == 'IsoMaxLoss':
+        assert(not args.use_crf)
+        criterion = IsoMaxLoss(model.linear)
+        g_criterion = IsoMaxLoss(model.linear)
     else:
         criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
         g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
@@ -673,9 +677,10 @@ def main():
     parser.add_argument('--embedding_trainable', action='store_true', help="Set word embedding(Glove) trainable.")
     parser.add_argument('--use_char_cnn', action='store_true', help="Add Character features.")
     parser.add_argument('--use_mha', action='store_true', help="Add Multi-Head Attention layer.")
-    parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy', default 'CrossEntropyLoss'")
+    parser.add_argument('--criterion', type=str, default='CrossEntropyLoss', help="training objective, 'CrossEntropyLoss' | 'LabelSmoothingCrossEntropy' | 'IsoMaxLoss', default 'CrossEntropyLoss'")
     parser.add_argument('--local_rank', default=0, type=int)
     parser.add_argument('--use_fp16', action='store_true', help="Use mixed precision training via torch.cuda.amp(inside Accelerate).")
+    parser.add_argument('--use_isomax', action='store_true', help="Use IsoMax layer instead of Linear.")
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
