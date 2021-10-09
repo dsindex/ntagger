@@ -12,7 +12,8 @@ tensorboardX
 seqeval
 sklearn
 pytorch-crf
-transformers[sentencepiece]
+transformers
+sentencepiece
 datasets
 accelerate==0.4.0
 deepspeed==0.4.0
