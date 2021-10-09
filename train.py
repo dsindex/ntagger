@@ -215,10 +215,20 @@ def evaluate(model, config, valid_loader):
     accelerator = None
     if 'accelerator' in config: accelerator = config['accelerator']
 
+    if args.criterion == 'LabelSmoothingCrossEntropy':
+        criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
+        g_criterion = LabelSmoothingCrossEntropy(ignore_index=pad_label_id, reduction='sum')
+    elif args.criterion == 'IsoMaxLoss':
+        assert(not args.use_crf)
+        criterion = IsoMaxLoss(model.linear)
+        g_criterion = IsoMaxLoss(model.linear)
+    else:
+        criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
+        g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
+
+    # auroc for token classification
     auroc = AUROC(num_classes=len(config['labels']))
     losses = []
-    criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
-    g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     n_batches = len(valid_loader)
     preds = None
     ys    = None
@@ -248,7 +258,7 @@ def evaluate(model, config, valid_loader):
                     log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                     loss = -1 * log_likelihood
                 loss = loss + gloss
-                # auroc
+                # auroc for token classification
                 auroc.update(logits, y)
                 logits = logits.cpu().numpy()
                 prediction = prediction.cpu().numpy()
@@ -262,7 +272,7 @@ def evaluate(model, config, valid_loader):
                 loss = loss + gloss
                 # softmax after computing loss
                 logits = torch.softmax(logits, dim=-1)
-                # auroc
+                # auroc for token classification
                 auroc.update(logits, y)
                 logits = logits.cpu().numpy()
 
@@ -317,7 +327,7 @@ def evaluate(model, config, valid_loader):
         "report": classification_report(ys_lbs, preds_lbs, digits=4),
     }
     print(ret['report'])
-    print("AUROC: ", auroc.compute())
+    print("AUROC(token classification): ", auroc.compute())
 
     # generate report for sequence classification
     if args.bert_use_mtl:
