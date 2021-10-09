@@ -13,26 +13,25 @@ import torch.nn.functional as F
 import torch.optim as optim
 from accelerate import Accelerator
 from transformers import AdamW, get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
-
+from transformers import AutoTokenizer, AutoConfig, AutoModel
+from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
+from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
+from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
+from torchmetrics import AUROC
+from datasets.metric import temp_seed 
+import optuna
 try:
     from torch.utils.tensorboard import SummaryWriter
 except ImportError:
     pass
-
 import numpy as np
 import random
 import json
 from tqdm import tqdm
 
-from seqeval.metrics import precision_score, recall_score, f1_score, classification_report
-from sklearn.metrics import classification_report as sequence_classification_report, confusion_matrix
 from util    import load_checkpoint, load_config, load_dict, EarlyStopping
 from model   import GloveLSTMCRF, GloveDensenetCRF, BertLSTMCRF, ElmoLSTMCRF
 from loss    import LabelSmoothingCrossEntropy, IsoMaxLoss
-from transformers import AutoTokenizer, AutoConfig, AutoModel
-from dataset import prepare_dataset, CoNLLGloveDataset, CoNLLBertDataset, CoNLLElmoDataset
-import optuna
-from datasets.metric import temp_seed 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -216,6 +215,7 @@ def evaluate(model, config, valid_loader):
     accelerator = None
     if 'accelerator' in config: accelerator = config['accelerator']
 
+    auroc = AUROC(num_classes=len(config['labels']))
     losses = []
     criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
     g_criterion = nn.CrossEntropyLoss(ignore_index=pad_label_id)
@@ -248,6 +248,8 @@ def evaluate(model, config, valid_loader):
                     log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
                     loss = -1 * log_likelihood
                 loss = loss + gloss
+                # auroc
+                auroc.update(logits, y)
                 logits = logits.cpu().numpy()
                 prediction = prediction.cpu().numpy()
             else:
@@ -260,6 +262,8 @@ def evaluate(model, config, valid_loader):
                 loss = loss + gloss
                 # softmax after computing loss
                 logits = torch.softmax(logits, dim=-1)
+                # auroc
+                auroc.update(logits, y)
                 logits = logits.cpu().numpy()
 
             y = y.cpu().numpy()
@@ -313,6 +317,7 @@ def evaluate(model, config, valid_loader):
         "report": classification_report(ys_lbs, preds_lbs, digits=4),
     }
     print(ret['report'])
+    print("AUROC: ", auroc.compute())
 
     # generate report for sequence classification
     if args.bert_use_mtl:

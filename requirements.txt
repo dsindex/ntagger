@@ -23,4 +23,5 @@ deepspeed==0.4.0
 optuna
 onnx
 onnxruntime
+torchmetrics
 # parallelformers
