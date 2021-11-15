@@ -385,7 +385,7 @@ def preprocess_bert(config):
         path = os.path.join(args.data_dir, _EMBED_FILE)
         write_embedding(embedding, path)
 
-    tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path, revision=args.bert_revision)
     # build poss, chars, labels, glabels
     path = os.path.join(args.data_dir, _TRAIN_FILE)
     poss, chars, labels, glabels = build_dict(path, config)
@@ -429,6 +429,7 @@ def main():
     # for BERT
     parser.add_argument("--bert_model_name_or_path", type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
+    parser.add_argument('--bert_revision', type=str, default='main')
     parser.add_argument('--bert_use_sub_label', action='store_true',
                         help="Set this flag to use sub label instead of using pad label for sub tokens.")
     parser.add_argument('--bert_use_subword_pooling', action='store_true',

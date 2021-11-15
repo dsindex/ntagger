@@ -65,8 +65,8 @@ def load_model(config, checkpoint):
                             emb_non_trainable=True, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                             use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     else:
-        bert_config = AutoConfig.from_pretrained(args.bert_output_dir)
-        bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_output_dir)
+        bert_config = AutoConfig.from_pretrained(args.bert_output_dir, revision=args.bert_revision)
+        bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_output_dir, revision=args.bert_revision)
         bert_model = AutoModel.from_config(bert_config)
         ModelClass = BertLSTMCRF
         model = ModelClass(config, bert_config, bert_model, bert_tokenizer, label_size, glabel_size, pos_size,
@@ -518,6 +518,7 @@ def main():
     # for BERT
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The checkpoint directory of fine-tuned BERT model.")
+    parser.add_argument('--bert_revision', type=str, default='main')
     parser.add_argument('--bert_use_feature_based', action='store_true',
                         help="Use BERT as feature-based, default fine-tuning")
     parser.add_argument('--bert_disable_lstm', action='store_true',

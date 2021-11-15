@@ -452,8 +452,8 @@ def prepare_model(config):
                             emb_non_trainable=emb_non_trainable, use_crf=args.use_crf, use_ncrf=args.use_ncrf,
                             use_char_cnn=args.use_char_cnn, use_mha=args.use_mha)
     else:
-        bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path)
-        bert_model = AutoModel.from_pretrained(args.bert_model_name_or_path,
+        bert_tokenizer = AutoTokenizer.from_pretrained(args.bert_model_name_or_path, revision=args.bert_revision)
+        bert_model = AutoModel.from_pretrained(args.bert_model_name_or_path, revision=args.bert_revision,
                                                from_tf=bool(".ckpt" in args.bert_model_name_or_path))
         bert_config = bert_model.config
         # bert model reduction
@@ -700,6 +700,7 @@ def main():
     # for BERT
     parser.add_argument('--bert_model_name_or_path', type=str, default='bert-base-uncased',
                         help="Path to pre-trained model or shortcut name(ex, bert-base-uncased)")
+    parser.add_argument('--bert_revision', type=str, default='main')
     parser.add_argument('--bert_output_dir', type=str, default='bert-checkpoint',
                         help="The output directory where the BERT model checkpoints will be written.")
     parser.add_argument('--bert_use_feature_based', action='store_true',
