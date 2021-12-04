@@ -384,6 +384,7 @@ _ _ pt O
     - bpe BERT : `kor-bert-base-bpe.v1`, `kor-bert-large-bpe.v1, v3` (inhouse)
     - dha-bpe BERT : `kor-bert-base-dha_bpe.v1, v3`, `kor-bert-large-dha_bpe.v1, v3` (inhouse)
     - dha BERT : `kor-bert-base-dha.v1, v2` (inhouse)
+    - MA-BERT-base : `kor-bert-base-morpheme-aware` (inhouse)
     - KcBERT : `kcbert-base`, `kcbert-large`
     - DistilBERT : `kor-distil-bpe-bert.v1`, `kor-distil-dha-bert.v1`, `kor-distil-wp-bert.v1` (inhouse)
     - mDistilBERT : `distilbert-base-multilingual-cased`
@@ -1391,7 +1392,7 @@ accuracy:  98.73%; precision:  93.48%; recall:  94.25%; FB1:  93.86
 # preprocessing
 $ python preprocess.py --config=configs/config-roberta.json --data_dir=data/conll2003 --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_use_doc_context --bert_doc_context_option=2 --bert_use_subword_pooling --bert_use_word_embedding
 # train
-$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=8 --lr=1e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --use_crf --eval_batch_size=32 --patience=4 --bert_freezing_epoch=1 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000
+$ python train.py --config=configs/config-roberta.json --data_dir=data/conll2003 --save_path=pytorch-model-roberta.pt --bert_model_name_or_path=./embeddings/xlm-roberta-large --bert_output_dir=bert-checkpoint-roberta --batch_size=8 --lr=1e-5 --epoch=30 --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --use_crf --eval_batch_size=32 --patience=4 --bert_freezing_epoch=1 --bert_lr_during_freezing=1e-3 --eval_steps=1000
 # evaluate
 $ python evaluate.py --config=configs/config-roberta.json --data_dir=data/conll2003 --model_path=pytorch-model-roberta.pt --bert_output_dir=bert-checkpoint-roberta --bert_use_doc_context --bert_use_subword_pooling --bert_use_word_embedding --use_crf
 $ cd data/conll2003; perl ../../etc/conlleval.pl < test.txt.pred ; cd ../..
@@ -1850,6 +1851,7 @@ accuracy:  83.04%; precision:  59.96%; recall:  63.03%; FB1:  61.46
 | bpe BERT-large(v1)                       | 85.99       | eoj      | 30.7513 / -    |          |           |        |
 | bpe BERT-large(v1), BiLSTM               | 85.82       | eoj      | 32.0083 / -    |          |           | freezing BERT during some epochs |
 | bpe BERT-large(v3)                       | 85.89       | eoj      | 27.4264 / -    |          |           |        |
+| MA-BERT-base                             | 86.40       | eoj      | 13.3906 / -    |          |           |        |
 | KcBERT-base, BiLSTM                      | 84.76       | eoj      | 15.0553 / -    |          |           |        |
 | KcBERT-base, CRF                         | 83.32       | eoj      | 31.8019 / -    |          |           |        |
 | KcBERT-base                              | 84.72       | eoj      | 13.3129 / -    |          |           |        |
@@ -2075,7 +2077,7 @@ accuracy:  93.66%; precision:  84.25%; recall:  83.68%; FB1:  83.96
 * for clova2019
 
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-bert-base-bpe.v1
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-bert-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf --eval_and_save_steps=1000
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-bert-base-bpe.v1 --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=5e-5 --epoch=20 --data_dir data/clova2019 --use_crf --eval_steps=1000
 
 ```
 
@@ -2092,21 +2094,21 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 409696.9916820526ms, 45.5127833538
 INFO:__main__:[Elapsed Time] : 100 examples, 4773.615837097168ms, 46.938994918206724ms on average
 accuracy:  94.33%; precision:  86.17%; recall:  86.52%; FB1:  86.34
 
-** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000
+** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000
 INFO:__main__:[F1] : 0.872042113153546, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 368655.66992759705ms, 40.952059067226884ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 4002.8138160705566ms, 39.17879769296357ms on average
 accuracy:  94.64%; precision:  87.33%; recall:  87.02%; FB1:  87.17
 
 ** using sub token label, --bert_use_sub_label
-*** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000
+*** --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000
 INFO:__main__:[F1] : 0.867761275378117, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 371622.62415885925ms, 41.28106700962074ms on average
 NFO:__main__:[Elapsed Time] : 100 examples, 3990.586280822754ms, 39.05752692559753ms on average
 accuracy:  94.63%; precision:  87.15%; recall:  86.84%; FB1:  86.99
 
 ** slicing logits
-*** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000
+*** --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000
 # https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8755258093632384, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 378671.01287841797ms, 42.06319689313522ms on average
@@ -2208,6 +2210,12 @@ INFO:__main__:[F1] : 0.8650133979621444, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 986830.237865448ms, 109.64403990732721ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 2811.2776279449463ms, 26.963908262927124ms on average
 accuracy:  94.31%; precision:  86.53%; recall:  86.16%; FB1:  86.34
+
+** --bert_model_name_or_path=./embeddings/kor-bert-base-morpheme-aware --bert_disable_lstm --lr=1e-5 --batch_size=32
+INFO:__main__:[token classification F1] : 0.8653039030772628, 9000
+INFO:__main__:[Elapsed Time] : 9000 examples, 839997.5206851959ms, 93.29389646220491ms on average
+INFO:__main__:[Elapsed Time] : 100 examples, 1754.4901371002197ms, 13.3906759396948ms on average
+accuracy:  94.34%; precision:  86.23%; recall:  86.57%; FB1:  86.40
 
 ```
 
@@ -2489,11 +2497,11 @@ $ python train.py --config=configs/config-bert.json --save_path=pytorch-model-be
 ** dhaToken1.large ELECTRA-base
 # https://github.com/dsindex/ntagger/releases/tag/v1.0
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --warmup_epoch=0 --weight_decay=0.0 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-dhaToken1.large --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --warmup_epoch=0 --weight_decay=0.0 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000 
 
 ** dhaSyllable ELECTRA-base
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/kor-electra-base-dhaSyllable --bert_use_subword_pooling
-$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-dhaSyllable --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --warmup_epoch=0 --weight_decay=0.0 --use_crf --bert_use_subword_pooling --eval_and_save_steps=1000 
+$ python train.py --config=configs/config-bert.json --save_path=pytorch-model-bert-kor-eoj.pt --bert_model_name_or_path=./embeddings/kor-electra-base-dhaSyllable --bert_output_dir=bert-checkpoint-kor-eoj --batch_size=32 --lr=8e-5 --epoch=30 --data_dir data/clova2019 --warmup_epoch=0 --weight_decay=0.0 --use_crf --bert_use_subword_pooling --eval_steps=1000 
 
 ** LM-KOR-ELECTRA
 $ python preprocess.py --config=configs/config-bert.json --data_dir data/clova2019 --bert_model_name_or_path=./embeddings/electra-kor-base
@@ -2552,21 +2560,21 @@ INFO:__main__:[Elapsed Time] : 9000 examples, 878765.2859687805ms, 97.6422616992
 INFO:__main__:[Elapsed Time] : 100 examples, 1558.605432510376ms, 14.81159528096517ms on average
 accuracy:  94.70%; precision:  86.67%; recall:  87.95%; FB1:  87.31
 
-*** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+*** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000 , without --bert_disable_lstm
 INFO:__main__:[F1] : 0.8784531327126347, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 377629.4982433319ms, 41.94557212408231ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 4139.477491378784ms, 40.46985838148329ms on average
 accuracy:  94.84%; precision:  87.78%; recall:  87.73%; FB1:  87.76
 
 *** using sub token label, --bert_use_sub_label
-**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000 , without --bert_disable_lstm
 INFO:__main__:[F1] : 0.874318247875669, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 375233.0663204193ms, 41.67938974250991ms on average
 INFO:__main__:[Elapsed Time] : 100 examples, 4068.805932998657ms, 39.803909532951586ms on average
 accuracy:  94.70%; precision:  87.71%; recall:  86.93%; FB1:  87.32
 
 *** slicing logits
-**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000 , without --bert_disable_lstm
 # https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8827849438546868, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 398727.7433872223ms, 44.294040061882015ms on average
@@ -2574,7 +2582,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 4092.3564434051514ms, 40.0855926552
 accuracy:  94.92%; precision:  88.19%; recall:  88.07%; FB1:  88.13
 
 *** subword pooling
-**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_subword_pooling --eval_and_save_steps=1000 , without --bert_disable_lstm
+**** --bert_model_name_or_path=./embeddings/koelectra-base-v3-discriminator --lr=8e-5 --epoch=30 --use_crf --bert_use_subword_pooling --eval_steps=1000 , without --bert_disable_lstm
 INFO:__main__:[F1] : 0.8789345427469033, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 423700.3529071808ms, 47.06374085311135ms on average
 accuracy:  94.94%; precision:  87.50%; recall:  88.29%; FB1:  87.89
@@ -2588,7 +2596,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 1798.86794090271ms, 17.154578006628
 accuracy:  94.75%; precision:  87.38%; recall:  87.39%; FB1:  87.39
 
 *** slicing logits
-*** --bert_model_name_or_path=./embeddings/electra-kor-base  --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+*** --bert_model_name_or_path=./embeddings/electra-kor-base  --lr=8e-5 --epoch=30 --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000 , without --bert_disable_lstm
 # https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8761777503683147, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 372020.70689201355ms, 41.32575471608662ms on average
@@ -2691,7 +2699,7 @@ INFO:__main__:[Elapsed Time] : 100 examples, 4384.497880935669ms, 42.92876551849
 accuracy:  94.98%; precision:  87.87%; recall:  88.06%; FB1:  87.97
 
 *** slicing logits
-*** --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_and_save_steps=1000 , without --bert_disable_lstm
+*** --use_crf --bert_use_crf_slice --bert_freezing_epoch=4 --bert_lr_during_freezing=1e-3 --eval_steps=1000 , without --bert_disable_lstm
 # https://github.com/dsindex/ntagger/releases/tag/v1.0
 INFO:__main__:[F1] : 0.8805391055748417, 9000
 INFO:__main__:[Elapsed Time] : 9000 examples, 605362.9877567291ms, 67.25383387736339ms on average

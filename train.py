@@ -259,7 +259,7 @@ def evaluate(model, config, valid_loader):
                     loss = -1 * log_likelihood
                 loss = loss + gloss
                 # auroc for token classification
-                auroc.update(logits, y)
+                auroc.update(logits.view(-1, config['label_size']), y.view(-1))
                 logits = logits.cpu().numpy()
                 prediction = prediction.cpu().numpy()
             else:
@@ -273,7 +273,7 @@ def evaluate(model, config, valid_loader):
                 # softmax after computing loss
                 logits = torch.softmax(logits, dim=-1)
                 # auroc for token classification
-                auroc.update(logits, y)
+                auroc.update(logits.view(-1, config['label_size']), y.view(-1))
                 logits = logits.cpu().numpy()
 
             y = y.cpu().numpy()
