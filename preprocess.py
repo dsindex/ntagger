@@ -303,9 +303,9 @@ def preprocess_glove_or_elmo(config):
     init_vocab = build_init_vocab(config)
     vocab, embedding = build_vocab_from_embedding(args.embedding_path, init_vocab, config)
 
-    # build poss, chars, labels
+    # build poss, chars, labels, glabels(useless but...)
     path = os.path.join(args.data_dir, _TRAIN_FILE)
-    poss, chars, labels, _ = build_dict(path, config)
+    poss, chars, labels, glabels = build_dict(path, config)
 
     tokenizer = Tokenizer(vocab, config)
 
@@ -319,7 +319,7 @@ def preprocess_glove_or_elmo(config):
     path = os.path.join(args.data_dir, _TEST_FILE)
     test_data = build_data(path, tokenizer)
 
-    # write data, vocab, embedding, poss, labels
+    # write data, vocab, embedding, poss, labels, glabels(useless but...)
     path = os.path.join(args.data_dir, _TRAIN_FILE + _SUFFIX)
     write_data(args, train_data, path, tokenizer, poss, labels)
 
@@ -340,6 +340,9 @@ def preprocess_glove_or_elmo(config):
 
     path = os.path.join(args.data_dir, _LABEL_FILE)
     write_dict(labels, path)
+
+    path = os.path.join(args.data_dir, _GLABEL_FILE)
+    write_dict(glabels, path)
 
 # ---------------------------------------------------------------------------- #
 # BERT
