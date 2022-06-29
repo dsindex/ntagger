@@ -8,7 +8,7 @@ torch
 # pip install torch==1.7.1+cu110 -f https://download.pytorch.org/whl/torch_stable.html
 allennlp==0.9.0
 # allennlp==0.9.0 for 1.8.1+cu101
-# allennlp for 1.9.1+cu102
+# allennlp otherwise
 tqdm
 tensorboardX
 seqeval
