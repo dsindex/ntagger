@@ -7,7 +7,8 @@ import torch.nn.functional as F
 import numpy as np
 import random
 
-from torchcrf import CRF
+#from torchcrf import CRF
+from .crf_for_onnx import CRF
 from .crf import CRF as NCRF
 from .isomax import IsoMax
 
@@ -364,7 +365,8 @@ class GloveLSTMCRF(BaseModel):
             scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
+            #prediction = torch.as_tensor(prediction, dtype=torch.long)
+            prediction = prediction[0]
         # prediction : [batch_size, seq_size]
         return logits, prediction
 
@@ -500,7 +502,8 @@ class GloveDensenetCRF(BaseModel):
             scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
+            #prediction = torch.as_tensor(prediction, dtype=torch.long)
+            prediction = prediction[0]
         # prediction : [batch_size, seq_size]
         return logits, prediction
 
@@ -816,7 +819,8 @@ class BertLSTMCRF(BaseModel):
             scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
         else:
             prediction = self.crf.decode(logits)
-            prediction = torch.as_tensor(prediction, dtype=torch.long)
+            #prediction = torch.as_tensor(prediction, dtype=torch.long)
+            prediction = prediction[0]
         # prediction : [batch_size, seq_size]
         if self.use_mtl: return logits, prediction, glogits
         return logits, prediction
@@ -974,7 +978,8 @@ class ElmoLSTMCRF(BaseModel):
             scores, prediction = self.crf._viterbi_decode(logits, mask.bool())
         else:
            prediction = self.crf.decode(logits)
-           prediction = torch.as_tensor(prediction, dtype=torch.long)
+           #prediction = torch.as_tensor(prediction, dtype=torch.long)
+           prediction = prediction[0]
         # prediction : [batch_size, seq_size]
         return logits, prediction
 

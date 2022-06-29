@@ -101,7 +101,8 @@ def train_epoch(model, config, train_loader, valid_loader, epoch_i, best_eval_f1
                 log_likelihood = model.crf.neg_log_likelihood_loss(logits, mask.bool(), y)
                 loss = log_likelihood
             else:
-                log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                #log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                log_likelihood = model.crf(logits, tags=y, mask=mask, reduction='mean')
                 loss = -1 * log_likelihood
             loss = loss + gloss
         else:
@@ -255,7 +256,8 @@ def evaluate(model, config, valid_loader):
                     log_likelihood = model.crf.neg_log_likelihood_loss(logits, mask.bool(), y)
                     loss = log_likelihood
                 else:
-                    log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                    #log_likelihood = model.crf(logits, y, mask=mask, reduction='mean')
+                    log_likelihood = model.crf(logits, tags=y, mask=mask, reduction='mean')
                     loss = -1 * log_likelihood
                 loss = loss + gloss
                 # auroc for token classification
@@ -278,12 +280,16 @@ def evaluate(model, config, valid_loader):
 
             y = y.cpu().numpy()
             if preds is None:
-                if args.use_crf: preds = prediction
-                else: preds = logits
+                if args.use_crf:
+                    preds = prediction
+                else:
+                    preds = logits
                 ys = y
             else:
-                if args.use_crf: preds = np.append(preds, prediction, axis=0)
-                else: preds = np.append(preds, logits, axis=0)
+                if args.use_crf:
+                    preds = np.append(preds, prediction, axis=0)
+                else:
+                    preds = np.append(preds, logits, axis=0)
                 ys = np.append(ys, y, axis=0)
 
             if args.bert_use_mtl:
